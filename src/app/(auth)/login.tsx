@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Alert, Text, TextInput, View, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { supabase } from '../../../lib/supabase';
 import { useRouter, Link } from 'expo-router';
 
 export default function Login() {
@@ -11,18 +10,30 @@ export default function Login() {
 
     async function signInWithEmail() {
         setLoading(true);
-        const { error } = await supabase.auth.signInWithPassword({
-            email: email,
-            password: password,
-        });
 
-        if (error) {
-            Alert.alert('Error', error.message);
-        } else {
-            console.log('User signed in successfully');
-            router.replace('/(tabs)'); // Navigate to the trip dashboard
+        try {
+            // change it to local mac device
+            const response = await fetch('http://172.31.11.46:3000/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password }),
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                Alert.alert('Error', result.error || 'Something went wrong');
+            } else {
+                console.log('User signed in successfully');
+                router.replace('/(tabs)'); // Navigate to the trip dashboard
+            }
+        } catch (error) {
+            Alert.alert('Error', 'Failed to connect to the server');
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     }
 
     return (
