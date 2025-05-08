@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Alert, Text, TextInput, View, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { supabase } from '../../../lib/supabase';
 import { Link } from 'expo-router';
 
 export default function Signup() {
@@ -11,27 +10,34 @@ export default function Signup() {
 
     async function signUpWithEmail() {
         setLoading(true);
-        const {
-            data: { session },
-            error,
-        } = await supabase.auth.signUp({
-            email: email,
-            password: password,
-            options: {
-                data: {
-                    name: username,
-                    username: username,
-                    avatar_url: 'https://i.pinimg.com/736x/c3/9a/f4/c39af4399a87bc3d7701101b728cddc9.jpg',
-                },
-            },
-        });
 
-        if (error) {
-            Alert.alert('Error', error.message);
-        } else if (!session) {
-            Alert.alert('Please check your inbox for email verification!');
+        if (!email || !password || !username) {
+            Alert.alert('Error', 'Please fill in all fields');
+            setLoading(false);
+            return;
         }
-        setLoading(false);
+
+        try {
+            const response = await fetch('${process.env.EMILIA_API_URL}/signup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password, username }),
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                Alert.alert('Error', result.error || 'Something went wrong');
+            } else {
+                Alert.alert('Success', result.message);
+            }
+        } catch (error) {
+            Alert.alert('Error', 'Failed to connect to the server');
+        } finally {
+            setLoading(false);
+        }
     }
 
     return (
