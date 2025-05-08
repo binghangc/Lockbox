@@ -2,8 +2,6 @@ import { ScrollView, View, Text, Pressable } from 'react-native';
 import { useState } from 'react';
 import { trips } from '@/dummyData';
 import TripCarousel from '@/components/tripCarousel';
-import { Octicons } from '@expo/vector-icons';
-
 
 const FILTERS = ['upcoming', 'ongoing', 'past', 'pinned'] as const;
 
