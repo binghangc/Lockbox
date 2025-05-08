@@ -1,0 +1,33 @@
+{
+  "expo": {
+    "scheme": "locked.in",
+    "name": "Lockbox",
+    "slug": "lockbox",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/lockicon.png",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/lockicon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/lockicon.png",
+        "backgroundColor": "#ffffff"
+      }
+    },
+    "web": {
+      "favicon": "./assets/lockicon.png"
+    },
+    "plugins": [
+      "expo-secure-store",
+      "expo-router"
+    ]
+  }
+}

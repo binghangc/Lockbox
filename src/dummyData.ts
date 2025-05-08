@@ -1,0 +1,82 @@
+import { User, Trip, Role } from './types'
+
+export const users: User[] = [
+  { id: 'u1', username: 'bings', avatar_url: 'https://i.pravatar.cc/100?img=1', bio: 'Chasing sunsets 🌅' },
+  { id: 'u2', username: 'roddy', avatar_url: 'https://i.pravatar.cc/100?img=2', bio: 'Always down for a trip' },
+  { id: 'u3', username: 'tasha', avatar_url: 'https://i.pravatar.cc/100?img=3', bio: 'Memories > things' },
+  { id: 'u4', username: 'june', avatar_url: 'https://i.pravatar.cc/100?img=4', bio: 'Beach bum certified' },
+  { id: 'u5', username: 'kai', avatar_url: 'https://i.pravatar.cc/100?img=5', bio: 'Catching flights not feelings ✈️' },
+]
+
+export const trips: Trip[] = [
+  {
+    id: 't1',
+    title: 'Hot Gyal Summer',
+    description: 'Sun, sea, and steeze in Honolulu',
+    location: 'Honolulu, Hawaii',
+    thumbnail: 'https://picsum.photos/300/200?1',
+    status: 'upcoming',
+    created_at: '2025-05-01T12:00:00Z',
+    start_date: '2025-06-05T00:00:00Z',
+    end_date: '2025-06-10T00:00:00Z',
+    user_id: 'u1',
+    host: users[0],
+    participants: [
+      { user: users[0], role: 'host' },
+      { user: users[1], role: 'participant' },
+      { user: users[2], role: 'participant' },
+    ],
+  },
+  {
+    id: 't2',
+    title: 'Seoul Escape',
+    description: 'Cafe hopping and late-night walks in Korea',
+    location: 'Seoul, South Korea',
+    thumbnail: 'https://picsum.photos/300/200?2',
+    status: 'ongoing',
+    created_at: '2025-04-15T08:00:00Z',
+    start_date: '2025-05-01T00:00:00Z',
+    end_date: '2025-05-10T00:00:00Z',
+    user_id: 'u2',
+    host: users[1],
+    participants: [
+      { user: users[1], role: 'host' },
+      { user: users[3], role: 'participant' },
+    ],
+  },
+  {
+    id: 't3',
+    title: 'Sapporo Snowstorm',
+    description: 'Snowboarding and ramen runs',
+    location: 'Sapporo, Japan',
+    thumbnail: 'https://picsum.photos/300/200?3',
+    status: 'past',
+    created_at: '2025-01-10T10:00:00Z',
+    start_date: '2025-02-01T00:00:00Z',
+    end_date: '2025-02-07T00:00:00Z',
+    user_id: 'u4',
+    host: users[3],
+    participants: [
+      { user: users[3], role: 'host' },
+      { user: users[0], role: 'participant' },
+      { user: users[2], role: 'participant' },
+    ],
+  },
+  {
+    id: 't4',
+    title: 'Soulful Bali',
+    description: 'Yoga, rice paddies, and slow mornings',
+    location: 'Ubud, Bali',
+    thumbnail: 'https://picsum.photos/300/200?4',
+    status: 'pinned',
+    created_at: '2025-03-20T14:00:00Z',
+    start_date: '2025-07-01T00:00:00Z',
+    end_date: '2025-07-07T00:00:00Z',
+    user_id: 'u5',
+    host: users[4],
+    participants: [
+      { user: users[4], role: 'host' },
+      { user: users[1], role: 'participant' },
+    ],
+  },
+]
