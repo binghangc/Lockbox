@@ -18,7 +18,7 @@ export default function Signup() {
         }
 
         try {
-            const response = await fetch('http://172.31.11.46:3000/signup', {
+            const response = await fetch('${process.env.EMILIA_API_URL}/signup', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
