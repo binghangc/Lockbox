@@ -13,7 +13,7 @@ export default function Login() {
 
         try {
             // change it to local mac device
-            const response = await fetch('${process.env.EMILIA_API_URL}/login', {
+            const response = await fetch('http://172.31.11.46:3000/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

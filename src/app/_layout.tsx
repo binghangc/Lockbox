@@ -31,7 +31,6 @@ export default function RootLayout() {
         };
 
         if (!sessionChecked) {
-            // Show a loading screen while checking the session
             console.log('Checking session...');
         }
 

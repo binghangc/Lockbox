@@ -54,3 +54,27 @@ app.post('/login', async (req, res) => {
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });
+
+app.get('/profile', async (req, res) => {
+    const { user, error } = await supabase.auth.getUser();
+
+    if (error) {
+        return res.status(400).json({ error: error.message });
+    }
+
+    if (!user) {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    const { data, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+    if (profileError) {
+        return res.status(400).json({ error: profileError.message });
+    }
+
+    res.status(200).json({ user, profile: data });
+});
