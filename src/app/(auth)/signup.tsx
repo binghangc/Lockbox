@@ -18,7 +18,7 @@ export default function Signup() {
         }
 
         try {
-            const response = await fetch('${process.env.EXPO_PUBLIC_EMILIA_API_URL}/signup', {
+            const response = await fetch(`${process.env.EXPO_PUBLIC_EMILIA_API_URL}/signup`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

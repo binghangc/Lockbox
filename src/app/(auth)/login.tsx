@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Alert, Text, TextInput, View, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useRouter, Link } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Login() {
     const [email, setEmail] = useState('');
@@ -13,7 +14,7 @@ export default function Login() {
 
         try {
             // change it to local mac device
-            const response = await fetch('${process.env.EXPO_PUBLIC_EMILIA_API_URL}/login', {
+            const response = await fetch(`${process.env.EXPO_PUBLIC_EMILIA_API_URL}/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -25,7 +26,12 @@ export default function Login() {
 
             if (!response.ok) {
                 Alert.alert('Error', result.error || 'Something went wrong');
+                return;
             } else {
+                const token = result.session?.access_token;
+                if (!token) throw new Error('Missing access token from response');
+
+                await AsyncStorage.setItem('access_token', token);
                 console.log('User signed in successfully');
                 router.replace('/(tabs)'); // Navigate to the trip dashboard
             }

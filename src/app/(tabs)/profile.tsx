@@ -1,7 +1,8 @@
 import { Text, View, Button, ActivityIndicator, Image } from 'react-native';
 import { supabase } from '../../../lib/supabase';
 import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';    
+import { useEffect, useState } from 'react';   
+import AsyncStorage from '@react-native-async-storage/async-storage'; 
 
 export default function ProfileScreen() {
     const router = useRouter();
@@ -15,24 +16,25 @@ export default function ProfileScreen() {
 
     useEffect(() => {
         const fetchProfile = async () => {
-            const { data: { session }, error } = await supabase.auth.getSession();
-        
-            if (!session || error) {
-                console.error('No session found:', error?.message);
+            setLoading(true);
+
+            const token = await AsyncStorage.getItem('access_token');
+            if (!token) {
                 router.replace('/(auth)/login');
                 return;
             }
         
-            const token = session.access_token;
-        
             try {
-                const res = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/profile`, {
+                const res = await fetch(`${process.env.EXPO_PUBLIC_EMILIA_API_URL}/profile`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
                 });
         
-                if (!res.ok) throw new Error('Profile fetch failed');
+                if (!res.ok) {
+                    console.error('Profile fetch failed:', res.status);
+                    throw new Error('Profile fetch failed');
+                }
         
                 const userData = await res.json();
                 setProfile(userData);
@@ -52,6 +54,7 @@ export default function ProfileScreen() {
             console.error('Error logging out:', error.message);
         } else {
             console.log('User logged out successfully');
+            await AsyncStorage.removeItem('access_token');
             router.replace('/(auth)/login');
         }
     };

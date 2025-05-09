@@ -9,7 +9,7 @@ const port = process.env.PORT || 3000;
 const cors = require('cors');
 app.use(cors());
 
-const supabase = createClient(process.env.EXPO_PUBLIC_SUPABASE_URL, process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY);
+const supabase = createClient(process.env.EXPO_PUBLIC_SUPABASE_URL, process.env.EXPO_PUBLIC_SUPABASE_SERVICE_ROLE_KEY);
 
 app.use(express.json());
 
@@ -48,25 +48,40 @@ app.post('/login', async (req, res) => {
         return res.status(400).json({ error: error.message });
     }
 
-    res.status(200).json({ message: 'Login successful!', data });
+    if (!data.session) {
+        return res.status(500).json({ error: 'Login succeeded but session is missing' });
+    }
+
+    res.status(200).json({ 
+        message: 'Login successful!', 
+        session: data.session,
+        user: data.user});
 });
 
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });
 
+// API endpoint to get profile information
 app.get('/profile', async (req, res) => {
-    const { user, error } = await supabase.auth.getUser();
+    const authHeader = req.headers.authorization;
 
-    if (error) {
-        return res.status(400).json({ error: error.message });
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'Missing or malformed Authorization header' });
     }
 
-    if (!user) {
-        return res.status(401).json({ message: 'Unauthorized' });
+    const token = authHeader?.split(' ')[1];
+
+    const { data, error } = await supabase.auth.getUser(token);
+    const user = data?.user;
+
+    if (error || !user) {
+        return res.status(401).json({ error: 'Invalid or expired token' });
     }
 
-    const { data, error: profileError } = await supabase
+    console.log('Authenticated user ID:', user.id);
+
+    const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', user.id)
@@ -76,5 +91,5 @@ app.get('/profile', async (req, res) => {
         return res.status(400).json({ error: profileError.message });
     }
 
-    res.status(200).json({ user, profile: data });
+    res.status(200).json({ user, profile });
 });
