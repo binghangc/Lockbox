@@ -49,7 +49,15 @@ export default function RootLayout() {
 
     return (
         <ThemeProvider value={DarkTheme}>
-            <Slot />
+            <Stack
+            screenOptions={({ route }) => ({
+                headerShown: false,
+                ...(route.name === 'newTrip' && {
+                animation: 'slide_from_bottom',
+                presentation: 'modal',
+                }),
+            })}
+            />
         </ThemeProvider>
     );
 
