@@ -1,9 +1,10 @@
 import '../../global.css';
-import { Slot, Stack, useRouter } from "expo-router";
+import { Slot, useRouter } from "expo-router";
 import { AppState } from 'react-native'
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import { ThemeProvider, DarkTheme } from '@react-navigation/native';
+import { UserProvider } from '@/components/UserContext';
 
 
 const myTheme = {
@@ -47,9 +48,11 @@ export default function RootLayout() {
     }, []);
 
     return (
-        <ThemeProvider value={DarkTheme}>
-            <Slot />
-        </ThemeProvider>
+        <UserProvider>
+            <ThemeProvider value={DarkTheme}>
+                <Slot />
+            </ThemeProvider>
+        </UserProvider>
     );
 
 }

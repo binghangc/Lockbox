@@ -1,85 +1,57 @@
 import { Text, View, Button, ActivityIndicator, Image } from 'react-native';
 import { supabase } from '../../../lib/supabase';
 import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';   
+import { useEffect } from 'react';  
+import { useUser } from '@/components/UserContext'; 
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
 
 export default function ProfileScreen() {
     const router = useRouter();
-    const [loading, setLoading] = useState(true);
-    const [profile, setProfile] = useState({
-        avatar_url: '',
-        name: '',
-        username: '',
-        bio: '',
-    });
+    const { user, setUser, loading } = useUser();
 
     useEffect(() => {
-        const fetchProfile = async () => {
-            setLoading(true);
-
-            const token = await AsyncStorage.getItem('access_token');
-            if (!token) {
-                router.replace('/(auth)/login');
-                return;
-            }
-        
-            try {
-                const res = await fetch(`${process.env.EXPO_PUBLIC_EMILIA_API_URL}/profile`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-                });
-        
-                if (!res.ok) {
-                    console.error('Profile fetch failed:', res.status);
-                    throw new Error('Profile fetch failed');
-                }
-        
-                const userData = await res.json();
-                setProfile(userData);
-            } catch (err) {
-                console.error('Failed to fetch profile:', err);
-            } finally {
-                setLoading(false);
-            }
-        };
+        console.log('Loading:', loading);
+        console.log('User:', user);
+        if (!loading && !user) {
+            router.replace('/(auth)/login');
+        }
+    }, [user, loading]);
     
-        fetchProfile();
-      }, []);
+    if (loading || !user) {
+        return (
+            <View className="flex-1 items-center justify-center bg-black">
+                <ActivityIndicator color="#fff" />
+            </View>
+        );
+    }
 
     const handleLogout = async () => {
         const { error } = await supabase.auth.signOut();
         if (error) {
             console.error('Error logging out:', error.message);
+            return;
         } else {
             console.log('User logged out successfully');
             await AsyncStorage.removeItem('access_token');
-            router.replace('/(auth)/login');
+            console.log('Before setUser(null)');
+            setUser(null);
+            console.log('After setUser(null)');
         }
     };
 
-    if (loading) {
-        return (
-            <View className="flex-1 bg-black items-center justify-center">
-                <ActivityIndicator size="large" color="#fff" />
-            </View>
-        );
-    }
-
     return (
         <View className="flex-1 bg-black items-center justify-center px-6">
-            {profile.avatar_url ? (
+            {user.avatar_url ? (
                 <Image
-                    source={{ uri: profile.avatar_url }}
+                    source={{ uri: user.avatar_url }}
                     className="w-32 h-32 rounded-full mb-4"
                 />
             ) : (
                 <View className="w-32 h-32 rounded-full bg-gray-700 mb-4" />
             )}
-            <Text className="text-white text-xl font-bold mb-2">{profile.name || 'Name not set'}</Text>
-            <Text className="text-gray-400 text-lg mb-2">@{profile.username || 'Username not set'}</Text>
-            <Text className="text-gray-300 text-center mb-6">{profile.bio || 'Bio not set'}</Text>
+            <Text className="text-white text-xl font-bold mb-2">{user.name || 'Name not set'}</Text>
+            <Text className="text-gray-400 text-lg mb-2">@{user.username || 'Username not set'}</Text>
+            <Text className="text-gray-300 text-center mb-6">{user.bio || 'Bio not set'}</Text>
             <Button title="Log Out" onPress={handleLogout} />
         </View>
     );
