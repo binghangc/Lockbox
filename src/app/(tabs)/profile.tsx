@@ -9,22 +9,6 @@ export default function ProfileScreen() {
     const router = useRouter();
     const { user, setUser, loading } = useUser();
 
-    useEffect(() => {
-        console.log('Loading:', loading);
-        console.log('User:', user);
-        if (!loading && !user) {
-            router.replace('/(auth)/login');
-        }
-    }, [user, loading]);
-    
-    if (loading || !user) {
-        return (
-            <View className="flex-1 items-center justify-center bg-black">
-                <ActivityIndicator color="#fff" />
-            </View>
-        );
-    }
-
     const handleLogout = async () => {
         const { error } = await supabase.auth.signOut();
         if (error) {
@@ -33,11 +17,30 @@ export default function ProfileScreen() {
         } else {
             console.log('User logged out successfully');
             await AsyncStorage.removeItem('access_token');
-            console.log('Before setUser(null)');
             setUser(null);
-            console.log('After setUser(null)');
+            router.replace('/(auth)/login');
         }
     };
+
+    if (loading) {
+        return (
+            <View className="flex-1 items-center justify-center bg-black">
+                <ActivityIndicator color="#fff" />
+            </View>
+        );
+    }
+    
+    if (!user) {
+        return (
+            <View className="flex-1 items-center justify-center bg-black">
+                <Text className="text-white text-lg">Please log in again.</Text>
+                <Button
+                    title="Go to Login"
+                    onPress={handleLogout}
+                />
+            </View>
+        );
+    }
 
     return (
         <View className="flex-1 bg-black items-center justify-center px-6">

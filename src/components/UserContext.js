@@ -11,6 +11,7 @@ export const UserProvider = ({ children }) => {
         const fetchUser = async () => {
             const token = await AsyncStorage.getItem('access_token');
             if (!token) {
+                setUser(null);
                 setLoading(false);
                 return;
             }
@@ -23,20 +24,27 @@ export const UserProvider = ({ children }) => {
                 });
 
                 const result = await res.json();
-                if (res.ok) {
+                console.log('[UserProvider] Got profile response:', result);
+
+                if (res.ok && result.profile) {
+                    console.log('[UserProvider] Set user:', result.profile.username);
                     setUser(result.profile);
                 } else {
-                    console.warn('Failed to fetch profile:', result.error);
+                    console.warn('[UserContext] Invalid token or no profile:', result.error);
+                    await AsyncStorage.removeItem('access_token');
+                    setUser(null);
                 }
             } catch (err) {
                 console.error('Error fetching profile:', err);
+                await AsyncStorage.removeItem('access_token');
+                setUser(null);
             } finally {
                 setLoading(false);
             }
         };
 
         fetchUser();
-    }, []);
+    }, [user]);
 
     return (
         <UserContext.Provider value={{ user, setUser, loading }}>

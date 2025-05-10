@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { Alert, Text, TextInput, View, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useRouter, Link } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useUser } from '@/components/UserContext';
+import { useUser } from '@/components/UserContext'; 
 
 export default function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const router = useRouter();
+    const { setUser } = useUser();
 
     async function signInWithEmail() {
         setLoading(true);
@@ -29,10 +30,24 @@ export default function Login() {
                 Alert.alert('Error', result.error || 'Something went wrong');
                 return;
             } 
-            const token = result.access_token;
+
+            const token = result.session?.access_token;
             if (!token) throw new Error('Missing access token from response');
 
             await AsyncStorage.setItem('access_token', token);
+
+            const profileRes = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/profile`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            const profileData = await profileRes.json();
+              
+            if (!profileRes.ok || !profileData.profile) {
+                throw new Error('Failed to fetch profile after login');
+            }
+              
+            setUser(profileData.profile);
 
             console.log('User signed in successfully');
             router.replace('/(tabs)'); // Navigate to the trip dashboard
