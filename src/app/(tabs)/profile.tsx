@@ -41,7 +41,7 @@ export default function ProfileScreen() {
             console.log('User logged out successfully');
             await AsyncStorage.removeItem('access_token');
             setUser(null);
-            router.replace('/(auth)/login');
+            router.replace('/(auth)/');
         }
     };
 

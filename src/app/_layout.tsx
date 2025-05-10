@@ -26,7 +26,7 @@ export default function RootLayout() {
             if (session) {
                 router.replace('/(tabs)'); // Navigate to home screen if session exists
             } else {
-                router.replace('/(auth)/login'); // Navigate to login screen if no session
+                router.replace('/(auth)/'); // Navigate to login screen if no session
             }
             setSessionChecked(true); // Mark session as checked
         };

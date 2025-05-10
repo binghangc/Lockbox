@@ -1,103 +1,133 @@
 import React, { useState } from 'react';
-import { Alert, Text, TextInput, View, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { useRouter, Link } from 'expo-router';
+import {
+    Alert,
+    Text,
+    View,
+    TouchableOpacity,
+    ActivityIndicator,
+    KeyboardAvoidingView,
+    Platform,
+} from 'react-native';
+import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useUser } from '@/components/UserContext'; 
+import { BlurView } from 'expo-blur';
+
+import { useUser } from '@/components/UserContext';
 import FormInput from '@/components/formInput';
 
-export default function Login() {
+export default function AuthScreen() {
+    const [mode, setMode] = useState<'login' | 'signup'>('login');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [username, setUsername] = useState('');
     const [loading, setLoading] = useState(false);
+
     const router = useRouter();
     const { setUser } = useUser();
 
-    async function signInWithEmail() {
+    const handleSubmit = async () => {
         setLoading(true);
-
         try {
-            // change it to local mac device
-            const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/login`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email, password }),
-            });
+        const endpoint = mode === 'login' ? '/login' : '/signup';
 
-            const result = await response.json();
+        const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}${endpoint}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password, ...(mode === 'signup' && { username }) }),
+        });
 
-            if (!response.ok) {
-                Alert.alert('Error', result.error || 'Something went wrong');
-                return;
-            } 
-
-            const token = result.session?.access_token;
-            if (!token) throw new Error('Missing access token from response');
-
-            await AsyncStorage.setItem('access_token', token);
-
-            const profileRes = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/profile`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-            const profileData = await profileRes.json();
-              
-            if (!profileRes.ok || !profileData.profile) {
-                throw new Error('Failed to fetch profile after login');
-            }
-              
-            setUser(profileData.profile);
-
-            console.log('User signed in successfully');
-            router.replace('/(tabs)'); // Navigate to the trip dashboard
-        } catch (error) {
-            Alert.alert('Error', 'Failed to connect to the server');
-        } finally {
-            setLoading(false);
+        const result = await response.json();
+        if (!response.ok) {
+            Alert.alert('Error', result.error || 'Something went wrong');
+            return;
         }
-    }
+
+        const token = result.session?.access_token;
+        if (!token) throw new Error('Missing access token from response');
+        await AsyncStorage.setItem('access_token', token);
+
+        const profileRes = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/profile`, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        const profileData = await profileRes.json();
+
+        if (!profileRes.ok || !profileData.profile) {
+            throw new Error('Failed to fetch profile');
+        }
+
+        setUser(profileData.profile);
+        router.replace('/(tabs)');
+        } catch (err) {
+        Alert.alert('Error', 'Failed to connect to the server');
+        } finally {
+        setLoading(false);
+        }
+    };
 
     return (
-        <View className="flex-1 bg-black justify-center px-6">
-            <Text className="text-white text-2xl font-bold mb-8 text-center">Welcome Back</Text>
+        <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        className="flex-1 bg-neutral-900 items-center justify-center px-6"
+        >
+        <BlurView intensity={50} tint="dark" className="w-full rounded-2xl p-6 max-w-md">
+            <Text className="text-white text-2xl font-bold mb-6 text-center">
+            {mode === 'login' ? 'Welcome Back' : 'Create an Account'}
+            </Text>
+
+            <View className="flex-row justify-center mb-6">
+            <TouchableOpacity
+                className={`px-4 py-2 rounded-l-full ${mode === 'login' ? 'bg-white/20' : 'bg-transparent'}`}
+                onPress={() => setMode('login')}
+            >
+                <Text className="text-white">Login</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+                className={`px-4 py-2 rounded-r-full ${mode === 'signup' ? 'bg-white/20' : 'bg-transparent'}`}
+                onPress={() => setMode('signup')}
+            >
+                <Text className="text-white">Sign Up</Text>
+            </TouchableOpacity>
+            </View>
+
+            {mode === 'signup' && (
+            <FormInput
+                label="Username"
+                placeholder="Your username"
+                value={username}
+                onChangeText={setUsername}
+            />
+            )}
 
             <FormInput
-                label="Email"
-                placeholder="email@address.com"
-                keyboardType="email-address"
-                value={email}
-                onChangeText={setEmail}
+            label="Email"
+            placeholder="email@address.com"
+            keyboardType="email-address"
+            value={email}
+            onChangeText={setEmail}
             />
 
             <FormInput
-                label="Password"
-                placeholder="Password"
-                secureTextEntry
-                value={password}
-                onChangeText={setPassword}
+            label="Password"
+            placeholder="Password"
+            secureTextEntry
+            value={password}
+            onChangeText={setPassword}
             />
-
 
             <TouchableOpacity
-                className={`bg-blue-600 py-3 rounded-md ${loading ? 'opacity-50' : ''}`}
-                disabled={loading}
-                onPress={signInWithEmail}
+            className={`bg-blue-600 py-3 rounded-md ${loading ? 'opacity-50' : ''}`}
+            disabled={loading}
+            onPress={handleSubmit}
             >
-                {loading ? (
-                    <ActivityIndicator color="white" />
-                ) : (
-                    <Text className="text-white text-center font-bold">Sign In</Text>
-                )}
+            {loading ? (
+                <ActivityIndicator color="white" />
+            ) : (
+                <Text className="text-white text-center font-bold">
+                {mode === 'login' ? 'Log In' : 'Sign Up'}
+                </Text>
+            )}
             </TouchableOpacity>
-
-            <View className="mt-6 flex-row justify-center">
-                <Text className="text-white">Don’t have an account? </Text>
-                <Link href="./signup" className="text-blue-400 font-bold">
-                    Sign up
-                </Link>
-            </View>
-        </View>
+        </BlurView>
+        </KeyboardAvoidingView>
     );
 }
