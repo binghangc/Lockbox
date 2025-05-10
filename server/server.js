@@ -38,7 +38,6 @@ app.post('/signup', async (req, res) => {
 
 // API endpoint for login
 app.post('/login', async (req, res) => {
-    console.log('Using Supabase key:', process.env.EXPO_PUBLIC_SUPABASE_SERVICE_ROLE_KEY?.slice(0, 10));
     const { email, password } = req.body;
     const { data, error } = await supabase.auth.signInWithPassword({
         email,
