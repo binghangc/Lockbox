@@ -10,7 +10,7 @@ export default function FormInput({ label, ...props }: FormInputProps) {
         <View className="mb-4">
             <Text className="text-white mb-2">{label}</Text>
             <TextInput
-            className="bg-neutral-800 text-white px-4 py-3 rounded-md"
+            className="bg-neutral-800 text-white px-4 py-3 rounded-md w-full"
             placeholderTextColor="#888"
             autoCapitalize="none"
             {...props}

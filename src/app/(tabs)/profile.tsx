@@ -2,9 +2,14 @@ import { Alert, Text, View, Button, ActivityIndicator, Image, TouchableOpacity, 
 import { supabase } from '../../../lib/supabase';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';  
-import { useUser } from '@/components/UserContext'; 
+
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
 import { Feather } from '@expo/vector-icons';
+
+// Components
+import { useUser } from '@/components/UserContext'; 
+import FormInput from '@/components/formInput';
+import EditActionRow from '@/components/editActionRow';
 
 export default function ProfileScreen() {
     const router = useRouter();
@@ -102,56 +107,47 @@ export default function ProfileScreen() {
 
             {/* Name */}
             <View className="w-full mb-3">
-                <View className="flex-row justify-between items-center mb-1">
-                <Text className="text-white text-sm">Name</Text>
-                <TouchableOpacity onPress={() => setIsEditingName(!isEditingName)}>
-                    <Feather name="edit-2" size={16} color="#aaa" />
-                </TouchableOpacity>
-                </View>
                 {isEditingName ? (
-                    <View>
-                        <TextInput
-                            value={tempName}
-                            onChangeText={setTempName}
-                            onEndEditing={() => {
-                                if (tempName !== user?.name) {
-                                    handleUpdateProfile('name', tempName);
-                                }
-                                setIsEditingName(false);
-                            }}  
-                            className="bg-neutral-800 text-white px-4 py-2 rounded-md"
-                            placeholder="Enter name"
-                        />
-                        <View className="flex-row justify-end space-x-4">
-                            <TouchableOpacity onPress={() => setIsEditingName(false)}>
-                                <Text className="text-gray-400">Cancel</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                onPress={async () => {
-                                await handleUpdateProfile('name', tempName);
-                                setIsEditingName(false);
-                                }}
-                            >
-                                <Text className="text-blue-400 font-semibold">Save</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
+                <View>
+                    <FormInput
+                        label="Name"
+                        value={tempName}
+                        onChangeText={setTempName}
+                        onEndEditing={() => {
+                            if (tempName !== user?.name) {
+                                handleUpdateProfile('name', tempName);
+                            }
+                            setIsEditingName(false);
+                        }}  
+                        placeholder="Enter name"
+                    />
+                    <EditActionRow
+                        onCancel={() => setIsEditingName(false)}
+                        onSave={async () => {
+                            await handleUpdateProfile('name', tempName);
+                            setIsEditingName(false);
+                        }}
+                    />
+                </View>
                 ) : (
-                <Text className="text-white text-lg">{user.name || 'Name not set'}</Text>
+                <View className="w-full mb-4">
+                    <View className="flex-row items-center justify-center space-x-2">
+                        <Text className="text-white text-xl">{user.name || 'Name not set'}</Text>
+                        <TouchableOpacity onPress={() => setIsEditingName(true)}>
+                            <Feather name="edit-2" size={18} color="#aaa" />
+                        </TouchableOpacity>
+                    </View>
+                </View>
                 )}
+                
             </View>
             
             {/* Bio */}
             <View className="w-full mb-6">
-                <View className="flex-row justify-between items-center mb-1">
-                <Text className="text-white text-sm">Bio</Text>
-                <TouchableOpacity onPress={() => setIsEditingBio(!isEditingBio)}>
-                    <Feather name="edit-2" size={16} color="#aaa" />
-                </TouchableOpacity>
-                </View>
                 {isEditingBio ? (
                     <View>
-                        <TextInput
+                        <FormInput
+                            label="Bio"
                             value={tempBio}
                             onChangeText={setTempBio}
                             onEndEditing={() => {
@@ -160,26 +156,26 @@ export default function ProfileScreen() {
                                 }
                                 setIsEditingBio(false);
                             }}
-                            className="bg-neutral-800 text-white px-4 py-2 rounded-md"
                             placeholder="Enter bio"
                             multiline
                         />
-                        <View className="flex-row justify-end space-x-4">
-                            <TouchableOpacity onPress={() => setIsEditingBio(false)}>
-                                <Text className="text-gray-400">Cancel</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                onPress={async () => {
+                        <EditActionRow
+                            onCancel={() => setIsEditingBio(false)}
+                            onSave={async () => {
                                 await handleUpdateProfile('bio', tempBio);
                                 setIsEditingBio(false);
-                                }}
-                            >
-                                <Text className="text-blue-400 font-semibold">Save</Text>
+                            }}
+                        />
+                    </View>
+                ) : (
+                    <View className="w-full mb-4">
+                        <View className="flex-row items-center justify-center space-x-10">
+                            <Text className="text-white text-l">{user.bio || 'Bio not set'}</Text>
+                            <TouchableOpacity onPress={() => setIsEditingBio(true)}>
+                                <Feather name="edit-2" size={18} color="#aaa" />
                             </TouchableOpacity>
                         </View>
                     </View>
-                ) : (
-                <Text className="text-gray-300">{user.bio || 'Bio not set'}</Text>
                 )}
             </View>
 
