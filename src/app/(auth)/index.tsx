@@ -4,6 +4,8 @@ import { BlurView } from 'expo-blur';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { useUser } from '@/components/UserContext';
+import FloatingOrb from '@/components/floatingOrb';
+
 
 export default function LoginScreen() {
     const [mode, setMode] = useState<'login' | 'signup'>('login');
@@ -56,9 +58,18 @@ export default function LoginScreen() {
 
     return (
         <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        className="flex-1 items-center justify-center px-6 bg-neutral-900"
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+            className="flex-1 items-center justify-center px-6 bg-neutral-900"
         >
+
+        {/* Orbs behind the card */} 
+        <FloatingOrb style={{ top: 100, left: -60 }} color="bg-purple-500/20" shadowColor="#a855f7" />
+        <FloatingOrb style={{ bottom: 80, right: -40 }} color="bg-purple-500/20" shadowColor="#a855f7" />
+        <FloatingOrb style={{ bottom: 180, left: -50 }} color="bg-pink-400/30" shadowColor="#f472b6" />
+        <FloatingOrb style={{ bottom: 80, right: -40 }} color="bg-blue-400/30" shadowColor="#60a5fa" />
+        <FloatingOrb style={{ top: 200, right: 100 }} color="bg-emerald-400/30" shadowColor="#34d399" />
+
+
         <BlurView intensity={50} tint="dark" className="w-full rounded-2xl p-6 max-w-md">
             <Text className="text-white text-2xl font-semibold mb-6 text-center">
             {mode === 'login' ? 'Login' : 'Sign Up'}
@@ -84,11 +95,11 @@ export default function LoginScreen() {
             </View>
 
             <TextInput
-            placeholder="Email address"
-            placeholderTextColor="#aaa"
-            value={email}
-            onChangeText={setEmail}
-            className="bg-white/10 text-white px-4 py-3 rounded-md mb-4"
+                placeholder="Email address"
+                placeholderTextColor="#aaa"
+                value={email}
+                onChangeText={setEmail}
+                className="bg-white/10 text-white px-4 py-3 rounded-md mb-4"
             />
 
             {mode === 'signup' && (
@@ -102,12 +113,12 @@ export default function LoginScreen() {
             )}
 
             <TextInput
-            placeholder="Password"
-            placeholderTextColor="#aaa"
-            value={password}
-            secureTextEntry
-            onChangeText={setPassword}
-            className="bg-white/10 text-white px-4 py-3 rounded-md mb-6"
+                placeholder="Password"
+                placeholderTextColor="#aaa"
+                value={password}
+                secureTextEntry
+                onChangeText={setPassword}
+                className="bg-white/10 text-white px-4 py-3 rounded-md mb-6"
             />
 
             <TouchableOpacity
