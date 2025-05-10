@@ -24,10 +24,8 @@ export const UserProvider = ({ children }) => {
                 });
 
                 const result = await res.json();
-                console.log('[UserProvider] Got profile response:', result);
 
                 if (res.ok && result.profile) {
-                    console.log('[UserProvider] Set user:', result.profile.username);
                     setUser(result.profile);
                 } else {
                     console.warn('[UserContext] Invalid token or no profile:', result.error);
