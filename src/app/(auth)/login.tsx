@@ -3,6 +3,7 @@ import { Alert, Text, TextInput, View, TouchableOpacity, ActivityIndicator } fro
 import { useRouter, Link } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useUser } from '@/components/UserContext'; 
+import FormInput from '@/components/formInput';
 
 export default function Login() {
     const [email, setEmail] = useState('');
@@ -62,31 +63,22 @@ export default function Login() {
         <View className="flex-1 bg-black justify-center px-6">
             <Text className="text-white text-2xl font-bold mb-8 text-center">Welcome Back</Text>
 
-            <View className="mb-4">
-                <Text className="text-white mb-2">Email</Text>
-                <TextInput
-                    className="bg-neutral-800 text-white px-4 py-3 rounded-md"
-                    placeholder="email@address.com"
-                    placeholderTextColor="#888"
-                    autoCapitalize="none"
-                    keyboardType="email-address"
-                    value={email}
-                    onChangeText={setEmail}
-                />
-            </View>
+            <FormInput
+                label="Email"
+                placeholder="email@address.com"
+                keyboardType="email-address"
+                value={email}
+                onChangeText={setEmail}
+            />
 
-            <View className="mb-6">
-                <Text className="text-white mb-2">Password</Text>
-                <TextInput
-                    className="bg-neutral-800 text-white px-4 py-3 rounded-md"
-                    placeholder="Password"
-                    placeholderTextColor="#888"
-                    secureTextEntry
-                    autoCapitalize="none"
-                    value={password}
-                    onChangeText={setPassword}
-                />
-            </View>
+            <FormInput
+                label="Password"
+                placeholder="Password"
+                secureTextEntry
+                value={password}
+                onChangeText={setPassword}
+            />
+
 
             <TouchableOpacity
                 className={`bg-blue-600 py-3 rounded-md ${loading ? 'opacity-50' : ''}`}

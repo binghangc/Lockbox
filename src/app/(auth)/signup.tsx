@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Alert, Text, TextInput, View, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Link } from 'expo-router';
+import FormInput from '@/components/formInput';
 
 export default function Signup() {
     const [username, setUsername] = useState('');
@@ -44,43 +45,28 @@ export default function Signup() {
         <View className="flex-1 bg-black justify-center px-6">
             <Text className="text-white text-2xl font-bold mb-8 text-center">Create an Account</Text>
 
-            <View className="mb-4">
-                <Text className="text-white mb-2">Email</Text>
-                <TextInput
-                    className="bg-neutral-800 text-white px-4 py-3 rounded-md"
-                    placeholder="email@address.com"
-                    placeholderTextColor="#888"
-                    autoCapitalize="none"
-                    keyboardType="email-address"
-                    value={email}
-                    onChangeText={setEmail}
-                />
-            </View>
+            <FormInput
+                label="Email"
+                placeholder="email@address.com"
+                keyboardType="email-address"
+                value={email}
+                onChangeText={setEmail}
+            />
 
-            <View className="mb-4">
-                <Text className="text-white mb-2">Username</Text>
-                <TextInput
-                    className="bg-neutral-800 text-white px-4 py-3 rounded-md"
-                    placeholder="Username"
-                    placeholderTextColor="#888"
-                    autoCapitalize="none"
-                    value={username}
-                    onChangeText={setUsername}
-                />
-            </View>
+            <FormInput
+                label="Username"
+                placeholder="Username"
+                value={username}
+                onChangeText={setUsername}
+            />
 
-            <View className="mb-6">
-                <Text className="text-white mb-2">Password</Text>
-                <TextInput
-                    className="bg-neutral-800 text-white px-4 py-3 rounded-md"
-                    placeholder="Password"
-                    placeholderTextColor="#888"
-                    secureTextEntry
-                    autoCapitalize="none"
-                    value={password}
-                    onChangeText={setPassword}
-                />
-            </View>
+            <FormInput
+                label="Password"
+                placeholder="Password"
+                secureTextEntry
+                value={password}
+                onChangeText={setPassword}
+            />
 
             <TouchableOpacity
                 className={`bg-blue-600 py-3 rounded-md ${loading ? 'opacity-50' : ''}`}
