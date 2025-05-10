@@ -63,11 +63,11 @@ export default function LoginScreen() {
         >
 
         {/* Orbs behind the card */} 
-        <FloatingOrb style={{ top: 100, left: -60 }} color="bg-purple-500/20" shadowColor="#a855f7" />
-        <FloatingOrb style={{ bottom: 80, right: -40 }} color="bg-purple-500/20" shadowColor="#a855f7" />
-        <FloatingOrb style={{ bottom: 180, left: -50 }} color="bg-pink-400/30" shadowColor="#f472b6" />
-        <FloatingOrb style={{ bottom: 80, right: -40 }} color="bg-blue-400/30" shadowColor="#60a5fa" />
-        <FloatingOrb style={{ top: 200, right: 100 }} color="bg-emerald-400/30" shadowColor="#34d399" />
+        <FloatingOrb />
+        <FloatingOrb />
+        <FloatingOrb />
+        <FloatingOrb />
+        <FloatingOrb />
 
 
         <BlurView intensity={50} tint="dark" className="w-full rounded-2xl p-6 max-w-md">
