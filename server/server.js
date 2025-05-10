@@ -9,8 +9,10 @@ const port = process.env.PORT || 3000;
 const cors = require('cors');
 app.use(cors());
 
-console.log('Loaded SUPABASE_URL:', process.env.EXPO_PUBLIC_SUPABASE_URL);
 const supabase = createClient(process.env.EXPO_PUBLIC_SUPABASE_URL, process.env.EXPO_PUBLIC_SUPABASE_SERVICE_ROLE_KEY);
+
+// imported routes
+const uploadAvatarRoute = require('./routes/upload-avatar');
 
 app.use(express.json());
 
@@ -114,5 +116,7 @@ app.patch('/profile', async (req, res) => {
     }
   
     res.status(200).json({ message: 'Profile updated successfully' });
-  });
-  
+});
+
+// API endpoint to upload avatar
+app.use('/api', uploadAvatarRoute);
