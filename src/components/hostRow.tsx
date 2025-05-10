@@ -16,13 +16,13 @@ interface HostRowProps {
 export default function HostRow({ host, className }: HostRowProps) {
   return (
     <View className={`flex-row items-center ${className ?? ''}`}>
-      <Text className="text-neutral-400 text-sm mr-1">hosted by</Text>
+      <Text className="text-neutral-400 text-base mr-2">Hosted by</Text>
       <Image
         source={{ uri: host.avatar_url }}
-        className="w-7 h-7 rounded-full mr-1"
+        className="w-7 h-7 rounded-full mr-2"
         resizeMode="cover"
       />
-      <Text className="text-white text-sm">{host.username}</Text>
+      <Text className="text-neutral-400 text-base font-semibold">{host.username}</Text>
     </View>
   );
 }

@@ -14,7 +14,7 @@ export default function HomeScreen() {
   return (
     <ScrollView
   style={{ paddingTop: insets.top, backgroundColor: 'rgb(17, 17, 17)' }}
-  contentContainerStyle={{ paddingVertical: 60 }}
+  contentContainerStyle={{ paddingVertical: 70 }}
 >
       <View className="px-4">
         <Text className="text-white text-2xl font-bold mb-1">T-minus 10 days till</Text>

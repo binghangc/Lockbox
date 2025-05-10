@@ -1,149 +1,135 @@
-import { View, Text, TextInput, Pressable, Image, Modal, ScrollView } from 'react-native';
-import { useState } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, TextInput, SafeAreaView, Image } from 'react-native';
 import { useRouter } from 'expo-router';
-import * as ImagePicker from 'expo-image-picker';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Link } from 'expo-router';
 import { BlurView } from 'expo-blur';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
+import AntDesign from '@expo/vector-icons/AntDesign';
+import placeholderThumbnail from '../../../assets/placeholder-thumbnail.png';
+import { useState } from 'react';
 
-export default function NewTripScreen() {
-  const [title, setTitle] = useState('');
-  const [thumbnail, setThumbnail] = useState('');
-  const [locationModalVisible, setLocationModalVisible] = useState(false);
-  const [calendarModalVisible, setCalendarModalVisible] = useState(false);
-  const [thumbnailModalVisible, setThumbnailModalVisible] = useState(false);
-
+export default function NewTrip() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
-  const pickImage = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 1,
-    });
-    if (!result.canceled) {
-      setThumbnail(result.assets[0].uri);
-      setThumbnailModalVisible(false);
-    }
+  const toggleTag = (tag: string) => {
+    setSelectedTags((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+    );
   };
 
   return (
-    <View className="flex-1 bg-gradient-to-b from-pink-100 to-purple-100">
-              <BlurView
-          intensity={80} 
-          tint="light"
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            zIndex: 10,
-          }}
-        >
-        <SafeAreaView className="flex-row justify-between items-center w-full">
-          <Pressable onPress={() => router.replace('/(tabs)')}>
-            <Text className="text-black text-base font-medium">Cancel</Text>
-          </Pressable>
-          <Text className="text-black text-xl font-bold">New Trip</Text>
-          <Pressable>
-            <Text className="text-blue-500 font-semibold">Save</Text>
-          </Pressable>
+    <View className="flex-1 bg-gray-50">
+      {/* Header with Blur */}
+      <BlurView intensity={60}  className="absolute top-0 left-0 right-0 z-10">
+        <SafeAreaView style={{ paddingTop: insets.top }}>
+          <View className="flex-row justify-between items-center px-4 py-2 mb-2">
+            <TouchableOpacity onPress={() => router.back()}>
+              <Text className="text-base font-semibold text-white">Cancel</Text>
+            </TouchableOpacity>
+
+            <Text className="text-xl font-bold text-white">New Trip</Text>
+
+            <TouchableOpacity>
+              <Text className="text-base font-semibold text-white">Save</Text>
+            </TouchableOpacity>
+          </View>
         </SafeAreaView>
       </BlurView>
 
-      <ScrollView contentContainerStyle={{ padding: 16 }}>
-        <TextInput
-          className="text-3xl font-bold text-black my-2"
-          placeholder="Untitled Trip"
-          value={title}
-          onChangeText={setTitle}
-        />
+      {/* Content with padding top for header */}
+      <ScrollView className="flex-1 pt-36 px-4 bg-black">
+        {/* Trip Title */}
+        <BlurView intensity={40} tint="light" className="rounded-md border border-white/20 mb-6 px-4 py-3 overflow-hidden">
+          <TextInput
+            placeholder="Untitled Trip"
+            placeholderTextColor="white"
+            className="text-4xl font-extrabold text-center text-white"
+          />
+        </BlurView>
 
-        <View className="flex-row justify-around my-3">
-          {['Classic', 'Eclectic', 'Fancy', 'Simple'].map((style) => (
-            <Pressable
-              key={style}
-              className="px-3 py-1 border border-black/30 rounded-full"
-            >
-              <Text className="text-black">{style}</Text>
-            </Pressable>
-          ))}
+        <View className="w-full aspect-square overflow-hidden relative mb-6">
+          <Image
+            source={placeholderThumbnail}
+            resizeMode="cover"
+            className="w-full h-full"
+          />
+          <TouchableOpacity className="absolute bottom-3 right-3 bg-black/60 p-2 rounded-full">
+          <MaterialIcons name="mode-edit" size={19} color="white" />
+          </TouchableOpacity>
         </View>
 
-        <Pressable onPress={() => setThumbnailModalVisible(true)} className="my-4">
-          {thumbnail ? (
-            <Image
-              source={{ uri: thumbnail }}
-              className="w-full aspect-square rounded-lg"
-              resizeMode="cover"
-            />
-          ) : (
-            <View className="w-full aspect-square bg-gray-200 rounded-lg justify-center items-center">
-              <Text className="text-gray-500">Tap to select thumbnail</Text>
-            </View>
-          )}
-        </Pressable>
 
-        <Pressable
-          className="border border-black/30 p-3 rounded-lg my-2 bg-white"
-          onPress={() => setCalendarModalVisible(true)}
-        >
-          <Text className="text-black">Set Start Date</Text>
-        </Pressable>
+        {/* Date Button */}
+        <Link href="/datepicker" asChild>
+          <TouchableOpacity activeOpacity={0.8}>
+            <BlurView intensity={40} tint="light" className="rounded-md border border-white/20 mb-4 px-4 py-5 overflow-hidden">
+              <View className="flex-row items-center justify-between">
+                <Text className="text-white text-2xl font-semibold">Select dates</Text>
+                <AntDesign name="caretdown" size={14} color="white" />
+              </View>
+            </BlurView>
+          </TouchableOpacity>
+        </Link>
 
-        <Pressable
-          className="border border-black/30 p-3 rounded-lg my-2 bg-white"
-          onPress={() => setCalendarModalVisible(true)}
-        >
-          <Text className="text-black">Set End Date</Text>
-        </Pressable>
+        {/* Location Button */}
+        <Link href="/locationPicker" asChild>
+          <TouchableOpacity activeOpacity={0.8}>
+            <BlurView intensity={40} tint="light" className="rounded-md border border-white/20 mb-4 px-4 py-2 overflow-hidden">
+              <View className="flex-row items-center space-x-2">
+                <FontAwesome6 name="location-dot" size={14} color="white" />
+                <Text className="text-white/50 text-xl ml-3">Location</Text>
+              </View>
+            </BlurView>
+          </TouchableOpacity>
+        </Link>
 
-        <Pressable
-          className="border border-black/30 p-3 rounded-lg my-2 bg-white"
-          onPress={() => setLocationModalVisible(true)}
+        {/* Tags Button */}
+        
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          className="mb-6"
+          contentContainerStyle={{ gap: 8, paddingHorizontal: 4 }}
         >
-          <Text className="text-black">Set Location</Text>
-        </Pressable>
+          {[
+            'Honeymoon',
+            'Road Trip',
+            'Grad',
+            'Day Trip',
+            'Nature',
+            'City',
+            'Bachelorette',
+            'Friends',
+            'Family',
+            'Camping',
+          ].map((tag) => (
+            <TouchableOpacity
+              key={tag}
+              className="px-4 py-2 rounded-full border border-white/30 bg-white/10"
+            >
+              <Text className="text-white text-sm font-medium">{tag}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+
+
+        {/* Description Input */}
+        <BlurView intensity={40} tint="light" className="rounded-md border border-white/20 mb-6 px-4 py-4 overflow-hidden">
+          <TextInput
+            placeholder="Drop the deets on your trip"
+            placeholderTextColor="rgba(255, 255, 255, 0.5)"
+            multiline
+            style={{ minHeight: 100, textAlignVertical: 'top' }}
+            className="text-xl text-white text-start"
+          />
+        </BlurView>
+
       </ScrollView>
 
-      {/* Thumbnail Modal */}
-      <Modal visible={thumbnailModalVisible} animationType="slide" transparent>
-        <View className="flex-1 justify-end bg-black/50">
-          <View className="bg-white rounded-t-lg p-6">
-            <Text className="text-lg font-semibold mb-4">Choose a Thumbnail</Text>
-            {/* Pre-designed image options would go here */}
-            <Pressable
-              onPress={pickImage}
-              className="bg-blue-500 py-3 rounded-lg mt-2 items-center"
-            >
-              <Text className="text-white font-medium">Pick from gallery</Text>
-            </Pressable>
-            <Pressable onPress={() => setThumbnailModalVisible(false)} className="mt-3 items-center">
-              <Text className="text-blue-500">Cancel</Text>
-            </Pressable>
-          </View>
-        </View>
-      </Modal>
-
-      {/* Location Modal */}
-      <Modal visible={locationModalVisible} animationType="slide">
-        <View className="flex-1 justify-center items-center bg-white">
-          <Text>Location Picker Placeholder</Text>
-          <Pressable onPress={() => setLocationModalVisible(false)}>
-            <Text className="text-blue-500 mt-4">Close</Text>
-          </Pressable>
-        </View>
-      </Modal>
-
-      {/* Calendar Modal */}
-      <Modal visible={calendarModalVisible} animationType="slide">
-        <View className="flex-1 justify-center items-center bg-white">
-          <Text>Calendar Picker Placeholder</Text>
-          <Pressable onPress={() => setCalendarModalVisible(false)}>
-            <Text className="text-blue-500 mt-4">Close</Text>
-          </Pressable>
-        </View>
-      </Modal>
+      
     </View>
   );
 }

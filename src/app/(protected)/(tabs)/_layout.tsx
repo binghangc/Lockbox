@@ -51,6 +51,12 @@ export default function TabsLayout() {
               <Octicons name="diff-added" size={size} color={color} />
             ),
           }}
+          listeners={{
+            tabPress: (e) => {
+              e.preventDefault();
+              router.push('/newTrip');
+            },
+          }}
         />
 
         <Tabs.Screen name='profile'
