@@ -9,9 +9,12 @@ const port = process.env.PORT || 3000;
 const cors = require('cors');
 app.use(cors());
 
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+console.log('Loaded SUPABASE_URL:', process.env.EXPO_PUBLIC_SUPABASE_URL);
+const supabase = createClient(process.env.EXPO_PUBLIC_SUPABASE_URL, process.env.EXPO_PUBLIC_SUPABASE_SERVICE_ROLE_KEY);
 
 app.use(express.json());
+
+app.get('/', (req, res) => res.send('API is running'));
 
 // API endpoint for signup
 app.post('/signup', async (req, res) => {
@@ -93,3 +96,23 @@ app.get('/profile', async (req, res) => {
 
     res.status(200).json({ user, profile });
 });
+
+app.patch('/profile', async (req, res) => {
+    const { user_id, field, value } = req.body;
+  
+    if (!user_id || !field || typeof value !== 'string') {
+        return res.status(400).json({ error: 'Missing or invalid params' });
+    }
+  
+    const { error } = await supabase
+        .from('profiles')
+        .update({ [field]: value })
+        .eq('id', user_id);
+  
+    if (error) {
+        return res.status(500).json({ error: error.message });
+    }
+  
+    res.status(200).json({ message: 'Profile updated successfully' });
+  });
+  
