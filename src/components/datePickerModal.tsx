@@ -29,8 +29,8 @@ const DatePickerModal = forwardRef<Modalize>((_, ref) => {
     if (startDate) {
       marked[startDate] = {
         startingDay: true,
-        color: '#4f46e5',
-        textColor: 'white',
+        color: '#affced',
+        textColor: 'black',
       };
     }
 
@@ -41,13 +41,13 @@ const DatePickerModal = forwardRef<Modalize>((_, ref) => {
 
       for (let i = 1; i < range; i++) {
         const date = start.add(i, 'day').format('YYYY-MM-DD');
-        marked[date] = { color: '#a5b4fc', textColor: 'white' };
+        marked[date] = { color: 'rgba(175, 252, 237, 0.2)', textColor: 'white' };
       }
 
       marked[endDate] = {
         endingDay: true,
-        color: '#4f46e5',
-        textColor: 'white',
+        color: '#affced',
+        textColor: 'black',
       };
     }
 
@@ -73,17 +73,26 @@ const DatePickerModal = forwardRef<Modalize>((_, ref) => {
           minHeight: 810,
         }}
       >
-        <Text className="text-white text-xl mb-4">Select Trip Dates</Text>
+        <Text className="text-white text-xl font-bold text-center mb-4 mt-3">Select Dates</Text>
         <Calendar
           onDayPress={onDayPress}
           markedDates={getMarkedDates()}
           markingType={'period'}
+          enableSwipeMonths={true}
+          minDate={dayjs().format('YYYY-MM-DD')}
+          hideExtraDays={true}
           theme={{
             calendarBackground: 'transparent',
             dayTextColor: '#fff',
+            todayTextColor: '#affced',
+            selectedDayBackgroundColor: '#99CCCC',
+            selectedDayTextColor: '#affced',
             textDisabledColor: '#666',
             monthTextColor: '#fff',
             arrowColor: '#fff',
+            textDayFontWeight: '400',
+            textMonthFontWeight: '400',
+            textDayHeaderFontWeight: '400',
           }}
         />
       </BlurView>
