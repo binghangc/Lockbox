@@ -40,8 +40,9 @@ export default function HomeScreen() {
           ))}
         </View>
 
-        <TripCarousel trips={filteredTrips} />
       </View>
+      <TripCarousel trips={filteredTrips} />
+
     </ScrollView>
   );
 }

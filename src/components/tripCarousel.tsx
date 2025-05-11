@@ -20,7 +20,7 @@ export default function TripCarousel({ trips }: TripCarouselProps) {
         horizontal
         scrollEnabled={true}
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: 4 }}
+        contentContainerStyle={{ paddingLeft: 13, paddingRight: 4 }}
         ItemSeparatorComponent={() => <View className="w-3" />}
         renderItem={({ item }) => <TripCard trip={item} />}
         decelerationRate="fast"
