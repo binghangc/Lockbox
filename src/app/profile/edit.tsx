@@ -12,7 +12,7 @@ import { useUser } from '@/components/UserContext';
 import FormInput from '@/components/formInput';
 import EditActionRow from '@/components/editActionRow';
 
-export default function ProfileScreen() {
+export default function EditProfileScreen() {
     const router = useRouter();
     const { user, setUser, loading } = useUser();
 

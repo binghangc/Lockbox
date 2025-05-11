@@ -63,12 +63,9 @@ export default function LoginScreen() {
         >
 
         {/* Orbs behind the card */} 
-        <FloatingOrb />
-        <FloatingOrb />
-        <FloatingOrb />
-        <FloatingOrb />
-        <FloatingOrb />
-
+        {Array.from({ length: 5 }).map((_, index) => (
+            <FloatingOrb key={index} />
+        ))}
 
         <BlurView intensity={50} tint="dark" className="w-full rounded-2xl p-6 max-w-md">
             <Text className="text-white text-2xl font-semibold mb-6 text-center">
@@ -120,6 +117,33 @@ export default function LoginScreen() {
                 onChangeText={setPassword}
                 className="bg-white/10 text-white px-4 py-3 rounded-md mb-6"
             />
+
+            {/* Forgot Password */}
+            {mode === 'login' && (
+                <TouchableOpacity
+                    onPress={async () => {
+                    if (!email) return Alert.alert('Oops', 'Enter your email first!');
+                    
+                    try {
+                        const res = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/forgot-password`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email }),
+                        });
+                
+                        const data = await res.json();
+                        if (!res.ok) throw new Error(data.error || 'Failed to send reset email');
+                
+                        Alert.alert('Check your email', 'We just sent a password reset link ✉️');
+                    } catch (err) {
+                        Alert.alert('Error', 'Failed to send reset email');
+                    }
+                    }}
+                    className="mb-6"
+                >
+                    <Text className="text-blue-400 text-sm text-right">Forgot your password?</Text>
+                </TouchableOpacity>
+            )}
 
             <TouchableOpacity
                 className={`bg-blue-600 py-3 rounded-md ${loading ? 'opacity-50' : ''}`}
