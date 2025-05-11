@@ -1,6 +1,6 @@
 import { Calendar } from 'react-native-calendars';
 import dayjs from 'dayjs';
-import { View } from 'react-native';
+import { View, TouchableOpacity } from 'react-native';
 import React, { forwardRef } from 'react';
 import { Text } from 'react-native';
 import { Modalize } from 'react-native-modalize';
@@ -8,7 +8,8 @@ import { BlurView } from 'expo-blur';
 
 export type DatePickerModalRef = Modalize;
 
-const DatePickerModal = forwardRef<Modalize>((_, ref) => {
+const DatePickerModal = forwardRef<Modalize, { onConfirm?: (range: { startDate: string | null; endDate: string | null }) => void }>((props, ref) => {
+  const { onConfirm } = props;
   const [startDate, setStartDate] = React.useState<string | null>(null);
   const [endDate, setEndDate] = React.useState<string | null>(null);
 
@@ -111,6 +112,42 @@ const DatePickerModal = forwardRef<Modalize>((_, ref) => {
             textDayHeaderFontWeight: '400',
           }}
         />
+        <View
+          style={{
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            paddingTop: 12,
+            paddingBottom: 12,
+            paddingHorizontal: 24,
+            backgroundColor: 'black',
+            borderTopWidth: 1,
+            borderTopColor: '#444',
+          }}
+        >
+          <TouchableOpacity
+            onPress={() => {
+              if (onConfirm) onConfirm({ startDate, endDate });
+              if (ref && 'current' in ref && ref.current) {
+                ref.current.close();
+              }
+            }}
+            style={{
+              backgroundColor: 'white',
+              borderRadius: 5,
+              paddingVertical: 12,
+              paddingHorizontal: 24,
+              alignItems: 'center',
+              justifyContent: 'center',
+              alignSelf: 'flex-end',
+              marginBottom: 20, // adds space above iPhone home bar
+
+            }}
+          >
+            <Text style={{ color: 'black', fontWeight: '600', fontSize: 16 }}>Done</Text>
+          </TouchableOpacity>
+        </View>
       </BlurView>
     </Modalize>
   );

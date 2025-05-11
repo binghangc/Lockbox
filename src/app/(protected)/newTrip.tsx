@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import { View, Text, TouchableOpacity, ScrollView, TextInput, SafeAreaView, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Link } from 'expo-router';
@@ -18,6 +19,9 @@ export default function NewTrip() {
   const locationModalRef = useRef<LocationPickerModalRef>(null);
   const insets = useSafeAreaInsets();
 
+  const [startDate, setStartDate] = useState<string | null>(null);
+  const [endDate, setEndDate] = useState<string | null>(null);
+
   const toggleTag = (tag: string) => {
     setSelectedTags((prev) =>
       prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
@@ -29,6 +33,11 @@ export default function NewTrip() {
 
   const openLocationPicker = () => locationModalRef.current?.open();
   const closeLocationPicker = () => locationModalRef.current?.close();
+
+  const handleDateConfirm = (range: { startDate: string | null; endDate: string | null }) => {
+    setStartDate(range.startDate);
+    setEndDate(range.endDate);
+  };
 
   return (
     <View className="flex-1 bg-gray-50">
@@ -79,7 +88,11 @@ export default function NewTrip() {
         <TouchableOpacity activeOpacity={0.8} onPress={openDatePicker}>
           <BlurView intensity={40} tint="light" className="rounded-md border border-white/20 mb-4 px-4 py-5 overflow-hidden">
             <View className="flex-row items-center justify-between">
-              <Text className="text-white text-2xl font-semibold">Select dates</Text>
+              <Text className="text-white text-2xl font-semibold" numberOfLines={2} style={{ textAlign: 'left' }}>
+                {startDate && endDate
+                  ? `${dayjs(startDate).format('ddd, MMM D')} -\n${dayjs(endDate).format('ddd, MMM D')}`
+                  : 'Select dates'}
+              </Text>
               <AntDesign name="caretdown" size={14} color="white" />
             </View>
           </BlurView>
@@ -138,7 +151,7 @@ export default function NewTrip() {
 
       </ScrollView>
 
-      <DatePickerModal ref={modalRef} />
+      <DatePickerModal ref={modalRef} onConfirm={handleDateConfirm} />
       <LocationPickerModal ref={locationModalRef} />
       
     </View>
