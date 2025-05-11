@@ -8,7 +8,6 @@ const upload = multer({ storage: multer.memoryStorage() });
 const supabase = createClient(process.env.EXPO_PUBLIC_SUPABASE_URL, process.env.EXPO_PUBLIC_SUPABASE_SERVICE_ROLE_KEY);
 
 router.post('/upload-avatar', upload.single('avatar'), async (req, res) => {
-    console.log('✅ /upload-avatar hit');
     const { user_id } = req.body;
     const file = req.file;
 

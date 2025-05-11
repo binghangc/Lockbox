@@ -99,7 +99,38 @@ app.get('/profile', async (req, res) => {
     res.status(200).json({ user, profile });
 });
 
-app.patch('/profile', async (req, res) => {
+app.get('/profile/edit', async (req, res) => {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'Missing or malformed Authorization header' });
+    }
+
+    const token = authHeader?.split(' ')[1];
+
+    const { data, error } = await supabase.auth.getUser(token);
+    const user = data?.user;
+
+    if (error || !user) {
+        return res.status(401).json({ error: 'Invalid or expired token' });
+    }
+
+    console.log('Authenticated user ID:', user.id);
+
+    const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+    if (profileError) {
+        return res.status(400).json({ error: profileError.message });
+    }
+
+    res.status(200).json({ user, profile });
+});
+
+app.patch('/profile/edit', async (req, res) => {
     const { user_id, field, value } = req.body;
   
     if (!user_id || !field || typeof value !== 'string') {
@@ -119,4 +150,4 @@ app.patch('/profile', async (req, res) => {
 });
 
 // API endpoint to upload avatar
-app.use('/api', uploadAvatarRoute);
+app.use('/profile', uploadAvatarRoute);
