@@ -14,14 +14,7 @@ export default function ProtectedLayout() {
               headerShown: false,
             }}
           />
-          <Stack.Screen
-            name="datePicker"
-            options={{
-              animation: 'slide_from_bottom',
-              presentation: 'modal',
-              headerShown: false,
-            }}
-          />
+          
           <Stack.Screen
             name="locationPicker"
             options={{
