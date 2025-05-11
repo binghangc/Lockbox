@@ -7,18 +7,23 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import placeholderThumbnail from '../../../assets/placeholder-thumbnail.png';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import DatePickerModal, { DatePickerModalRef } from '@/components/datePickerModal';
 
 export default function NewTrip() {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const modalRef = useRef<DatePickerModalRef>(null);
+  const insets = useSafeAreaInsets();
 
   const toggleTag = (tag: string) => {
     setSelectedTags((prev) =>
       prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
     );
   };
+
+  const openDatePicker = () => modalRef.current?.open();
+  const closeDatePicker = () => modalRef.current?.close();
 
   return (
     <View className="flex-1 bg-gray-50">
@@ -40,7 +45,10 @@ export default function NewTrip() {
       </BlurView>
 
       {/* Content with padding top for header */}
-      <ScrollView className="flex-1 pt-36 px-4 bg-black">
+      <ScrollView
+        className="flex-1 pt-36 px-4 bg-black"
+        showsVerticalScrollIndicator={false}
+      >
         {/* Trip Title */}
         <BlurView intensity={40} tint="light" className="rounded-md border border-white/20 mb-6 px-4 py-3 overflow-hidden">
           <TextInput
@@ -63,19 +71,17 @@ export default function NewTrip() {
 
 
         {/* Date Button */}
-        <Link href="/datepicker" asChild>
-          <TouchableOpacity activeOpacity={0.8}>
-            <BlurView intensity={40} tint="light" className="rounded-md border border-white/20 mb-4 px-4 py-5 overflow-hidden">
-              <View className="flex-row items-center justify-between">
-                <Text className="text-white text-2xl font-semibold">Select dates</Text>
-                <AntDesign name="caretdown" size={14} color="white" />
-              </View>
-            </BlurView>
-          </TouchableOpacity>
-        </Link>
+        <TouchableOpacity activeOpacity={0.8} onPress={openDatePicker}>
+          <BlurView intensity={40} tint="light" className="rounded-md border border-white/20 mb-4 px-4 py-5 overflow-hidden">
+            <View className="flex-row items-center justify-between">
+              <Text className="text-white text-2xl font-semibold">Select dates</Text>
+              <AntDesign name="caretdown" size={14} color="white" />
+            </View>
+          </BlurView>
+        </TouchableOpacity>
 
         {/* Location Button */}
-        <Link href="/locationPicker" asChild>
+        <Link href="locationPicker" asChild>
           <TouchableOpacity activeOpacity={0.8}>
             <BlurView intensity={40} tint="light" className="rounded-md border border-white/20 mb-4 px-4 py-2 overflow-hidden">
               <View className="flex-row items-center space-x-2">
@@ -129,6 +135,7 @@ export default function NewTrip() {
 
       </ScrollView>
 
+      <DatePickerModal ref={modalRef} />
       
     </View>
   );

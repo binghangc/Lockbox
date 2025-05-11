@@ -1,4 +1,3 @@
-import { Pressable } from 'react-native';
 import { router } from 'expo-router';
 import { Tabs } from 'expo-router';
 import { Octicons } from '@expo/vector-icons';
