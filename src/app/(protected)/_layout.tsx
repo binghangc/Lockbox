@@ -14,15 +14,6 @@ export default function ProtectedLayout() {
               headerShown: false,
             }}
           />
-          
-          <Stack.Screen
-            name="locationPicker"
-            options={{
-              animation: 'slide_from_bottom',
-              presentation: 'modal',
-              headerShown: false,
-            }}
-          />
         </Stack>
       </GestureHandlerRootView>
     );

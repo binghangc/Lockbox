@@ -9,11 +9,13 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import placeholderThumbnail from '../../../assets/placeholder-thumbnail.png';
 import { useState, useRef } from 'react';
 import DatePickerModal, { DatePickerModalRef } from '@/components/datePickerModal';
+import LocationPickerModal, { LocationPickerModalRef } from '@/components/locationPickerModal';
 
 export default function NewTrip() {
   const router = useRouter();
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const modalRef = useRef<DatePickerModalRef>(null);
+  const locationModalRef = useRef<LocationPickerModalRef>(null);
   const insets = useSafeAreaInsets();
 
   const toggleTag = (tag: string) => {
@@ -24,6 +26,9 @@ export default function NewTrip() {
 
   const openDatePicker = () => modalRef.current?.open();
   const closeDatePicker = () => modalRef.current?.close();
+
+  const openLocationPicker = () => locationModalRef.current?.open();
+  const closeLocationPicker = () => locationModalRef.current?.close();
 
   return (
     <View className="flex-1 bg-gray-50">
@@ -81,16 +86,14 @@ export default function NewTrip() {
         </TouchableOpacity>
 
         {/* Location Button */}
-        <Link href="locationPicker" asChild>
-          <TouchableOpacity activeOpacity={0.8}>
-            <BlurView intensity={40} tint="light" className="rounded-md border border-white/20 mb-4 px-4 py-2 overflow-hidden">
-              <View className="flex-row items-center space-x-2">
-                <FontAwesome6 name="location-dot" size={14} color="white" />
-                <Text className="text-white/50 text-xl ml-3">Location</Text>
-              </View>
-            </BlurView>
-          </TouchableOpacity>
-        </Link>
+        <TouchableOpacity activeOpacity={0.8} onPress={openLocationPicker}>
+          <BlurView intensity={40} tint="light" className="rounded-md border border-white/20 mb-4 px-4 py-2 overflow-hidden">
+            <View className="flex-row items-center space-x-2">
+              <FontAwesome6 name="location-dot" size={14} color="white" />
+              <Text className="text-white/50 text-xl ml-3">Location</Text>
+            </View>
+          </BlurView>
+        </TouchableOpacity>
 
         {/* Tags Button */}
         
@@ -136,6 +139,7 @@ export default function NewTrip() {
       </ScrollView>
 
       <DatePickerModal ref={modalRef} />
+      <LocationPickerModal ref={locationModalRef} />
       
     </View>
   );
