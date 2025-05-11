@@ -74,6 +74,22 @@ const DatePickerModal = forwardRef<Modalize>((_, ref) => {
         }}
       >
         <Text className="text-white text-xl font-bold text-center mb-4 mt-3">Select Dates</Text>
+        {/* Date tab bar */}
+        <View className="flex-row justify-between items-center mb-4 mt-3">
+          <View className="flex-1 bg-white/10 px-5 py-4 rounded-lg mr-2 min-h-[70px] justify-center">
+            <Text className="text-white text-lg font-semibold mb-1">Start</Text>
+            <Text className="text-white text-xl font-bold">
+              {startDate ? dayjs(startDate).format('ddd, MMM D') : 'Select'}
+            </Text>
+          </View>
+          <View className="flex-1 bg-white/10 px-5 py-4 rounded-lg ml-2 min-h-[70px] justify-center">
+            <Text className="text-white text-lg font-semibold mb-1">End</Text>
+            <Text className="text-white text-xl font-bold">
+              {(startDate && !endDate) ? dayjs(startDate).format('ddd, MMM D') :
+               endDate ? dayjs(endDate).format('ddd, MMM D') : 'Select'}
+            </Text>
+          </View>
+        </View>
         <Calendar
           onDayPress={onDayPress}
           markedDates={getMarkedDates()}
