@@ -21,6 +21,7 @@ export default function NewTrip() {
 
   const [startDate, setStartDate] = useState<string | null>(null);
   const [endDate, setEndDate] = useState<string | null>(null);
+  const [selectedCountry, setSelectedCountry] = useState<{ name: string; flag: string } | null>(null);
 
   const toggleTag = (tag: string) => {
     setSelectedTags((prev) =>
@@ -37,6 +38,11 @@ export default function NewTrip() {
   const handleDateConfirm = (range: { startDate: string | null; endDate: string | null }) => {
     setStartDate(range.startDate);
     setEndDate(range.endDate);
+  };
+
+  const handleCountrySelect = (country: { name: string; flag: string }) => {
+    setSelectedCountry(country);
+    locationModalRef.current?.close();
   };
 
   return (
@@ -103,7 +109,9 @@ export default function NewTrip() {
           <BlurView intensity={40} tint="light" className="rounded-md border border-white/20 mb-4 px-4 py-2 overflow-hidden">
             <View className="flex-row items-center space-x-2">
               <FontAwesome6 name="location-dot" size={14} color="white" />
-              <Text className="text-white/50 text-xl ml-3">Location</Text>
+              <Text className="text-white text-xl ml-3">
+                {selectedCountry ? `${selectedCountry.name}` : 'Location'}
+              </Text>
             </View>
           </BlurView>
         </TouchableOpacity>
@@ -152,7 +160,7 @@ export default function NewTrip() {
       </ScrollView>
 
       <DatePickerModal ref={modalRef} onConfirm={handleDateConfirm} />
-      <LocationPickerModal ref={locationModalRef} />
+      <LocationPickerModal ref={locationModalRef} onSelectCountry={handleCountrySelect} />
       
     </View>
   );

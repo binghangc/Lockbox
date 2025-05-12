@@ -81,6 +81,7 @@ const DatePickerModal = forwardRef<Modalize, { onConfirm?: (range: { startDate: 
       handlePosition="inside"
       disableScrollIfPossible={true}
       modalStyle={{ backgroundColor: 'transparent' }}
+      modalTopOffset={45}
     >
       <BlurView
         intensity={60}
