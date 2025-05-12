@@ -27,28 +27,46 @@ const DatePickerModal = forwardRef<Modalize, { onConfirm?: (range: { startDate: 
   const getMarkedDates = () => {
     let marked: any = {};
 
-    if (startDate) {
-      marked[startDate] = {
-        startingDay: true,
-        color: '#affced',
-        textColor: 'black',
-      };
-    }
-
     if (startDate && endDate) {
       const start = dayjs(startDate);
       const end = dayjs(endDate);
       const range = end.diff(start, 'day');
 
-      for (let i = 1; i < range; i++) {
+      for (let i = 0; i <= range; i++) {
         const date = start.add(i, 'day').format('YYYY-MM-DD');
-        marked[date] = { color: 'rgba(175, 252, 237, 0.2)', textColor: 'white' };
-      }
 
-      marked[endDate] = {
-        endingDay: true,
-        color: '#affced',
-        textColor: 'black',
+        let isStart = i === 0;
+        let isEnd = i === range;
+
+        marked[date] = {
+          customStyles: {
+            container: {
+              backgroundColor: 'rgba(175, 252, 237, 0.2)',
+              borderTopLeftRadius: isStart ? 20 : 0,
+              borderBottomLeftRadius: isStart ? 20 : 0,
+              borderTopRightRadius: isEnd ? 20 : 0,
+              borderBottomRightRadius: isEnd ? 20 : 0,
+              width: '100%',
+            },
+            text: {
+              color: isStart || isEnd ? '#b1ffef' : 'white',
+              fontWeight: isStart || isEnd ? '700' : '500',
+            }
+          }
+        };
+      }
+    } else if (startDate) {
+      marked[startDate] = {
+        customStyles: {
+          container: {
+            backgroundColor: 'rgba(175, 252, 237, 0.2)',
+            borderRadius: 20,
+          },
+          text: {
+            color: '#b1ffef',
+            fontWeight: '700',
+          }
+        }
       };
     }
 
@@ -74,6 +92,15 @@ const DatePickerModal = forwardRef<Modalize, { onConfirm?: (range: { startDate: 
           minHeight: 810,
         }}
       >
+        <TouchableOpacity
+          onPress={() => {
+            setStartDate(null);
+            setEndDate(null);
+          }}
+          className="absolute top-5 left-5 z-10"
+        >
+          <Text className="text-white font-semibold text-base mt-4">Clear</Text>
+        </TouchableOpacity>
         <Text className="text-white text-xl font-bold text-center mb-4 mt-3">Select Dates</Text>
         {/* Date tab bar */}
         <View className="flex-row justify-between items-center mb-4 mt-3">
@@ -94,7 +121,7 @@ const DatePickerModal = forwardRef<Modalize, { onConfirm?: (range: { startDate: 
         <Calendar
           onDayPress={onDayPress}
           markedDates={getMarkedDates()}
-          markingType={'period'}
+          markingType={'custom'}
           enableSwipeMonths={true}
           minDate={dayjs().format('YYYY-MM-DD')}
           hideExtraDays={true}
