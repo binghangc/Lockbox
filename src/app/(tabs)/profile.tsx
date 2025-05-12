@@ -1,5 +1,4 @@
-import { Alert, Text, View, Button, ActivityIndicator, Image, TouchableOpacity, TextInput } from 'react-native';
-import { supabase } from '../../../lib/supabase';
+import { Text, View, Button, ActivityIndicator, Image, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -13,15 +12,29 @@ export default function ProfileScreen() {
     const { user, setUser, loading } = useUser();
 
     const handleLogout = async () => {
-        const { error } = await supabase.auth.signOut();
-        if (error) {
-            console.error('Error logging out:', error.message);
-            return;
-        } else {
-            console.log('User logged out successfully');
+        try {
+            const token = await AsyncStorage.getItem('access_token');
+    
+            const res = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/logout`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+    
+            if (!res.ok) {
+                const { error } = await res.json();
+                console.error('Logout failed:', error);
+                return;
+            }
+    
+            console.log('User logged out through backend');
             await AsyncStorage.removeItem('access_token');
             setUser(null);
             router.replace('/(auth)/');
+        } catch (err) {
+            console.error('Logout error:', 'failed to connect to the server');
         }
     };
 

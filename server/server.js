@@ -112,10 +112,6 @@ app.get("/auth/confirm", async (req, res) => {
     res.redirect(303, '/auth/auth-code-error')
 })
 
-app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
-});
-
 // API endpoint to get profile information
 app.get('/profile', async (req, res) => {
     const authHeader = req.headers.authorization;
@@ -171,6 +167,23 @@ app.patch('/profile/edit', async (req, res) => {
 // API endpoint to upload avatar
 app.use('/profile', uploadAvatarRoute);
 
+app.post("/logout", async (req, res) => {
+    try {
+        const authHeader = req.headers.authorization;
+
+        if (!authHeader || !authHeader.startsWith("Bearer ")) {
+            return res.status(401).json({ error: "No or invalid token provided" });
+        }
+
+        const token = authHeader.replace("Bearer ", "");
+
+        return res.status(200).json({ message: "Logged out successfully", token });
+    } catch (err) {
+        console.error("Logout error:", err); 
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+
 // API endpoint for forgot password
 app.post('/forgot-password', async (req, res) => {
     const { email } = req.body;
@@ -178,7 +191,7 @@ app.post('/forgot-password', async (req, res) => {
 
     try {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: 'yourapp://reset-password', // ← or a web URL
+        redirectTo: 'lockbox://reset-password', 
     });
 
     if (error) throw error;
@@ -187,4 +200,41 @@ app.post('/forgot-password', async (req, res) => {
     } catch (err) {
     res.status(500).json({ error: err.message });
     }
+});
+
+app.post('/api/v1/reset-password', async (req, res) => {
+    const { access_token, new_password } = req.body;
+
+    if (!access_token || !new_password) {
+        return res.status(400).json({ error: 'Missing token or password' });
+    }
+
+    try {
+        const supabaseWithToken = createClient(
+            process.env.EXPO_PUBLIC_SUPABASE_URL,
+            process.env.EXPO_PUBLIC_SUPABASE_SERVICE_ROLE_KEY,
+            {
+                global: {
+                    headers: { Authorization: `Bearer ${access_token}` }
+                }
+            }
+        );
+
+        const { error } = await supabaseWithToken.auth.updateUser({
+            password: new_password
+        });
+
+        if (error) {
+            return res.status(400).json({ error: error.message });
+        }
+
+        res.json({ message: 'Password reset successful' });
+    } catch (err) {
+        console.error('Password reset error:', err);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+app.listen(port, () => {
+    console.log(`Server is running on http://localhost:${port}`);
 });
