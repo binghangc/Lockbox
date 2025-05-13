@@ -15,7 +15,7 @@ export default function TripCard({ trip }: TripCardProps) {
         className="w-full aspect-square mb-1"
         resizeMode="cover"
       />
-      <Text className="text-white font-bold text-lg" numberOfLines={1}>
+      <Text className="text-white font-bold text-xl mt-2" numberOfLines={1}>
         {trip.title}
       </Text>
       <HostRow host={trip.host} className="mt-0" />

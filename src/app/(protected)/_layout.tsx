@@ -1,10 +1,20 @@
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { useRouter } from 'expo-router';
 import { Stack } from 'expo-router';
 
 export default function ProtectedLayout() {
-    return <Stack>
-               <Stack.Screen
-                name="plus" 
-                options={{ animation: 'slide_from_bottom' }}
-                />
-           </Stack>
+    const router = useRouter();
+    return (
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen
+            name="newTrip"
+            options={{
+              animation: 'slide_from_bottom',
+              headerShown: false,
+            }}
+          />
+        </Stack>
+      </GestureHandlerRootView>
+    );
 }

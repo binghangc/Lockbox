@@ -48,11 +48,10 @@ export default function RootLayout() {
     }, []);
 
     return (
-        <UserProvider>
-            <ThemeProvider value={DarkTheme}>
-                <Stack screenOptions={{ headerShown: false}} />
-            </ThemeProvider>
-        </UserProvider>
+      <ThemeProvider value={myTheme}>
+        <Stack screenOptions={{ headerShown: false }}>
+        </Stack>
+      </ThemeProvider>
     );
 
 }
