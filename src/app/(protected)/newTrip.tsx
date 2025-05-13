@@ -1,7 +1,6 @@
 import dayjs from 'dayjs';
 import { View, Text, TouchableOpacity, ScrollView, TextInput, SafeAreaView, Image } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Link } from 'expo-router';
 import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -13,12 +12,16 @@ import DatePickerModal, { DatePickerModalRef } from '@/components/datePickerModa
 import LocationPickerModal, { LocationPickerModalRef } from '@/components/locationPickerModal';
 
 export default function NewTrip() {
+  
   const router = useRouter();
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const modalRef = useRef<DatePickerModalRef>(null);
   const locationModalRef = useRef<LocationPickerModalRef>(null);
   const insets = useSafeAreaInsets();
 
+  const [tripTitle, setTripTitle] = useState('');
+  const [tripDescription, setTripDescription] = useState('');
+  const [thumbnailUrl, setThumbnailUrl] = useState('');
   const [startDate, setStartDate] = useState<string | null>(null);
   const [endDate, setEndDate] = useState<string | null>(null);
   const [selectedCountry, setSelectedCountry] = useState<{ name: string; flag: string } | null>(null);
@@ -45,6 +48,7 @@ export default function NewTrip() {
     locationModalRef.current?.close();
   };
 
+
   return (
     <View className="flex-1 bg-gray-50">
       {/* Header with Blur */}
@@ -57,7 +61,7 @@ export default function NewTrip() {
 
             <Text className="text-xl font-bold text-white">New Trip</Text>
 
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => {}}>
               <Text className="text-base font-semibold text-white">Save</Text>
             </TouchableOpacity>
           </View>
@@ -72,6 +76,8 @@ export default function NewTrip() {
         {/* Trip Title */}
         <BlurView intensity={40} tint="light" className="rounded-md border border-white/20 mb-6 px-4 py-3 overflow-hidden">
           <TextInput
+            value={tripTitle}
+            onChangeText={setTripTitle}
             placeholder="Untitled Trip"
             placeholderTextColor="white"
             className="text-4xl font-extrabold text-center text-white"
@@ -149,6 +155,8 @@ export default function NewTrip() {
         {/* Description Input */}
         <BlurView intensity={40} tint="light" className="rounded-md border border-white/20 mb-6 px-4 py-4 overflow-hidden">
           <TextInput
+            value={tripDescription}
+            onChangeText={setTripDescription}
             placeholder="Drop the deets on your trip"
             placeholderTextColor="rgba(255, 255, 255, 0.5)"
             multiline
