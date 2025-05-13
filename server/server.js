@@ -191,7 +191,7 @@ app.post('/forgot-password', async (req, res) => {
 
     try {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: 'lockbox://reset-password', 
+        redirectTo: `${ process.env.EXPO_PUBLIC_REDIRECT_URL }/reset-password`, 
     });
 
     if (error) throw error;

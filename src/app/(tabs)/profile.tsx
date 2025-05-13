@@ -1,4 +1,4 @@
-import { Text, View, Button, ActivityIndicator, Image, TouchableOpacity } from 'react-native';
+import { Text, View, Button, ActivityIndicator, Image, TouchableOpacity, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -29,6 +29,7 @@ export default function ProfileScreen() {
                 return;
             }
     
+            Alert.alert('Success', 'Logged out successfully');
             console.log('User logged out through backend');
             await AsyncStorage.removeItem('access_token');
             setUser(null);
