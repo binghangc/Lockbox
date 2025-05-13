@@ -48,10 +48,12 @@ export default function RootLayout() {
     }, []);
 
     return (
-      <ThemeProvider value={myTheme}>
-        <Stack screenOptions={{ headerShown: false }}>
-        </Stack>
-      </ThemeProvider>
+      <UserProvider>
+        <ThemeProvider value={myTheme}>
+          <Stack screenOptions={{ headerShown: false }}>
+          </Stack>
+        </ThemeProvider>
+      </UserProvider>
     );
 
 }
