@@ -1,6 +1,7 @@
 {
   "expo": {
-    "scheme": "locked.in",
+    "scheme": "lockbox",
+    "deepLinking": true,
     "name": "Lockbox",
     "slug": "lockbox",
     "version": "1.0.0",
@@ -14,13 +15,15 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.lockedin.lockbox"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/lockicon.png",
         "backgroundColor": "#ffffff"
-      }
+      }, 
+      "package": "com.lockedin.lockbox"
     },
     "web": {
       "favicon": "./assets/lockicon.png"

@@ -4,7 +4,8 @@ import { AppState } from 'react-native'
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import { ThemeProvider, DarkTheme } from '@react-navigation/native';
-
+import { UserProvider } from '@/components/UserContext';
+import { linking } from '../../lib/linking';
 
 const myTheme = {
     ...DarkTheme,
@@ -25,13 +26,12 @@ export default function RootLayout() {
             if (session) {
                 router.replace('/(tabs)'); // Navigate to home screen if session exists
             } else {
-                router.replace('/(auth)/login'); // Navigate to login screen if no session
+                router.replace('/(auth)/'); // Navigate to login screen if no session
             }
             setSessionChecked(true); // Mark session as checked
         };
 
         if (!sessionChecked) {
-            // Show a loading screen while checking the session
             console.log('Checking session...');
         }
 
@@ -48,9 +48,11 @@ export default function RootLayout() {
     }, []);
 
     return (
-        <ThemeProvider value={DarkTheme}>
-            <Slot />
-        </ThemeProvider>
+        <UserProvider>
+            <ThemeProvider value={DarkTheme}>
+                <Stack screenOptions={{ headerShown: false}} />
+            </ThemeProvider>
+        </UserProvider>
     );
 
 }
