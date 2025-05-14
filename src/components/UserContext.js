@@ -22,7 +22,7 @@ export const UserProvider = ({ children }) => {
                         Authorization: `Bearer ${token}`,
                     },
                 });
-
+                
                 const result = await res.json();
 
                 if (res.ok && result.profile) {
