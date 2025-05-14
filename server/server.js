@@ -11,9 +11,6 @@ app.use(cors());
 
 const supabase = createClient(process.env.EXPO_PUBLIC_SUPABASE_URL, process.env.EXPO_PUBLIC_SUPABASE_SERVICE_ROLE_KEY);
 
-// imported routes
-const uploadAvatarRoute = require('./routes/upload-avatar');
-
 app.use(express.json());
 
 // Check IP address
