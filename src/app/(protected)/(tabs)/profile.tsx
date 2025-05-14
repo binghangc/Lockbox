@@ -1,6 +1,7 @@
 import { Text, View, Button, ActivityIndicator, Image, TouchableOpacity, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useState } from 'react';
 
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
 
@@ -10,12 +11,15 @@ import { useUser } from '@/components/UserContext';
 export default function ProfileScreen() {
     const router = useRouter();
     const { user, setUser, loading } = useUser();
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
 
     const handleLogout = async () => {
         try {
+            setIsLoggingOut(true);
+
             const token = await AsyncStorage.getItem('access_token');
     
-            const res = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/logout`, {
+            const res = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/auth/logout`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -26,6 +30,7 @@ export default function ProfileScreen() {
             if (!res.ok) {
                 const { error } = await res.json();
                 console.error('Logout failed:', error);
+                Alert.alert('Logout Failed', error);
                 return;
             }
     
@@ -36,6 +41,8 @@ export default function ProfileScreen() {
             router.replace('/(auth)/');
         } catch (err) {
             console.error('Logout error:', 'failed to connect to the server');
+        } finally {
+            setIsLoggingOut(false);
         }
     };
 
