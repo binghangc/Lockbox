@@ -22,7 +22,7 @@ export default function LoginScreen() {
         try {
             const endpoint = mode === 'login' ? '/login' : '/signup';
 
-            const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}${endpoint}`, {
+            const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/auth${endpoint}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password, ...(mode === 'signup' && { username }) }),
@@ -58,7 +58,7 @@ export default function LoginScreen() {
 
     return (
         <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             className="flex-1 items-center justify-center px-6 bg-neutral-900"
         >
 
@@ -75,7 +75,7 @@ export default function LoginScreen() {
             <View className="flex-row justify-center mb-6">
             <TouchableOpacity
                 className={`px-4 py-2 rounded-l-full ${
-                mode === 'login' ? 'bg-white/20' : 'bg-transparent'
+                    mode === 'login' ? 'bg-white/20' : 'bg-transparent'
                 }`}
                 onPress={() => setMode('login')}
             >
@@ -83,7 +83,7 @@ export default function LoginScreen() {
             </TouchableOpacity>
             <TouchableOpacity
                 className={`px-4 py-2 rounded-r-full ${
-                mode === 'signup' ? 'bg-white/20' : 'bg-transparent'
+                    mode === 'signup' ? 'bg-white/20' : 'bg-transparent'
                 }`}
                 onPress={() => setMode('signup')}
             >
@@ -96,6 +96,7 @@ export default function LoginScreen() {
                 placeholderTextColor="#aaa"
                 value={email}
                 onChangeText={setEmail}
+                autoCapitalize="none"
                 className="bg-white/10 text-white px-4 py-3 rounded-md mb-4"
             />
 
@@ -125,7 +126,7 @@ export default function LoginScreen() {
                     if (!email) return Alert.alert('Oops', 'Enter your email first!');
                     
                     try {
-                        const res = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/forgot-password`, {
+                        const res = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/auth/forgot-password`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ email }),
