@@ -26,14 +26,21 @@ cd lockbox
 ```bash
 npm install
 ```
-3. Set up environment
+3. Set up environment by copying .env.example
+```bash
+cp .env.example .env
+```
+4. Fill in the missing values
 ```bash
 EXPO_PUBLIC_SUPABASE_URL=...
 EXPO_PUBLIC_SUPABASE_ANON_KEY=...
 EXPO_PUBLIC_SUPABASE_SERVICE_ROLE_KEY=...
-EXPO_PUBLIC_API_URL= your_api_here
+EXPO_PUBLIC_API_URL=...
 ```
-4. Start frontend
+
+As service role keys are private, we will manually share the SERVICE_ROLE_KEY to interested testers. We will use secure methods liks 1Password and Bitwarden to send it through, simply drop either Emilia (e1355432@u.nus.edu) or Bing Hang (e1398132@u.nus.edu).
+
+6. Start frontend
 ```bash
 npm start -- --clear
 ```
