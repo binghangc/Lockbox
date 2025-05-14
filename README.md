@@ -40,11 +40,11 @@ EXPO_PUBLIC_API_URL=...
 
 As service role keys are private, we will manually share the SERVICE_ROLE_KEY to interested testers. We will use secure methods liks 1Password and Bitwarden to send it through, simply drop either Emilia (e1355432@u.nus.edu) or Bing Hang (e1398132@u.nus.edu).
 
-6. Start frontend
+5. Start frontend
 ```bash
 npm start -- --clear
 ```
-5. Start backend
+6. Start backend
 ```bash
 node server/server.js
 ```
