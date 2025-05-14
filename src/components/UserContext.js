@@ -6,10 +6,12 @@ const UserContext = createContext();
 export const UserProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [token, setToken] = useState(null);
 
     useEffect(() => {
         const fetchUser = async () => {
             const token = await AsyncStorage.getItem('access_token');
+            setToken(token);
             if (!token) {
                 setUser(null);
                 setLoading(false);
@@ -45,7 +47,7 @@ export const UserProvider = ({ children }) => {
     }, []);
 
     return (
-        <UserContext.Provider value={{ user, setUser, loading }}>
+        <UserContext.Provider value={{ user, setUser, loading, token }}>
             {children}
         </UserContext.Provider>
     );

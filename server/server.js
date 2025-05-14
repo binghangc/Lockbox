@@ -13,6 +13,7 @@ const supabase = createClient(process.env.EXPO_PUBLIC_SUPABASE_URL, process.env.
 
 // imported routes
 const uploadAvatarRoute = require('./routes/upload-avatar');
+const tripRoutes = require('./routes/trips');
 
 app.use(express.json());
 
@@ -166,6 +167,8 @@ app.patch('/profile/edit', async (req, res) => {
 
 // API endpoint to upload avatar
 app.use('/profile', uploadAvatarRoute);
+
+app.use('/trips', tripRoutes);
 
 app.post("/logout", async (req, res) => {
     try {

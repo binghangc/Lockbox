@@ -7,13 +7,16 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import placeholderThumbnail from '../../../assets/placeholder-thumbnail.png';
-import { useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
+import { supabase } from '../../../lib/supabase';
 import DatePickerModal, { DatePickerModalRef } from '@/components/datePickerModal';
 import LocationPickerModal, { LocationPickerModalRef } from '@/components/locationPickerModal';
+import { useUser } from '@/components/UserContext';
 
 export default function NewTrip() {
   
   const router = useRouter();
+  const { token, user } = useUser();
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const modalRef = useRef<DatePickerModalRef>(null);
   const locationModalRef = useRef<LocationPickerModalRef>(null);
@@ -49,6 +52,47 @@ export default function NewTrip() {
   };
 
 
+  const handleSaveTrip = async () => {
+    if (!tripTitle || !tripDescription || !startDate || !endDate || !selectedCountry) {
+      console.warn('Missing required fields');
+      return;
+    }
+
+    if (!token) {
+      console.error('No token in context');
+      return;
+    }
+
+    try {
+      const res = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/trips`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          title: tripTitle,
+          description: tripDescription,
+          start_date: startDate,
+          end_date: endDate,
+          country: selectedCountry.name,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        console.error('Error saving trip:', data.error);
+        return;
+      }
+
+      console.log('Trip saved:', data);
+      router.replace('/(tabs)');
+    } catch (err) {
+      console.error('Failed to save trip:', err);
+    }
+  };
+
   return (
     <View className="flex-1 bg-gray-50">
       {/* Header with Blur */}
@@ -61,7 +105,7 @@ export default function NewTrip() {
 
             <Text className="text-xl font-bold text-white">New Trip</Text>
 
-            <TouchableOpacity onPress={() => {}}>
+            <TouchableOpacity onPress={handleSaveTrip}>
               <Text className="text-base font-semibold text-white">Save</Text>
             </TouchableOpacity>
           </View>
