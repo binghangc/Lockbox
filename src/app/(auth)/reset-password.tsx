@@ -11,25 +11,25 @@ export default function ResetPasswordScreen() {
         if (!access_token || !newPassword) return;
 
         try {
-        const response = await fetch('http://<YOUR-IP>:3000/api/v1/reset-password', {
-            method: 'POST',
-            headers: {
-            'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-            access_token,
-            new_password: newPassword,
-            }),
-        });
+            const response = await fetch(`http://${ process.env.EXPO_PUBLIC_API_URL }:3000/reset-password`, {
+                method: 'POST',
+                headers: {
+                'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                access_token,
+                new_password: newPassword,
+                }),
+            });
 
-        const data = await response.json();
+            const data = await response.json();
 
-        if (!response.ok) throw new Error(data.error || 'Reset failed');
-        
-        Alert.alert('Success', 'Password updated. Please log in.');
-        router.replace('/(auth)/'); // back to login
+            if (!response.ok) throw new Error(data.error || 'Reset failed');
+            
+            Alert.alert('Success', 'Password updated. Please log in.');
+            router.replace('/(auth)/'); // back to login
         } catch (err: any) {
-        Alert.alert('Error', err.message);
+            Alert.alert('Error', err.message);
         }
     };
 

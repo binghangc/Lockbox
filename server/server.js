@@ -93,25 +93,6 @@ app.post('/login', async (req, res) => {
         user: data.user});
 });
 
-// API endpoint for token exchange
-app.get("/auth/confirm", async (req, res) => {
-    const token_hash = req.query.token_hash
-    const type = req.query.type
-    const next = req.query.next ?? "/"
-    if (token_hash && type) {
-        const supabase = createClient({ req, res })
-        const { error } = await supabase.auth.verifyOtp({
-            type,
-            token_hash,
-        })
-        if (!error) {
-            res.redirect(303, `/${next.slice(1)}`)
-        }
-    }
-    // return the user to an error page with some instructions
-    res.redirect(303, '/auth/auth-code-error')
-})
-
 // API endpoint to get profile information
 app.get('/profile', async (req, res) => {
     const authHeader = req.headers.authorization;
@@ -190,19 +171,20 @@ app.post('/forgot-password', async (req, res) => {
     if (!email) return res.status(400).json({ error: 'Missing email' });
 
     try {
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${ process.env.EXPO_PUBLIC_REDIRECT_URL }/reset-password`, 
-    });
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+            //redirectTo: `${ process.env.EXPO_PUBLIC_REDIRECT_URL }/reset-password`, 
+            redirectTo: "http://localhost:3000/reset-password",
+        });
 
-    if (error) throw error;
+        if (error) throw error;
 
-    res.json({ success: true });
+        res.json({ success: true });
     } catch (err) {
-    res.status(500).json({ error: err.message });
+        res.status(500).json({ error: err.message });
     }
 });
 
-app.post('/api/v1/reset-password', async (req, res) => {
+app.post('/reset-password', async (req, res) => {
     const { access_token, new_password } = req.body;
 
     if (!access_token || !new_password) {
