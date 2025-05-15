@@ -13,6 +13,7 @@ const supabase = createClient(process.env.EXPO_PUBLIC_SUPABASE_URL, process.env.
 
 // imported routes
 const uploadAvatarRoute = require('./routes/upload-avatar');
+const tripRoutes = require('./routes/trips');
 
 app.use(express.json());
 
@@ -24,6 +25,10 @@ app.use('/auth', require('./routes/auth'));
 
 // API profile endpoints: get and edit profile info, ie name, bio, avatar_url
 app.use('/profile', require('./routes/profile'));
+
+// API trip endpoints: get and edit trip info, ie name, description, start_date, end_date
+app.use('/trips', tripRoutes);
+
 
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
