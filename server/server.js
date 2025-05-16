@@ -22,6 +22,9 @@ app.use('/auth', require('./routes/auth'));
 // API profile endpoints: get and edit profile info, ie name, bio, avatar_url
 app.use('/profile', require('./routes/profile'));
 
+// API profile endpoints: get and edit profile info, ie name, bio, avatar_url
+app.use('/friends', require('./routes/friends'));
+
 // API endpoint for getting friends list for current user
 app.get('/friends/', async (req, res) => {
     const authHeader = req.headers.authorization;
@@ -41,7 +44,7 @@ app.get('/friends/', async (req, res) => {
     const user_id = user.id;
   
     const { data: friends, error: friendError } = await supabase
-    .from('friends')
+    .from('friendships')
     .select('*')
     .or(`uid1.eq.${user_id},uid2.eq.${user_id}`)
     .eq('status', 'accepted');
