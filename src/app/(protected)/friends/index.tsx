@@ -28,8 +28,7 @@ export default function FriendsScreen() {
             }
 
             const data = await res.json();
-            setFriends(data.friends)
-            console.log("Friends list:", data.friends);
+            setFriends(data)
         } catch (error) {
             console.error('Friends error:', 'failed to retrieve friends');
         }

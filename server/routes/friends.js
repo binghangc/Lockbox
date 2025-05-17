@@ -50,7 +50,8 @@ router.get('/search', async (req, res) => {
     const { data: results, error: resultError} = await supabase
         .from('profiles')
         .select('*')
-        .ilike("username", `%${username}%`);
+        .ilike("username", `%${username}%`)
+        .neq('id', user.id);
     
     if (resultError) {
         return res.status(500).json({ error: resultError.message });
@@ -98,8 +99,14 @@ router.get('/requests', async (req, res) => {
   
     const { data: friends, error: friendError } = await supabase
         .from('friendships')
-        .select('*')
-        .like(`uid2.eq.${user_id}`)
+        .select(`
+            id,
+            uid1,
+            uid2,
+            status,
+            sender:uid1 (username, bio, avatar_url)
+        `)        
+        .eq('uid2', user_id)
         .eq('status', 'pending');
 
     if (friendError) {
