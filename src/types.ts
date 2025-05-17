@@ -41,14 +41,15 @@ export type Invite = {
 export type Profile = {
     id: string;
     username: string;
+    name: string;
     bio?: string;
     avatar_url?: string;
   };
   
 export type FriendRequest = {
-    id: number;
+    id: string;
     uid1: string;
     uid2: string;
-    status: string;
+    status: "pending" | "accepted" | "rejected";
     sender: Profile;
 };

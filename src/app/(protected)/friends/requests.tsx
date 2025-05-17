@@ -12,7 +12,7 @@ export default function RequestsScreen() {
     const [requests, setRequests] = useState<FriendRequest[]>([]);
     const [loading, setLoading] = useState(false);
 
-    const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
+    const [selectedRequest, setSelectedRequest] = useState<FriendRequest | null>(null);
     const [modalVisible, setModalVisible] = useState(false);
     const scaleAnim = useRef(new Animated.Value(0)).current;
 
@@ -43,8 +43,8 @@ export default function RequestsScreen() {
         }
     }
 
-    const openModal = (user: any) => {
-        setSelectedUser(user);
+    const openModal = (request: FriendRequest) => {
+        setSelectedRequest(request);
         setModalVisible(true);
         scaleAnim.setValue(0);
         Animated.spring(scaleAnim, {
@@ -60,22 +60,27 @@ export default function RequestsScreen() {
             useNativeDriver: true,
         }).start(() => {
             setModalVisible(false);
-            setSelectedUser(null);
+            setSelectedRequest(null);
         });
     };
 
-    const handleFriendRequest = async (type: 'accept' | 'decline', uid1: string) => {
-        const endpoint = type === 'accept' ? '/accept-request' : '/decline-request';
+    const handleFriendRequest = async (
+        type: 'accept' | 'reject', 
+        id: string,
+        uid1: string, 
+        uid2: string
+    ) => {
+        const endpoint = type === 'accept' ? '/accept-request' : '/reject-request';
 
         try {
             const token = await AsyncStorage.getItem("access_token");
             const res = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/friends${endpoint}`, {
-                method: 'POST',
+                method: 'PATCH',
                 headers: { 
                     'Content-Type': 'application/json', 
                     Authorization: `Bearer ${ token }`
                 },
-                body: JSON.stringify({ uid1 }),
+                body: JSON.stringify({ id, uid1, uid2 }),
             });
 
             if (!res.ok) {
@@ -127,7 +132,7 @@ export default function RequestsScreen() {
                     keyExtractor={(item) => item.id.toString()}
                     renderItem={({ item }) => (
                         <TouchableOpacity
-                          onPress={() => openModal(item.sender)} // sender is the profile of uid1
+                          onPress={() => openModal(item)} // sender is the profile of uid1
                           className="bg-zinc-800 p-4 rounded-xl mb-3"
                         >
                           <Text className="text-white text-lg font-semibold">
@@ -141,14 +146,16 @@ export default function RequestsScreen() {
 
         <FriendRequestModal
             visible={modalVisible}
-            user={selectedUser}
+            request={selectedRequest}
             onClose={closeModal}
             onAccept={() => {
-                handleFriendRequest("accept", selectedUser!.id); // or selectedUser.uid depending on your schema
+                if (!selectedRequest) return;
+                handleFriendRequest("accept", selectedRequest!.id, selectedRequest!.uid1, selectedRequest!.uid2);
                 closeModal();
             }}
-            onDecline={() => {
-                handleFriendRequest("decline", selectedUser!.id);
+            onReject={() => {
+                if (!selectedRequest) return;
+                handleFriendRequest("reject", selectedRequest!.id, selectedRequest!.uid1, selectedRequest!.uid2);
                 closeModal();
             }}
             scaleAnim={scaleAnim}
