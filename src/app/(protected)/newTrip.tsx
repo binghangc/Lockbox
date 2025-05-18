@@ -76,7 +76,7 @@ export default function NewTrip() {
           start_date: startDate,
           end_date: endDate,
           country: selectedCountry.name,
-          thumbnail_url: thumbnailUrl,
+          thumbnail_url: thumbnailUrl || 'https://pub-8c0b91be3e2945c88ce582ecb937b8b6.r2.dev/wine-hand.avif',
         }),
       });
 

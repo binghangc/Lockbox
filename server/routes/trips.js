@@ -89,4 +89,34 @@ router.get('/', async (req, res) => {
   res.json(trips);
 });
 
+// GET /trips/:id - Get a single trip by ID
+router.get('/:id', async (req, res) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  const tripId = req.params.id;
+
+  const { data: userData, error: userError } = await supabase.auth.getUser(token);
+  if (userError || !userData?.user) {
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+
+  const { data, error } = await supabase
+    .from('trips')
+    .select(`
+      *,
+      host:profiles (
+        id,
+        name,
+        avatar_url
+      )
+    `)
+    .eq('id', tripId)
+    .single();
+
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+
+  res.json(data);
+});
+
 module.exports = router;

@@ -12,8 +12,8 @@ export type Trip = {
     id: string;
     title: string;
     description: string;
-    location: string;
-    thumbnail: string;
+    country: string;
+    thumbnail_url: string;
     status: TripStatus;
 
     created_at: string;
