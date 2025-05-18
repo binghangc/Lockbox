@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import TripHeader from '@/components/tripHeader';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
+import TripPillbar from '@/components/tripPillbar';
 
 
 
@@ -116,6 +117,7 @@ export default function TripDetailScreen() {
                 </View>
 
             </ScrollView>
+            <TripPillbar />
         </>
     );
 }
