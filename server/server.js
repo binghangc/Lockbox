@@ -11,6 +11,7 @@ app.use(cors());
 
 // imported routes
 const tripRoutes = require('./routes/trips');
+const thumbnailsRoute = require('./routes/thumbnails');
 
 app.use(express.json());
 
@@ -25,6 +26,7 @@ app.use('/profile', require('./routes/profile'));
 
 // API trip endpoints: get and edit trip info, ie name, description, start_date, end_date
 app.use('/trips', tripRoutes);
+app.use('/thumbnails', thumbnailsRoute);
 
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);

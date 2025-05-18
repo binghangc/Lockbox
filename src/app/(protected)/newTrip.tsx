@@ -6,11 +6,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import AntDesign from '@expo/vector-icons/AntDesign';
-import placeholderThumbnail from '../../../assets/placeholder-thumbnail.png';
-import { useEffect, useState, useRef } from 'react';
-import { supabase } from '../../../lib/supabase';
+import { useState, useRef } from 'react';
 import DatePickerModal, { DatePickerModalRef } from '@/components/datePickerModal';
 import LocationPickerModal, { LocationPickerModalRef } from '@/components/locationPickerModal';
+import ThumbnailPickerModal, { ThumbnailPickerModalRef } from '@/components/thumbnailPickerModal';
 import { useUser } from '@/components/UserContext';
 
 export default function NewTrip() {
@@ -20,6 +19,7 @@ export default function NewTrip() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const modalRef = useRef<DatePickerModalRef>(null);
   const locationModalRef = useRef<LocationPickerModalRef>(null);
+  const thumbnailModalRef = useRef<ThumbnailPickerModalRef>(null);
   const insets = useSafeAreaInsets();
 
   const [tripTitle, setTripTitle] = useState('');
@@ -40,6 +40,8 @@ export default function NewTrip() {
 
   const openLocationPicker = () => locationModalRef.current?.open();
   const closeLocationPicker = () => locationModalRef.current?.close();
+
+  const openThumbnailPicker = () => thumbnailModalRef.current?.open();
 
   const handleDateConfirm = (range: { startDate: string | null; endDate: string | null }) => {
     setStartDate(range.startDate);
@@ -130,11 +132,11 @@ export default function NewTrip() {
 
         <View className="w-full aspect-square overflow-hidden relative mb-6">
           <Image
-            source={placeholderThumbnail}
+            source={thumbnailUrl ? { uri: thumbnailUrl } : { uri: 'https://pub-8c0b91be3e2945c88ce582ecb937b8b6.r2.dev/wine-hand.avif' }}
             resizeMode="cover"
             className="w-full h-full"
           />
-          <TouchableOpacity className="absolute bottom-3 right-3 bg-black/60 p-2 rounded-full">
+          <TouchableOpacity onPress={openThumbnailPicker} className="absolute bottom-3 right-3 bg-black/60 p-2 rounded-full">
           <MaterialIcons name="mode-edit" size={19} color="white" />
           </TouchableOpacity>
         </View>
@@ -213,6 +215,7 @@ export default function NewTrip() {
 
       <DatePickerModal ref={modalRef} onConfirm={handleDateConfirm} />
       <LocationPickerModal ref={locationModalRef} onSelectCountry={handleCountrySelect} />
+      <ThumbnailPickerModal ref={thumbnailModalRef} onSelect={(url) => setThumbnailUrl(url)} />
       
     </View>
   );
