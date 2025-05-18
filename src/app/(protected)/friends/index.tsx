@@ -1,4 +1,4 @@
-import { View, Text, Pressable, TouchableOpacity, FlatList } from "react-native";
+import { View, Text, Pressable, TouchableOpacity, FlatList, Image } from "react-native";
 import { useRouter, Stack } from "expo-router";
 import { useUser } from "@/components/UserContext";
 import { useEffect, useState } from "react";
@@ -67,7 +67,17 @@ export default function FriendsScreen() {
             />
             <View className="flex-1 bg-black px-4 pt-6">
                 {friends.length === 0 ? (
-                    <Text className="text-white text-center mt-8">You have no friends yet.</Text>
+                    <View className="flex-1 justify-center items-center">
+                        <Text className="text-white text-center text-base mb-3">
+                            You haven’t added anyone yet. Start connecting with fellow explorers!
+                        </Text>
+                        <Pressable
+                            onPress={() => router.push("/friends/search")}
+                            className="bg-blue-600 px-6 py-3 rounded-xl"
+                        >
+                            <Text className="text-white text-center font-semibold">Find Friends</Text>
+                        </Pressable>
+                    </View>
                 ) : ( 
                     <FlatList
                         data={friends}
@@ -75,13 +85,32 @@ export default function FriendsScreen() {
                         className="mt-4"
                         renderItem={({ item }: { item: FriendRow }) => (
                             <TouchableOpacity
-                                className="py-3 border-b border-white/10"
+                                className="bg-zinc-900 rounded-2xl px-4 py-3 flex-row items-center mb-3"
                                 onPress={() => setSelectedUser(item)}
                             >
-                                <Text className="text-white text-lg">{item.username}</Text>
-                                {item.name && (
-                                    <Text className="text-white/60">{item.name}</Text>
-                                )}
+                                <View className="w-14 h-14 rounded-full items-center justify-center">
+                                    {/* Glow layer */}
+                                    <View className="absolute w-14 h-14 rounded-full bg-blue-400/30 opacity-60 blur-md" />
+                                    <View className="absolute w-12 h-12 rounded-full bg-blue-400/40 blur-sm" />
+                                    
+                                    {/* Avatar image */}
+                                    <Image
+                                        source={{ uri: item.avatar_url }}
+                                        className="w-12 h-12 rounded-full border-2 border-white"
+                                    />
+                                </View>
+                                <View className="ml-3 flex-1">
+                                    <Text className="text-white text-lg font-semibold">{item.name}</Text>
+                                    {item.username && (
+                                        <Text className="text-white/60 text-sm">@{item.username}</Text>
+                                    )}
+                                </View>
+                                <Pressable
+                                    onPress={() => setSelectedUser(item)}
+                                    className="px-3 py-1 bg-blue-600 rounded-full"
+                                    >
+                                    <Text className="text-white text-sm">Nudge</Text>
+                                </Pressable>
                             </TouchableOpacity>
         
                         )}

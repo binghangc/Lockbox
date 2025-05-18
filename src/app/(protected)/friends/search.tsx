@@ -1,4 +1,3 @@
-import { useRouter, Stack } from "expo-router";
 import { useState } from 'react';
 import { View, FlatList, Text, TouchableOpacity, ActivityIndicator } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -73,9 +72,9 @@ export default function FriendsSearchScreen() {
                         className="py-3 border-b border-white/10"
                         onPress={() => setSelectedUser(item)}
                     >
-                        <Text className="text-white text-lg">{item.username}</Text>
-                        {item.name && (
-                            <Text className="text-white/60">{item.name}</Text>
+                        <Text className="text-white text-lg">{item.name}</Text>
+                        {item.username && (
+                            <Text className="text-white/60">@{item.username}</Text>
                         )}
                     </TouchableOpacity>
 

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { View, Text, Image, Pressable, Alert } from "react-native";
+import { BlurView } from 'expo-blur';
 import Modal from "react-native-modal";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import type { Profile } from "@/types"; // update this path as needed
@@ -62,16 +63,20 @@ export default function UserProfileModal({
             backdropOpacity={0.6}
             useNativeDriver
         >
-        <View className="bg-white rounded-2xl p-6 items-center">
+        <BlurView
+            intensity={70}
+            tint="light"
+            className="rounded-2xl p-6 items-center overflow-hidden"
+        >
             {user.avatar_url && (
                 <Image
                     source={{ uri: user.avatar_url }}
                     className="w-24 h-24 rounded-full mb-4"
                 />
             )}
-            <Text className="text-xl font-bold">{user.username}</Text>
-            {user.name && (
-                <Text className="text-gray-500">{user.name}</Text>
+            <Text className="text-xl font-bold text-white">{user.name}</Text>
+            {user.username && (
+                <Text className="text-gray-500">@{user.username}</Text>
             )}
             {user.bio && (
                 <Text className="text-center text-gray-600 mt-2">{user.bio}</Text>
@@ -95,7 +100,7 @@ export default function UserProfileModal({
             >
                 <Text className="text-white text-center">Close</Text>
             </Pressable>
-        </View>
+        </BlurView>
         </Modal>
     );
 }
