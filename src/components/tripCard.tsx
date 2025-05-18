@@ -11,7 +11,7 @@ export default function TripCard({ trip }: TripCardProps) {
   return (
     <TouchableOpacity className="w-64">
       <Image
-        source={{ uri: trip.thumbnail }}
+        source={{ uri: trip.thumbnail_url }}
         className="w-full aspect-square mb-1"
         resizeMode="cover"
       />

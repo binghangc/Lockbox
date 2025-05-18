@@ -1,15 +1,41 @@
 import { ScrollView, View, Text, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useState } from 'react';
-import { trips } from '@/dummyData';
+import { useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import TripCarousel from '@/components/tripCarousel';
 
 const FILTERS = ['upcoming', 'ongoing', 'past', 'pinned'] as const;
 
 export default function HomeScreen() {
   const [selectedFilter, setSelectedFilter] = useState<(typeof FILTERS)[number] | null>(null);
+  const [trips, setTrips] = useState<any[]>([]);
   const insets = useSafeAreaInsets();
   const filteredTrips = selectedFilter ? trips.filter((trip) => trip.status === selectedFilter) : trips;
+
+  useEffect(() => {
+    const fetchTrips = async () => {
+      try {
+        const token = await AsyncStorage.getItem('access_token');
+        console.log("Fetching from:", `${process.env.EXPO_PUBLIC_API_URL}/trips`);
+        const res = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/trips`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          setTrips(data);
+        } else {
+          console.error('Error fetching trips:', data.error);
+        }
+      } catch (error) {
+        console.error('Fetch error:', error);
+      }
+    };
+
+    fetchTrips();
+  }, []);
 
   return (
     <ScrollView
