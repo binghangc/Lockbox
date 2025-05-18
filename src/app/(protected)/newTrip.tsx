@@ -36,10 +36,8 @@ export default function NewTrip() {
   };
 
   const openDatePicker = () => modalRef.current?.open();
-  const closeDatePicker = () => modalRef.current?.close();
 
   const openLocationPicker = () => locationModalRef.current?.open();
-  const closeLocationPicker = () => locationModalRef.current?.close();
 
   const openThumbnailPicker = () => thumbnailModalRef.current?.open();
 
@@ -78,6 +76,7 @@ export default function NewTrip() {
           start_date: startDate,
           end_date: endDate,
           country: selectedCountry.name,
+          thumbnail_url: thumbnailUrl,
         }),
       });
 
@@ -126,6 +125,8 @@ export default function NewTrip() {
             onChangeText={setTripTitle}
             placeholder="Untitled Trip"
             placeholderTextColor="white"
+            autoCapitalize="none"
+            autoCorrect={false}
             className="text-4xl font-extrabold text-center text-white"
           />
         </BlurView>
@@ -206,6 +207,8 @@ export default function NewTrip() {
             placeholder="Drop the deets on your trip"
             placeholderTextColor="rgba(255, 255, 255, 0.5)"
             multiline
+            autoCapitalize="none"
+            autoCorrect={false}
             style={{ minHeight: 100, textAlignVertical: 'top' }}
             className="text-xl text-white text-start"
           />

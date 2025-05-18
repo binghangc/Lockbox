@@ -23,7 +23,7 @@ router.post('/', async (req, res) => {
   }
 
   const user_id = userData.user.id;
-  const { title, description, start_date, end_date, country } = req.body;
+  const { title, description, start_date, end_date, country, thumbnail_url } = req.body;
 
   const { data, error } = await supabase.from('trips').insert([
     {
@@ -32,7 +32,8 @@ router.post('/', async (req, res) => {
       description,
       start_date,
       end_date,
-      country
+      country,
+      thumbnail_url
     },
   ]);
 
