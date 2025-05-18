@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { View, Text, Image, Pressable, Alert } from "react-native";
+import { View, Text, Pressable, Alert } from "react-native";
 import { BlurView } from 'expo-blur';
 import Modal from "react-native-modal";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import type { Profile } from "@/types"; // update this path as needed
+import type { Profile } from "@/types"; 
+import FloatingAvatar from "./floatingAvatar";
+
 
 export default function UserProfileModal({
     isVisible,
@@ -66,20 +68,19 @@ export default function UserProfileModal({
         <BlurView
             intensity={70}
             tint="light"
-            className="rounded-2xl p-6 items-center overflow-hidden"
+            className="rounded-2xl px-6 pt-10 pb-6 items-center overflow-visible"
         >
-            {user.avatar_url && (
-                <Image
-                    source={{ uri: user.avatar_url }}
-                    className="w-24 h-24 rounded-full mb-4"
-                />
-            )}
+            <View className="items-center justify-center -mt-16 mb-6 relative">
+                {user.avatar_url && <FloatingAvatar uri={user.avatar_url} />}
+            </View>
+            
+
             <Text className="text-xl font-bold text-white">{user.name}</Text>
             {user.username && (
-                <Text className="text-gray-500">@{user.username}</Text>
+                <Text className="text-gray-200">@{user.username}</Text>
             )}
             {user.bio && (
-                <Text className="text-center text-gray-600 mt-2">{user.bio}</Text>
+                <Text className="text-center text-gray-300 mt-2">{user.bio}</Text>
             )}
 
             {!isFriends && (
