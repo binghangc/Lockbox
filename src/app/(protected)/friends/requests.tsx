@@ -102,20 +102,7 @@ export default function RequestsScreen() {
 
     return (
         <>
-        <Stack.Screen
-            options={{
-                headerRight: () => (
-                    <View className="flex-row gap-4 mr-4">
-                        <Pressable onPress={() => router.push("/friends/search")}>
-                            <Ionicons name="add-outline" size={26} color="white" />
-                        </Pressable>
-                        <Pressable onPress={() => router.push("/friends/requests")}>
-                            <Ionicons name="mail-outline" size={22} color="white" />
-                        </Pressable>
-                    </View>
-                ),
-            }}
-        />
+        <Stack.Screen/>
         
         <View className="flex-1 bg-black px-4 pt-6">
             {loading ? (

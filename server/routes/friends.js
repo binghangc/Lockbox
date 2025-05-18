@@ -79,12 +79,30 @@ router.get('/search', async (req, res) => {
         return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const { data: results, error: resultError} = await supabase
+    // Step 1: Get all friend IDs (assuming bidirectional friendship structure)
+    const { data: friendships, error: friendsError } = await supabase
+        .from('friendships')
+        .select('uid1, uid2')
+        .or(`uid1.eq.${user.id},uid2.eq.${user.id}`);
+
+    if (friendsError) {
+        return res.status(500).json({ error: friendsError.message });
+    }
+
+    // Extract all friend IDs
+    const friendIds = new Set();
+    friendships?.forEach((f) => {
+        if (f.uid1 !== user.id) friendIds.add(f.uid1);
+        if (f.uid2 !== user.id) friendIds.add(f.uid2);
+    });
+
+    // Step 2: Query profiles that match the username and are not in the friendIds list or self
+    const { data: results, error: resultError } = await supabase
         .from('profiles')
         .select('*')
-        .ilike("username", `%${username}%`)
-        .neq('id', user.id);
-    
+        .ilike('username', `%${username}%`)
+        .not('id', 'in', `(${[...friendIds, user.id].join(',')})`);
+
     if (resultError) {
         return res.status(500).json({ error: resultError.message });
     }
