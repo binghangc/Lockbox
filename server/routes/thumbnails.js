@@ -14,7 +14,7 @@ const thumbnails = [
   { name: 'Ski Trip Vintage', url: 'https://pub-8c0b91be3e2945c88ce582ecb937b8b6.r2.dev/skitrip-vintage.jpeg' },
   { name: 'Ski Trip', url: 'https://pub-8c0b91be3e2945c88ce582ecb937b8b6.r2.dev/skitrip.jpg' },
   { name: 'Snowday Error', url: 'https://pub-8c0b91be3e2945c88ce582ecb937b8b6.r2.dev/snowday-error.jpeg' },
-  { name: 'Touch Grass', url: 'https://pub-8c0b91be3e2945c88ce582ecb937b8b6.r2.dev/touchgrass.jpeg' },
+  { name: 'Touch Grass', url: 'https://pub-8c0b91be3e2945c88ce582ecb937b8b6.r2.dev/touchgrass.jpg' },
   { name: 'Vegas Travel', url: 'https://pub-8c0b91be3e2945c88ce582ecb937b8b6.r2.dev/vegas-travel.jpeg' },
   { name: 'White Claw Hippies', url: 'https://pub-8c0b91be3e2945c88ce582ecb937b8b6.r2.dev/white-claw-hippies.avif' },
   { name: 'Wine Hand', url: 'https://pub-8c0b91be3e2945c88ce582ecb937b8b6.r2.dev/wine-hand.avif' },
