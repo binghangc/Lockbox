@@ -37,3 +37,19 @@ export type Invite = {
     created_at: string;
     updated_at: string;
 }
+
+export type Profile = {
+    id: string;
+    username: string;
+    name: string;
+    bio?: string;
+    avatar_url?: string;
+  };
+  
+export type FriendRequest = {
+    id: string;
+    uid1: string;
+    uid2: string;
+    status: "pending" | "accepted" | "rejected";
+    sender: Profile;
+};
