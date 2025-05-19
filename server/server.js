@@ -12,7 +12,6 @@ app.use(cors());
 // imported routes
 const tripRoutes = require('./routes/trips');
 const thumbnailsRoute = require('./routes/thumbnails');
-const supabase = createClient(process.env.EXPO_PUBLIC_SUPABASE_URL, process.env.EXPO_PUBLIC_SUPABASE_SERVICE_ROLE_KEY);
 
 app.use(express.json());
 
@@ -28,100 +27,9 @@ app.use('/profile', require('./routes/profile'));
 // API trip endpoints: get and edit trip info, ie name, description, start_date, end_date
 app.use('/trips', tripRoutes);
 app.use('/thumbnails', thumbnailsRoute);
+
 // API profile endpoints: get and edit profile info, ie name, bio, avatar_url
 app.use('/friends', require('./routes/friends'));
-
-// API endpoint for getting friends list for current user
-app.get('/friends/', async (req, res) => {
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(401).json({ error: 'Missing or malformed Authorization header' });
-    }
-  
-    const token = authHeader.split(' ')[1];
-    const { data, error } = await supabase.auth.getUser(token);
-    const user = data?.user;
-  
-    if (error || !user) {
-        return res.status(401).json({ error: 'Invalid or expired token' });
-    }
-  
-    const user_id = user.id;
-  
-    const { data: friends, error: friendError } = await supabase
-    .from('friendships')
-    .select('*')
-    .or(`uid1.eq.${user_id},uid2.eq.${user_id}`)
-    .eq('status', 'accepted');
-
-    if (friendError) {
-        return res.status(500).json({ error: friendError.message });
-    }
-
-    res.status(200).json(friends);
-});
-
-// API endpoint for sending friend request
-app.post('/friends/send-request', async (req, res) => {
-    const { uid1, uid2 } = req.body;
-
-    if (!uid1 || !uid2) {
-        return res.status(400).json({ error: 'Missing requester id or receiver id' });
-    }
-
-    const { error } = await supabase
-        .from('friends')
-        .insert([{ uid1, uid2, status: 'pending' }]);
-
-    if (error) {
-        return res.status(500).json({ error: error.message });
-    }
-
-    res.status(200).json({ message: 'Friend request sent successfully' });
-});
-
-// API endpoint for accepting friend request
-app.patch('/friends/accept-request', async (req, res) => {
-    const { uid1, uid2 } = req.body;
-
-    if (!uid1 || !uid2) {
-        return res.status(400).json({ error: 'Missing requester id or receiver id' });
-    }
-
-    const { error } = await supabase
-        .from('friends')
-        .update({ status: 'accepted' })
-        .eq('uid1', uid1)
-        .eq('uid2', uid2);
-
-    if (error) {
-        return res.status(500).json({ error: error.message });
-    }
-
-    res.status(200).json({ message: 'Friend request accepted successfully' });
-});
-
-// API endpoint for rejecting friend request
-app.patch('/friends/reject-request', async (req, res) => {
-    const { uid1, uid2 } = req.body;
-
-    if (!uid1 || !uid2) {
-        return res.status(400).json({ error: 'Missing requester id or receiver id' });
-    }
-
-    const { error } = await supabase
-        .from('friends')
-        .update({ status: 'declined' })
-        .eq('uid1', uid1)
-        .eq('uid2', uid2);
-
-    if (error) {
-        return res.status(500).json({ error: error.message });
-    }
-
-    res.status(200).json({ message: 'Friend request rejected successfully' });
-});
 
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
