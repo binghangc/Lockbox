@@ -1,19 +1,60 @@
 import { View, Text, Pressable, FlatList, TouchableOpacity, Image } from "react-native";
 import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
 import type { Profile } from "@/types";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { FontAwesome5, Feather } from '@expo/vector-icons';
+
 
 type FriendRow = Profile & { friendshipId: string };
+type FriendsListProps = {
+    onSelect: (user: Profile) => void | Promise<void>;
+    mode?: "default" | "invite";
+    alreadyInvitedIds?: string[];
+};
 
 export default function FriendsList({
-    friends,
-    loading,
     onSelect,
-}: {
-    friends: FriendRow[];
-    loading: boolean;
-    onSelect: (user: Profile) => void;
-}) {
+    mode = "default",
+    alreadyInvitedIds = [], 
+}: FriendsListProps ) {
     const router = useRouter();
+    // friends
+    const [friends, setFriends] = useState<FriendRow[]>([]);
+    const [loading, setLoading] = useState(true);
+    // invite
+    const [inviteStatus, setInviteStatus] = useState<Record<string, "idle" | "loading" | "sent" | "failed">>({});
+
+    const listFriends = async () => {
+        try {
+            setLoading(true);
+            const token = await AsyncStorage.getItem("access_token");
+            const res = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/friends`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            if (!res.ok) {
+                const { error } = await res.json();
+                console.error("Error fetching friends:", error);
+                return;
+            }
+
+            const data = await res.json();
+            setFriends(data)
+        } catch (error) {
+            console.error('Friends error:', 'failed to retrieve friends');
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    useEffect(() => {
+        listFriends();
+    }, [])
 
     if (loading) {
         return (
@@ -45,7 +86,11 @@ export default function FriendsList({
             data={friends}
             keyExtractor={(item) => item.id}
             className="mt-4"
-            renderItem={({ item }: { item: FriendRow }) => (
+            renderItem={({ item }: { item: FriendRow }) => {
+                const status = inviteStatus[item.id] ?? (alreadyInvitedIds?.includes(item.id) ? "sent" : undefined);
+            
+                return(
+                
                 <TouchableOpacity
                     className="bg-zinc-900 rounded-2xl px-4 py-3 flex-row items-center mb-3"
                     onPress={() => onSelect(item)}
@@ -66,13 +111,41 @@ export default function FriendsList({
                         )}
                     </View>
                     <Pressable
-                        onPress={() => onSelect(item)}
+                        onPress={() => {
+                            if (mode === "invite") {
+                                if (status === "sent") return;
+                                
+                                setInviteStatus((prev) => ({ ...prev, [item.id]: "loading" }));
+                                Promise.resolve(onSelect(item)) // convert to Promise if it's not
+                                    .then(() => {
+                                        setInviteStatus((prev) => ({ ...prev, [item.id]: "sent" }));
+                                        alert("Invite sent successfully!");
+                                    })
+                                    .catch(() => {
+                                        setInviteStatus((prev) => ({ ...prev, [item.id]: "failed" }));
+                                        alert("Failed to send invite.");
+                                    });
+                            } else {
+                                onSelect(item);
+                            }
+                        }}
+                        disabled={mode === "invite" && status === "sent"}
                         className="px-3 py-1 bg-blue-600 rounded-full"
                     >
-                        <Text className="text-white text-sm">Nudge</Text>
+                        {mode === "invite" ? (
+                            status === "sent" ? (
+                                <Feather name="check" size={16} color="white" />
+                            ) : (
+                                <FontAwesome5 name="paper-plane" size={16} color="white" />
+                            )
+                        ) : status === "failed" ? (
+                            <Feather name="alert-circle" size={16} color="red" />
+                        ) : (
+                            <Text className="text-white text-sm">Nudge</Text>
+                        )}
                     </Pressable>
                 </TouchableOpacity>
-            )}
+            )}}
         />
     );
 }

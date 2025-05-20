@@ -1,8 +1,6 @@
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { Stack } from 'expo-router';
-import { TouchableOpacity } from 'react-native';
 
 export default function ProtectedLayout() {
     const router = useRouter();

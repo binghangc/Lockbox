@@ -42,22 +42,58 @@ router.get('/', async (req, res) => {
 
 // API endpoint for sending trip invites
 router.post('/send-invite', async (req, res) => {
-    const { user_id, host_id } = req.body;
+    const { user_id, host_id, trip_id } = req.body;
 
-    if (!user_id || !host_id) {
-        return res.status(400).json({ error: 'Missing host id or participant id' });
+    if (!user_id || !host_id || !trip_id) {
+        return res.status(400).json({ error: 'Missing host_id, user_id, or trip_id' });
+    }
+
+    const { data: userData, error: userError } = await supabase
+        .from('profiles')
+        .select('name')
+        .eq('id', user_id)
+        .single();
+
+    if (userError) {
+        return res.status(500).json({ error: 'Failed to fetch user name.' });
     }
 
     const { error } = await supabase
         .from('invites')
-        .insert([{ user_id, host_id, status: 'pending' }]);
+        .insert([{ 
+            trip_id,
+            user_id, 
+            host_id, 
+            status: 'pending' 
+        }]);
 
     if (error) {
         return res.status(500).json({ error: error.message });
     }
 
-    res.status(200).json({ message: 'Trip invite sent successfully' });
+    res.status(200).json({ message: `Invite sent to ${userData.name}!` });
 });
+
+// API endpoint for getting users who are already invited on a trip
+router.get('invited', async (req, res) => {
+    const { trip_id } = req.query;
+
+    if (!trip_id) {
+        return res.status(400).json({ error: 'Missing trip_id in query params.' });
+    }
+
+    const { data, error } = await supabase
+        .from('invites')
+        .select('user_id')
+        .eq('trip_id', trip_id)
+        .eq('status', 'pending'); // or remove if you want to include accepted too
+
+    if (error) {
+        return res.status(500).json({ error: error.message });
+    }
+
+    res.status(200).json({ invites: data });
+})
 
 // API endpoint for accepting trip invite
 router.patch('/accept-invite', async (req, res) => {

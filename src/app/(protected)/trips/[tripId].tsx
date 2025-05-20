@@ -117,7 +117,7 @@ export default function TripDetailScreen() {
                 </View>
 
             </ScrollView>
-            <TripPillbar />
+            <TripPillbar tripId={trip.id} />
         </>
     );
 }
