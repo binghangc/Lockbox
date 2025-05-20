@@ -54,6 +54,14 @@ export default function FriendsList({
 
     useEffect(() => {
         listFriends();
+
+        setInviteStatus((prev) => {
+            const updated = { ...prev };
+            for (const id of alreadyInvitedIds) {
+                updated[id] = "sent";
+            }
+            return updated;
+        });
     }, [])
 
     if (loading) {
@@ -129,7 +137,7 @@ export default function FriendsList({
                                 onSelect(item);
                             }
                         }}
-                        disabled={mode === "invite" && status === "sent"}
+                        disabled={mode === "invite" && (status === "sent" || alreadyInvitedIds.includes(item.id))}
                         className="px-3 py-1 bg-blue-600 rounded-full"
                     >
                         {mode === "invite" ? (

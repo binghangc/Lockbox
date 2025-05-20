@@ -82,7 +82,7 @@ export default function InviteFriendsModal({
                 <FontAwesome5 name="times" size={18} color="black" />
             </Pressable>
 
-            <Text className="text-lg font-bold mb-4">Invite Friends</Text>
+            <Text className="text-lg font-bold mb-4">Get your friends on board!</Text>
             <FriendsList
                 mode="invite"
                 onSelect={handleInvite}
