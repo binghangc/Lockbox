@@ -7,8 +7,6 @@ import { useUser } from '@/components/UserContext';
 import FloatingOrb from '@/components/floatingOrb';
 
 const ENABLE_FORGOT_PASSWORD = false;
-const ENABLE_EMAIL_CONFIRMATION = false;
-
 
 export default function LoginScreen() {
     const [mode, setMode] = useState<'login' | 'signup'>('login');
@@ -31,9 +29,7 @@ export default function LoginScreen() {
                 body: JSON.stringify({ email, password, ...(mode === 'signup' && { username }) }),
             });
 
-            console.log("Raw response:", response);
             const result = await response.json();
-            console.log("Parsed JSON:", result);
             if (!response.ok) {
                 Alert.alert('Error', result.error || 'Something went wrong');
                 return;
