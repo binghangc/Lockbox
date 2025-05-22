@@ -159,20 +159,20 @@ router.patch('/accept-invite', async (req, res) => {
 
 // API endpoint for accepting trip invite
 router.patch('/decline-invite', async (req, res) => {
-    const { id, user_id, host_id } = req.body;
+    const { id, user_id, trip_id } = req.body;
 
-    if (!user_id || !host_id) {
-        return res.status(400).json({ error: 'Missing host id or participant id' });
+    if (!user_id || !trip_id) {
+        return res.status(400).json({ error: 'Missing trip id or participant id' });
     }
 
     const { error } = await supabase
         .from('invites')
         .update({ 
-            status: 'decline', 
-            accepted_at: new Date().toISOString() })
+            status: 'declined', 
+        })
         .eq('id', id)
         .eq('user_id', user_id)
-        .eq('host_id', host_id);
+        .eq('trip_id', trip_id);
 
     if (error) {
         return res.status(500).json({ error: error.message });

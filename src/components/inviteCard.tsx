@@ -4,7 +4,7 @@ import InviteRow from './inviteRow';
 import { Invite } from '@/types';
 import { useRouter } from 'expo-router';
 import { Feather, FontAwesome6 } from '@expo/vector-icons';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function InviteCard({ 
@@ -15,6 +15,7 @@ export default function InviteCard({
     onClose: () => void;
 }) {
     const router = useRouter();
+    const insets = useSafeAreaInsets();
     const handleResponse = async (response: string) => {
         console.log("User chose:", response);
             
@@ -66,8 +67,8 @@ export default function InviteCard({
 
     return (
         <SafeAreaView className="flex-1 bg-black">
-            <View className="flex-1 px-4">
-                <View className="flex-row items-center justify-between py-4">
+            <View style={{ paddingTop: insets.top }} className="flex-1 px-4">
+                <View className="flex-row items-center justify-between pt-6 pb-4">
                 <TouchableOpacity onPress={onClose}>
                     <Feather name="x" size={28} color="white" />
                 </TouchableOpacity>
