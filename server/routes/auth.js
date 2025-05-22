@@ -13,25 +13,34 @@ const supabase = createClient(
   
 // API endpoint for signup
 router.post('/signup', async (req, res) => {
-    const { email, password, username } = req.body;
+    try {
+        const { email, password, username } = req.body;
 
-    const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-            data: {
-                name: username,
-                username,
-                avatar_url: 'https://i.pinimg.com/736x/c3/9a/f4/c39af4399a87bc3d7701101b728cddc9.jpg',
+        const { data, error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+                data: {
+                    name: username,
+                    username,
+                    avatar_url: 'https://i.pinimg.com/736x/c3/9a/f4/c39af4399a87bc3d7701101b728cddc9.jpg',
+                },
             },
-        },
-    });
+        });
 
-    if (error) {
-        return res.status(400).json({ error: error.message });
+        if (error) {
+            return res.status(400).json({ error: error.message });
+        }
+
+        res.status(200).json({
+            message: 'Signup successful! You can log in now.',
+            session: data.session,
+            user: data.user,
+          });
+    } catch (err) {
+        console.error('Unexpected server error during signup:', err);
+        res.status(500).json({ error: 'Server error during signup. Try again.' });
     }
-
-    res.status(200).json({ message: 'Signup successful! Please check your email for verification.', data });
 });
 
 // API endpoint for login

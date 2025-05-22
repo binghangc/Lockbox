@@ -6,6 +6,9 @@ import { useRouter } from 'expo-router';
 import { useUser } from '@/components/UserContext';
 import FloatingOrb from '@/components/floatingOrb';
 
+const ENABLE_FORGOT_PASSWORD = false;
+const ENABLE_EMAIL_CONFIRMATION = false;
+
 
 export default function LoginScreen() {
     const [mode, setMode] = useState<'login' | 'signup'>('login');
@@ -28,7 +31,9 @@ export default function LoginScreen() {
                 body: JSON.stringify({ email, password, ...(mode === 'signup' && { username }) }),
             });
 
+            console.log("Raw response:", response);
             const result = await response.json();
+            console.log("Parsed JSON:", result);
             if (!response.ok) {
                 Alert.alert('Error', result.error || 'Something went wrong');
                 return;
@@ -44,14 +49,22 @@ export default function LoginScreen() {
             });
             const profileData = await profileRes.json();
 
-            if (!profileRes.ok || !profileData.profile) {
-                throw new Error('Failed to fetch profile');
+            if (!profileRes.ok) {
+                const errMsg = profileData?.error || 'Failed to fetch profile';
+                throw new Error(errMsg);
+            }
+            if (!profileData.profile) {
+                throw new Error('No profile data returned');
             }
 
             setUser(profileData.profile);
             router.replace('/(tabs)');
         } catch (err) {
-            Alert.alert('Error', 'Failed to connect to the server');
+            if (err instanceof Error) {
+                Alert.alert('Error', err.message);
+            } else {
+                Alert.alert('Error', 'Unexpected error occurred');
+            }
         } finally {
             setLoading(false);
         }
@@ -121,7 +134,8 @@ export default function LoginScreen() {
             />
 
             {/* Forgot Password */}
-            {mode === 'login' && (
+            {/** TO DO: reset link not working */}
+            {mode === 'login' && ENABLE_FORGOT_PASSWORD && (
                 <TouchableOpacity
                     onPress={async () => {
                     if (!email) return Alert.alert('Oops', 'Enter your email first!');
