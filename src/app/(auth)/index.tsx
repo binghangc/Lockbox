@@ -15,7 +15,7 @@ export default function LoginScreen() {
     const [loading, setLoading] = useState(false);
 
     const router = useRouter();
-    const { setUser } = useUser();
+    const { setUser, setToken } = useUser();
 
     const handleSubmit = async () => {
         setLoading(true);
@@ -37,6 +37,7 @@ export default function LoginScreen() {
             const token = result.session?.access_token;
             if (!token) throw new Error('Missing access token from response');
             await AsyncStorage.setItem('access_token', token);
+            setToken(token);
 
             const profileRes = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/profile`, {
                 headers: { Authorization: `Bearer ${token}` },

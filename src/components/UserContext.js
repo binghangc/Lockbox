@@ -44,10 +44,10 @@ export const UserProvider = ({ children }) => {
         };
 
         fetchUser();
-    }, []);
+    }, [token]);
 
     return (
-        <UserContext.Provider value={{ user, setUser, loading, token }}>
+        <UserContext.Provider value={{ user, setUser, loading, token, setToken }}>
             {children}
         </UserContext.Provider>
     );
