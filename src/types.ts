@@ -26,16 +26,14 @@ export type Trip = {
 }
 
 
-
 export type Invite = {
     id: string;
     trip_id: string;
-    inviter: User;
-    invitee: User;
+    user_id: string;
+    host_id: string;
     status: 'pending' | 'accepted' | 'declined';
-
     created_at: string;
-    updated_at: string;
+    trip: Trip;
 }
 
 export type Profile = {

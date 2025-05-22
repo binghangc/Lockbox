@@ -28,7 +28,7 @@ router.get('/', async (req, res) => {
 
     const { data: invites, error: invitesError } = await supabase
         .from('invites')
-        .select('*')
+        .select('*, trip:trips(*, host:profiles(*))')
         .eq('user_id', user_id)
         .eq('status', 'pending')
 
@@ -38,6 +38,29 @@ router.get('/', async (req, res) => {
 
     res.status(200).json(invites)
 })
+
+// GET /invites/:id - Get a single trip by ID
+router.get('/:id', async (req, res) => {
+    const token = req.headers.authorization?.split(' ')[1];
+    const inviteId = req.params.id;
+  
+    const { data: userData, error: userError } = await supabase.auth.getUser(token);
+    if (userError || !userData?.user) {
+      return res.status(401).json({ error: 'Invalid token' });
+    }
+  
+    const { data, error } = await supabase
+        .from('invites')
+        .select('*, trip:trips(*, host:profiles(*))')
+        .eq('id', inviteId)
+        .single();
+  
+    if (error) {
+      return res.status(500).json({ error: error.message });
+    }
+  
+    res.json(data);
+});
 
 
 // API endpoint for sending trip invites
@@ -75,7 +98,7 @@ router.post('/send-invite', async (req, res) => {
 });
 
 // API endpoint for getting users who are already invited on a trip
-router.get('invited', async (req, res) => {
+router.get('/invited', async (req, res) => {
     const { trip_id } = req.query;
 
     if (!trip_id) {
@@ -97,23 +120,38 @@ router.get('invited', async (req, res) => {
 
 // API endpoint for accepting trip invite
 router.patch('/accept-invite', async (req, res) => {
-    const { id, user_id, host_id } = req.body;
+    const { id, trip_id, user_id } = req.body;
 
-    if (!user_id || !host_id) {
-        return res.status(400).json({ error: 'Missing host id or participant id' });
+    if (!user_id || !trip_id) {
+        return res.status(400).json({ error: 'Missing trip id or participant id' });
     }
 
     const { error } = await supabase
         .from('invites')
         .update({ 
-            status: 'accept', 
-            accepted_at: new Date().toISOString() })
+            status: 'accepted', 
+        })
         .eq('id', id)
         .eq('user_id', user_id)
-        .eq('host_id', host_id);
+        .eq('trip_id', trip_id);
 
     if (error) {
         return res.status(500).json({ error: error.message });
+    }
+
+    const { error: participantError } = await supabase
+        .from('participants')
+        .insert([
+        {
+            trip_id,
+            user_id,
+            role: 'participant',
+            responded_at:  new Date().toISOString()
+        }
+        ]);
+
+    if (participantError) {
+        return res.status(500).json({ error: participantError.message });
     }
 
     res.status(200).json({ message: 'Trip invite accepted successfully' });

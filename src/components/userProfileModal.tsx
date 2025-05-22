@@ -68,7 +68,7 @@ export default function UserProfileModal({
         <BlurView
             intensity={70}
             tint="light"
-            className="rounded-2xl px-6 pt-10 pb-6 items-center overflow-visible"
+            className="rounded-2xl px-6 pt-10 pb-6 items-center overflow-visible bg-white/60"
         >
             <View className="items-center justify-center -mt-16 mb-6 relative">
                 {user.avatar_url && <FloatingAvatar uri={user.avatar_url} />}

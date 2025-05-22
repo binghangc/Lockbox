@@ -1,13 +1,11 @@
 import { View, Pressable, TouchableOpacity } from "react-native";
 import { useRouter, Stack } from "expo-router";
 import { useUser } from "@/components/UserContext";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Ionicons, Feather } from '@expo/vector-icons';
 import UserProfileModal from "@/components/userProfileModal";
 import { Profile } from "@/types";
 import FriendsList from "@/components/friendsList";
-
-type FriendRow = Profile & { friendshipId: string };
 
 export default function FriendsScreen() {
     const router = useRouter();

@@ -5,6 +5,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import FriendsList from "@/components/friendsList";
 import { Profile } from "@/types";
 import { useUser } from "@/components/UserContext";
+import { BlurView } from 'expo-blur';
 
 export default function InviteFriendsModal({
     tripId,
@@ -56,10 +57,10 @@ export default function InviteFriendsModal({
         const data = await res.json();
 
         if (res.ok) {
-        const invitedIds = data.invites.map((invite: any) => invite.user_id);
-        setAlreadyInvitedIds(invitedIds);
+            const invitedIds = data.invites.map((invite: any) => invite.user_id);
+            setAlreadyInvitedIds(invitedIds);
         } else {
-        console.error("Failed to fetch invited users:", data.error);
+            console.error("Failed to fetch invited users:", data.error);
         }
     };
 
@@ -77,18 +78,25 @@ export default function InviteFriendsModal({
             onRequestClose={onClose}
         >
         <View className="flex-1 justify-end bg-black/50">
-            <View className="bg-white rounded-t-2xl p-6 max-h-[80%]">
+            <BlurView
+                intensity={60}
+                tint="light"
+                className="rounded-t-3xl px-6 pt-6 pb-10 max-h-[80%] min-h-[40%] bg-white/60"
+            >
             <Pressable onPress={onClose} className="absolute top-4 right-4">
-                <FontAwesome5 name="times" size={18} color="black" />
+                <FontAwesome5 name="times" size={18} color="white" />
             </Pressable>
 
-            <Text className="text-lg font-bold mb-4">Get your friends on board!</Text>
+            {/* Optional Grab Bar */}
+            <View className="w-12 h-1.5 bg-gray-300 rounded-full self-center mb-5" />
+
+            <Text className="text-lg font-semibold text-white mb-3">Get your friends on board!</Text>
             <FriendsList
                 mode="invite"
                 onSelect={handleInvite}
                 alreadyInvitedIds={alreadyInvitedIds}
             />
-            </View>
+            </BlurView>
         </View>
         </Modal>
     );
