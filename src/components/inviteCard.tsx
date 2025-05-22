@@ -2,7 +2,6 @@ import React from 'react';
 import { Text, TouchableOpacity, Image, View, ScrollView, Alert } from 'react-native';
 import InviteRow from './inviteRow';
 import { Invite } from '@/types';
-import { useRouter } from 'expo-router';
 import { Feather, FontAwesome6 } from '@expo/vector-icons';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -14,7 +13,6 @@ export default function InviteCard({
     invite: Invite;
     onClose: () => void;
 }) {
-    const router = useRouter();
     const insets = useSafeAreaInsets();
     const handleResponse = async (response: string) => {
         console.log("User chose:", response);
@@ -99,7 +97,7 @@ export default function InviteCard({
                         <Text className="text-neutral-400 text-xl ml-2">{invite.trip.country}</Text>
                     </View>
                 )}
-                {/* Description */}
+                
                 {invite.trip.description && (
                     <Text className="text-neutral-400 text-lg mt-4">{invite.trip.description}</Text>
                 )}

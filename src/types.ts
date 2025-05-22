@@ -1,10 +1,3 @@
-export type User = {
-    id: string;
-    username: string;
-    avatar_url: string;
-    bio: string;
-}
-
 export type Role = 'host' | 'participant';
 export type TripStatus = 'upcoming' | 'ongoing' | 'past' | 'pinned';
 
@@ -21,8 +14,8 @@ export type Trip = {
     end_date: string;
 
     user_id: string;
-    host: User;
-    participants: { user: User; role: Role}[];
+    host: Profile;
+    participants: { profile: Profile; role: Role}[];
 }
 
 

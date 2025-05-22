@@ -2,7 +2,6 @@ import { useRouter, Stack } from "expo-router";
 import { useEffect, useState, useRef } from 'react';
 import { View, FlatList, Text, TouchableOpacity, ActivityIndicator, Modal, Pressable, Animated } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Ionicons } from "@expo/vector-icons"
 import { FriendRequest } from "@/types";
 import FriendRequestModal from "@/components/friendRequestModal";
   

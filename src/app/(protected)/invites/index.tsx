@@ -1,7 +1,6 @@
 import { TouchableOpacity, Modal } from "react-native";
 import { useRouter, Stack } from "expo-router";
 import { useState } from "react";
-import { useUser } from '@/components/UserContext';
 import InvitesList from "@/components/invitesList";
 import InviteCard from "@/components/inviteCard";
 import { Invite } from "@/types"
