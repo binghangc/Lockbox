@@ -39,29 +39,6 @@ router.get('/', async (req, res) => {
     res.status(200).json(invites)
 })
 
-// GET /invites/:id - Get a single trip by ID
-router.get('/:id', async (req, res) => {
-    const token = req.headers.authorization?.split(' ')[1];
-    const inviteId = req.params.id;
-  
-    const { data: userData, error: userError } = await supabase.auth.getUser(token);
-    if (userError || !userData?.user) {
-      return res.status(401).json({ error: 'Invalid token' });
-    }
-  
-    const { data, error } = await supabase
-        .from('invites')
-        .select('*, trip:trips(*, host:profiles(*))')
-        .eq('id', inviteId)
-        .single();
-  
-    if (error) {
-      return res.status(500).json({ error: error.message });
-    }
-  
-    res.json(data);
-});
-
 
 // API endpoint for sending trip invites
 router.post('/send-invite', async (req, res) => {
@@ -179,6 +156,29 @@ router.patch('/decline-invite', async (req, res) => {
     }
 
     res.status(200).json({ message: 'Trip invite rejected successfully' });
+});
+
+// GET /invites/:id - Get a single trip by ID
+router.get('/:id', async (req, res) => {
+    const token = req.headers.authorization?.split(' ')[1];
+    const inviteId = req.params.id;
+  
+    const { data: userData, error: userError } = await supabase.auth.getUser(token);
+    if (userError || !userData?.user) {
+      return res.status(401).json({ error: 'Invalid token' });
+    }
+  
+    const { data, error } = await supabase
+        .from('invites')
+        .select('*, trip:trips(*, host:profiles(*))')
+        .eq('id', inviteId)
+        .single();
+  
+    if (error) {
+      return res.status(500).json({ error: error.message });
+    }
+  
+    res.json(data);
 });
 
 module.exports = router;

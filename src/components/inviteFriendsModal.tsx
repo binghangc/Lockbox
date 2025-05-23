@@ -65,8 +65,9 @@ export default function InviteFriendsModal({
     };
 
     useEffect(() => {
+        console.log("tripId:", tripId);
         if (visible) {
-        fetchInvited();
+            fetchInvited();
         }
     }, [visible, tripId]);
 
