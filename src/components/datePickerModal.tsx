@@ -5,11 +5,13 @@ import React, { forwardRef } from 'react';
 import { Text } from 'react-native';
 import { Modalize } from 'react-native-modalize';
 import { BlurView } from 'expo-blur';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export type DatePickerModalRef = Modalize;
 
 const DatePickerModal = forwardRef<Modalize, { onConfirm?: (range: { startDate: string | null; endDate: string | null }) => void }>((props, ref) => {
   const { onConfirm } = props;
+  const inset = useSafeAreaInsets();
   const [startDate, setStartDate] = React.useState<string | null>(null);
   const [endDate, setEndDate] = React.useState<string | null>(null);
 
@@ -80,12 +82,14 @@ const DatePickerModal = forwardRef<Modalize, { onConfirm?: (range: { startDate: 
       handleStyle={{ backgroundColor: '#ccc' }}
       handlePosition="inside"
       disableScrollIfPossible={true}
+      scrollViewProps={{ scrollEnabled: false }}
       modalStyle={{ backgroundColor: 'transparent' }}
       modalTopOffset={45}
     >
       <BlurView
         intensity={60}
         tint="dark"
+        experimentalBlurMethod="dimezisBlurView"
         style={{
           padding: 20,
           borderTopLeftRadius: 24,
@@ -169,7 +173,7 @@ const DatePickerModal = forwardRef<Modalize, { onConfirm?: (range: { startDate: 
               alignItems: 'center',
               justifyContent: 'center',
               alignSelf: 'flex-end',
-              marginBottom: 20, // adds space above iPhone home bar
+              marginBottom: inset.bottom + 5, // adds space above iPhone home bar
 
             }}
           >

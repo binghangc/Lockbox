@@ -1,5 +1,6 @@
 import React, { forwardRef, useRef, useImperativeHandle, useEffect, useState } from 'react';
-import { Text, TouchableOpacity, Image } from 'react-native';
+import { Text, TouchableOpacity, Image, View } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 import { Modalize } from 'react-native-modalize';
 import { BlurView } from 'expo-blur';
 
@@ -40,79 +41,63 @@ const ThumbnailPickerModal = forwardRef<Modalize, {
       handlePosition="inside"
       modalStyle={{ backgroundColor: 'transparent', borderTopLeftRadius: 24, borderTopRightRadius: 24 }}
       modalTopOffset={45}
-      flatListProps={{
-        data: thumbnails,
-        keyExtractor: (item) => item.url,
-        showsVerticalScrollIndicator: false,
-        numColumns: 2,
-        columnWrapperStyle: {
-          justifyContent: 'space-between',
-          paddingHorizontal: 0,
-          marginBottom: 4,
-        },
-        renderItem: ({ item }) => (
-          <TouchableOpacity
-            onPress={() => {
-              onSelect?.(item.url);
-              modalRef.current?.close();
-            }}
-            style={{
-              width: '49.5%',
-              aspectRatio: 1,
-              overflow: 'hidden',
-            }}
-          >
-            <Image
-              source={{ uri: item.url }}
-              style={{ width: '100%', height: '100%' }}
-              resizeMode="cover"
-            />
-          </TouchableOpacity>
-        ),
-        ListHeaderComponent: () => (
-          <BlurView
-            intensity={60}
-            tint="dark"
-            style={{
-              paddingVertical: 16,
-              paddingHorizontal: 24,
-              borderTopLeftRadius: 24,
-              borderTopRightRadius: 24,
-            }}
-          >
-            <Text className="text-white text-xl font-bold text-center mb-6">Thumbnails</Text>
-          </BlurView>
-        ),
-        ListFooterComponent: () => (
-          <BlurView
-            intensity={60}
-            tint="dark"
-            style={{
-              paddingVertical: 24,
-              paddingHorizontal: 24,
-              borderBottomLeftRadius: 24,
-              borderBottomRightRadius: 24,
-            }}
-          >
-            <TouchableOpacity
-              onPress={() => {
-                modalRef.current?.close();
-              }}
-              style={{
-                backgroundColor: 'white',
-                borderRadius: 5,
-                paddingVertical: 12,
-                paddingHorizontal: 24,
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginTop: 12,
-              }}
-            >
-              <Text style={{ color: 'black', fontWeight: '600', fontSize: 16 }}>Done</Text>
-            </TouchableOpacity>
-          </BlurView>
-        ),
-      }}
+      customRenderer={(scrollViewProps: any) => (
+        <BlurView
+          intensity={60}
+          tint="dark"
+          experimentalBlurMethod="dimezisBlurView"
+          style={{ borderTopLeftRadius: 24, borderTopRightRadius: 24 }}
+        >
+          <ScrollView {...scrollViewProps} showsVerticalScrollIndicator={false}>
+            <View style={{ paddingVertical: 16, paddingHorizontal: 8 }}>
+              <Text className="text-white text-xl font-bold text-center mb-3 mt-4">Thumbnails</Text>
+            </View>
+
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', paddingHorizontal: 4 }}>
+              {thumbnails.map((item) => (
+                <TouchableOpacity
+                  key={item.url}
+                  onPress={() => {
+                    onSelect?.(item.url);
+                    modalRef.current?.close();
+                  }}
+                  style={{
+                    width: '49.5%',
+                    aspectRatio: 1,
+                    marginBottom: 4,
+                    overflow: 'hidden',
+                  }}
+                >
+                  <Image
+                    source={{ uri: item.url }}
+                    style={{ width: '100%', height: '100%' }}
+                    resizeMode="cover"
+                  />
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <View style={{ paddingVertical: 24, paddingHorizontal: 16 }}>
+              <TouchableOpacity
+                onPress={() => {
+                  modalRef.current?.close();
+                }}
+                style={{
+                  backgroundColor: 'white',
+                  borderRadius: 5,
+                  paddingVertical: 12,
+                  paddingHorizontal: 24,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginTop: 12,
+                }}
+              >
+                <Text style={{ color: 'black', fontWeight: '600', fontSize: 16 }}>Done</Text>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
+        </BlurView>
+      )}
     />
   );
 });
