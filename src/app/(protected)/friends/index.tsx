@@ -17,11 +17,6 @@ export default function FriendsScreen() {
             <Stack.Screen
                 options={{
                     title: "Friends",
-                    headerLeft: () => (
-                        <TouchableOpacity onPress={() => router.back()} className="pl-3">
-                            <Feather name="arrow-left" size={24} color="white" />
-                        </TouchableOpacity>
-                    ),
                     headerRight: () => (
                         <View className="flex-row gap-4 mr-4">
                             <Pressable onPress={() => router.push("/friends/search")}>

@@ -13,12 +13,7 @@ export default function InvitesScreen() {
     return (
         <>
             <Stack.Screen options={{ 
-                title: "Your Invites",
-                headerLeft: () => (
-                    <TouchableOpacity onPress={() => router.back()} className="pl-3">
-                        <Feather name="arrow-left" size={24} color="white" />
-                    </TouchableOpacity>
-                ),
+                title: "Your Invites"
             }}/>
             <InvitesList onInviteSelected={setSelectedInvite}/>
             {selectedInvite && (
