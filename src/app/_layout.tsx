@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import { ThemeProvider, DarkTheme } from '@react-navigation/native';
 import { UserProvider } from '@/components/UserContext';
-import { linking } from '../../lib/linking';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const myTheme = {
     ...DarkTheme,
@@ -48,12 +48,13 @@ export default function RootLayout() {
     }, []);
 
     return (
-      <UserProvider>
-        <ThemeProvider value={myTheme}>
-          <Stack screenOptions={{ headerShown: false }}>
-          </Stack>
-        </ThemeProvider>
-      </UserProvider>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <UserProvider>
+          <ThemeProvider value={myTheme}>
+            <Stack screenOptions={{ headerShown: false }} />
+          </ThemeProvider>
+        </UserProvider>
+      </GestureHandlerRootView>
     );
 
 }
