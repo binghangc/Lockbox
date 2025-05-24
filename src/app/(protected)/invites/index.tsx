@@ -1,10 +1,9 @@
-import { TouchableOpacity, Modal } from "react-native";
+import { Modal } from "react-native";
 import { useRouter, Stack } from "expo-router";
 import { useState } from "react";
 import InvitesList from "@/components/invitesList";
 import InviteCard from "@/components/inviteCard";
 import { Invite } from "@/types"
-import { Feather } from '@expo/vector-icons';
 
 export default function InvitesScreen() {
     const router = useRouter();

@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Modal, Pressable, Alert } from 'react-native';
+import { useState } from 'react';
+import { View, Text, TouchableOpacity, Alert } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { FontAwesome5 } from '@expo/vector-icons';
 import InviteFriendsModal from "@/components/inviteFriendsModal";
