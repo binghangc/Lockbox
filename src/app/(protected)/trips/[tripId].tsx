@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { View, Text, Image, ActivityIndicator, ScrollView, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useUser } from '@/components/UserContext'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import TripHeader from '@/components/tripHeader';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
@@ -13,7 +14,9 @@ import TripPillbar from '@/components/tripPillbar';
 export default function TripDetailScreen() {
     const { tripId } = useLocalSearchParams();
     const router = useRouter();
+    const { user } = useUser();
     const [trip, setTrip] = useState<any>(null);
+    const [isHost, setIsHost] = useState(false);
     const [loading, setLoading] = useState(true);
     const insets = useSafeAreaInsets();
 
@@ -30,6 +33,12 @@ export default function TripDetailScreen() {
                 const data = await res.json();
                 if (res.ok) {
                     setTrip(data);
+
+                    if (data.host?.id === user?.id) {
+                        setIsHost(true);
+                    } else {
+                        setIsHost(false);
+                    }
                 } else {
                     console.error(data.error);
                 }
@@ -40,7 +49,7 @@ export default function TripDetailScreen() {
             }
         };
 
-        if (tripId) fetchTrip();
+        if (tripId && user) fetchTrip();
     }, [tripId]);
 
     if (loading) {
@@ -117,7 +126,7 @@ export default function TripDetailScreen() {
                 </View>
 
             </ScrollView>
-            <TripPillbar />
+            <TripPillbar tripId={trip.id} isHost={isHost} />
         </>
     );
 }

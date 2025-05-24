@@ -6,7 +6,9 @@ export default function ProtectedLayout() {
     const router = useRouter();
     return (
       <GestureHandlerRootView style={{ flex: 1 }}>
-        <Stack screenOptions={{ headerShown: false }}>
+        <Stack screenOptions={{ 
+            headerShown: false, 
+          }}>
           <Stack.Screen
             name="newTrip"
             options={{

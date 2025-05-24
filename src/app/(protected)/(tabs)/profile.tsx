@@ -1,7 +1,8 @@
-import { Text, View, Button, ActivityIndicator, Image, TouchableOpacity, Alert } from 'react-native';
+import { Text, View, Button, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useState } from 'react';
+import FloatingAvatar from '@/components/floatingAvatar';
 
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
 
@@ -68,15 +69,16 @@ export default function ProfileScreen() {
     }
 
     return (
-        <View className="flex-1 bg-black items-center justify-center px-6">
+        <LinearGradient
+            colors={['#472b8a', '#000000']} // blue to black
+            start={{ x: 0.5, y: 0 }}
+            end={{ x: 0.5, y: 0.3 }}
+            style={{ flex: 1 }}
+        >
+        <View className="flex-1 items-center justify-center px-6">
             {/* Avatar */}
             {user.avatar_url ? (
-                <View className="relative mb-4">
-                <Image
-                    source={{ uri: user.avatar_url }}
-                    className="w-32 h-32 rounded-full border border-gray-300"
-                />
-                </View>
+                <FloatingAvatar uri={user.avatar_url} />
             ) : (
                 <View className="w-32 h-32 rounded-full bg-gray-700 mb-4" />
             )}
@@ -112,32 +114,25 @@ export default function ProfileScreen() {
             </View>
 
             {/* Buttons */}
-            <View className="flex-row justify-center space-x-4 mt-6 w-full px-6">
+            <View className="flex-row justify-between mt-6 w-full px-6 space-x-4">
+                {/* Edit Profile */}
                 <TouchableOpacity
-                className="w-[48%] rounded-lg overflow-hidden"
-                onPress={() => router.push('/profile/edit')}
+                    onPress={() => router.push('/profile/edit')}
+                    className="rounded-full border border-white/30 bg-white/10 py-3 px-12 items-center"
+                    activeOpacity={0.8}
                 >
-                <LinearGradient
-                    colors={['#4f46e5', '#60a5fa']}
-                    className="py-4 rounded-full w-full items-center"
-                >
-                    <Text className="text-white font-semibold text-xl text-center">
-                    Edit Profile
-                    </Text>
-                </LinearGradient>
+                    <Text className="text-white font-medium text-base">Edit Profile</Text>
                 </TouchableOpacity>
-
-                <TouchableOpacity className="w-[48%] rounded-lg overflow-hidden" onPress={handleLogout}>
-                <LinearGradient
-                    colors={['#f472b6', '#f87171']}
-                    className="py-4 rounded-full w-full items-center"
+                {/* Log Out */}
+                <TouchableOpacity
+                    onPress={handleLogout}
+                    className="rounded-full border border-white/30 bg-white/10 py-3 px-12 items-center"
+                    activeOpacity={0.8}
                 >
-                    <Text className="text-white font-semibold text-xl text-center">
-                    Log Out
-                    </Text>
-                </LinearGradient>
+                    <Text className="text-white font-medium text-base">Log Out</Text>
                 </TouchableOpacity>
             </View>
         </View>
+        </LinearGradient>
     );
 }
