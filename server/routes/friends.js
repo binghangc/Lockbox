@@ -154,7 +154,7 @@ router.get('/requests', async (req, res) => {
             uid1,
             uid2,
             status,
-            sender:uid1 (username, bio, avatar_url)
+            sender:uid1 (name, username, bio, avatar_url)
         `)        
         .eq('uid2', user_id)
         .eq('status', 'pending');
