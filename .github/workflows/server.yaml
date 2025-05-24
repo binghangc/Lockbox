@@ -1,0 +1,47 @@
+name: Node.js Backend CI/CD
+
+on:
+  push:
+    paths:
+      - 'server/**'
+    branches:
+      - prod
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Create .env file
+        run: |
+          echo "EXPO_PUBLIC_SUPABASE_URL=${{ secrets.EXPO_PUBLIC_SUPABASE_URL }}" >> .env
+          echo "EXPO_PUBLIC_SUPABASE_SERVICE_ROLE_KEY=${{ secrets.EXPO_PUBLIC_SUPABASE_SERVICE_ROLE_KEY }}" >> .env
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Lint
+        run: |
+          if npm run | grep -q "lint"; then
+            npm run lint
+          else
+            echo "No lint script found"
+          fi
+
+      - name: Test
+        run: |
+          if npm run | grep -q "test"; then
+            npm test
+          else
+            echo "No test script found"
+          fi
