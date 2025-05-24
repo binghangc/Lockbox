@@ -22,7 +22,7 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/lockicon.png",
         "backgroundColor": "#ffffff"
-      }, 
+      },
       "package": "com.lockedin.lockbox"
     },
     "web": {
@@ -31,6 +31,12 @@
     "plugins": [
       "expo-secure-store",
       "expo-router"
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "a6964f74-b71d-4ce7-8919-a7162991b136"
+      }
+    }
   }
 }

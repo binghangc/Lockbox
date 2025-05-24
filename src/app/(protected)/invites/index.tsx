@@ -3,7 +3,9 @@ import { useRouter, Stack } from "expo-router";
 import { useState } from "react";
 import InvitesList from "@/components/invitesList";
 import InviteCard from "@/components/inviteCard";
-import { Invite } from "@/types"
+import { Invite } from "@/types";
+import { TouchableOpacity } from "react-native";
+import { Feather } from "@expo/vector-icons";
 
 export default function InvitesScreen() {
     const router = useRouter();
