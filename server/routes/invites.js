@@ -26,6 +26,7 @@ router.get('/', async (req, res) => {
   
     const user_id = user.id;
 
+    // get trip and host information
     const { data: invites, error: invitesError } = await supabase
         .from('invites')
         .select('*, trip:trips(*, host:profiles(*))')
