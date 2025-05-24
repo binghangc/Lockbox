@@ -3,7 +3,7 @@ import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import type { Profile } from "@/types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { FontAwesome5, Feather } from '@expo/vector-icons';
+import FriendActionButton from "@/components/friendActionButton";
 
 
 type FriendRow = Profile & { friendshipId: string };
@@ -118,13 +118,16 @@ export default function FriendsList({
                             <Text className="text-white/60 text-sm">@{item.username}</Text>
                         )}
                     </View>
-                    <Pressable
+                    <FriendActionButton
+                        mode={mode}
+                        status={status}
+                        disabled={mode === "invite" && (status === "sent" || alreadyInvitedIds.includes(item.id))}
                         onPress={() => {
                             if (mode === "invite") {
                                 if (status === "sent") return;
-                                
+
                                 setInviteStatus((prev) => ({ ...prev, [item.id]: "loading" }));
-                                Promise.resolve(onSelect(item)) // convert to Promise if it's not
+                                Promise.resolve(onSelect(item))
                                     .then(() => {
                                         setInviteStatus((prev) => ({ ...prev, [item.id]: "sent" }));
                                         alert("Invite sent successfully!");
@@ -133,25 +136,11 @@ export default function FriendsList({
                                         setInviteStatus((prev) => ({ ...prev, [item.id]: "failed" }));
                                         alert("Failed to send invite.");
                                     });
-                            } else {
+                             } else {
                                 onSelect(item);
                             }
                         }}
-                        disabled={mode === "invite" && (status === "sent" || alreadyInvitedIds.includes(item.id))}
-                        className="px-3 py-1 bg-blue-600 rounded-full"
-                    >
-                        {mode === "invite" ? (
-                            status === "sent" ? (
-                                <Feather name="check" size={16} color="white" />
-                            ) : (
-                                <FontAwesome5 name="paper-plane" size={16} color="white" />
-                            )
-                        ) : status === "failed" ? (
-                            <Feather name="alert-circle" size={16} color="red" />
-                        ) : (
-                            <Text className="text-white text-sm">Nudge</Text>
-                        )}
-                    </Pressable>
+                    />
                 </TouchableOpacity>
             )}}
         />
