@@ -86,7 +86,6 @@ router.get('/invited', async (req, res) => {
         .from('invites')
         .select('user_id')
         .eq('trip_id', trip_id)
-        .eq('status', 'pending'); // or remove if you want to include accepted too
 
     if (error) {
         return res.status(500).json({ error: error.message });
