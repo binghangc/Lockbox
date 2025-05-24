@@ -4,10 +4,15 @@ import { BlurView } from 'expo-blur';
 import { FontAwesome5 } from '@expo/vector-icons';
 import InviteFriendsModal from "@/components/inviteFriendsModal";
 
-export default function TripPillbar({ tripId }: { tripId: string }) {
+export default function TripPillbar({ tripId, isHost }: { tripId: string, isHost: boolean }) {
     const [inviteModalOpen, setInviteModalOpen] = useState(false);
 
     const handleInvitePress = () => {
+        if (!isHost) {
+            Alert.alert("Access Denied", "Only the host can invite people to this trip.");
+            return;
+        }
+    
         setInviteModalOpen(true);
     };
 
