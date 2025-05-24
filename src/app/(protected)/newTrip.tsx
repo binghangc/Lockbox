@@ -11,6 +11,7 @@ import DatePickerModal, { DatePickerModalRef } from '@/components/datePickerModa
 import LocationPickerModal, { LocationPickerModalRef } from '@/components/locationPickerModal';
 import ThumbnailPickerModal, { ThumbnailPickerModalRef } from '@/components/thumbnailPickerModal';
 import { useUser } from '@/components/UserContext';
+import CreateTripHeader from '@/components/createTripHeader';
 
 export default function NewTrip() {
   
@@ -96,22 +97,11 @@ export default function NewTrip() {
 
   return (
     <View className="flex-1 bg-gray-50">
-      {/* Header with Blur */}
-      <BlurView intensity={60} experimentalBlurMethod="dimezisBlurView" className="absolute top-0 left-0 right-0 z-10 ">
-        <SafeAreaView style={{ paddingTop: insets.top + 20}}>
-          <View className="flex-row justify-between items-center px-4 py-2 mb-2">
-            <TouchableOpacity onPress={() => router.back()}>
-              <Text className="text-base font-semibold text-white">Cancel</Text>
-            </TouchableOpacity>
-
-            <Text className="text-xl font-bold text-white">New Trip</Text>
-
-            <TouchableOpacity onPress={handleSaveTrip}>
-              <Text className="text-base font-semibold text-white">Save</Text>
-            </TouchableOpacity>
-          </View>
-        </SafeAreaView>
-      </BlurView>
+      <CreateTripHeader
+        onCancel={() => router.back()}
+        onSave={handleSaveTrip}
+        title="New Trip"
+      />
 
       {/* Content with padding top for header */}
       <ScrollView
