@@ -1,17 +1,16 @@
-name: Run EAS Development Build
+name: Build Production APK
 
 on:
   push:
     branches:
-      - dev
+      - prod
 
 jobs:
-  eas-dev-build:
-    name: Trigger EAS Android + iOS Dev Build
+  eas-prod-build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Set up Node.js
@@ -22,10 +21,11 @@ jobs:
       - name: Install EAS CLI
         run: npm install -g eas-cli
 
+      - name: Authenticate with Expo
+        run: eas login --token ${{ secrets.EXPO_TOKEN }}
+
       - name: Install dependencies
         run: npm install
 
-      - name: Run EAS Workflow (create-development-builds)
-        run: eas workflow:run .eas/workflows/create-development-builds.yaml
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      - name: Trigger EAS Build (production APK)
+        run: eas build --platform android --profile production --non-interactive

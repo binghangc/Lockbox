@@ -71,6 +71,8 @@ export default function UserProfileModal({
         ref={modalRef}
         onClosed={onClose}
         adjustToContentHeight
+        handlePosition="inside"
+        disableScrollIfPossible={true}
         modalStyle={{ backgroundColor: "transparent" }}
         handleStyle={{ backgroundColor: "#ccc" }}
       >
@@ -80,7 +82,7 @@ export default function UserProfileModal({
           className="rounded-2xl px-6 pt-10 pb-6 items-center overflow-visible bg-white/60"
         >
           <ScrollView>
-            <View className="items-center justify-center -mt-16 mb-6 relative">
+            <View className="items-center justify-center mt-10 mb-6 relative">
               {user.avatar_url && <FloatingAvatar uri={user.avatar_url} />}
             </View>
 
