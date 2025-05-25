@@ -3,7 +3,7 @@ name: Run EAS Development Build
 on:
   push:
     branches:
-      - dev
+      - prod
 
 jobs:
   eas-dev-build:
