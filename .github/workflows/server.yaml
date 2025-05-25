@@ -46,3 +46,8 @@ jobs:
           else
             echo "No test script found"
           fi
+
+      - name: Trigger Render Deployment
+        run: curl "$RENDER_DEPLOY_HOOK_URL"
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
