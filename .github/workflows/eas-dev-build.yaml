@@ -1,0 +1,29 @@
+name: Run EAS Development Build
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  eas-dev-build:
+    name: Trigger EAS Android + iOS Dev Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install EAS CLI
+        run: npm install -g eas-cli
+
+      - name: Authenticate with Expo
+        run: eas login --token ${{ secrets.EXPO_TOKEN }}
+
+      - name: Run EAS Workflow (create-development-builds)
+        run: eas workflow:run .eas/workflows/create-development-builds.yml
