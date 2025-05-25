@@ -1,5 +1,3 @@
-
-
 import React from 'react';
 import { View, Text, TouchableOpacity, SafeAreaView } from 'react-native';
 import { BlurView } from 'expo-blur';
