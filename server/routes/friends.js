@@ -10,6 +10,7 @@ const supabase = createClient(
 );
 
 
+// API endpoint to retrieve friends
 router.get('/', async (req, res) => {
     const authHeader = req.headers.authorization;
 
