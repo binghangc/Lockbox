@@ -28,6 +28,12 @@ app.use('/profile', require('./routes/profile'));
 app.use('/trips', tripRoutes);
 app.use('/thumbnails', thumbnailsRoute);
 
+// API invites endpoints: send and respond to invites
+app.use('/invites', require('./routes/invites'))
+
+// API friends endpoints: get friends information, search new friends, and respond to requests
+app.use('/friends', require('./routes/friends'));
+
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });

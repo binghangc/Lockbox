@@ -1,8 +1,8 @@
 import { router } from 'expo-router';
 import { Tabs } from 'expo-router';
-import { Octicons } from '@expo/vector-icons';
+import { Octicons, FontAwesome5 } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { View } from 'react-native';
+import { View, TouchableOpacity } from 'react-native';
 
 export default function TabsLayout() {
   return (
@@ -36,7 +36,26 @@ export default function TabsLayout() {
       >
         <Tabs.Screen name='index'
           options={{
-            title: 'Home',
+            headerShown: true, 
+            headerTransparent: true,
+            title: '',
+            headerRight: () => (
+              <>
+                  <TouchableOpacity
+                    onPress={() => router.push('/invites')}
+                    style={{ marginRight: 16 }}
+                  >
+                    <FontAwesome5 name="ticket-alt" size={24} color="white" />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => router.push('/friends')}
+                    style={{ marginRight: 16 }}
+                  >
+                    <Octicons name="people" size={24} color="white" />
+                  </TouchableOpacity>
+              </>
+
+            ),
             tabBarIcon: ({ color, size }) => (
               <Octicons name="home" size={size} color={color} />
             ),

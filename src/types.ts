@@ -1,10 +1,3 @@
-export type User = {
-    id: string;
-    username: string;
-    avatar_url: string;
-    bio: string;
-}
-
 export type Role = 'host' | 'participant';
 export type TripStatus = 'upcoming' | 'ongoing' | 'past' | 'pinned';
 
@@ -21,19 +14,33 @@ export type Trip = {
     end_date: string;
 
     user_id: string;
-    host: User;
-    participants: { user: User; role: Role}[];
+    host: Profile;
+    participants: { profile: Profile; role: Role}[];
 }
-
 
 
 export type Invite = {
     id: string;
     trip_id: string;
-    inviter: User;
-    invitee: User;
+    user_id: string;
+    host_id: string;
     status: 'pending' | 'accepted' | 'declined';
-
     created_at: string;
-    updated_at: string;
+    trip: Trip;
 }
+
+export type Profile = {
+    id: string;
+    username: string;
+    name: string;
+    bio?: string;
+    avatar_url?: string;
+  };
+  
+export type FriendRequest = {
+    id: string;
+    uid1: string;
+    uid2: string;
+    status: "pending" | "accepted" | "rejected";
+    sender: Profile;
+};

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, Image } from 'react-native';
+import { Text, TouchableOpacity, Image } from 'react-native';
 import HostRow from './hostRow';
 import { Trip } from '@/types';
 import { useRouter } from 'expo-router';
