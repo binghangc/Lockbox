@@ -1,15 +1,27 @@
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { View, Text, Image, ActivityIndicator, ScrollView, TouchableOpacity } from 'react-native';
+import { Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useUser } from '@/components/UserContext'
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import TripHeader from '@/components/tripHeader';
+import { Stack } from 'expo-router';
+import Octicons from '@expo/vector-icons/Octicons';
+import { BlurView } from 'expo-blur';
+import { StyleSheet } from 'react-native';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import TripPillbar from '@/components/tripPillbar';
+import { StatusBar } from 'expo-status-bar';
 
-
+export const screenOptions = {
+  headerTransparent: true,
+  headerTintColor: 'white',
+  headerTitleAlign: 'center',
+  headerLeft: () => <Octicons name="chevron-left" size={28} color="white" style={{ marginLeft: 12 }} />,
+  headerBackground: () => <BlurView intensity={60} tint="dark" style={StyleSheet.absoluteFill} />,
+  headerTitle: '',
+};
 
 export default function TripDetailScreen() {
     const { tripId } = useLocalSearchParams();
@@ -19,6 +31,9 @@ export default function TripDetailScreen() {
     const [isHost, setIsHost] = useState(false);
     const [loading, setLoading] = useState(true);
     const insets = useSafeAreaInsets();
+
+    const HEADER_HEIGHT = insets.top + (Platform.OS === 'ios' ? 0 : 60);
+
 
     useEffect(() => {
         const fetchTrip = async () => {
@@ -69,27 +84,24 @@ export default function TripDetailScreen() {
     }
 
     return (
-        <>
-            <TripHeader onBack={() => router.back()} />
+        <View style={{ flex: 1, backgroundColor: 'transparent' }}>
+            <StatusBar style="light" translucent backgroundColor="transparent" />
+            {/* ScrollView starts below the image */}
             <ScrollView
-                className="flex-1 bg-black"
-                contentContainerStyle={{ paddingTop: insets.top, paddingBottom: insets.bottom + 100 }}
+                style={{ flex: 1, backgroundColor: 'transparent' }}
+                contentContainerStyle={{ paddingTop: HEADER_HEIGHT, paddingBottom: insets.bottom + 100 }}
                 showsVerticalScrollIndicator={false}
             >
+              <View style={{ backgroundColor: 'black', flex: 1 }}>
                 {/* Trip Title */}
                 <View className="px-3 mb-6">
                     <Text className="text-4xl font-extrabold text-center text-white">{trip.title}</Text>
                 </View>
-                {/* Trip Thumbnail */}
-                <View className="w-full px-4 mb-3">
-                    <View className="aspect-square w-full">
-                        <Image
-                            source={{ uri: trip.thumbnail_url }}
-                            className="w-full h-full"
-                            resizeMode="cover"
-                        />
-                    </View>
-                </View>
+                <Image
+                  source={{ uri: trip.thumbnail_url }}
+                  style={{ width: '100%', aspectRatio: 1, marginBottom: 20 }}
+                  resizeMode="cover"
+                />
                 {/* Trip Dates */}
                 <View className="flex-row items-center justify-between p-3">
                     <Text className="text-white text-2xl font-semibold" numberOfLines={2} style={{ textAlign: 'left' }}>
@@ -124,9 +136,9 @@ export default function TripDetailScreen() {
                     )}
 
                 </View>
-
+              </View>
             </ScrollView>
             <TripPillbar tripId={trip.id} isHost={isHost} />
-        </>
+        </View>
     );
 }

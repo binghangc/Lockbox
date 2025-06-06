@@ -23,6 +23,7 @@ export default function TripPillbar({ tripId, isHost }: { tripId: string, isHost
                 <BlurView
                     intensity={40}
                     tint="dark"
+                    
                     className="rounded-full px-6 py-6 border border-white/10 flex-row justify-between items-center bg-white/5 overflow-hidden"
                 >
                     {[
