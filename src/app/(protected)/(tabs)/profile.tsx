@@ -69,37 +69,34 @@ export default function ProfileScreen() {
     }
 
     return (
-        <LinearGradient
-            colors={['#472b8a', '#000000']} // blue to black
-            start={{ x: 0.5, y: 0 }}
-            end={{ x: 0.5, y: 0.3 }}
-            style={{ flex: 1 }}
-        >
-        <View className="flex-1 items-center justify-center px-6">
+      
+        <View className="flex-1 items-center px-6 pt-32">
             {/* Avatar */}
             {user.avatar_url ? (
                 <FloatingAvatar uri={user.avatar_url} />
             ) : (
                 <View className="w-32 h-32 rounded-full bg-gray-700 mb-4" />
             )}
-            <Text className="text-gray-400 text-lg mb-2">@{user.username || 'Username not set'}</Text>
+            <Text className="text-gray-400 text-lg mb-2 font-semibold">@{user.username || 'Username not set'}</Text>
 
             {/* Name */}
             <View className="w-full mb-4">
                 <View className="flex-row items-center justify-center space-x-2">
-                    <Text className="text-white text-2xl">{user.name || 'Name not set'}</Text>
+                    <Text className="text-white text-2xl font-bold">{user.name || 'Name not set'}</Text>
                 </View>
             </View>                
             
             {/* Bio */}
-            <View className="w-full mb-4">
+            {user.bio && (
+              <View className="w-full mb-4">
                 <View className="flex-row items-center justify-center space-x-2">
-                    <Text className="text-white text-l">{user.bio || 'Bio not set'}</Text>
+                  <Text className="text-white text-l">{user.bio}</Text>
                 </View>
-            </View>
+              </View>
+            )}
 
             {/* Stats */}
-            <View className="flex-row space-x-10 mt-6 justify-between w-full px-8">
+            <View className="flex-row space-x-10 mt-3 justify-between w-full px-8">
                 {[
                 { label: 'Trip Moments', count: 27 },
                 { label: 'Vibe Checks', count: 12 },
@@ -117,7 +114,7 @@ export default function ProfileScreen() {
             <View className="flex-row justify-between mt-6 w-full px-6 space-x-4">
                 {/* Edit Profile */}
                 <TouchableOpacity
-                    onPress={() => router.push('/profile/edit')}
+                    onPress={() => router.push('/profileEdit')}
                     className="rounded-full border border-white/30 bg-white/10 py-3 px-12 items-center"
                     activeOpacity={0.8}
                 >
@@ -133,6 +130,5 @@ export default function ProfileScreen() {
                 </TouchableOpacity>
             </View>
         </View>
-        </LinearGradient>
     );
 }

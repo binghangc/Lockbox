@@ -47,7 +47,7 @@ export default function FloatingAvatar({ uri }: { uri: string }) {
         {/* User avatar */}
         <Image
             source={{ uri }}
-            className="w-36 h-36 rounded-full z-10"
+            className="w-40 h-40 rounded-full z-10"
         />
         </View>
   );

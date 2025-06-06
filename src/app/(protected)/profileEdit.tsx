@@ -166,10 +166,6 @@ export default function EditProfileScreen() {
 
     return (
         <View className="flex-1 bg-black items-center justify-center px-6">
-            {/* Back Button */}
-            <TouchableOpacity onPress={() => router.push('/profile')} className="absolute top-12 left-6 z-10">
-                <Feather name="arrow-left" size={24} color="white" />
-            </TouchableOpacity>
 
             {user.avatar_url ? (
                 <TouchableOpacity onPress={handleUploadImage} className="relative mb-4">
