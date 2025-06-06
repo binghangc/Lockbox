@@ -1,10 +1,11 @@
-import { Text, View, Button, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
+import { Text, View, Button, ActivityIndicator, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import FloatingAvatar from '@/components/floatingAvatar';
 
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 // Components
 import { useUser } from '@/components/UserContext'; 
@@ -13,6 +14,9 @@ export default function ProfileScreen() {
     const router = useRouter();
     const { user, setUser, loading } = useUser();
     const [isLoggingOut, setIsLoggingOut] = useState(false);
+    const [tripCount, setTripCount] = useState<number | null>(null);
+    const [friendCount, setFriendCount] = useState<number | null>(null);
+    const insets = useSafeAreaInsets();
 
     const handleLogout = async () => {
         try {
@@ -68,9 +72,34 @@ export default function ProfileScreen() {
         );
     }
 
+    useEffect(() => {
+      const fetchStats = async () => {
+        if (!user?.id) return;
+
+        try {
+          const res = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/profile/stats/${user.id}`);
+          if (!res.ok) {
+            const text = await res.text();
+            console.error('Non-OK response:', text);
+            return;
+          }
+          const data = await res.json();
+          setTripCount(data.trip_count ?? 0);
+          setFriendCount(data.friend_count ?? 0);
+        } catch (err) {
+          console.error('Failed to fetch stats:', err);
+        }
+      };
+
+      fetchStats();
+    }, [user]);
+
     return (
-      
-        <View className="flex-1 items-center px-6 pt-32">
+      <ScrollView
+        style={{ paddingTop: insets.top, backgroundColor: 'rgb(17, 17, 17)' }}
+        contentContainerStyle={{ paddingVertical: 70 }}
+      >
+        <View className="items-center px-6">
             {/* Avatar */}
             {user.avatar_url ? (
                 <FloatingAvatar uri={user.avatar_url} />
@@ -96,16 +125,14 @@ export default function ProfileScreen() {
             )}
 
             {/* Stats */}
-            <View className="flex-row space-x-10 mt-3 justify-between w-full px-8">
+            <View className="flex-row space-x-10 mt-2 justify-evenly w-full px-8">
                 {[
-                { label: 'Trip Moments', count: 27 },
-                { label: 'Vibe Checks', count: 12 },
-                { label: 'Orbs', count: 5 },
-                { label: 'Vaults', count: 9 },
+                  { label: 'Trips', count: tripCount ?? '-' },
+                  { label: 'Friends', count: friendCount ?? '-' },
                 ].map((stat, index) => (
                 <View key={index} className="items-center">
                     <Text className="text-white text-xl font-bold">{stat.count}</Text>
-                    <Text className="text-neutral-400 text-xs">{stat.label}</Text>
+                    <Text className="text-neutral-400 text-sm font-semibold">{stat.label}</Text>
                 </View>
                 ))}
             </View>
@@ -130,5 +157,6 @@ export default function ProfileScreen() {
                 </TouchableOpacity>
             </View>
         </View>
+      </ScrollView>
     );
 }

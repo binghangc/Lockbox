@@ -99,3 +99,21 @@ router.post('/upload-avatar', upload.single('avatar'), async (req, res) => {
 });
 
 module.exports = router;
+
+// API endpoint to fetch user stats from public view
+router.get('/stats/:userId', async (req, res) => {
+    const { userId } = req.params;
+
+    const { data, error } = await supabase
+        .from('public_user_stats')
+        .select('trip_count, friend_count')
+        .eq('user_id', userId)
+        .single();
+
+    if (error) {
+        console.error('Error fetching public stats:', error.message);
+        return res.status(500).json({ error: 'Failed to fetch stats' });
+    }
+
+    res.status(200).json(data);
+});
