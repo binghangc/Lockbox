@@ -43,26 +43,6 @@ export default function ProtectedLayout() {
               ),
             }}
           />
-          <Stack.Screen
-            name="profileSettings"
-            options={{
-              headerShown: true,
-              animation: 'slide_from_right',
-              headerTransparent: true,
-              headerTitle: 'Profile Settings',
-              headerTintColor: 'white',
-              headerTitleAlign: 'center',
-              title: '',
-              headerLeft: () => (
-                <TouchableOpacity onPress={() => router.back()}>
-                  <Octicons name="chevron-left" size={28} color="white" style={{ marginLeft: 12 }} />
-                </TouchableOpacity>
-              ),
-              headerBackground: () => (
-                <BlurView intensity={60} tint="dark" style={StyleSheet.absoluteFill} />
-              ),
-            }}
-          />
         </Stack>
       </GestureHandlerRootView>
     );

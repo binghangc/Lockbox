@@ -88,22 +88,6 @@ export default function TabsLayout() {
             tabBarIcon: ({ color, size }) => (
               <Octicons name="person" size={size} color={color} />
             ),
-            headerRight: () => (
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <TouchableOpacity
-                  onPress={() => router.push('/profileEdit')}
-                  style={{ marginRight: 16 }}
-                >
-                  <Foundation name="pencil" size={24} color="white" />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => router.push('/profileSettings')}
-                  style={{ marginRight: 16 }}
-                >
-                  <MaterialIcons name="settings" size={24} color="white" />
-                </TouchableOpacity>
-              </View>
-            ),
           }}
         />
       </Tabs>
