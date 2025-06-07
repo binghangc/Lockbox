@@ -78,70 +78,65 @@ export default function EditProfileScreen() {
         }
     };
 
-    const handleUploadImage = async () => {
+    const handleUploadImage = async (user: any, setUser: Function, setUploading: Function) => {
         try {
             const result = await ImagePicker.launchImageLibraryAsync({
-                // API SHIFTS IN THE FUTURE MAY CHANGE THIS
                 mediaTypes: ImagePicker.MediaTypeOptions.Images,
                 quality: 1,
                 allowsEditing: true,
             });
-
+        
             if (result.canceled) return;
-
-            const image = result.assets[0];
-            const uri = image.uri;
+        
+            const uri = result.assets[0].uri;
             const name = uri.split('/').pop() || 'avatar.jpg';
-
+        
             const file = {
                 uri,
                 type: 'image/jpeg',
                 name,
             };
-
+        
             const formData = new FormData();
             formData.append('avatar', file as any);
-            formData.append('user_id', user.id);
-
+            formData.append('user_id', user.id); // remove if switching to token-based auth
+        
             setUploading(true);
-
+        
             const res = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/profile/upload-avatar`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'multipart/form-data',
+                'Content-Type': 'multipart/form-data',
                 },
                 body: formData,
             });
-
+        
             const clone = res.clone();
-
             let data;
             try {
-                data = await res.json(); // attempt normal parse
+                data = await res.json();
             } catch (err) {
-                const raw = await clone.text(); // fallback to raw response (HTML, error, etc)
-                console.error('👀 RAW RESPONSE:', raw); // this will reveal the actual error
+                const raw = await clone.text();
+                console.error('👀 RAW RESPONSE:', raw);
                 Alert.alert('Upload failed', 'Server did not return valid JSON');
-                setUploading(false);
                 return;
             }
-            setUploading(false);
-
+        
             if (!res.ok) {
                 Alert.alert('Upload failed', data.error || 'Try again');
                 return;
             }
-
-            // Update user context
+        
             setUser({ ...user, avatar_url: data.avatar_url });
             Alert.alert('Upload Successful', 'Your profile picture has been updated!');
-
         } catch (err) {
             console.error('Image upload failed:', err);
-            setUploading(false);
             Alert.alert('Error', 'Something went wrong while uploading');
+        } finally {
+            setUploading(false);
         }
     };
+      
 
 
     if (loading) {
@@ -172,7 +167,7 @@ export default function EditProfileScreen() {
             </TouchableOpacity>
 
             {user.avatar_url ? (
-                <TouchableOpacity onPress={handleUploadImage} className="relative mb-4">
+                <TouchableOpacity onPress={() => handleUploadImage(user, setUser, setUploading)} className="relative mb-4">
                     <Image
                     source={{
                         uri: uploading
