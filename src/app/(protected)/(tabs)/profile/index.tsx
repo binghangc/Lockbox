@@ -11,8 +11,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useUser } from '@/components/UserContext'; 
 
 export default function ProfileScreen() {
-    const router = useRouter();
     const { user, setUser, loading } = useUser();
+    const router = useRouter();
     const [isLoggingOut, setIsLoggingOut] = useState(false);
     const [tripCount, setTripCount] = useState<number | null>(null);
     const [friendCount, setFriendCount] = useState<number | null>(null);
