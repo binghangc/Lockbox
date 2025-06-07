@@ -22,6 +22,7 @@ export default function ProtectedLayout() {
             name="profileEdit"
             options={{
               headerShown: true,
+              animation: 'slide_from_bottom',
               headerTransparent: true,
               headerTitle: 'Edit Profile',
               headerTitleAlign: 'center',

@@ -1,6 +1,8 @@
 import { router } from 'expo-router';
 import { Tabs } from 'expo-router';
-import { Octicons, FontAwesome5 } from '@expo/vector-icons';
+import { Octicons, FontAwesome5, Foundation } from '@expo/vector-icons';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { View, TouchableOpacity } from 'react-native';
 
@@ -80,8 +82,27 @@ export default function TabsLayout() {
         <Tabs.Screen name='profile'
           options={{
             title: 'Profile',
+            headerShown: true,
+            headerTransparent: true,
+            headerTitle: '',
             tabBarIcon: ({ color, size }) => (
               <Octicons name="person" size={size} color={color} />
+            ),
+            headerRight: () => (
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <TouchableOpacity
+                  onPress={() => router.push('/profileEdit')}
+                  style={{ marginRight: 16 }}
+                >
+                  <Foundation name="pencil" size={24} color="white" />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => router.push('/settings')}
+                  style={{ marginRight: 16 }}
+                >
+                  <MaterialIcons name="settings" size={24} color="white" />
+                </TouchableOpacity>
+              </View>
             ),
           }}
         />

@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { Foundation } from '@expo/vector-icons';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { useState, useRef } from 'react';
@@ -130,8 +131,12 @@ export default function NewTrip() {
             resizeMode="cover"
             className="w-full h-full"
           />
-          <TouchableOpacity onPress={openThumbnailPicker} className="absolute bottom-3 right-3 bg-black/60 p-2 rounded-full">
-          <MaterialIcons name="mode-edit" size={19} color="white" />
+          <TouchableOpacity
+            onPress={openThumbnailPicker}
+            className="absolute bottom-3 right-3 bg-black/60 rounded-full"
+            style={{ width: 36, height: 36, justifyContent: 'center', alignItems: 'center' }}
+          >
+            <Foundation name="pencil" size={20} color="white" />
           </TouchableOpacity>
         </View>
 
