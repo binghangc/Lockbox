@@ -23,7 +23,7 @@ router.post('/signup', async (req, res) => {
                 data: {
                     name: username,
                     username,
-                    avatar_url: 'https://i.pinimg.com/736x/c3/9a/f4/c39af4399a87bc3d7701101b728cddc9.jpg',
+                    avatar_url: 'https://pub-dfbfcf454f1f4f498b66d614be763070.r2.dev/defaults/avatar-default.jpg',
                 },
             },
         });
