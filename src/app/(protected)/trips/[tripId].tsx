@@ -1,12 +1,10 @@
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { View, Text, Image, ActivityIndicator, ScrollView, TouchableOpacity } from 'react-native';
-import { Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useUser } from '@/components/UserContext'
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Stack } from 'expo-router';
 import Octicons from '@expo/vector-icons/Octicons';
 import { BlurView } from 'expo-blur';
 import { StyleSheet } from 'react-native';
