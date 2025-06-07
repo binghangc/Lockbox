@@ -32,7 +32,7 @@ export default function TripDetailScreen() {
     const [loading, setLoading] = useState(true);
     const insets = useSafeAreaInsets();
 
-    const HEADER_HEIGHT = insets.top + (Platform.OS === 'ios' ? 0 : 60);
+    const HEADER_HEIGHT = insets.top + 60;
 
 
     useEffect(() => {
