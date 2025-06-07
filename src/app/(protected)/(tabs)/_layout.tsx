@@ -97,7 +97,7 @@ export default function TabsLayout() {
                   <Foundation name="pencil" size={24} color="white" />
                 </TouchableOpacity>
                 <TouchableOpacity
-                  onPress={() => router.push('/settings')}
+                  onPress={() => router.push('/profileSettings')}
                   style={{ marginRight: 16 }}
                 >
                   <MaterialIcons name="settings" size={24} color="white" />
