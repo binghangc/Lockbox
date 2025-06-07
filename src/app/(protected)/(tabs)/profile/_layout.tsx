@@ -1,6 +1,7 @@
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { Foundation } from '@expo/vector-icons';
 import { Octicons } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { Stack } from 'expo-router';
 import { BlurView } from 'expo-blur';
@@ -31,7 +32,7 @@ export default function ProfileLayout() {
                 onPress={() => router.push('/profile/settings')}
                 style={{ marginRight: 16 }}
               >
-                <Octicons name="gear" size={24} color="white" />
+                <MaterialIcons name="settings" size={24} color="white" />
               </TouchableOpacity>
             </View>
           ),
