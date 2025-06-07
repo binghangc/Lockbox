@@ -1,5 +1,3 @@
-
-
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Octicons } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
@@ -21,42 +19,49 @@ export default function ProfileSettings() {
   const insets = useSafeAreaInsets();
 
   const SettingItem = ({ icon, label, onPress, hasChevron = true }: SettingItemProps) => (
-    <BlurView intensity={50} tint="dark" style={{ marginVertical: 6, borderRadius: 12, overflow: 'hidden' }}>
-      <TouchableOpacity
-        onPress={onPress}
-        className="flex-row items-center justify-between px-4 py-4"
-      >
-        <View className="flex-row items-center">
-          {icon}
-          <Text className="text-white text-lg font-semibold ml-3">{label}</Text>
-        </View>
-        {hasChevron && (
-          <Octicons name="chevron-right" size={24} color="white" style={{ opacity: 0.6 }} />
-        )}
-      </TouchableOpacity>
-    </BlurView>
+    <TouchableOpacity
+      onPress={onPress}
+      className="flex-row items-center justify-between px-4 py-4"
+    >
+      <View className="flex-row items-center">
+        {icon}
+        <Text className="text-white text-lg font-semibold ml-3">{label}</Text>
+      </View>
+      {hasChevron && (
+        <Octicons name="chevron-right" size={24} color="white" style={{ opacity: 0.6 }} />
+      )}
+    </TouchableOpacity>
   );
 
   return (
     <View className="flex-1 px-5" style={{ backgroundColor: 'rgb(17, 17, 17)', paddingTop: insets.top + 60 }}>
-      <SettingItem
-        label="Account Settings"
-        icon={<MaterialIcons name="settings" size={24} color="white" />}
-        onPress={() => router.push('/accountSettings')}
-      />
-      <SettingItem
-        label="Notifications"
-        icon={<Ionicons name="notifications" size={24} color="white" />}
-        onPress={() => router.push('/notifications')}
-      />
-      <SettingItem
-        label="Log out"
-        icon={<Feather name="log-out" size={24} color="white" />}
-        onPress={() => {
-          // handle logout logic
-        }}
-        hasChevron={false}
-      />
+      <BlurView intensity={50} tint="dark" style={{ borderRadius: 5, overflow: 'hidden' }}>
+        <SettingItem
+          label="Account Settings"
+          icon={<MaterialIcons name="settings" size={24} color="white" />}
+          onPress={() => router.push('/accountSettings')}
+        />
+        <View style={{ height: 1, backgroundColor: '#2a2a2a', marginHorizontal: 4 }} />
+        <SettingItem
+          label="Notifications"
+          icon={<Ionicons name="notifications" size={24} color="white" />}
+          onPress={() => router.push('/notifications')}
+        />
+      </BlurView>
+      <BlurView
+        intensity={50}
+        tint="dark"
+        style={{ borderRadius: 5, overflow: 'hidden', marginTop: 32 }}
+      >
+        <SettingItem
+          label="Log out"
+          icon={<Feather name="log-out" size={24} color="white" />}
+          onPress={() => {
+            // handle logout logic
+          }}
+          hasChevron={false}
+        />
+      </BlurView>
     </View>
   );
 }
