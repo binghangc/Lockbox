@@ -78,16 +78,16 @@ export default function FriendsList({
         </View>
       );
     }
-  
+
     if (friends.length === 0) {
       return (
-        <View className="flex-1 justify-center items-center">
-          <Text className="text-white text-center text-base mb-3">
+        <View className="flex-1 w-full mt-auto mb-auto items-center">
+          <Text className="text-gray-400 text-center text-base mb-3 mt-3">
             You haven’t added anyone yet. Start connecting with fellow explorers!
           </Text>
           <Pressable
             onPress={() => router.push("/friends/search")}
-            className="bg-blue-600 px-6 py-3 rounded-xl"
+            className="bg-zinc-800 px-6 py-3 rounded-xl active:bg-white/10"
           >
             <Text className="text-white text-center font-semibold">Find Friends</Text>
           </Pressable>

@@ -12,7 +12,7 @@ export default function FriendsSection() {
 
     return (
         <>
-            <View className="mb-6">
+            <View className="mb-6 flex-1">
                 <Text className="text-s text-gray-400 font-semibold mb-2">
                     MY FRIENDS ({friendCount})
                 </Text>
