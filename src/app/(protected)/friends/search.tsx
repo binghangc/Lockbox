@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { View, FlatList, Text, TouchableOpacity, ActivityIndicator } from "react-native";
+import { View, FlatList, Text, TouchableOpacity, ActivityIndicator, Image } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { debounce } from "lodash";
 import FormInput from "@/components/formInput";
 import { Profile } from "@/types"
 import UserProfileModal from "@/components/userProfileModal";
 import { useUser } from "@/components/UserContext";
+import { Feather } from "@expo/vector-icons";
 
 export default function FriendsSearchScreen() {
     const { user } = useUser();
@@ -51,7 +52,7 @@ export default function FriendsSearchScreen() {
     return (
         <View className="flex-1 bg-black px-4 pt-12">
             <FormInput
-                label="Search"
+                label="Add Friends"
                 placeholder="Search by username"
                 value={query}
                 onChangeText={handleChange}
@@ -59,6 +60,7 @@ export default function FriendsSearchScreen() {
                 autoCorrect={false}
                 autoCapitalize="none"
                 spellCheck={false}
+                icon={<Feather name="search" size={20} color="#888" />}
             />
     
             {loading && <ActivityIndicator color="white" className="mt-4" />}
@@ -69,13 +71,23 @@ export default function FriendsSearchScreen() {
                 className="mt-4"
                 renderItem={({ item }: { item: Profile }) => (
                     <TouchableOpacity
-                        className="py-3 border-b border-white/10"
+                        className="bg-zinc-900 rounded-2xl px-4 py-3 flex-row items-center mb-3"
                         onPress={() => setSelectedUser(item)}
                     >
-                        <Text className="text-white text-lg">{item.name}</Text>
+                        <View className="w-14 h-14 rounded-full items-center justify-center">
+                        <View className="absolute w-14 h-14 rounded-full bg-blue-400/30 opacity-60 blur-md" />
+                        <View className="absolute w-12 h-12 rounded-full bg-blue-400/40 blur-sm" />
+                        <Image
+                            source={{ uri: item.avatar_url }}
+                            className="w-12 h-12 rounded-full border-2 border-white"
+                        />
+                        </View>
+                        <View className="ml-3 flex-1">
+                        <Text className="text-white text-lg font-semibold">{item.name}</Text>
                         {item.username && (
-                            <Text className="text-white/60">@{item.username}</Text>
+                            <Text className="text-white/60 text-sm">@{item.username}</Text>
                         )}
+                        </View>
                     </TouchableOpacity>
 
                 )}

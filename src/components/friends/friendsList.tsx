@@ -1,4 +1,4 @@
-import { View, Text, Pressable, FlatList, TouchableOpacity, Image } from "react-native";
+import { View, Text, Pressable, FlatList } from "react-native";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import type { Profile } from "@/types";
@@ -102,7 +102,7 @@ export default function FriendsList({
       );
     };
   
-    const renderThreshold = 7; 
+    const renderThreshold = mode === "invite" ? 3 : 7;
   
     if (friends.length <= renderThreshold) {
       return <View className="mt-4">{friends.map(renderFriendRow)}</View>;
@@ -113,7 +113,11 @@ export default function FriendsList({
         data={friends}
         keyExtractor={(item) => item.id}
         className="mt-4"
-        renderItem={({ item }) => renderFriendRow(item)}
+        renderItem={({ item }) => (
+          <View style={{ overflow: "visible" }}>
+            {renderFriendRow(item)}
+          </View>
+        )}
       />
     );
 }
