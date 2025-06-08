@@ -25,9 +25,6 @@ export default function FriendRequestModal({
 }: Props) {
   const modalRef = useRef<Modalize>(null);
 
-  // Only render if request is present
-  if (!request) return null;
-
   useEffect(() => {
     if (visible) {
       modalRef.current?.open();
@@ -36,11 +33,15 @@ export default function FriendRequestModal({
     }
   }, [visible]);
 
+  // Only render if request is present
+  if (!request) return null;
+
   return (
     <Modalize
       ref={modalRef}
       onClosed={onClose}
       adjustToContentHeight
+      handlePosition="inside"
       modalStyle={{ backgroundColor: "transparent" }}
       handleStyle={{ backgroundColor: "#ccc" }}
     >
@@ -50,7 +51,7 @@ export default function FriendRequestModal({
         className="rounded-2xl px-6 pt-10 pb-6 items-center overflow-visible bg-white/60"
       >
         <ScrollView>
-          <View className="items-center justify-center -mt-16 mb-6 relative">
+          <View className="items-center justify-center mt-16 mb-6 relative">
             {request?.sender.avatar_url && <FloatingAvatar uri={request.sender.avatar_url} />}
             <Text className="text-2xl font-bold text-white">{request?.sender.name}</Text>
             {request?.sender.username && (
