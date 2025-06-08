@@ -2,7 +2,7 @@ import { View, Pressable, TouchableOpacity} from "react-native";
 import { useRouter, Stack } from "expo-router";
 import { Ionicons, Feather } from '@expo/vector-icons';
 import FriendRequestsSection from "@/components/friends/friendRequestsSection";
-import MyFriendsSection from "@/components/friends/friendsSection";
+import FriendsSection from "@/components/friends/friendsSection";
 
 export default function FriendsScreen() {
     const router = useRouter();
@@ -28,7 +28,7 @@ export default function FriendsScreen() {
             />
             <View className="flex-1 bg-black px-4 pt-6">
                 <FriendRequestsSection />
-                <MyFriendsSection />
+                <FriendsSection />
             </View>
         </>
     );

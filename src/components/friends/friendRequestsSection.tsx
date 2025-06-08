@@ -65,21 +65,23 @@ export default function FriendRequestsSection() {
     };
 
     return (
-        <View className="mb-6">
-        <Text className="text-s text-gray-400 font-semibold mb-2">
-            FRIEND REQUESTS ({requests.length})
-        </Text>
-        {loading ? (
-            <ActivityIndicator color="white" />
-        ) : (
-            <FriendRequestsList requests={requests} onSelect={openModal} />
-        )}
-        <FriendRequestModal
-            visible={modalVisible}
-            request={selectedRequest}
-            onClose={closeModal}
-            onHandled={listFriendRequests}
-        />
-        </View>
+        <>
+            <View className="mb-6">
+                <Text className="text-s text-gray-400 font-semibold mb-2">
+                    FRIEND REQUESTS ({requests.length})
+                </Text>
+                {loading ? (
+                    <ActivityIndicator color="white" />
+                ) : (
+                    <FriendRequestsList requests={requests} onSelect={openModal} />
+                )}
+            </View>
+            <FriendRequestModal
+                visible={modalVisible}
+                request={selectedRequest}
+                onClose={closeModal}
+                onHandled={listFriendRequests}
+            />
+        </>
     );
 }
