@@ -1,19 +1,33 @@
 import { View, Text, Pressable } from "react-native";
 import { Feather, Entypo } from "@expo/vector-icons";
 
-export default function AddFriendRow({ onAddFriend, onMoreOptions }: {
+export default function AddFriendRow({ 
+    onAddFriend, 
+    onMoreOptions, 
+    status = "none", 
+}: {
     onAddFriend: () => void;
     onMoreOptions: () => void;
+    status?: "accepted" | "pending" | "none";
 }) {
     return (
         <View className="flex-row items-center justify-center mt-4">
         {/* Add Friend Button */}
         <Pressable
             onPress={onAddFriend}
-            className="flex-row items-center justify-center bg-white min-w-[200px] rounded-2xl px-6 py-3"
+            disabled={status === "pending"}
+            className={`flex-row items-center justify-center min-w-[200px] rounded-2xl px-6 py-3 ${
+                status === "pending" ? "bg-purple-700" : "bg-white"
+            }`}
         >
-            <Feather name="user-plus" size={18} color="black" className="mr-2" />
-            <Text className="text-black font-semibold text-base">Add friend</Text>
+            <Feather name="user-plus" size={18} color={status === "pending" ? "white" : "black"} className="mr-2" />
+            <Text
+                className={`font-semibold text-base ${
+                    status === "pending" ? "text-white" : "text-black"
+                }`}
+            >
+                {status === "pending" ? "Request Sent" : "Add friend"}
+            </Text>
         </Pressable>
 
         {/* More Options Button */}

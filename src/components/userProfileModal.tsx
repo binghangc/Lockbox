@@ -14,13 +14,15 @@ export default function UserProfileModal({
     onClose,
     user,
     currentUserId,
-    isFriends
+    isFriends,
+    status,
 }: {
     isVisible: boolean;
     onClose: () => void;
     user: Profile | null;
     currentUserId: string;
     isFriends: boolean;
+    status?: "accepted" | "pending" | "none";
 }) {
     const screenHeight = Dimensions.get("window").height;
 
@@ -114,6 +116,7 @@ export default function UserProfileModal({
                 onMoreOptions={() => {
                     console.log("More options tapped");
                 }}
+                status={status}
               />
             )}
 

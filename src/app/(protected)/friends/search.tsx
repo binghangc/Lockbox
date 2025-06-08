@@ -8,18 +8,17 @@ import UserProfileModal from "@/components/userProfileModal";
 import { useUser } from "@/components/UserContext";
 import { Feather } from "@expo/vector-icons";
 
+type SearchResult = Profile & { status: "accepted" | "pending" | "none" };
+
 export default function FriendsSearchScreen() {
     const { user } = useUser();
     const [query, setQuery] = useState("");
-    const [results, setResults] = useState<{
-        friends: Profile[];
-        nonFriends: Profile[];
-    }>({ friends: [], nonFriends: [] });
+    const [results, setResults] = useState<SearchResult[]>([]);
     const [loading, setLoading] = useState(false);
-    const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
+    const [selectedUser, setSelectedUser] = useState<SearchResult | null>(null);
 
     const handleSearchUsers = async (username: string) => {
-        if (!username || username.length < 2) return setResults({ friends: [], nonFriends: [] });;
+        if (!username || username.length < 2) return setResults([]);;
         setLoading(true);
         try {
             const token = await AsyncStorage.getItem("access_token");
@@ -38,10 +37,7 @@ export default function FriendsSearchScreen() {
             }
 
             const data = await res.json();
-            setResults({
-                friends: data.friends ?? [],
-                nonFriends: data.nonFriends ?? [],
-            });
+            setResults(data ?? []);
         } catch(error) {
             console.error("Error", "cannot retrieve users")
         }
@@ -54,6 +50,9 @@ export default function FriendsSearchScreen() {
         setQuery(text);
         debouncedSearch(text);
     };
+
+    const accepted = results.filter(r => r.status === "accepted");
+    const notaccepted = results.filter(r => r.status != "accepted");
 
     return (
         <View className="flex-1 bg-black px-4 pt-12">
@@ -72,10 +71,10 @@ export default function FriendsSearchScreen() {
             {loading && <ActivityIndicator color="white" className="mt-4" />}
     
             <View className="mt-4">
-                {results.friends.length > 0 && (
+                {accepted.length > 0 && (
                     <>
                     <Text className="text-white text-sm font-semibold mb-2">MY FRIENDS</Text>
-                    {results.friends.map((item) => (
+                    {accepted.map((item) => (
                         <TouchableOpacity
                         key={item.id}
                         className="bg-zinc-900 rounded-2xl px-4 py-3 flex-row items-center mb-3"
@@ -100,10 +99,10 @@ export default function FriendsSearchScreen() {
                     </>
                 )}
 
-                {results.nonFriends.length > 0 && (
+                {notaccepted.length > 0 && (
                     <>
                     <Text className="text-white text-sm font-semibold mt-4 mb-2">USERS</Text>
-                    {results.nonFriends.map((item) => (
+                    {notaccepted.map((item) => (
                         <TouchableOpacity
                         key={item.id}
                         className="bg-zinc-900 rounded-2xl px-4 py-3 flex-row items-center mb-3"
@@ -134,7 +133,8 @@ export default function FriendsSearchScreen() {
                 onClose={() => setSelectedUser(null)}
                 user={selectedUser}
                 currentUserId={user?.id}
-                isFriends={false}
+                isFriends={selectedUser?.status === "accepted"}
+                status={selectedUser?.status}
             />
         </View>
     );

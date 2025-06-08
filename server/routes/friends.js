@@ -61,68 +61,70 @@ router.get('/', async (req, res) => {
 // API endpoint for searching users
 router.get('/search', async (req, res) => {
     const authHeader = req.headers.authorization;
-
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return res.status(401).json({ error: 'Missing or malformed Authorization header' });
     }
   
     const token = authHeader.split(' ')[1];
-    const { data, error } = await supabase.auth.getUser(token);
-    const user = data?.user;
-
+    const { data: authData, error: authError } = await supabase.auth.getUser(token);
+    const user = authData?.user;
     const { username } = req.query;
-
-    if (!username) {
-        return res.status(400).json({ error: 'Missing username in query'});
+  
+    if (!username || !user) {
+        return res.status(400).json({ error: 'Missing username or unauthorized' });
     }
-
-    if (!user) {
-        return res.status(401).json({ error: 'Unauthorized' });
-    }
-
-    // Step 1: Get all friend IDs (assuming bidirectional friendship structure)
+  
+    // 1. Accepted friendships
     const { data: friendships, error: friendsError } = await supabase
         .from('friendships')
         .select('uid1, uid2')
         .or(`uid1.eq.${user.id},uid2.eq.${user.id}`)
         .eq('status', 'accepted');
-
-    if (friendsError) {
-        return res.status(500).json({ error: friendsError.message });
-    }
-
-    // Extract all friend IDs
-    const friendIds = new Set();
-    friendships?.forEach((f) => {
-        if (f.uid1 !== user.id) friendIds.add(f.uid1);
-        if (f.uid2 !== user.id) friendIds.add(f.uid2);
+  
+    if (friendsError) return res.status(500).json({ error: friendsError.message });
+  
+    const acceptedIds = new Set();
+    friendships?.forEach(({ uid1, uid2 }) => {
+        if (uid1 !== user.id) acceptedIds.add(uid1);
+        if (uid2 !== user.id) acceptedIds.add(uid2);
     });
-    
-    // Step 2: Search all users matching the query (excluding self)
+  
+    // 2. Pending friend requests (either direction)
+    const { data: pendingRequests, error: pendingError } = await supabase
+        .from('friendships')
+        .select('uid1, uid2')
+        .or(`uid1.eq.${user.id},uid2.eq.${user.id}`)
+        .eq('status', 'pending');
+  
+    if (pendingError) return res.status(500).json({ error: pendingError.message });
+  
+    const pendingIds = new Set();
+    pendingRequests?.forEach(({ uid1, uid2 }) => {
+        if (uid1 !== user.id) pendingIds.add(uid1);
+        if (uid2 !== user.id) pendingIds.add(uid2);
+    });
+  
+    // 3. Query for matching profiles
     const { data: allMatches, error: searchError } = await supabase
         .from('profiles')
         .select('*')
         .ilike('username', `%${username}%`)
         .neq('id', user.id);
-
-    if (searchError) {
-        return res.status(500).json({ error: searchError.message });
-    }
-
-    // Step 3: Split matches into two groups
-    const friends = [];
-    const nonFriends = [];
-
-    allMatches.forEach((profile) => {
-        if (friendIds.has(profile.id)) {
-            friends.push(profile);
-        } else {
-            nonFriends.push(profile);
-        }
-    });
-
-    return res.status(200).json({ friends, nonFriends })
-})
+    
+    if (searchError) return res.status(500).json({ error: searchError.message });
+  
+    // 4. Attach status: "accepted" | "pending" | "none"
+    const results = allMatches.map((profile) => ({
+        ...profile,
+        status: acceptedIds.has(profile.id)
+            ? "accepted"
+            : pendingIds.has(profile.id)
+            ? "pending"
+            : "none",
+    }));
+  
+    return res.status(200).json(results);
+});
 
 // API endpoint for sending friend request
 router.post('/send-request', async (req, res) => {
