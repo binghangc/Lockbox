@@ -6,7 +6,8 @@ import type { Profile } from "@/types";
 import FloatingAvatar from "./floatingAvatar";
 import { Modalize } from "react-native-modalize";
 import { ScrollView } from "react-native-gesture-handler";
-
+import { Dimensions } from "react-native";
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function UserProfileModal({
     isVisible,
@@ -21,6 +22,9 @@ export default function UserProfileModal({
     currentUserId: string;
     isFriends: boolean;
 }) {
+    const screenHeight = Dimensions.get("window").height;
+    const insets = useSafeAreaInsets();
+
     const [loading, setLoading] = useState(false);
     const modalRef = useRef<Modalize>(null);
 
@@ -70,7 +74,8 @@ export default function UserProfileModal({
       <Modalize
         ref={modalRef}
         onClosed={onClose}
-        adjustToContentHeight
+        modalHeight={screenHeight}
+        handlePosition="inside"
         modalStyle={{ backgroundColor: "transparent" }}
         handleStyle={{ backgroundColor: "#ccc" }}
       >
@@ -78,9 +83,10 @@ export default function UserProfileModal({
           intensity={70}
           tint="light"
           className="rounded-2xl px-6 pt-10 pb-6 items-center overflow-visible bg-white/60"
+          style={{ minHeight: screenHeight }}
         >
           <ScrollView>
-            <View className="items-center justify-center -mt-16 mb-6 relative">
+            <View className="items-center px-12 py-12">
               {user.avatar_url && <FloatingAvatar uri={user.avatar_url} />}
             </View>
 
