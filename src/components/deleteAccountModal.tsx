@@ -29,8 +29,6 @@ const DeleteAccountModal = forwardRef<Modalize>((_, ref) => {
       <View
         style={{
           padding: 20,
-          borderTopLeftRadius: 24,
-          borderTopRightRadius: 24,
           minHeight: 400,
           backgroundColor: 'rgb(18, 18, 18)',
           paddingBottom: 12,
@@ -43,14 +41,21 @@ const DeleteAccountModal = forwardRef<Modalize>((_, ref) => {
 
         <Text className="text-white text-sm mb-2">Type "DELETE" to confirm</Text>
         <TextInput
-          className="text-white text-base border border-white/20 px-4 py-3 rounded-md mb-4"
-          placeholder='DELETE'
-          placeholderTextColor={'#888'}
+          className="text-white text-md border border-white/20 rounded-md mb-4"
+          placeholder="DELETE"
+          placeholderTextColor="#888"
           value={confirmationText}
           onChangeText={setConfirmationText}
           autoCapitalize="none"
           autoCorrect={false}
           spellCheck={false}
+          style={{
+            height: 48,
+            paddingHorizontal: 16,
+            paddingVertical: 0,
+            includeFontPadding: false,
+            textAlignVertical: 'center',
+          }}
         />
 
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 20 }}>
