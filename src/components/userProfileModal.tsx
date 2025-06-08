@@ -85,7 +85,7 @@ export default function UserProfileModal({
           className="px-6 pt-10 pb-6 items-center overflow-visible bg-white/60"
           style={{ minHeight: screenHeight }}
         >
-          <View className="items-center px-6 py-8">
+          <View className="items-center px-6 pt-12 pb-4">
               {user.avatar_url && <FloatingAvatar uri={user.avatar_url} />}
           </View>
 
@@ -94,15 +94,17 @@ export default function UserProfileModal({
             <Text className="text-gray-400 text-lg font-semibold text-center">@{user.username || 'Username not set'}</Text>
 
             {/* Name */}
-            <View className="flex-row items-center justify-center space-x-2">
-                <Text className="text-white text-2xl font-bold">{user.name || 'Name not set'}</Text>
-            </View>           
-            
+            <View className="w-full mb-2">
+              <View className="flex-row items-center justify-center">
+                  <Text className="text-white text-2xl font-bold">{user.name || 'Name not set'}</Text>
+              </View>     
+            </View>
+      
             {/* Bio */}
             {user.bio && (
               <View className="w-full mb-4">
                 <View className="flex-row items-center justify-center space-x-2">
-                  <Text className="text-white text-l">{user.bio}</Text>
+                  <Text className="text-gray-200 text-lg">{user.bio}</Text>
                 </View>
               </View>
             )}

@@ -72,6 +72,10 @@ export default function FriendRequestsSection() {
                 </Text>
                 {loading ? (
                     <ActivityIndicator color="white" />
+                ) : requests.length === 0 ? (
+                    <Text className="text-gray-400 text-base text-center mt-2">
+                      No friend requests.
+                    </Text>
                 ) : (
                     <FriendRequestsList requests={requests} onSelect={openModal} />
                 )}
