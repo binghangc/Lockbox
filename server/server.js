@@ -1,12 +1,12 @@
 require('dotenv').config();
 
 const express = require('express');
-const { createClient } = require('@supabase/supabase-js');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
 const cors = require('cors');
+
 app.use(cors());
 
 // imported routes
@@ -29,11 +29,11 @@ app.use('/trips', tripRoutes);
 app.use('/thumbnails', thumbnailsRoute);
 
 // API invites endpoints: send and respond to invites
-app.use('/invites', require('./routes/invites'))
+app.use('/invites', require('./routes/invites'));
 
 // API friends endpoints: get friends information, search new friends, and respond to requests
 app.use('/friends', require('./routes/friends'));
 
 app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
+  console.log(`Server is running on http://localhost:${port}`);
 });

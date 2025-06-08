@@ -3,117 +3,124 @@
  */
 
 const express = require('express');
+
 const router = express.Router();
 const multer = require('multer');
+
 const upload = multer({ storage: multer.memoryStorage() });
 
 const { createClient } = require('@supabase/supabase-js');
 require('dotenv').config();
 
 const supabase = createClient(
-    process.env.EXPO_PUBLIC_SUPABASE_URL,
-    process.env.EXPO_PUBLIC_SUPABASE_SERVICE_ROLE_KEY
+  process.env.EXPO_PUBLIC_SUPABASE_URL,
+  process.env.EXPO_PUBLIC_SUPABASE_SERVICE_ROLE_KEY,
 );
 
 // API endpoint to get profile information
 router.get('/', async (req, res) => {
-    const authHeader = req.headers.authorization;
+  const authHeader = req.headers.authorization;
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(401).json({ error: 'Missing or malformed Authorization header' });
-    }
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res
+      .status(401)
+      .json({ error: 'Missing or malformed Authorization header' });
+  }
 
-    const token = authHeader?.split(' ')[1];
+  const token = authHeader?.split(' ')[1];
 
-    const { data, error } = await supabase.auth.getUser(token);
-    const user = data?.user;
+  const { data, error } = await supabase.auth.getUser(token);
+  const user = data?.user;
 
-    if (error || !user) {
-        return res.status(401).json({ error: 'Invalid or expired token' });
-    }
+  if (error || !user) {
+    return res.status(401).json({ error: 'Invalid or expired token' });
+  }
 
-    console.log('Authenticated user ID:', user.id);
+  console.log('Authenticated user ID:', user.id);
 
-    const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', user.id)
+    .single();
 
-    if (profileError) {
-        return res.status(400).json({ error: profileError.message });
-    }
+  if (profileError) {
+    return res.status(400).json({ error: profileError.message });
+  }
 
-    res.status(200).json({ user, profile });
+  return res.status(200).json({ user, profile });
 });
 
 // API endpoint to edit profile information
 router.patch('/edit', async (req, res) => {
-    const { user_id, field, value } = req.body;
-  
-    if (!user_id || !field || typeof value !== 'string') {
-        return res.status(400).json({ error: 'Missing or invalid params' });
-    }
-  
-    const { error } = await supabase
-        .from('profiles')
-        .update({ [field]: value })
-        .eq('id', user_id);
-  
-    if (error) {
-        return res.status(500).json({ error: error.message });
-    }
-  
-    res.status(200).json({ message: 'Profile updated successfully' });
+  const { user_id, field, value } = req.body;
+
+  if (!user_id || !field || typeof value !== 'string') {
+    return res.status(400).json({ error: 'Missing or invalid params' });
+  }
+
+  const { error } = await supabase
+    .from('profiles')
+    .update({ [field]: value })
+    .eq('id', user_id);
+
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+
+  return res.status(200).json({ message: 'Profile updated successfully' });
 });
 
 router.post('/upload-avatar', upload.single('avatar'), async (req, res) => {
-    const { user_id } = req.body;
-    const file = req.file;
+  const { user_id } = req.body;
+  const { file } = req.file;
 
-    if (!user_id || !file) return res.status(400).json({ error: 'Missing user_id or file' });
+  if (!user_id || !file)
+    return res.status(400).json({ error: 'Missing user_id or file' });
 
-    const fileExt = file.originalname.split('.').pop();
-    const filePath = `avatars/${user_id}.${fileExt}`;
+  const fileExt = file.originalname.split('.').pop();
+  const filePath = `avatars/${user_id}.${fileExt}`;
 
-    const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(filePath, file.buffer, {
-        contentType: file.mimetype,
-        upsert: true,
-        });
+  const { error: uploadError } = await supabase.storage
+    .from('avatars')
+    .upload(filePath, file.buffer, {
+      contentType: file.mimetype,
+      upsert: true,
+    });
 
-    if (uploadError) return res.status(500).json({ error: uploadError.message });
+  if (uploadError) return res.status(500).json({ error: uploadError.message });
 
-    const { data: publicUrlData } = supabase.storage.from('avatars').getPublicUrl(filePath);
-    const avatar_url = publicUrlData.publicUrl;
+  const { data: publicUrlData } = supabase.storage
+    .from('avatars')
+    .getPublicUrl(filePath);
+  const avatar_url = publicUrlData.publicUrl;
 
-    const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ avatar_url })
-        .eq('id', user_id);
+  const { error: updateError } = await supabase
+    .from('profiles')
+    .update({ avatar_url })
+    .eq('id', user_id);
 
-    if (updateError) return res.status(500).json({ error: updateError.message });
+  if (updateError) return res.status(500).json({ error: updateError.message });
 
-    res.status(200).json({ avatar_url });
+  return res.status(200).json({ avatar_url });
 });
 
 module.exports = router;
 
 // API endpoint to fetch user stats from public view
 router.get('/stats/:userId', async (req, res) => {
-    const { userId } = req.params;
+  const { userId } = req.params;
 
-    const { data, error } = await supabase
-        .from('public_user_stats')
-        .select('trip_count, friend_count')
-        .eq('user_id', userId)
-        .single();
+  const { data, error } = await supabase
+    .from('public_user_stats')
+    .select('trip_count, friend_count')
+    .eq('user_id', userId)
+    .single();
 
-    if (error) {
-        console.error('Error fetching public stats:', error.message);
-        return res.status(500).json({ error: 'Failed to fetch stats' });
-    }
+  if (error) {
+    console.error('Error fetching public stats:', error.message);
+    return res.status(500).json({ error: 'Failed to fetch stats' });
+  }
 
-    res.status(200).json(data);
+  return res.status(200).json(data);
 });
