@@ -8,14 +8,15 @@ import UserProfileModal from "@/components/userProfileModal";
 export default function FriendsSection() {
     const { user } = useUser();
     const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
+    const [friendCount, setFriendCount] = useState(0);
 
     return (
         <>
             <View className="mb-6">
                 <Text className="text-s text-gray-400 font-semibold mb-2">
-                    MY FRIENDS
+                    MY FRIENDS ({friendCount})
                 </Text>
-                <FriendsList onSelect={(user) => setSelectedUser(user)} />
+                <FriendsList onSelect={(user) => setSelectedUser(user)} onCountUpdate={setFriendCount} />
             </View>
             <UserProfileModal
                 isVisible={selectedUser !== null}

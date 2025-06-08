@@ -10,12 +10,14 @@ type FriendsListProps = {
     onSelect: (user: Profile) => void | Promise<void>;
     mode?: "default" | "invite";
     alreadyInvitedIds?: string[];
+    onCountUpdate?: (count: number) => void;
 };
 
 export default function FriendsList({
     onSelect,
     mode = "default",
     alreadyInvitedIds = [],
+    onCountUpdate,
 }: FriendsListProps) {
     const router = useRouter();
     const [friends, setFriends] = useState<FriendRow[]>([]);
@@ -42,6 +44,7 @@ export default function FriendsList({
   
         const data = await res.json();
         setFriends(data);
+        onCountUpdate?.(data.length);
       } catch (error) {
         console.error("Friends error:", "failed to retrieve friends");
       } finally {
@@ -71,6 +74,7 @@ export default function FriendsList({
     }
   
     if (friends.length === 0) {
+      onCountUpdate?.(0);
       return (
         <View className="flex-1 justify-center items-center">
           <Text className="text-white text-center text-base mb-3">
