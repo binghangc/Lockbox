@@ -11,12 +11,15 @@ import { Feather } from "@expo/vector-icons";
 export default function FriendsSearchScreen() {
     const { user } = useUser();
     const [query, setQuery] = useState("");
-    const [results, setResults] = useState<Profile[]>([]);
+    const [results, setResults] = useState<{
+        friends: Profile[];
+        nonFriends: Profile[];
+    }>({ friends: [], nonFriends: [] });
     const [loading, setLoading] = useState(false);
     const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
 
     const handleSearchUsers = async (username: string) => {
-        if (!username || username.length < 2) return setResults([]);
+        if (!username || username.length < 2) return setResults({ friends: [], nonFriends: [] });;
         setLoading(true);
         try {
             const token = await AsyncStorage.getItem("access_token");
@@ -35,7 +38,10 @@ export default function FriendsSearchScreen() {
             }
 
             const data = await res.json();
-            setResults(data);
+            setResults({
+                friends: data.friends ?? [],
+                nonFriends: data.nonFriends ?? [],
+            });
         } catch(error) {
             console.error("Error", "cannot retrieve users")
         }
@@ -65,33 +71,63 @@ export default function FriendsSearchScreen() {
     
             {loading && <ActivityIndicator color="white" className="mt-4" />}
     
-            <FlatList
-                data={results}
-                keyExtractor={(item: Profile) => item.id}
-                className="mt-4"
-                renderItem={({ item }: { item: Profile }) => (
-                    <TouchableOpacity
+            <View className="mt-4">
+                {results.friends.length > 0 && (
+                    <>
+                    <Text className="text-white text-sm font-semibold mb-2">MY FRIENDS</Text>
+                    {results.friends.map((item) => (
+                        <TouchableOpacity
+                        key={item.id}
                         className="bg-zinc-900 rounded-2xl px-4 py-3 flex-row items-center mb-3"
                         onPress={() => setSelectedUser(item)}
-                    >
+                        >
                         <View className="w-14 h-14 rounded-full items-center justify-center">
-                        <View className="absolute w-14 h-14 rounded-full bg-blue-400/30 opacity-60 blur-md" />
-                        <View className="absolute w-12 h-12 rounded-full bg-blue-400/40 blur-sm" />
-                        <Image
+                            <View className="absolute w-14 h-14 rounded-full bg-blue-400/30 opacity-60 blur-md" />
+                            <View className="absolute w-12 h-12 rounded-full bg-blue-400/40 blur-sm" />
+                            <Image
                             source={{ uri: item.avatar_url }}
                             className="w-12 h-12 rounded-full border-2 border-white"
-                        />
+                            />
                         </View>
                         <View className="ml-3 flex-1">
-                        <Text className="text-white text-lg font-semibold">{item.name}</Text>
-                        {item.username && (
+                            <Text className="text-white text-lg font-semibold">{item.name}</Text>
+                            {item.username && (
                             <Text className="text-white/60 text-sm">@{item.username}</Text>
-                        )}
+                            )}
                         </View>
-                    </TouchableOpacity>
-
+                        </TouchableOpacity>
+                    ))}
+                    </>
                 )}
-            />
+
+                {results.nonFriends.length > 0 && (
+                    <>
+                    <Text className="text-white text-sm font-semibold mt-4 mb-2">USERS</Text>
+                    {results.nonFriends.map((item) => (
+                        <TouchableOpacity
+                        key={item.id}
+                        className="bg-zinc-900 rounded-2xl px-4 py-3 flex-row items-center mb-3"
+                        onPress={() => setSelectedUser(item)}
+                        >
+                        <View className="w-14 h-14 rounded-full items-center justify-center">
+                            <View className="absolute w-14 h-14 rounded-full bg-blue-400/30 opacity-60 blur-md" />
+                            <View className="absolute w-12 h-12 rounded-full bg-blue-400/40 blur-sm" />
+                            <Image
+                            source={{ uri: item.avatar_url }}
+                            className="w-12 h-12 rounded-full border-2 border-white"
+                            />
+                        </View>
+                        <View className="ml-3 flex-1">
+                            <Text className="text-white text-lg font-semibold">{item.name}</Text>
+                            {item.username && (
+                            <Text className="text-white/60 text-sm">@{item.username}</Text>
+                            )}
+                        </View>
+                        </TouchableOpacity>
+                    ))}
+                    </>
+                )}
+            </View>
 
             <UserProfileModal
                 isVisible={selectedUser !== null}

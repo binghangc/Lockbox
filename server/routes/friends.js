@@ -58,6 +58,7 @@ router.get('/', async (req, res) => {
     res.status(200).json(friends);
 });
 
+// API endpoint for searching users
 router.get('/search', async (req, res) => {
     const authHeader = req.headers.authorization;
 
@@ -83,7 +84,8 @@ router.get('/search', async (req, res) => {
     const { data: friendships, error: friendsError } = await supabase
         .from('friendships')
         .select('uid1, uid2')
-        .or(`uid1.eq.${user.id},uid2.eq.${user.id}`);
+        .or(`uid1.eq.${user.id},uid2.eq.${user.id}`)
+        .eq('status', 'accepted');
 
     if (friendsError) {
         return res.status(500).json({ error: friendsError.message });
@@ -95,19 +97,31 @@ router.get('/search', async (req, res) => {
         if (f.uid1 !== user.id) friendIds.add(f.uid1);
         if (f.uid2 !== user.id) friendIds.add(f.uid2);
     });
-
-    // Step 2: Query profiles that match the username and are not in the friendIds list or self
-    const { data: results, error: resultError } = await supabase
+    
+    // Step 2: Search all users matching the query (excluding self)
+    const { data: allMatches, error: searchError } = await supabase
         .from('profiles')
         .select('*')
         .ilike('username', `%${username}%`)
-        .not('id', 'in', `(${[...friendIds, user.id].join(',')})`);
+        .neq('id', user.id);
 
-    if (resultError) {
-        return res.status(500).json({ error: resultError.message });
+    if (searchError) {
+        return res.status(500).json({ error: searchError.message });
     }
 
-    res.status(200).json(results);
+    // Step 3: Split matches into two groups
+    const friends = [];
+    const nonFriends = [];
+
+    allMatches.forEach((profile) => {
+        if (friendIds.has(profile.id)) {
+            friends.push(profile);
+        } else {
+            nonFriends.push(profile);
+        }
+    });
+
+    return res.status(200).json({ friends, nonFriends })
 })
 
 // API endpoint for sending friend request
