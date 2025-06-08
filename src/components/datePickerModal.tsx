@@ -1,15 +1,22 @@
 import { Calendar } from 'react-native-calendars';
 import dayjs from 'dayjs';
-import { View, TouchableOpacity } from 'react-native';
+import { View, TouchableOpacity, Text } from 'react-native';
 import React, { forwardRef } from 'react';
-import { Text } from 'react-native';
 import { Modalize } from 'react-native-modalize';
 import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export type DatePickerModalRef = Modalize;
 
-const DatePickerModal = forwardRef<Modalize, { onConfirm?: (range: { startDate: string | null; endDate: string | null }) => void }>((props, ref) => {
+const DatePickerModal = forwardRef<
+  Modalize,
+  {
+    onConfirm?: (range: {
+      startDate: string | null;
+      endDate: string | null;
+    }) => void;
+  }
+>((props, ref) => {
   const { onConfirm } = props;
   const inset = useSafeAreaInsets();
   const [startDate, setStartDate] = React.useState<string | null>(null);
@@ -27,7 +34,7 @@ const DatePickerModal = forwardRef<Modalize, { onConfirm?: (range: { startDate: 
   };
 
   const getMarkedDates = () => {
-    let marked: any = {};
+    const marked: any = {};
 
     if (startDate && endDate) {
       const start = dayjs(startDate);
@@ -37,8 +44,8 @@ const DatePickerModal = forwardRef<Modalize, { onConfirm?: (range: { startDate: 
       for (let i = 0; i <= range; i++) {
         const date = start.add(i, 'day').format('YYYY-MM-DD');
 
-        let isStart = i === 0;
-        let isEnd = i === range;
+        const isStart = i === 0;
+        const isEnd = i === range;
 
         marked[date] = {
           customStyles: {
@@ -53,8 +60,8 @@ const DatePickerModal = forwardRef<Modalize, { onConfirm?: (range: { startDate: 
             text: {
               color: isStart || isEnd ? '#b1ffef' : 'white',
               fontWeight: isStart || isEnd ? '700' : '500',
-            }
-          }
+            },
+          },
         };
       }
     } else if (startDate) {
@@ -67,8 +74,8 @@ const DatePickerModal = forwardRef<Modalize, { onConfirm?: (range: { startDate: 
           text: {
             color: '#b1ffef',
             fontWeight: '700',
-          }
-        }
+          },
+        },
       };
     }
 
@@ -81,7 +88,7 @@ const DatePickerModal = forwardRef<Modalize, { onConfirm?: (range: { startDate: 
       adjustToContentHeight
       handleStyle={{ backgroundColor: '#ccc' }}
       handlePosition="inside"
-      disableScrollIfPossible={true}
+      disableScrollIfPossible
       scrollViewProps={{ scrollEnabled: false }}
       modalStyle={{ backgroundColor: 'transparent' }}
       modalTopOffset={45}
@@ -106,7 +113,9 @@ const DatePickerModal = forwardRef<Modalize, { onConfirm?: (range: { startDate: 
         >
           <Text className="text-white font-semibold text-base mt-4">Clear</Text>
         </TouchableOpacity>
-        <Text className="text-white text-xl font-bold text-center mb-4 mt-3">Select Dates</Text>
+        <Text className="text-white text-xl font-bold text-center mb-4 mt-3">
+          Select Dates
+        </Text>
         {/* Date tab bar */}
         <View className="flex-row justify-between items-center mb-4 mt-3">
           <View className="flex-1 bg-white/10 px-5 py-4 rounded-lg mr-2 min-h-[70px] justify-center">
@@ -118,18 +127,21 @@ const DatePickerModal = forwardRef<Modalize, { onConfirm?: (range: { startDate: 
           <View className="flex-1 bg-white/10 px-5 py-4 rounded-lg ml-2 min-h-[70px] justify-center">
             <Text className="text-white text-lg font-semibold mb-1">End</Text>
             <Text className="text-white text-xl font-bold">
-              {(startDate && !endDate) ? dayjs(startDate).format('ddd, MMM D') :
-               endDate ? dayjs(endDate).format('ddd, MMM D') : 'Select'}
+              {startDate && !endDate
+                ? dayjs(startDate).format('ddd, MMM D')
+                : endDate
+                  ? dayjs(endDate).format('ddd, MMM D')
+                  : 'Select'}
             </Text>
           </View>
         </View>
         <Calendar
           onDayPress={onDayPress}
           markedDates={getMarkedDates()}
-          markingType={'custom'}
-          enableSwipeMonths={true}
+          markingType="custom"
+          enableSwipeMonths
           minDate={dayjs().format('YYYY-MM-DD')}
-          hideExtraDays={true}
+          hideExtraDays
           theme={{
             calendarBackground: 'transparent',
             dayTextColor: '#fff',
@@ -174,10 +186,11 @@ const DatePickerModal = forwardRef<Modalize, { onConfirm?: (range: { startDate: 
               justifyContent: 'center',
               alignSelf: 'flex-end',
               marginBottom: inset.bottom + 5, // adds space above iPhone home bar
-
             }}
           >
-            <Text style={{ color: 'black', fontWeight: '600', fontSize: 16 }}>Done</Text>
+            <Text style={{ color: 'black', fontWeight: '600', fontSize: 16 }}>
+              Done
+            </Text>
           </TouchableOpacity>
         </View>
       </BlurView>

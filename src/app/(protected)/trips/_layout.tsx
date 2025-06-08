@@ -13,11 +13,20 @@ export default function TripsLayout() {
         headerTitleAlign: 'center',
         headerLeft: () => (
           <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Octicons name="chevron-left" size={28} color="white" style={{ marginLeft: 12 }} />
+            <Octicons
+              name="chevron-left"
+              size={28}
+              color="white"
+              style={{ marginLeft: 12 }}
+            />
           </TouchableOpacity>
         ),
         headerBackground: () => (
-          <BlurView intensity={60} tint="dark" style={StyleSheet.absoluteFill} />
+          <BlurView
+            intensity={60}
+            tint="dark"
+            style={StyleSheet.absoluteFill}
+          />
         ),
         title: '',
       })}

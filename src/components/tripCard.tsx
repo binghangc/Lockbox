@@ -1,8 +1,8 @@
 import React from 'react';
 import { Text, TouchableOpacity, Image } from 'react-native';
-import HostRow from './hostRow';
 import { Trip } from '@/types';
 import { useRouter } from 'expo-router';
+import HostRow from './hostRow';
 
 interface TripCardProps {
   trip: Trip;

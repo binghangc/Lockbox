@@ -23,7 +23,9 @@ export default function HostRow({ host, className }: HostRowProps) {
         className="w-7 h-7 rounded-full mr-2"
         resizeMode="cover"
       />
-      <Text className="text-neutral-400 text-base font-semibold">{host?.name}</Text>
+      <Text className="text-neutral-400 text-base font-semibold">
+        {host?.name}
+      </Text>
     </View>
   );
 }

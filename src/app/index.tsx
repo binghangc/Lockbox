@@ -1,5 +1,3 @@
-
-
 import React from 'react';
 import { useUser } from '@/components/UserContext'; // Adjust path if needed
 import AuthLayout from './(auth)';

@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, FlatList } from 'react-native';
-import TripCard from './tripCard';
 import { Trip } from '@/types';
+import TripCard from './tripCard';
 
 interface TripCarouselProps {
   trips: Trip[];
@@ -9,7 +9,8 @@ interface TripCarouselProps {
 
 export default function TripCarousel({ trips }: TripCarouselProps) {
   const sortedTrips = [...trips].sort(
-    (a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime()
+    (a, b) =>
+      new Date(a.start_date).getTime() - new Date(b.start_date).getTime(),
   );
 
   return (
@@ -18,7 +19,7 @@ export default function TripCarousel({ trips }: TripCarouselProps) {
         data={sortedTrips}
         keyExtractor={(item) => item.id}
         horizontal
-        scrollEnabled={true}
+        scrollEnabled
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{ paddingLeft: 13, paddingRight: 4 }}
         ItemSeparatorComponent={() => <View className="w-3" />}

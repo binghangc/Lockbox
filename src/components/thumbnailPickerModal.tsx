@@ -1,4 +1,10 @@
-import React, { forwardRef, useRef, useImperativeHandle, useEffect, useState } from 'react';
+import React, {
+  forwardRef,
+  useRef,
+  useImperativeHandle,
+  useEffect,
+  useState,
+} from 'react';
 import { Text, TouchableOpacity, Image, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Modalize } from 'react-native-modalize';
@@ -6,22 +12,28 @@ import { BlurView } from 'expo-blur';
 
 export type ThumbnailPickerModalRef = Modalize;
 
-
-const ThumbnailPickerModal = forwardRef<Modalize, {
-  onSelect?: (url: string) => void;
-}>(function ThumbnailPickerModal(props, ref) {
+const ThumbnailPickerModal = forwardRef<
+  Modalize,
+  {
+    onSelect?: (url: string) => void;
+  }
+>((props, ref) => {
   const { onSelect } = props;
 
   const modalRef = useRef<Modalize>(null);
 
   useImperativeHandle(ref, () => modalRef.current!);
 
-  const [thumbnails, setThumbnails] = useState<{ name: string; url: string }[]>([]);
+  const [thumbnails, setThumbnails] = useState<{ name: string; url: string }[]>(
+    [],
+  );
 
   useEffect(() => {
     const fetchThumbnails = async () => {
       try {
-        const res = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/thumbnails`);
+        const res = await fetch(
+          `${process.env.EXPO_PUBLIC_API_URL}/thumbnails`,
+        );
         if (!res.ok) throw new Error('Failed to fetch thumbnails');
         const data = await res.json();
         setThumbnails(data);
@@ -39,7 +51,11 @@ const ThumbnailPickerModal = forwardRef<Modalize, {
       adjustToContentHeight
       handleStyle={{ backgroundColor: '#ccc' }}
       handlePosition="inside"
-      modalStyle={{ backgroundColor: 'transparent', borderTopLeftRadius: 24, borderTopRightRadius: 24 }}
+      modalStyle={{
+        backgroundColor: 'transparent',
+        borderTopLeftRadius: 24,
+        borderTopRightRadius: 24,
+      }}
       modalTopOffset={45}
       customRenderer={(scrollViewProps: any) => (
         <BlurView
@@ -50,10 +66,19 @@ const ThumbnailPickerModal = forwardRef<Modalize, {
         >
           <ScrollView {...scrollViewProps} showsVerticalScrollIndicator={false}>
             <View style={{ paddingVertical: 16, paddingHorizontal: 8 }}>
-              <Text className="text-white text-xl font-bold text-center mb-3 mt-4">Thumbnails</Text>
+              <Text className="text-white text-xl font-bold text-center mb-3 mt-4">
+                Thumbnails
+              </Text>
             </View>
 
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', paddingHorizontal: 4 }}>
+            <View
+              style={{
+                flexDirection: 'row',
+                flexWrap: 'wrap',
+                justifyContent: 'space-between',
+                paddingHorizontal: 4,
+              }}
+            >
               {thumbnails.map((item) => (
                 <TouchableOpacity
                   key={item.url}
@@ -92,7 +117,11 @@ const ThumbnailPickerModal = forwardRef<Modalize, {
                   marginTop: 12,
                 }}
               >
-                <Text style={{ color: 'black', fontWeight: '600', fontSize: 16 }}>Done</Text>
+                <Text
+                  style={{ color: 'black', fontWeight: '600', fontSize: 16 }}
+                >
+                  Done
+                </Text>
               </TouchableOpacity>
             </View>
           </ScrollView>

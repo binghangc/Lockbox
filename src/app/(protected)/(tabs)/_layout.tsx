@@ -1,5 +1,4 @@
-import { router } from 'expo-router';
-import { Tabs } from 'expo-router';
+import { router, Tabs } from 'expo-router';
 import { Octicons, FontAwesome5, Foundation } from '@expo/vector-icons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -36,27 +35,27 @@ export default function TabsLayout() {
           },
         }}
       >
-        <Tabs.Screen name='index'
+        <Tabs.Screen
+          name="index"
           options={{
-            headerShown: true, 
+            headerShown: true,
             headerTransparent: true,
             title: '',
             headerRight: () => (
               <>
-                  <TouchableOpacity
-                    onPress={() => router.push('/invites')}
-                    style={{ marginRight: 16 }}
-                  >
-                    <FontAwesome5 name="ticket-alt" size={24} color="white" />
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => router.push('/friends')}
-                    style={{ marginRight: 16 }}
-                  >
-                    <Octicons name="people" size={24} color="white" />
-                  </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => router.push('/invites')}
+                  style={{ marginRight: 16 }}
+                >
+                  <FontAwesome5 name="ticket-alt" size={24} color="white" />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => router.push('/friends')}
+                  style={{ marginRight: 16 }}
+                >
+                  <Octicons name="people" size={24} color="white" />
+                </TouchableOpacity>
               </>
-
             ),
             tabBarIcon: ({ color, size }) => (
               <Octicons name="home" size={size} color={color} />
@@ -64,7 +63,8 @@ export default function TabsLayout() {
           }}
         />
 
-        <Tabs.Screen name='plus'
+        <Tabs.Screen
+          name="plus"
           options={{
             title: 'Plus',
             tabBarIcon: ({ color, size }) => (
@@ -79,7 +79,8 @@ export default function TabsLayout() {
           }}
         />
 
-        <Tabs.Screen name='profile'
+        <Tabs.Screen
+          name="profile"
           options={{
             title: 'Profile',
             headerShown: true,
