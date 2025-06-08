@@ -39,7 +39,7 @@ export default function ProfileSettings() {
         <SettingItem
           label="Account Settings"
           icon={<MaterialIcons name="settings" size={24} color="white" />}
-          onPress={() => router.push('/accountSettings')}
+          onPress={() => router.push('./accountSettings')}
         />
         <View style={{ height: 1, backgroundColor: '#2a2a2a', marginHorizontal: 4 }} />
         <SettingItem
