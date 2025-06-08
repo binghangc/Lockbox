@@ -18,6 +18,28 @@ export default function ProfileScreen() {
     const [friendCount, setFriendCount] = useState<number | null>(null);
     const insets = useSafeAreaInsets();
 
+    useEffect(() => {
+        const fetchStats = async () => {
+            if (!user?.id) return;
+
+            try {
+                const res = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/profile/stats/${user.id}`);
+                if (!res.ok) {
+                    const text = await res.text();
+                    console.error('Non-OK response:', text);
+                    return;
+                }
+                const data = await res.json();
+                setTripCount(data.trip_count ?? 0);
+                setFriendCount(data.friend_count ?? 0);
+            } catch (err) {
+                console.error('Failed to fetch stats:', err);
+            }
+        };
+
+        fetchStats();
+    }, [user]);
+
     const handleLogout = async () => {
         try {
             setIsLoggingOut(true);
@@ -72,27 +94,6 @@ export default function ProfileScreen() {
         );
     }
 
-    useEffect(() => {
-      const fetchStats = async () => {
-        if (!user?.id) return;
-
-        try {
-          const res = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/profile/stats/${user.id}`);
-          if (!res.ok) {
-            const text = await res.text();
-            console.error('Non-OK response:', text);
-            return;
-          }
-          const data = await res.json();
-          setTripCount(data.trip_count ?? 0);
-          setFriendCount(data.friend_count ?? 0);
-        } catch (err) {
-          console.error('Failed to fetch stats:', err);
-        }
-      };
-
-      fetchStats();
-    }, [user]);
 
     return (
       <ScrollView
