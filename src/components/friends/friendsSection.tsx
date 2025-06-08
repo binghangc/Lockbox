@@ -2,7 +2,7 @@ import { useState } from "react";
 import { View, Text } from "react-native";
 import { useUser } from "@/components/UserContext";
 import { Profile } from "@/types";
-import FriendsList from "@/components/friendsList";
+import FriendsList from "@/components/friends/friendsList";
 import UserProfileModal from "@/components/userProfileModal";
 
 export default function FriendsSection() {

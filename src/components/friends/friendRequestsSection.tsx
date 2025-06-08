@@ -1,8 +1,8 @@
 import { useEffect, useState, useRef } from "react";
 import { View, Text, ActivityIndicator, Animated } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import FriendRequestsList from "@/components/friendRequestsList";
-import FriendRequestModal from "@/components/friendRequestModal";
+import FriendRequestsList from "@/components/friends/friendRequestsList";
+import FriendRequestModal from "@/components/friends/friendRequestModal";
 import { FriendRequest } from "@/types";
 
 export default function FriendRequestsSection() {

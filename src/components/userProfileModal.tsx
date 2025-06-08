@@ -7,7 +7,7 @@ import FloatingAvatar from "./floatingAvatar";
 import { Modalize } from "react-native-modalize";
 import { ScrollView } from "react-native-gesture-handler";
 import { Dimensions } from "react-native";
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import AddFriendRow from "@/components/friends/addFriendRow";
 
 export default function UserProfileModal({
     isVisible,
@@ -23,7 +23,6 @@ export default function UserProfileModal({
     isFriends: boolean;
 }) {
     const screenHeight = Dimensions.get("window").height;
-    const insets = useSafeAreaInsets();
 
     const [loading, setLoading] = useState(false);
     const modalRef = useRef<Modalize>(null);
@@ -110,15 +109,12 @@ export default function UserProfileModal({
             )}
 
             {!isFriends && (
-              <Pressable
-                onPress={handleSendFriendRequest}
-                disabled={loading}
-                className="mt-6 bg-blue-600 px-5 py-3 rounded-xl"
-              >
-                <Text className="text-white text-center">
-                  {loading ? "Sending..." : "Add Friend"}
-                </Text>
-              </Pressable>
+              <AddFriendRow
+                onAddFriend={handleSendFriendRequest}
+                onMoreOptions={() => {
+                    console.log("More options tapped");
+                }}
+              />
             )}
 
             <Pressable

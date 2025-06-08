@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { View, Text, Pressable, Modal, Alert } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import FriendsList from "@/components/friendsList";
+import FriendsList from "@/components/friends/friendsList";
 import { Profile } from "@/types";
 import { useUser } from "@/components/UserContext";
 import { BlurView } from 'expo-blur';
