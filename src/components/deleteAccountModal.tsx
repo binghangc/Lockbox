@@ -2,7 +2,6 @@ import React, { forwardRef, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { Foundation } from '@expo/vector-icons';
 import { Modalize } from 'react-native-modalize';
-// import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export type DeleteAccountModalRef = Modalize;
