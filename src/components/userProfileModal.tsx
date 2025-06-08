@@ -82,20 +82,29 @@ export default function UserProfileModal({
         <BlurView
           intensity={70}
           tint="light"
-          className="rounded-2xl px-6 pt-10 pb-6 items-center overflow-visible bg-white/60"
+          className="px-6 pt-10 pb-6 items-center overflow-visible bg-white/60"
           style={{ minHeight: screenHeight }}
         >
-          <ScrollView>
-            <View className="items-center px-12 py-12">
+          <View className="items-center px-6 py-8">
               {user.avatar_url && <FloatingAvatar uri={user.avatar_url} />}
-            </View>
+          </View>
 
-            <Text className="text-xl font-bold text-white">{user.name}</Text>
-            {user.username && (
-              <Text className="text-gray-200">@{user.username}</Text>
-            )}
+          <ScrollView>
+            {/* Username */}
+            <Text className="text-gray-400 text-lg font-semibold text-center">@{user.username || 'Username not set'}</Text>
+
+            {/* Name */}
+            <View className="flex-row items-center justify-center space-x-2">
+                <Text className="text-white text-2xl font-bold">{user.name || 'Name not set'}</Text>
+            </View>           
+            
+            {/* Bio */}
             {user.bio && (
-              <Text className="text-center text-gray-300 mt-2">{user.bio}</Text>
+              <View className="w-full mb-4">
+                <View className="flex-row items-center justify-center space-x-2">
+                  <Text className="text-white text-l">{user.bio}</Text>
+                </View>
+              </View>
             )}
 
             {!isFriends && (
