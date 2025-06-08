@@ -1,4 +1,4 @@
-import { View, Pressable, TouchableOpacity } from "react-native";
+import { View, Text, Pressable, TouchableOpacity } from "react-native";
 import { useRouter, Stack } from "expo-router";
 import { useUser } from "@/components/UserContext";
 import { useState } from "react";
@@ -35,17 +35,30 @@ export default function FriendsScreen() {
                 }}
             />
             <View className="flex-1 bg-black px-4 pt-6">
-                <FriendsList
-                    onSelect={(user) => setSelectedUser(user)}
-                />
-    
-                <UserProfileModal
-                    isVisible={selectedUser !== null}
-                    onClose={() => setSelectedUser(null)}
-                    user={selectedUser}
-                    currentUserId={user?.id}
-                    isFriends={true}
-                />
+                <View className="mb-6">
+                    <Text className="text-s text-gray-400 font-semibold mb-2">
+                        FRIEND REQUESTS (0)
+                    </Text>
+
+                    
+                </View>
+
+                <View className="mb-6">
+                    <Text className="text-s text-gray-400 font-semibold mb-2">
+                        MY FRIENDS (12)
+                    </Text>
+                    <FriendsList
+                        onSelect={(user) => setSelectedUser(user)}
+                    />
+        
+                    <UserProfileModal
+                        isVisible={selectedUser !== null}
+                        onClose={() => setSelectedUser(null)}
+                        user={selectedUser}
+                        currentUserId={user?.id}
+                        isFriends={true}
+                    />
+                </View>
             </View>
         </>
     );
