@@ -20,7 +20,7 @@ export default function FriendRequestModal({
   request,
   onClose,
   onAccept,
-  onReject
+  onReject,
 }: Props) {
   const modalRef = useRef<Modalize>(null);
 

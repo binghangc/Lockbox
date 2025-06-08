@@ -50,9 +50,11 @@ export default function UserProfileModal({
 
       Alert.alert('Request Sent', result.message);
       onClose();
-    } catch (error: any) {
-      console.error('Friend request error:', error.message);
-      Alert.alert('Error', error.message);
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : 'Something went wrong';
+      console.error('Friend request error:', message);
+      Alert.alert('Error', message);
     } finally {
       setLoading(false);
     }
