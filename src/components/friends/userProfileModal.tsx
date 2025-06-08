@@ -3,7 +3,7 @@ import { View, Text, Pressable, Alert } from "react-native";
 import { BlurView } from 'expo-blur';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import type { Profile } from "@/types"; 
-import FloatingAvatar from "./floatingAvatar";
+import FloatingAvatar from "../floatingAvatar";
 import { Modalize } from "react-native-modalize";
 import { ScrollView } from "react-native-gesture-handler";
 import { Dimensions } from "react-native";

@@ -3,7 +3,7 @@ import { View, Text } from "react-native";
 import { useUser } from "@/components/UserContext";
 import { Profile } from "@/types";
 import FriendsList from "@/components/friends/friendsList";
-import UserProfileModal from "@/components/userProfileModal";
+import UserProfileModal from "@/components/friends/userProfileModal";
 
 export default function FriendsSection() {
     const { user } = useUser();

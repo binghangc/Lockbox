@@ -4,7 +4,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { debounce } from "lodash";
 import FormInput from "@/components/formInput";
 import { Profile } from "@/types"
-import UserProfileModal from "@/components/userProfileModal";
+import UserProfileModal from "@/components/friends/userProfileModal";
 import { useUser } from "@/components/UserContext";
 import { Feather } from "@expo/vector-icons";
 
