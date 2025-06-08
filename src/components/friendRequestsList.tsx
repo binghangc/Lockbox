@@ -5,52 +5,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FriendRequest } from "@/types";
 
 export default function FriendRequestsList({
+    requests,
     onSelect,
 }: {
+    requests: FriendRequest[];
     onSelect: (request: FriendRequest) => void;
 }) {
-    const [requests, setRequests] = useState<FriendRequest[]>([]);
-    const [loading, setLoading] = useState(false);
-
-    const listFriendRequests = async () => {
-        try {
-            setLoading(true);
-            const token = await AsyncStorage.getItem("access_token");
-            const res = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/friends/requests`, {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                }
-            });
-
-            if (!res.ok) {
-                const { error } = await res.json();
-                console.error("Error fetching requests:", error);
-                return;
-            }
-
-            const data = await res.json();
-            setRequests(data);
-        } catch(error) {
-            console.error('Requests error:', 'failed to retrieve requests');
-        } finally {
-            setLoading(false);
-        }
-    }
-
-    useEffect(() => {
-        listFriendRequests();
-    }, [])
-
-    if (loading) {
-        return (
-          <View className="flex-1 justify-center items-center">
-            <ActivityIndicator color="white" />
-          </View>
-        );
-    }
-
     if (requests.length === 0) {
         return (
             <View className="flex-1 justify-center items-center">

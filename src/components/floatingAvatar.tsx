@@ -29,9 +29,12 @@ export default function FloatingAvatar({ uri }: { uri: string }) {
         {/* Animated glowing orb behind the avatar */}
         <Animated.View
             style={{
+                position: "absolute",
+                width: 144, // w-36
+                height: 144,
+                borderRadius: 9999,
                 transform: [{ scale: glowAnim }],
             }}
-            className="absolute w-36 h-36 rounded-full"
         >
             <LinearGradient
                 colors={['#c084fc33', '#8b5cf633', '#ec489933']} // soft purple to pink gradient
