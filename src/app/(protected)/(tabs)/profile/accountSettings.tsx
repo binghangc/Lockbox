@@ -1,10 +1,13 @@
+import { useRef } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Entypo, MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import DeleteAccountModal, { DeleteAccountModalRef } from '@/components/deleteAccountModal';
 
 export default function AccountSettingsScreen() {
   const insets = useSafeAreaInsets();
+  const deleteModalRef = useRef<DeleteAccountModalRef>(null);
 
   const SettingItem = ({ icon, label, onPress, hasChevron = true }: {
     icon: React.ReactNode;
@@ -48,9 +51,7 @@ export default function AccountSettingsScreen() {
       >
         <TouchableOpacity
           className="flex-row items-center px-4 py-4"
-          onPress={() => {
-            // handle account deletion logic
-          }}
+          onPress={() => deleteModalRef.current?.open()}
         >
           <MaterialCommunityIcons name="trash-can-outline" size={24} color="#FF4C4C" />
           <Text style={{ color: '#FF4C4C', fontSize: 16, fontWeight: '600', marginLeft: 12 }}>
@@ -58,6 +59,7 @@ export default function AccountSettingsScreen() {
           </Text>
         </TouchableOpacity>
       </BlurView>
+      <DeleteAccountModal ref={deleteModalRef} />
     </View>
   );
 }
