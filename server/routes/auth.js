@@ -59,24 +59,6 @@ router.post('/login', async (req, res) => {
         user: data.user});
 });
 
-// API endpoint for logout
-router.post("/logout", async (req, res) => {
-    try {
-        const authHeader = req.headers.authorization;
-
-        if (!authHeader || !authHeader.startsWith("Bearer ")) {
-            return res.status(401).json({ error: "No or invalid token provided" });
-        }
-
-        const token = authHeader.replace("Bearer ", "");
-
-        return res.status(200).json({ message: "Logged out successfully", token });
-    } catch (err) {
-        console.error("Logout error:", err); 
-        res.status(500).json({ error: "Internal server error" });
-    }
-});
-
 // API endpoint for forgot password
 router.post('/forgot-password', async (req, res) => {
     const { email } = req.body;
