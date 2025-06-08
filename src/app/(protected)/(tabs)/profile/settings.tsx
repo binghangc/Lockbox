@@ -6,6 +6,8 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { BlurView } from 'expo-blur';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useContext } from 'react';
+import { UserContext } from '@/components/UserContext';
 
 type SettingItemProps = {
   icon: React.ReactNode;
@@ -17,6 +19,9 @@ type SettingItemProps = {
 export default function ProfileSettings() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const context = useContext(UserContext);
+  if (!context) return null;
+  const { logout } = context;
 
   const SettingItem = ({ icon, label, onPress, hasChevron = true }: SettingItemProps) => (
     <TouchableOpacity
@@ -39,7 +44,7 @@ export default function ProfileSettings() {
         <SettingItem
           label="Account Settings"
           icon={<MaterialIcons name="settings" size={24} color="white" />}
-          onPress={() => router.push('/accountSettings')}
+          onPress={() => router.push('./accountSettings')}
         />
         <View style={{ height: 1, backgroundColor: '#2a2a2a', marginHorizontal: 4 }} />
         <SettingItem
@@ -56,8 +61,10 @@ export default function ProfileSettings() {
         <SettingItem
           label="Log out"
           icon={<Feather name="log-out" size={24} color="white" />}
-          onPress={() => {
-            // handle logout logic
+          onPress={async () => {
+            console.log('Logging out user...');
+            await logout();         // clear tokens & state
+            router.replace('/(auth)');   // jump to auth stack index
           }}
           hasChevron={false}
         />

@@ -4,52 +4,40 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useState, useEffect } from 'react';
 import FloatingAvatar from '@/components/floatingAvatar';
 
-import AsyncStorage from '@react-native-async-storage/async-storage'; 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 // Components
-import { useUser } from '@/components/UserContext'; 
+import { useUser } from '@/components/UserContext';
 
 export default function ProfileScreen() {
     const { user, setUser, loading } = useUser();
+    const { logout } = useUser();
     const router = useRouter();
-    const [isLoggingOut, setIsLoggingOut] = useState(false);
     const [tripCount, setTripCount] = useState<number | null>(null);
     const [friendCount, setFriendCount] = useState<number | null>(null);
     const insets = useSafeAreaInsets();
 
-    const handleLogout = async () => {
-        try {
-            setIsLoggingOut(true);
+    useEffect(() => {
+        const fetchStats = async () => {
+            if (!user?.id) return;
 
-            const token = await AsyncStorage.getItem('access_token');
-    
-            const res = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/auth/logout`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                },
-            });
-    
-            if (!res.ok) {
-                const { error } = await res.json();
-                console.error('Logout failed:', error);
-                Alert.alert('Logout Failed', error);
-                return;
+            try {
+                const res = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/profile/stats/${user.id}`);
+                if (!res.ok) {
+                    const text = await res.text();
+                    console.error('Non-OK response:', text);
+                    return;
+                }
+                const data = await res.json();
+                setTripCount(data.trip_count ?? 0);
+                setFriendCount(data.friend_count ?? 0);
+            } catch (err) {
+                console.error('Failed to fetch stats:', err);
             }
-    
-            Alert.alert('Success', 'Logged out successfully');
-            console.log('User logged out through backend');
-            await AsyncStorage.removeItem('access_token');
-            setUser(null);
-            router.replace('/(auth)/');
-        } catch (err) {
-            console.error('Logout error:', 'failed to connect to the server');
-        } finally {
-            setIsLoggingOut(false);
-        }
-    };
+        };
+
+        fetchStats();
+    }, [user]);
 
 
     if (loading) {
@@ -66,33 +54,12 @@ export default function ProfileScreen() {
                 <Text className="text-white text-lg">Please log in again.</Text>
                 <Button
                     title="Go to Login"
-                    onPress={handleLogout}
+                    onPress={logout}
                 />
             </View>
         );
     }
 
-    useEffect(() => {
-      const fetchStats = async () => {
-        if (!user?.id) return;
-
-        try {
-          const res = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/profile/stats/${user.id}`);
-          if (!res.ok) {
-            const text = await res.text();
-            console.error('Non-OK response:', text);
-            return;
-          }
-          const data = await res.json();
-          setTripCount(data.trip_count ?? 0);
-          setFriendCount(data.friend_count ?? 0);
-        } catch (err) {
-          console.error('Failed to fetch stats:', err);
-        }
-      };
-
-      fetchStats();
-    }, [user]);
 
     return (
       <ScrollView
@@ -138,22 +105,14 @@ export default function ProfileScreen() {
             </View>
 
             {/* Buttons */}
-            <View className="flex-row justify-between mt-6 w-full px-6 space-x-4">
+            <View className="mt-6 w-full px-6">
                 {/* Edit Profile */}
                 <TouchableOpacity
                     onPress={() => router.push('/profileEdit')}
-                    className="rounded-full border border-white/30 bg-white/10 py-3 px-12 items-center"
+                    className="rounded-md border border-white/30 bg-white/10 py-3 px-6 items-center w-full"
                     activeOpacity={0.8}
                 >
                     <Text className="text-white font-medium text-base">Edit Profile</Text>
-                </TouchableOpacity>
-                {/* Log Out */}
-                <TouchableOpacity
-                    onPress={handleLogout}
-                    className="rounded-full border border-white/30 bg-white/10 py-3 px-12 items-center"
-                    activeOpacity={0.8}
-                >
-                    <Text className="text-white font-medium text-base">Log Out</Text>
                 </TouchableOpacity>
             </View>
         </View>

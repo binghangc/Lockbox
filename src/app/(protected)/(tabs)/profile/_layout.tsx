@@ -5,8 +5,24 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { Stack } from 'expo-router';
 import { BlurView } from 'expo-blur';
+import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 
 export default function ProfileLayout() {
+  const sharedScreenOptions: NativeStackNavigationOptions = {
+    headerShown: true,
+    headerTransparent: true,
+    headerTintColor: 'white',
+    headerTitleAlign: 'center',
+    headerLeft: () => (
+      <TouchableOpacity onPress={() => router.back()}>
+        <Octicons name="chevron-left" size={28} color="white" style={{ marginLeft: 12 }} />
+      </TouchableOpacity>
+    ),
+    headerBackground: () => (
+      <BlurView intensity={60} tint="dark" style={StyleSheet.absoluteFill} />
+    ),
+  };
+
   return (
     <Stack
       screenOptions={{
@@ -41,19 +57,15 @@ export default function ProfileLayout() {
       <Stack.Screen
         name="settings"
         options={{
-          headerShown: true,
-          headerTransparent: true,
-          headerTintColor: 'white',
-          headerTitleAlign: 'center',
-          headerTitle:'Profile Settings',
-          headerLeft: () => (
-            <TouchableOpacity onPress={() => router.back()}>
-              <Octicons name="chevron-left" size={28} color="white" style={{ marginLeft: 12 }} />
-            </TouchableOpacity>
-          ),
-          headerBackground: () => (
-            <BlurView intensity={60} tint="dark" style={StyleSheet.absoluteFill} />
-          ),
+          ...sharedScreenOptions,
+          headerTitle: 'Profile Settings',
+        }}
+      />
+      <Stack.Screen
+        name="accountSettings"
+        options={{
+          ...sharedScreenOptions,
+          headerTitle: 'Account Settings',
         }}
       />
     </Stack>
