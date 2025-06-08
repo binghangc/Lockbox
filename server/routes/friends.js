@@ -213,4 +213,40 @@ router.patch('/reject-request', async (req, res) => {
     res.status(200).json({ message: 'Friend request rejected successfully' });
 });
 
+router.delete("/remove/:targetUserId", async (req, res) => {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return res.status(401).json({ error: "Missing or malformed Authorization header" });
+    }
+  
+    const token = authHeader.split(" ")[1];
+    const { data: authData, error: authError } = await supabase.auth.getUser(token);
+    const user = authData?.user;
+  
+    if (authError || !user) {
+        return res.status(401).json({ error: "Invalid or expired token" });
+    }
+  
+    const userId = user.id;
+    const targetUserId = req.params.targetUserId;
+
+    try {
+        const { error } = await supabase
+            .from("friendships")
+            .delete()
+            .or(`and(uid1.eq.${userId},uid2.eq.${targetUserId}),and(uid1.eq.${targetUserId},uid2.eq.${userId})`);
+
+        if (error) {
+            console.error("Supabase delete error:", error);
+            throw error;
+    }
+
+        return res.status(200).json({ message: "Friendship removed." });
+    } catch (err) {
+        console.error("Error removing friend:", err.message ?? err);
+        return res.status(500).json({ error: "Failed to remove friend." });
+    }
+});
+
 module.exports = router;

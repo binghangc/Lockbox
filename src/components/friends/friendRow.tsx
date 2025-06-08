@@ -1,7 +1,9 @@
-import { View, Text, TouchableOpacity, Image } from "react-native";
+import { View, Text, TouchableOpacity, Image, Alert } from "react-native";
 import React from "react";
 import FriendActionButton from "@/components/friends/friendActionButton"; 
 import type { Profile } from "@/types";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 type FriendRow = Profile & { friendshipId?: string };
 
 type Props = {
@@ -11,6 +13,7 @@ type Props = {
   inviteStatus: Record<string, "idle" | "loading" | "sent" | "failed">;
   onSelect: (item: FriendRow) => void;
   setInviteStatus: React.Dispatch<React.SetStateAction<Record<string, "idle" | "loading" | "sent" | "failed">>>;
+  refreshList?: () => void;
 };
 
 export default function FriendRow({
@@ -20,6 +23,7 @@ export default function FriendRow({
   inviteStatus,
   onSelect,
   setInviteStatus,
+  refreshList,
 }: Props) {
   const status =
     inviteStatus[item.id] ??
@@ -42,6 +46,43 @@ export default function FriendRow({
     } else {
       onSelect(item);
     }
+  };
+
+  const handleRemoveFriend = async () => {
+    Alert.alert(
+      "Remove Friendship",
+      `Are you sure you want to remove your friendship with ${item.name}?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Remove",
+          style: "destructive",
+          onPress: async () => {
+            const token = await AsyncStorage.getItem("access_token");
+            const res = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/friends/remove/${item.id}`, {
+              method: "DELETE",
+              headers: { Authorization: `Bearer ${token}` },
+            });
+  
+            if (!res.ok) {
+              alert("Failed to remove friend");
+              return;
+            }
+  
+            Alert.alert(
+              "Friend Removed",
+              `Friend removed successfully! Bye bye ${item.name}.`, [
+                {
+                  text: "OK",
+                  onPress: () => {
+                    refreshList?.();
+                  },
+                },
+              ]);
+          },
+        },
+      ]
+    );
   };
 
   return (
@@ -70,6 +111,7 @@ export default function FriendRow({
           status={status}
           disabled={mode === "invite" && (status === "sent" || alreadyInvitedIds.includes(item.id))}
           onPress={handlePress}
+          onRemove={handleRemoveFriend}
         />
       </TouchableOpacity>
     </View>

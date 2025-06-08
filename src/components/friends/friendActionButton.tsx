@@ -46,7 +46,13 @@ export default function FriendActionButton({
 
       {showOptions && (
         <View className="absolute right-10 top-1 bg-zinc-800 rounded-xl px-3 py-2 min-w-[150px] z-50">
-          <Pressable className="flex-row items-center space-x-3">
+          <Pressable
+            onPress={() => {
+              setShowOptions(false); 
+              onRemove?.();
+            }}
+            className="flex-row items-center space-x-3"
+          >
             <Feather name="user-x" size={16} color="#ef4444" className="mr-1" />
             <Text className="text-red-500 font-semibold text-sm" numberOfLines={1}>
                Remove friendship

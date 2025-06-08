@@ -63,6 +63,12 @@ export default function FriendsList({
         return updated;
       });
     }, []);
+
+    useEffect(() => {
+      if (!loading) {
+        onCountUpdate?.(friends.length);
+      }
+    }, [friends.length, loading]);
   
     if (loading) {
       return (
@@ -74,7 +80,6 @@ export default function FriendsList({
     }
   
     if (friends.length === 0) {
-      onCountUpdate?.(0);
       return (
         <View className="flex-1 justify-center items-center">
           <Text className="text-white text-center text-base mb-3">
@@ -102,6 +107,7 @@ export default function FriendsList({
           inviteStatus={inviteStatus}
           onSelect={onSelect}
           setInviteStatus={setInviteStatus}
+          refreshList={listFriends}
         />
       );
     };
