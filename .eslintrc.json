@@ -58,6 +58,7 @@
       }
     ],
     "import/no-unresolved": "error",
+    "node/no-missing-import": "off",
     "import/no-extraneous-dependencies": [
       "error",
       {

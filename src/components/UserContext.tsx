@@ -1,9 +1,10 @@
+import type { Profile } from '@/types';
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type UserContextType = {
-  user: any;
-  setUser: React.Dispatch<React.SetStateAction<any>>;
+  user: Profile | null;
+  setUser: React.Dispatch<React.SetStateAction<Profile | null>>;
   loading: boolean;
   token: string | null;
   setToken: React.Dispatch<React.SetStateAction<string | null>>;
@@ -20,9 +21,9 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const fetchUser = async () => {
-      const token = await AsyncStorage.getItem('access_token');
-      setToken(token);
-      if (!token) {
+      const storedToken = await AsyncStorage.getItem('access_token');
+      setToken(storedToken);
+      if (!storedToken) {
         setUser(null);
         setLoading(false);
         return;
@@ -31,7 +32,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       try {
         const res = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/profile`, {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${storedToken}`,
           },
         });
 

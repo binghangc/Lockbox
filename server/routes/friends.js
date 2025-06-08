@@ -74,7 +74,7 @@ router.get('/search', async (req, res) => {
   }
 
   const token = authHeader.split(' ')[1];
-  const { data, error } = await supabase.auth.getUser(token);
+  const { data } = await supabase.auth.getUser(token);
   const user = data?.user;
 
   const { username } = req.query;
@@ -115,7 +115,7 @@ router.get('/search', async (req, res) => {
     return res.status(500).json({ error: resultError.message });
   }
 
-  res.status(200).json(results);
+  return res.status(200).json(results);
 });
 
 // API endpoint for sending friend request
@@ -132,7 +132,7 @@ router.post('/send-request', async (req, res) => {
     .from('friendships')
     .insert([{ uid1, uid2, status: 'pending' }]);
 
-  res.status(200).json({ message: 'Friend request sent successfully' });
+  return res.status(200).json({ message: 'Friend request sent successfully' });
 });
 
 // API endpoint to get requests
@@ -173,7 +173,7 @@ router.get('/requests', async (req, res) => {
     return res.status(500).json({ error: friendError.message });
   }
 
-  res.status(200).json(friends);
+  return res.status(200).json(friends);
 });
 
 // API endpoint for accepting friend request
@@ -200,7 +200,9 @@ router.patch('/accept-request', async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 
-  res.status(200).json({ message: 'Friend request accepted successfully' });
+  return res
+    .status(200)
+    .json({ message: 'Friend request accepted successfully' });
 });
 
 // API endpoint for rejecting friend request
@@ -224,7 +226,9 @@ router.patch('/reject-request', async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 
-  res.status(200).json({ message: 'Friend request rejected successfully' });
+  return res
+    .status(200)
+    .json({ message: 'Friend request rejected successfully' });
 });
 
 module.exports = router;
