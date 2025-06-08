@@ -3,22 +3,19 @@ import {
   Text,
   Pressable,
   FlatList,
-  TouchableOpacity,
   Image,
   ImageBackground,
 } from 'react-native';
-import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import type { Invite } from '@/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BlurView } from 'expo-blur';
 
-export default function InvitesList({
-  onInviteSelected,
-}: {
-  onInviteSelected?: (invite: Invite) => void;
-}) {
-  const router = useRouter();
+type InvitesListProps = {
+  onInviteSelected: (invite: Invite) => void;
+};
+
+export default function InvitesList({ onInviteSelected }: InvitesListProps) {
   const [invites, setInvites] = useState<Invite[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -43,7 +40,7 @@ export default function InvitesList({
       const data = await res.json();
       setInvites(data);
     } catch (error) {
-      console.error('Invites error:', 'failed to retrieve invites');
+      console.error('Invites error:', error);
     } finally {
       setLoading(false);
     }
@@ -68,7 +65,8 @@ export default function InvitesList({
     return (
       <View className="flex-1 justify-center items-center">
         <Text className="text-white text-center text-base mb-3">
-          No one's invited you anywhere. That's a sign to start your own trip!
+          No one&#39;s invited you anywhere. That&#39;s a sign to start your own
+          trip!
         </Text>
       </View>
     );
