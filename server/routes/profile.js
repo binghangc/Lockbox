@@ -5,15 +5,12 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
+const r2 = require('../utils/r2client');
+const { v4: uuidv4 } = require('uuid');
+
 const upload = multer({ storage: multer.memoryStorage() });
 
-const { createClient } = require('@supabase/supabase-js');
-require('dotenv').config();
-
-const supabase = createClient(
-    process.env.EXPO_PUBLIC_SUPABASE_URL,
-    process.env.EXPO_PUBLIC_SUPABASE_SERVICE_ROLE_KEY
-);
+const supabase = require('../utils/supabaseclient');
 
 // API endpoint to get profile information
 router.get('/', async (req, res) => {
@@ -70,32 +67,44 @@ router.patch('/edit', async (req, res) => {
 router.post('/upload-avatar', upload.single('avatar'), async (req, res) => {
     const { user_id } = req.body;
     const file = req.file;
-
-    if (!user_id || !file) return res.status(400).json({ error: 'Missing user_id or file' });
-
+  
+    if (!user_id || !file) {
+      return res.status(400).json({ error: 'Missing user_id or file' });
+    }
+  
     const fileExt = file.originalname.split('.').pop();
-    const filePath = `avatars/${user_id}.${fileExt}`;
+    const key = `avatars/${user_id}/${uuidv4()}.${fileExt}`;
+  
+    try {
+        // Upload to Cloudflare R2
+        await r2
+            .putObject({
+                Bucket: process.env.R2_BUCKET_NAME_AVATARS,
+                Key: key,
+                Body: file.buffer,
+                ContentType: file.mimetype || 'image/jpeg',
+                ACL: 'public-read',
+            })
+            .promise();
 
-    const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(filePath, file.buffer, {
-        contentType: file.mimetype,
-        upsert: true,
-        });
+        // Construct public URL
+        const publicUrl = `${process.env.R2_PUBLIC_DOMAIN_AVATAR}/${key}`;
 
-    if (uploadError) return res.status(500).json({ error: uploadError.message });
+        // Update Supabase DB with avatar URL
+        const { error: updateError } = await supabase
+            .from('profiles')
+            .update({ avatar_url: publicUrl })
+            .eq('id', user_id);
 
-    const { data: publicUrlData } = supabase.storage.from('avatars').getPublicUrl(filePath);
-    const avatar_url = publicUrlData.publicUrl;
+        if (updateError) {
+            return res.status(500).json({ error: updateError.message });
+        }
 
-    const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ avatar_url })
-        .eq('id', user_id);
-
-    if (updateError) return res.status(500).json({ error: updateError.message });
-
-    res.status(200).json({ avatar_url });
+        return res.status(200).json({ avatar_url: publicUrl });
+    } catch (err) {
+        console.error('[R2 Upload Error]', err);
+        return res.status(500).json({ error: 'Upload to R2 failed' });
+    }
 });
 
 module.exports = router;

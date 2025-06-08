@@ -1,12 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { createClient } = require('@supabase/supabase-js');
-require('dotenv').config();
-
-const supabase = createClient(
-  process.env.EXPO_PUBLIC_SUPABASE_URL,
-  process.env.EXPO_PUBLIC_SUPABASE_SERVICE_ROLE_KEY
-);
+const supabase = require('../utils/supabaseclient');
 
 // POST /trips - Create a new trip
 router.post('/', async (req, res) => {
