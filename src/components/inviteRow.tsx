@@ -20,36 +20,6 @@ const responses = [
   },
 ];
 
-export default function InviteResponseBar({
-  onSelect,
-}: {
-  onSelect: (status: 'going' | 'maybe' | 'not_going') => void;
-}) {
-  return (
-    <View className="absolute bottom-6 left-0 right-0 flex-row justify-center space-x-4 px-6">
-      {responses.map((r) => (
-        <Pressable
-          key={r.label}
-          onPress={() =>
-            onSelect(r.label.toLowerCase().replace(' ', '_') as any)
-          }
-          style={[
-            styles.shadowWrapper,
-            { marginHorizontal: 6 }, // <-- proper spacing between each
-          ]}
-        >
-          <BlurView intensity={40} tint="dark" style={styles.blur}>
-            <LinearGradient colors={r.gradient} style={styles.gradient}>
-              <Text style={styles.emoji}>{r.emoji}</Text>
-              <Text style={styles.text}>{r.label}</Text>
-            </LinearGradient>
-          </BlurView>
-        </Pressable>
-      ))}
-    </View>
-  );
-}
-
 const CIRCLE_SIZE = 120;
 const GLOW_MARGIN = 6;
 
@@ -99,3 +69,38 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
+
+export default function InviteResponseBar({
+  onSelect,
+}: {
+  onSelect: (status: 'going' | 'maybe' | 'not_going') => void;
+}) {
+  return (
+    <View className="absolute bottom-6 left-0 right-0 flex-row justify-center space-x-4 px-6">
+      {responses.map((r) => (
+        <Pressable
+          key={r.label}
+          onPress={() =>
+            onSelect(
+              r.label.toLowerCase().replace(' ', '_') as
+                | 'going'
+                | 'maybe'
+                | 'not_going',
+            )
+          }
+          style={[
+            styles.shadowWrapper,
+            { marginHorizontal: 6 }, // <-- proper spacing between each
+          ]}
+        >
+          <BlurView intensity={40} tint="dark" style={styles.blur}>
+            <LinearGradient colors={r.gradient} style={styles.gradient}>
+              <Text style={styles.emoji}>{r.emoji}</Text>
+              <Text style={styles.text}>{r.label}</Text>
+            </LinearGradient>
+          </BlurView>
+        </Pressable>
+      ))}
+    </View>
+  );
+}
