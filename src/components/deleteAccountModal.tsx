@@ -1,11 +1,5 @@
 import React, { forwardRef, useState } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-} from 'react-native';
+import { View, Text, TextInput, TouchableOpacity } from 'react-native';
 import { Foundation } from '@expo/vector-icons';
 import { Modalize } from 'react-native-modalize';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -43,12 +37,11 @@ const DeleteAccountModal = forwardRef<Modalize>((_, ref) => {
           Delete account
         </Text>
         <Text className="text-white text-base text-left mb-6">
-          This action is permanent. All your data including profile, trips, and
-          friends will be permanently deleted.
+          This action is permanent. All your data including your profile, trips,
+          and friends will be permanently deleted.
         </Text>
-
         <Text className="text-white text-sm mb-2">
-          Type "DELETE" to confirm
+          Type &quot;DELETE&quot; to confirm
         </Text>
         <TextInput
           className="text-white text-md border border-white/20 rounded-md mb-4"
@@ -78,7 +71,7 @@ const DeleteAccountModal = forwardRef<Modalize>((_, ref) => {
         >
           <Foundation name="info" size={14} color="rgba(255, 255, 255, 0.7)" />
           <Text className="text-white text-sm opacity-70">
-            You'll be signed out once deletion is complete.
+            You&apos;ll be signed out once deletion is complete.
           </Text>
         </View>
 
@@ -126,5 +119,7 @@ const DeleteAccountModal = forwardRef<Modalize>((_, ref) => {
     </Modalize>
   );
 });
+
+DeleteAccountModal.displayName = 'DeleteAccountModal';
 
 export default DeleteAccountModal;
