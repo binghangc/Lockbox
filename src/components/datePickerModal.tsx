@@ -11,13 +11,12 @@ export type DatePickerModalRef = Modalize;
 const DatePickerModal = forwardRef<
   Modalize,
   {
-    onConfirm?: (range: {
+    onConfirm: (range: {
       startDate: string | null;
       endDate: string | null;
     }) => void;
   }
->((props, ref) => {
-  const { onConfirm } = props;
+>(({ onConfirm = () => {} }, ref) => {
   const inset = useSafeAreaInsets();
   const [startDate, setStartDate] = React.useState<string | null>(null);
   const [endDate, setEndDate] = React.useState<string | null>(null);
@@ -34,14 +33,17 @@ const DatePickerModal = forwardRef<
   };
 
   const getMarkedDates = () => {
-    const marked: any = {};
+    const marked: Record<
+      string,
+      { customStyles: { container: object; text: object } }
+    > = {};
 
     if (startDate && endDate) {
       const start = dayjs(startDate);
       const end = dayjs(endDate);
       const range = end.diff(start, 'day');
 
-      for (let i = 0; i <= range; i++) {
+      for (let i = 0; i <= range; i += 1) {
         const date = start.add(i, 'day').format('YYYY-MM-DD');
 
         const isStart = i === 0;
@@ -127,11 +129,15 @@ const DatePickerModal = forwardRef<
           <View className="flex-1 bg-white/10 px-5 py-4 rounded-lg ml-2 min-h-[70px] justify-center">
             <Text className="text-white text-lg font-semibold mb-1">End</Text>
             <Text className="text-white text-xl font-bold">
-              {startDate && !endDate
-                ? dayjs(startDate).format('ddd, MMM D')
-                : endDate
-                  ? dayjs(endDate).format('ddd, MMM D')
-                  : 'Select'}
+              {(() => {
+                if (startDate && !endDate) {
+                  return dayjs(startDate).format('ddd, MMM D');
+                }
+                if (endDate) {
+                  return dayjs(endDate).format('ddd, MMM D');
+                }
+                return 'Select';
+              })()}
             </Text>
           </View>
         </View>
@@ -197,5 +203,8 @@ const DatePickerModal = forwardRef<
     </Modalize>
   );
 });
+
+DatePickerModal.displayName = 'DatePickerModal';
+DatePickerModal.displayName = 'DatePickerModal';
 
 export default DatePickerModal;
