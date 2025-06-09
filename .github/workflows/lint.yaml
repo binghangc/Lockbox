@@ -8,6 +8,7 @@ on:
 
 jobs:
   lint:
+    name: Lint & Prettier Checks
     runs-on: ubuntu-latest
 
     steps:
