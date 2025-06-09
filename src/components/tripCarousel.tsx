@@ -7,6 +7,10 @@ interface TripCarouselProps {
   trips: Trip[];
 }
 
+function TripSeparator() {
+  return <View className="w-3" />;
+}
+
 export default function TripCarousel({ trips }: TripCarouselProps) {
   const sortedTrips = [...trips].sort(
     (a, b) =>
@@ -22,7 +26,7 @@ export default function TripCarousel({ trips }: TripCarouselProps) {
         scrollEnabled
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{ paddingLeft: 13, paddingRight: 4 }}
-        ItemSeparatorComponent={() => <View className="w-3" />}
+        ItemSeparatorComponent={TripSeparator}
         renderItem={({ item }) => <TripCard trip={item} />}
         decelerationRate="fast"
         snapToAlignment="start"

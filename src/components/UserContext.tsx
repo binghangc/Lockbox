@@ -15,7 +15,7 @@ type UserContextType = {
 export const UserContext = createContext<UserContextType | null>(null);
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState<string | null>(null);
 
@@ -60,7 +60,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     fetchUser();
   }, [token]);
 
-  const logout = async () => {
+  const logout = React.useCallback(async () => {
     try {
       await AsyncStorage.removeItem('access_token');
     } catch (e) {
@@ -69,9 +69,9 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       setUser(null);
       setToken(null);
     }
-  };
+  }, [setUser, setToken]);
 
-  const deleteAccount = async () => {
+  const deleteAccount = React.useCallback(async () => {
     try {
       const res = await fetch(
         `${process.env.EXPO_PUBLIC_API_URL}/auth/delete`,
@@ -92,14 +92,23 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     } finally {
       await logout();
     }
-  };
+  }, [token, logout]);
+
+  const contextValue = React.useMemo(
+    () => ({
+      user,
+      setUser,
+      loading,
+      token,
+      setToken,
+      logout,
+      deleteAccount,
+    }),
+    [user, loading, token, setUser, setToken, logout, deleteAccount],
+  );
 
   return (
-    <UserContext.Provider
-      value={{ user, setUser, loading, token, setToken, logout, deleteAccount }}
-    >
-      {children}
-    </UserContext.Provider>
+    <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>
   );
 }
 

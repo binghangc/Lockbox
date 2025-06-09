@@ -40,9 +40,9 @@ export default function TripPillbar({
             { name: 'camera', label: 'Capture' },
             { name: 'user-plus', label: 'Invite', onPress: handleInvitePress },
             { name: 'ellipsis-h', label: 'More' },
-          ].map((item, idx) => (
+          ].map((item, _) => (
             <TouchableOpacity
-              key={idx}
+              key={item.name}
               className="items-center justify-center"
               onPress={item.onPress ?? (() => {})}
             >
