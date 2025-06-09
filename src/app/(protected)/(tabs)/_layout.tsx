@@ -1,7 +1,5 @@
 import { router, Tabs } from 'expo-router';
-import { Octicons, FontAwesome5, Foundation } from '@expo/vector-icons';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { Octicons, FontAwesome5 } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { View, TouchableOpacity } from 'react-native';
 

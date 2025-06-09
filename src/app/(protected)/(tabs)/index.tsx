@@ -3,6 +3,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import TripCarousel from '@/components/tripCarousel';
+import type { Trip } from '@/types';
 
 const FILTERS = ['upcoming', 'ongoing', 'past', 'pinned'] as const;
 
@@ -10,7 +11,8 @@ export default function HomeScreen() {
   const [selectedFilter, setSelectedFilter] = useState<
     (typeof FILTERS)[number] | null
   >(null);
-  const [trips, setTrips] = useState<any[]>([]);
+
+  const [trips, setTrips] = useState<Trip[]>([]);
   const insets = useSafeAreaInsets();
   const filteredTrips = selectedFilter
     ? trips.filter((trip) => trip.status === selectedFilter)
