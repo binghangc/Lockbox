@@ -17,6 +17,91 @@ export type LocationPickerModalRef = {
   close: () => void;
 };
 
+type LocationPickerModalContentProps = {
+  insets: { bottom: number };
+  searchQuery: string;
+  setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
+  filteredCountries: typeof countries;
+  onSelectCountry: (country: { name: string; flag: string }) => void;
+  getEmojiFlag: (countryCode: string) => string;
+  closeModal: () => void;
+};
+
+function LocationPickerModalContent({
+  insets,
+  searchQuery,
+  setSearchQuery,
+  filteredCountries,
+  onSelectCountry,
+  getEmojiFlag,
+  closeModal,
+}: LocationPickerModalContentProps) {
+  return (
+    <BlurView
+      intensity={60}
+      tint="dark"
+      experimentalBlurMethod="dimezisBlurView"
+      style={{ borderTopLeftRadius: 24, borderTopRightRadius: 24 }}
+    >
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={{
+          paddingHorizontal: 20,
+          paddingBottom: insets.bottom + 20,
+        }}
+      >
+        <View
+          style={{
+            paddingHorizontal: 20,
+            paddingTop: 20,
+            borderTopLeftRadius: 24,
+            borderTopRightRadius: 24,
+          }}
+        >
+          <View className="flex-row items-center justify-between mb-4 mt-3">
+            <TouchableOpacity onPress={closeModal}>
+              <Text className="text-white text-md font-semibold">Cancel</Text>
+            </TouchableOpacity>
+            <Text className="text-white font-bold text-xl">Location</Text>
+            <View style={{ width: 50 }} />
+          </View>
+
+          <View className="bg-white/10 border border-white/20 rounded-md px-3 py-2 flex-row items-center mb-3">
+            <Octicons name="search" size={19} color="#aaa" />
+            <TextInput
+              placeholder="Search countries"
+              placeholderTextColor="#aaa"
+              className="text-white flex-1 ml-2"
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+            />
+          </View>
+        </View>
+        {filteredCountries.map((item) => (
+          <TouchableOpacity
+            key={item.cca2}
+            className="py-3 px-2 border-b border-white/10"
+            onPress={() => {
+              onSelectCountry({
+                name: item.name.common,
+                flag: getEmojiFlag(item.cca2),
+              });
+            }}
+          >
+            <Text className="text-white text-xl">
+              {getEmojiFlag(item.cca2)} {item.name.common}
+            </Text>
+          </TouchableOpacity>
+        ))}
+        <View style={{ height: insets.bottom }} />
+      </ScrollView>
+    </BlurView>
+  );
+}
+
+LocationPickerModalContent.displayName = 'LocationPickerModalContent';
+
 const LocationPickerModal = forwardRef<
   LocationPickerModalRef,
   { onSelectCountry: (country: { name: string; flag: string }) => void }
@@ -54,73 +139,23 @@ const LocationPickerModal = forwardRef<
       handlePosition="inside"
       modalStyle={{ backgroundColor: 'transparent' }}
       modalTopOffset={45}
-      customRenderer={(scrollViewProps: any) => (
-        <BlurView
-          intensity={60}
-          tint="dark"
-          experimentalBlurMethod="dimezisBlurView"
-          style={{ borderTopLeftRadius: 24, borderTopRightRadius: 24 }}
-        >
-          <ScrollView
-            {...scrollViewProps}
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled"
-            contentContainerStyle={{
-              paddingHorizontal: 20,
-              paddingBottom: insets.bottom + 20,
-            }}
-          >
-            <View
-              style={{
-                paddingHorizontal: 20,
-                paddingTop: 20,
-                borderTopLeftRadius: 24,
-                borderTopRightRadius: 24,
-              }}
-            >
-              <View className="flex-row items-center justify-between mb-4 mt-3">
-                <TouchableOpacity onPress={() => modalRef.current?.close()}>
-                  <Text className="text-white text-md font-semibold">
-                    Cancel
-                  </Text>
-                </TouchableOpacity>
-                <Text className="text-white font-bold text-xl">Location</Text>
-                <View style={{ width: 50 }} />
-              </View>
-
-              <View className="bg-white/10 border border-white/20 rounded-md px-3 py-2 flex-row items-center mb-3">
-                <Octicons name="search" size={19} color="#aaa" />
-                <TextInput
-                  placeholder="Search countries"
-                  placeholderTextColor="#aaa"
-                  className="text-white flex-1 ml-2"
-                  value={searchQuery}
-                  onChangeText={setSearchQuery}
-                />
-              </View>
-            </View>
-            {filteredCountries.map((item) => (
-              <TouchableOpacity
-                key={item.cca2}
-                className="py-3 px-2 border-b border-white/10"
-                onPress={() => {
-                  onSelectCountry({
-                    name: item.name.common,
-                    flag: getEmojiFlag(item.cca2),
-                  });
-                }}
-              >
-                <Text className="text-white text-xl">
-                  {getEmojiFlag(item.cca2)} {item.name.common}
-                </Text>
-              </TouchableOpacity>
-            ))}
-            <View style={{ height: insets.bottom }} />
-          </ScrollView>
-        </BlurView>
-      )}
+      customRenderer={
+        <View style={{ flex: 1 }}>
+          <LocationPickerModalContent
+            insets={insets}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            filteredCountries={filteredCountries}
+            onSelectCountry={onSelectCountry}
+            getEmojiFlag={getEmojiFlag}
+            closeModal={() => modalRef.current?.close()}
+          />
+        </View>
+      }
     />
   );
 });
+
+LocationPickerModal.displayName = 'LocationPickerModal';
 
 export default LocationPickerModal;
