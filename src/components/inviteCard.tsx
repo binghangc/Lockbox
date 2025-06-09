@@ -30,7 +30,8 @@ export default function InviteCard({
     const token = await AsyncStorage.getItem('access_token');
 
     if (!token) {
-      return Alert.alert('Error', "You're not logged in.");
+      Alert.alert('Error', "You're not logged in.");
+      return;
     }
 
     const endpointMap: Record<string, string> = {
@@ -41,10 +42,8 @@ export default function InviteCard({
     const endpoint = endpointMap[response];
 
     if (!endpoint) {
-      return Alert.alert(
-        'Unknown response',
-        "That response type isn't supported.",
-      );
+      Alert.alert('Unknown response', "That response type isn't supported.");
+      return;
     }
 
     try {
@@ -68,7 +67,8 @@ export default function InviteCard({
 
       if (!res.ok) {
         console.error('Error:', data.error);
-        return Alert.alert('Failed', data.error || 'Something went wrong.');
+        Alert.alert('Failed', data.error || 'Something went wrong.');
+        return;
       }
 
       Alert.alert('Success', `You responded: ${response.replace('_', ' ')}`);
@@ -86,7 +86,9 @@ export default function InviteCard({
           <TouchableOpacity onPress={onClose}>
             <Feather name="x" size={28} color="white" />
           </TouchableOpacity>
-          <Text className="text-white text-2xl font-bold">You're Invited!</Text>
+          <Text className="text-white text-2xl font-bold">
+            You&#39;re Invited!
+          </Text>
           <View className="w-7" />
         </View>
         <ScrollView
