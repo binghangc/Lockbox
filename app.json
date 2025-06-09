@@ -28,6 +28,10 @@
     "web": {
       "favicon": "./assets/lockicon.png"
     },
-    "plugins": ["expo-secure-store", "expo-router"]
+    "plugins": [
+      "expo-secure-store",
+      "expo-router",
+      "expo-dev-client"
+    ]
   }
 }

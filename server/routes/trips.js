@@ -9,26 +9,12 @@ const supabase = createClient(
   process.env.EXPO_PUBLIC_SUPABASE_SERVICE_ROLE_KEY,
 );
 
+const authMiddleware = require('../middleware/auth');
+
 // POST /trips - Create a new trip
-router.post('/', async (req, res) => {
-  const authHeader = req.headers.authorization;
-
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res
-      .status(401)
-      .json({ error: 'Missing or malformed Authorization header' });
-  }
-
-  const token = authHeader.split(' ')[1];
-  const { data: userData, error: userError } =
-    await supabase.auth.getUser(token);
-  if (userError || !userData?.user) {
-    return res.status(401).json({ error: 'Invalid or expired token' });
-  }
-
-  const user_id = userData.user.id;
-  const { title, description, start_date, end_date, country, thumbnail_url } =
-    req.body;
+router.post('/', authMiddleware, async (req, res) => {
+  const user_id = req.user.id;
+  const { title, description, start_date, end_date, country, thumbnail_url } = req.body;
 
   const { data, error } = await supabase.from('trips').insert([
     {
@@ -47,23 +33,8 @@ router.post('/', async (req, res) => {
 });
 
 // GET /trips - Get all trips for the logged-in user (host or participant)
-router.get('/', async (req, res) => {
-  const authHeader = req.headers.authorization;
-
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res
-      .status(401)
-      .json({ error: 'Missing or malformed Authorization header' });
-  }
-
-  const token = authHeader.split(' ')[1];
-  const { data: userData, error: userError } =
-    await supabase.auth.getUser(token);
-  if (userError || !userData?.user) {
-    return res.status(401).json({ error: 'Invalid or expired token' });
-  }
-
-  const userId = userData.user.id;
+router.get('/', authMiddleware, async (req, res) => {
+  const userId = req.user.id;
 
   // Step 1: Get trip IDs where user is a participant
   const { data: participantTrips, error: participantErr } = await supabase

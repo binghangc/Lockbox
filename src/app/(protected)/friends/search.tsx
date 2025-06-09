@@ -1,105 +1,189 @@
 import { useState } from 'react';
-import {
-  View,
-  FlatList,
-  Text,
-  TouchableOpacity,
-  ActivityIndicator,
-} from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { debounce } from 'lodash';
-import FormInput from '@/components/formInput';
-import { Profile } from '@/types';
-import UserProfileModal from '@/components/userProfileModal';
-import { useUser } from '@/components/UserContext';
+import { View, FlatList, Text, TouchableOpacity, ActivityIndicator, Image } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { debounce } from "lodash";
+import FormInput from "@/components/formInput";
+import { Profile } from "@/types"
+import UserProfileModal from "@/components/userProfileModal";
+import { useUser } from "@/components/UserContext";
+import { Feather } from "@expo/vector-icons";
+import AddFriendButton from '@/components/friends/addFriendButton';
+
+type SearchResult = Profile & { status: "accepted" | "pending" | "none" };
 
 export default function FriendsSearchScreen() {
-  const { user } = useUser();
-  const [query, setQuery] = useState('');
-  const [results, setResults] = useState<Profile[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
+    const { user } = useUser();
+    const [query, setQuery] = useState("");
+    const [results, setResults] = useState<SearchResult[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [selectedUser, setSelectedUser] = useState<SearchResult | null>(null);
 
-  const handleSearchUsers = async (username: string): Promise<void> => {
-    if (!username || username.length < 2) {
-      setResults([]);
-      return;
-    }
-    setLoading(true);
-    try {
-      const token = await AsyncStorage.getItem('access_token');
-      const res = await fetch(
-        `${process.env.EXPO_PUBLIC_API_URL}/friends/search?username=${username}`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
+    const handleSearchUsers = async (username: string) => {
+        if (!username || username.length < 2) return setResults([]);;
+        setLoading(true);
+        try {
+            const token = await AsyncStorage.getItem("access_token");
+            const res = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/friends/search?username=${username}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                }
+            });
 
-      if (!res.ok) {
-        const { error } = await res.json();
-        console.error('Error fetching users:', error);
+            if (!res.ok) {
+                const { error } = await res.json();
+                console.error("Error fetching users:", error);
+                return;
+            }
+
+            const data = await res.json();
+            setResults(data ?? []);
+        } catch(error) {
+            console.error("Error", "cannot retrieve users")
+        }
         setLoading(false);
-        return;
-      }
-
-      const data = await res.json();
-      setResults(data);
-    } catch (error) {
-      console.error('Error', 'cannot retrieve users', error);
     }
-    setLoading(false);
-  };
 
-  const debouncedSearch = debounce(handleSearchUsers, 300);
+    const debouncedSearch = debounce(handleSearchUsers, 300);
 
-  const handleChange = (text: string) => {
-    setQuery(text);
-    debouncedSearch(text);
-  };
+    const handleChange = (text: string) => {
+        setQuery(text);
+        debouncedSearch(text);
+    };
 
-  return (
-    <View className="flex-1 bg-black px-4 pt-12">
-      <FormInput
-        label="Search"
-        placeholder="Search by username"
-        value={query}
-        onChangeText={handleChange}
-        placeholderTextColor="#888"
-        autoCorrect={false}
-        autoCapitalize="none"
-        spellCheck={false}
-      />
+    const handleSendFriendRequest = async (targetUserId: string) => {
+        try {
+            const token = await AsyncStorage.getItem("access_token");
+        
+            const res = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/friends/send-request`, {
+                method: "POST",
+                headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                uid1: user!.id,
+                uid2: targetUserId,
+                }),
+            });
+        
+            const result = await res.json();
+            if (!res.ok) {
+                throw new Error(result.error || "Something went wrong");
+            }
+        
+            // Optimistically update the user's status in the results list
+            setResults(prev =>
+                prev.map(u =>
+                u.id === targetUserId ? { ...u, status: "pending" } : u
+                )
+            );
+            } catch (error: any) {
+            console.error("Friend request error:", error.message);
+            }
+    };
 
-      {loading && <ActivityIndicator color="white" className="mt-4" />}
+    const accepted = results.filter(r => r.status === "accepted");
+    const notaccepted = results.filter(r => r.status != "accepted");
+    const pending = results.filter(r => r.status === "pending");
 
-      <FlatList
-        data={results}
-        keyExtractor={(item: Profile) => item.id}
-        className="mt-4"
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            className="py-3 border-b border-white/10"
-            onPress={() => setSelectedUser(item)}
-          >
-            <Text className="text-white text-lg">{item.name}</Text>
-            {item.username && (
-              <Text className="text-white/60">@{item.username}</Text>
-            )}
-          </TouchableOpacity>
-        )}
-      />
+    return (
+        <View className="flex-1 bg-black px-4 pt-12">
+            <FormInput
+                label="Add Friends"
+                placeholder="Search by username"
+                value={query}
+                onChangeText={handleChange}
+                placeholderTextColor="#888"
+                autoCorrect={false}
+                autoCapitalize="none"
+                spellCheck={false}
+                icon={<Feather name="search" size={20} color="#888" />}
+            />
+    
+            {loading && <ActivityIndicator color="white" className="mt-4" />}
+    
+            <View className="mt-4">
+                {accepted.length > 0 && (
+                    <>
+                    <Text className="text-white text-sm font-semibold mb-2">MY FRIENDS</Text>
+                    {accepted.map((item) => (
+                        <TouchableOpacity
+                        key={item.id}
+                        className="bg-zinc-900 rounded-2xl px-4 py-3 flex-row items-center mb-3"
+                        onPress={() => setSelectedUser(item)}
+                        >
+                        <View className="w-14 h-14 rounded-full items-center justify-center">
+                            <View className="absolute w-14 h-14 rounded-full bg-blue-400/30 opacity-60 blur-md" />
+                            <View className="absolute w-12 h-12 rounded-full bg-blue-400/40 blur-sm" />
+                            <Image
+                            source={{ uri: item.avatar_url }}
+                            className="w-12 h-12 rounded-full border-2 border-white"
+                            />
+                        </View>
+                        <View className="ml-3 flex-1">
+                            <Text className="text-white text-lg font-semibold">{item.name}</Text>
+                            {item.username && (
+                            <Text className="text-white/60 text-sm">@{item.username}</Text>
+                            )}
+                        </View>
+                        </TouchableOpacity>
+                    ))}
+                    </>
+                )}
 
-      <UserProfileModal
-        isVisible={selectedUser !== null}
-        onClose={() => setSelectedUser(null)}
-        user={selectedUser}
-        currentUserId={user?.id ?? ''}
-        isFriends={false}
-      />
-    </View>
-  );
+                {notaccepted.length > 0 && (
+                    <>
+                    <Text className="text-white text-sm font-semibold mt-4 mb-2">USERS</Text>
+                    {notaccepted.map((item) => {
+                        const isRequestSent = pending.some(p => p.id === item.id);
+
+                        return (
+                            <View
+                            key={item.id}
+                            className="bg-zinc-900 rounded-2xl px-4 py-3 flex-row items-center justify-between mb-3"
+                            >
+                            <TouchableOpacity
+                                onPress={() => setSelectedUser(item)}
+                                className="flex-row items-center"
+                            >
+                                <View className="w-14 h-14 rounded-full items-center justify-center">
+                                <View className="absolute w-14 h-14 rounded-full bg-blue-400/30 opacity-60 blur-md" />
+                                <View className="absolute w-12 h-12 rounded-full bg-blue-400/40 blur-sm" />
+                                <Image
+                                    source={{ uri: item.avatar_url }}
+                                    className="w-12 h-12 rounded-full border-2 border-white"
+                                />
+                                </View>
+                                <View className="ml-3">
+                                <Text className="text-white text-lg font-semibold">{item.name}</Text>
+                                {item.username && (
+                                    <Text className="text-white/60 text-sm">@{item.username}</Text>
+                                )}
+                                </View>
+                            </TouchableOpacity>
+
+                            {/* Add button aligned to the right */}
+                            <AddFriendButton
+                                isRequestSent={isRequestSent}
+                                onPress={() => handleSendFriendRequest(item.id)}
+                            />
+                            </View>
+                        );
+                        })}
+                    </>
+                )}
+            </View>
+
+            <UserProfileModal
+                isVisible={selectedUser !== null}
+                onClose={() => setSelectedUser(null)}
+                user={selectedUser}
+                currentUserId={user?.id}
+                isFriends={selectedUser?.status === "accepted"}
+                status={selectedUser?.status}
+            />
+        </View>
+    );
 }
