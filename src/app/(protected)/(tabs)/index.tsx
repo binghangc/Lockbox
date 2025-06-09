@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import TripCarousel from '@/components/tripCarousel';
 
-const FILTERS = ['upcoming', 'ongoing', 'past', 'pinned'] as const;
+const FILTERS = ['upcoming', 'ongoing', 'ended', 'pinned'] as const;
 
 export default function HomeScreen() {
   const [selectedFilter, setSelectedFilter] = useState<(typeof FILTERS)[number] | null>(null);
