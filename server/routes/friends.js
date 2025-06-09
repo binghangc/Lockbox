@@ -1,14 +1,7 @@
 // API endpoint for getting friends list for current user
 const express = require('express');
 const router = express.Router();
-const { createClient } = require('@supabase/supabase-js');
-require('dotenv').config();
-
-const supabase = createClient(
-    process.env.EXPO_PUBLIC_SUPABASE_URL,
-    process.env.EXPO_PUBLIC_SUPABASE_SERVICE_ROLE_KEY
-);
-
+const supabase = require('../utils/supabaseclient');
 
 router.get('/', async (req, res) => {
     const authHeader = req.headers.authorization;

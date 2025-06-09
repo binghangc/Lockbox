@@ -3,14 +3,8 @@
  */
 const express = require('express');
 const router = express.Router();
-const { createClient } = require('@supabase/supabase-js');
-require('dotenv').config();
+const supabase = require('../utils/supabaseclient');
 
-const supabase = createClient(
-    process.env.EXPO_PUBLIC_SUPABASE_URL,
-    process.env.EXPO_PUBLIC_SUPABASE_SERVICE_ROLE_KEY
-);
-  
 // API endpoint for signup
 router.post('/signup', async (req, res) => {
     try {
