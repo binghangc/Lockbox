@@ -5,13 +5,11 @@ import {
   TouchableOpacity,
   ScrollView,
   TextInput,
-  SafeAreaView,
   Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Foundation } from '@expo/vector-icons';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import AntDesign from '@expo/vector-icons/AntDesign';
@@ -30,8 +28,8 @@ import CreateTripHeader from '@/components/createTripHeader';
 
 export default function NewTrip() {
   const router = useRouter();
-  const { token, user } = useUser();
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const { token } = useUser();
+  // const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const modalRef = useRef<DatePickerModalRef>(null);
   const locationModalRef = useRef<LocationPickerModalRef>(null);
   const thumbnailModalRef = useRef<ThumbnailPickerModalRef>(null);
@@ -47,11 +45,11 @@ export default function NewTrip() {
     flag: string;
   } | null>(null);
 
-  const toggleTag = (tag: string) => {
-    setSelectedTags((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
-    );
-  };
+  // const toggleTag = (tag: string) => {
+  //   setSelectedTags((prev) =>
+  //     prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
+  //   );
+  // };
 
   const openDatePicker = () => modalRef.current?.open();
 

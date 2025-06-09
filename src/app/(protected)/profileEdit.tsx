@@ -6,7 +6,6 @@ import {
   ActivityIndicator,
   Image,
   TouchableOpacity,
-  TextInput,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
@@ -39,7 +38,7 @@ export default function EditProfileScreen() {
       setTempName(user.name || '');
       setTempBio(user.bio || '');
     }
-  }, []);
+  }, [user]);
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
@@ -69,7 +68,7 @@ export default function EditProfileScreen() {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            user_id: user.id,
+            user_id: user?.id,
             field,
             value,
           }),
@@ -81,7 +80,13 @@ export default function EditProfileScreen() {
         Alert.alert('Error', result.error || 'Failed to update profile');
         return;
       }
-      setUser({ ...user, [field]: value });
+      setUser({
+        id: user!.id,
+        username: user!.username,
+        name: field === 'name' ? value : user!.name,
+        bio: field === 'bio' ? value : user!.bio,
+        avatar_url: user!.avatar_url,
+      });
       Alert.alert(
         'Upload Successful',
         'Your profile information has been updated!',
@@ -114,7 +119,11 @@ export default function EditProfileScreen() {
       };
 
       const formData = new FormData();
-      formData.append('avatar', file as any);
+      formData.append('avatar', file as unknown as Blob);
+      if (!user) {
+        Alert.alert('Error', 'User not found. Please log in again.');
+        return;
+      }
       formData.append('user_id', user.id);
 
       setUploading(true);
@@ -135,7 +144,7 @@ export default function EditProfileScreen() {
       let data;
       try {
         data = await res.json(); // attempt normal parse
-      } catch (err) {
+      } catch {
         const raw = await clone.text(); // fallback to raw response (HTML, error, etc)
         console.error('👀 RAW RESPONSE:', raw); // this will reveal the actual error
         Alert.alert('Upload failed', 'Server did not return valid JSON');
