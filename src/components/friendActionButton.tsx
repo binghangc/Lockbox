@@ -3,34 +3,37 @@ import { FontAwesome5, Feather } from '@expo/vector-icons';
 
 type Props = {
   mode: 'default' | 'invite';
-  status?: 'idle' | 'loading' | 'sent' | 'failed';
+  status: 'idle' | 'loading' | 'sent' | 'failed';
   onPress: () => void;
-  disabled?: boolean;
+  disabled: boolean;
 };
 
 export default function FriendActionButton({
   mode,
-  status,
+  status = 'idle',
   onPress,
-  disabled,
+  disabled = false,
 }: Props) {
+  let content;
+  if (mode === 'invite') {
+    if (status === 'sent') {
+      content = <Feather name="check" size={16} color="white" />;
+    } else {
+      content = <FontAwesome5 name="paper-plane" size={16} color="white" />;
+    }
+  } else if (status === 'failed') {
+    content = <Feather name="alert-circle" size={16} color="red" />;
+  } else {
+    content = <Text className="text-white text-sm">Nudge</Text>;
+  }
+
   return (
     <Pressable
       onPress={onPress}
       disabled={disabled}
       className="px-3 py-1 bg-blue-600 rounded-full"
     >
-      {mode === 'invite' ? (
-        status === 'sent' ? (
-          <Feather name="check" size={16} color="white" />
-        ) : (
-          <FontAwesome5 name="paper-plane" size={16} color="white" />
-        )
-      ) : status === 'failed' ? (
-        <Feather name="alert-circle" size={16} color="red" />
-      ) : (
-        <Text className="text-white text-sm">Nudge</Text>
-      )}
+      {content}
     </Pressable>
   );
 }
