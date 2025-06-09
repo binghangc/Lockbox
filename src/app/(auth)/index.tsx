@@ -91,8 +91,10 @@ export default function LoginScreen() {
       className="flex-1 items-center justify-center px-6 bg-neutral-900"
     >
       {/* Orbs behind the card */}
-      {Array.from({ length: 5 }).map((_, index) => (
-        <FloatingOrb key={index} />
+      {Array.from({ length: 5 }).map((_, _idx) => (
+        <FloatingOrb
+          key={`floating-orb-${Math.random().toString(36).substr(2, 9)}`}
+        />
       ))}
 
       <BlurView
@@ -156,7 +158,10 @@ export default function LoginScreen() {
         {mode === 'login' && ENABLE_FORGOT_PASSWORD && (
           <TouchableOpacity
             onPress={async () => {
-              if (!email) return Alert.alert('Oops', 'Enter your email first!');
+              if (!email) {
+                Alert.alert('Oops', 'Enter your email first!');
+                return undefined;
+              }
 
               try {
                 const res = await fetch(
@@ -176,9 +181,10 @@ export default function LoginScreen() {
                   'Check your email',
                   'We just sent a password reset link ✉️',
                 );
-              } catch (err) {
+              } catch {
                 Alert.alert('Error', 'Failed to send reset email');
               }
+              return undefined;
             }}
             className="mb-6"
           >

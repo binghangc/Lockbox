@@ -1,5 +1,5 @@
 import { View, Text, TextInput, Button, Alert } from 'react-native';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 export default function ResetPasswordScreen() {
@@ -31,8 +31,10 @@ export default function ResetPasswordScreen() {
 
       Alert.alert('Success', 'Password updated. Please log in.');
       router.replace('/(auth)/'); // back to login
-    } catch (err: any) {
-      Alert.alert('Error', err.message);
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : 'An unknown error occurred';
+      Alert.alert('Error', message);
     }
   };
 
