@@ -8,16 +8,33 @@ import {
   ScrollView,
   TouchableOpacity,
   StyleSheet,
+  StatusBar,
 } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Octicons from '@expo/vector-icons/Octicons';
 import { BlurView } from 'expo-blur';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
-import { StatusBar } from 'expo-status-bar';
 import TripPillbar from '@/components/tripPillbar';
 import { useUser } from '@/components/UserContext';
+
+interface TripHost {
+  id: string;
+  name: string;
+  avatar_url: string;
+}
+
+interface Trip {
+  id: string;
+  title: string;
+  thumbnail_url: string;
+  start_date: string;
+  end_date: string;
+  host?: TripHost;
+  country?: string;
+  description?: string;
+}
 
 export const screenOptions = {
   headerTransparent: true,
@@ -39,9 +56,8 @@ export const screenOptions = {
 
 export default function TripDetailScreen() {
   const { tripId } = useLocalSearchParams();
-  const router = useRouter();
   const { user } = useUser();
-  const [trip, setTrip] = useState<any>(null);
+  const [trip, setTrip] = useState<Trip | null>(null);
   const [isHost, setIsHost] = useState(false);
   const [loading, setLoading] = useState(true);
   const insets = useSafeAreaInsets();
@@ -81,7 +97,7 @@ export default function TripDetailScreen() {
     };
 
     if (tripId && user) fetchTrip();
-  }, [tripId]);
+  }, [tripId, user]);
 
   if (loading) {
     return (
@@ -101,7 +117,11 @@ export default function TripDetailScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: 'transparent' }}>
-      <StatusBar style="light" translucent backgroundColor="transparent" />
+      <StatusBar
+        barStyle="light-content"
+        translucent
+        backgroundColor="transparent"
+      />
       {/* ScrollView starts below the image */}
       <ScrollView
         style={{ flex: 1, backgroundColor: 'transparent' }}
