@@ -35,7 +35,11 @@ export default function FriendsScreen() {
         }}
       />
       <View className="flex-1 bg-black px-4 pt-6">
-        <FriendsList onSelect={(user) => setSelectedUser(user)} />
+        <FriendsList
+          onSelect={(selected) => setSelectedUser(selected)}
+          mode="default"
+          alreadyInvitedIds={[]}
+        />
 
         <UserProfileModal
           isVisible={selectedUser !== null}

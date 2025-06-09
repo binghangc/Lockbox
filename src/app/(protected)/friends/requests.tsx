@@ -1,4 +1,4 @@
-import { useRouter, Stack } from 'expo-router';
+import { Stack } from 'expo-router';
 import { useEffect, useState, useRef } from 'react';
 import {
   View,
@@ -14,7 +14,6 @@ import { FriendRequest } from '@/types';
 import FriendRequestModal from '@/components/friendRequestModal';
 
 export default function RequestsScreen() {
-  const router = useRouter();
   const [requests, setRequests] = useState<FriendRequest[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -47,7 +46,7 @@ export default function RequestsScreen() {
 
       const data = await res.json();
       setRequests(data);
-    } catch (error) {
+    } catch {
       console.error('Requests error:', 'failed to retrieve requests');
     } finally {
       setLoading(false);
@@ -103,7 +102,7 @@ export default function RequestsScreen() {
         return;
       }
 
-      const data = await res.json();
+      await res.json();
       listFriendRequests();
     } catch (error) {
       console.error('Error', error);
@@ -119,17 +118,19 @@ export default function RequestsScreen() {
       <Stack.Screen />
 
       <View className="flex-1 bg-black px-4 pt-6">
-        {loading ? (
+        {loading && (
           <View className="flex-1 justify-center items-center">
             <ActivityIndicator color="white" />
           </View>
-        ) : requests.length === 0 ? (
+        )}
+        {!loading && requests.length === 0 && (
           <View className="flex-1 justify-center items-center">
             <Text className="text-white text-base">
               No friend requests yet.
             </Text>
           </View>
-        ) : (
+        )}
+        {!loading && requests.length > 0 && (
           <FlatList
             data={requests}
             keyExtractor={(item) => item.id.toString()}
@@ -187,7 +188,6 @@ export default function RequestsScreen() {
           );
           closeModal();
         }}
-        scaleAnim={scaleAnim}
       />
     </>
   );

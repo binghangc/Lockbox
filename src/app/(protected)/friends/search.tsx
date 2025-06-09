@@ -20,8 +20,11 @@ export default function FriendsSearchScreen() {
   const [loading, setLoading] = useState(false);
   const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
 
-  const handleSearchUsers = async (username: string) => {
-    if (!username || username.length < 2) return setResults([]);
+  const handleSearchUsers = async (username: string): Promise<void> => {
+    if (!username || username.length < 2) {
+      setResults([]);
+      return;
+    }
     setLoading(true);
     try {
       const token = await AsyncStorage.getItem('access_token');
@@ -39,13 +42,14 @@ export default function FriendsSearchScreen() {
       if (!res.ok) {
         const { error } = await res.json();
         console.error('Error fetching users:', error);
+        setLoading(false);
         return;
       }
 
       const data = await res.json();
       setResults(data);
     } catch (error) {
-      console.error('Error', 'cannot retrieve users');
+      console.error('Error', 'cannot retrieve users', error);
     }
     setLoading(false);
   };
@@ -76,7 +80,7 @@ export default function FriendsSearchScreen() {
         data={results}
         keyExtractor={(item: Profile) => item.id}
         className="mt-4"
-        renderItem={({ item }: { item: Profile }) => (
+        renderItem={({ item }) => (
           <TouchableOpacity
             className="py-3 border-b border-white/10"
             onPress={() => setSelectedUser(item)}
@@ -93,7 +97,7 @@ export default function FriendsSearchScreen() {
         isVisible={selectedUser !== null}
         onClose={() => setSelectedUser(null)}
         user={selectedUser}
-        currentUserId={user?.id}
+        currentUserId={user?.id ?? ''}
         isFriends={false}
       />
     </View>

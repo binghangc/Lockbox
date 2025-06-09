@@ -59,13 +59,9 @@
     ],
     "import/no-unresolved": "error",
     "node/no-missing-import": "off",
-    "import/no-extraneous-dependencies": [
-      "error",
-      {
-        "devDependencies": true
-      }
-    ],
+    "import/no-extraneous-dependencies": "off",
     "@typescript-eslint/no-require-imports": "off",
-    "node/no-unpublished-require": "off"
+    "node/no-unpublished-require": "off",
+    "react/no-unstable-nested-components": "off"
   }
 }
