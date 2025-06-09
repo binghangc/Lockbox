@@ -3,11 +3,11 @@ import Octicons from '@expo/vector-icons/Octicons';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { BlurView } from 'expo-blur';
 
-import type { StackNavigationProp } from '@react-navigation/stack';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { ParamListBase } from '@react-navigation/native';
 
 type HeaderLeftProps = {
-  navigation: StackNavigationProp<ParamListBase>;
+  navigation: NativeStackNavigationProp<ParamListBase>;
 };
 
 function HeaderLeft({ navigation }: HeaderLeftProps) {
@@ -26,7 +26,7 @@ function HeaderLeft({ navigation }: HeaderLeftProps) {
 function HeaderLeftWrapper({
   navigation,
 }: {
-  navigation: StackNavigationProp<ParamListBase>;
+  navigation: NativeStackNavigationProp<ParamListBase>;
 }) {
   return <HeaderLeft navigation={navigation} />;
 }
@@ -34,7 +34,7 @@ function HeaderLeftWrapper({
 function HeaderLeftWithNavigation({
   navigation,
 }: {
-  navigation: StackNavigationProp<ParamListBase>;
+  navigation: NativeStackNavigationProp<ParamListBase>;
 }) {
   return <HeaderLeftWrapper navigation={navigation} />;
 }
@@ -48,7 +48,7 @@ function HeaderBackground() {
 function headerLeftWithNavigation({
   navigation,
 }: {
-  navigation: StackNavigationProp<ParamListBase>;
+  navigation: NativeStackNavigationProp<ParamListBase>;
 }) {
   return <HeaderLeftWithNavigation navigation={navigation} />;
 }
