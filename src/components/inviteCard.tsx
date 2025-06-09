@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, TouchableOpacity, Image, View, ScrollView, Alert } from 'react-native';
+import { Text, TouchableOpacity, Image, View, ScrollView, Alert, Dimensions } from 'react-native';
 import InviteRow from './inviteRow';
 import { Invite } from '@/types';
 import { Feather, FontAwesome6 } from '@expo/vector-icons';
@@ -15,8 +15,6 @@ export default function InviteCard({
 }) {
     const insets = useSafeAreaInsets();
     const handleResponse = async (response: string) => {
-        console.log("User chose:", response);
-            
         const token = await AsyncStorage.getItem('access_token');
 
         if (!token) {
@@ -64,8 +62,9 @@ export default function InviteCard({
     };
 
     return (
-        <SafeAreaView className="flex-1 bg-black">
-            <View style={{ paddingTop: insets.top }} className="flex-1 px-4">
+        <View className="flex-1 bg-black">
+            <View className="px-4">
+                <View className="flex-1 justify-between">
                 <View className="flex-row items-center justify-between pt-6 pb-4">
                 <TouchableOpacity onPress={onClose}>
                     <Feather name="x" size={28} color="white" />
@@ -73,7 +72,7 @@ export default function InviteCard({
                 <Text className="text-white text-2xl font-bold">You're Invited!</Text>
                 <View className="w-7" />
                 </View>
-            <ScrollView contentContainerStyle={{ paddingBottom: 100 }} className="px-4">
+
                 <Image
                 source={{ uri: invite.trip.thumbnail_url }}
                 className="w-full aspect-square mb-1"
@@ -101,12 +100,8 @@ export default function InviteCard({
                 {invite.trip.description && (
                     <Text className="text-neutral-400 text-lg mt-4">{invite.trip.description}</Text>
                 )}
-            </ScrollView>
-
-            <View className="absolute bottom-6 left-0 right-0 items-center">
-                <InviteRow onSelect={handleResponse} />
+                </View>
             </View>
-            </View>
-        </SafeAreaView>
+        </View>
     );
 }
