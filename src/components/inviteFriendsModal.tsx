@@ -54,28 +54,35 @@ export default function InviteFriendsModal({
     }
   };
 
-  const fetchInvited = async () => {
-    const token = await AsyncStorage.getItem('access_token');
-    const res = await fetch(
-      `${process.env.EXPO_PUBLIC_API_URL}/invites/invited?trip_id=${tripId}`,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      },
-    );
-
-    const data = await res.json();
-
-    if (res.ok) {
-      const invitedIds = data.invites.map((invite: any) => invite.user_id);
-      setAlreadyInvitedIds(invitedIds);
-    } else {
-      console.error('Failed to fetch invited users:', data.error);
-    }
-  };
-
   useEffect(() => {
     console.log('tripId:', tripId);
     if (visible) {
+      const fetchInvited = async () => {
+        const token = await AsyncStorage.getItem('access_token');
+        const res = await fetch(
+          `${process.env.EXPO_PUBLIC_API_URL}/invites/invited?trip_id=${tripId}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        );
+
+        const data = await res.json();
+
+        interface Invite {
+          user_id: string;
+          // add other properties if needed
+        }
+
+        if (res.ok) {
+          const invitedIds = data.invites.map(
+            (invite: Invite) => invite.user_id,
+          );
+          setAlreadyInvitedIds(invitedIds);
+        } else {
+          console.error('Failed to fetch invited users:', data.error);
+        }
+      };
+
       fetchInvited();
     }
   }, [visible, tripId]);
