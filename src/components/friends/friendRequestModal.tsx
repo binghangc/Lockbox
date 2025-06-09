@@ -1,4 +1,4 @@
-import { View, Text, Pressable, Animated, Alert } from "react-native";
+import { View, Text, Pressable, Animated, Alert, Dimensions } from "react-native";
 import { Modalize } from "react-native-modalize";
 import { useRef, useEffect } from "react";
 import { ScrollView } from "react-native-gesture-handler";
@@ -21,6 +21,7 @@ export default function FriendRequestModal({
   onHandled
 }: Props) {
   const modalRef = useRef<Modalize>(null);
+  const screenHeight = Dimensions.get("window").height;
 
   useEffect(() => {
     if (visible) {
@@ -72,7 +73,7 @@ export default function FriendRequestModal({
     <Modalize
       ref={modalRef}
       onClosed={onClose}
-      adjustToContentHeight
+      modalHeight={screenHeight}
       handlePosition="inside"
       modalStyle={{ backgroundColor: "transparent" }}
       handleStyle={{ backgroundColor: "#ccc" }}
@@ -80,34 +81,48 @@ export default function FriendRequestModal({
       <BlurView
         intensity={70}
         tint="light"
-        className="rounded-2xl px-6 pt-10 pb-6 items-center overflow-visible bg-white/60"
+        className="px-6 pt-10 pb-6 items-center overflow-visible bg-white/60"
+        style={{ minHeight: screenHeight }}
       >
+        <View className="items-center px-6 pt-12 pb-4">
+          {request?.sender.avatar_url && <FloatingAvatar uri={request.sender.avatar_url} />}
+        </View>
         <ScrollView>
-          <View className="items-center justify-center mt-16 mb-6 relative">
-            {request?.sender.avatar_url && <FloatingAvatar uri={request.sender.avatar_url} />}
-            <Text className="text-2xl font-bold text-white">{request?.sender.name}</Text>
-            {request?.sender.username && (
-              <Text className="text-gray-200">@{request.sender.username}</Text>
-            )}
-            {request?.sender.bio && (
-              <Text className="text-center text-gray-300 mt-2">{request.sender.bio}</Text>
-            )}
+          {/* Username */}
+          {request?.sender.username && (
+            <Text className="text-gray-400 text-lg font-semibold text-center">@{request.sender.username}</Text>
+          )}
+
+          {/* Name */}
+          <View className="w-full mb-2">
+            <View className="flex-row items-center justify-center">
+                <Text className="text-white text-2xl font-bold">{request?.sender.name}</Text>
+            </View>     
           </View>
+    
+          {/* Bio */}
+          {request?.sender.bio  && (
+            <View className="w-full mb-4">
+              <View className="flex-row items-center justify-center space-x-2">
+                <Text className="text-gray-200 text-lg">{request.sender.bio}</Text>
+              </View>
+            </View>
+          )}
 
           <View className="flex-row gap-4 mb-4">
-            <Pressable onPress={() => handleFriendRequest("accept")} className="border border-white px-4 py-2 rounded-lg items-center">
+            <Pressable onPress={() => handleFriendRequest("accept")} className="border border-white px-6 py-4 rounded-lg items-center">
               <Text className="text-2xl">✅</Text>
               <Text className="text-white font-medium mt-1">Accept</Text>
             </Pressable>
 
-            <Pressable onPress={() => handleFriendRequest("reject")} className="border border-white px-4 py-2 rounded-lg items-center">
+            <Pressable onPress={() => handleFriendRequest("reject")} className="border border-white px-6 py-4 rounded-lg items-center">
               <Text className="text-2xl">❌</Text>
               <Text className="text-white font-medium mt-1">Decline</Text>
             </Pressable>
           </View>
 
-          <Pressable onPress={() => modalRef.current?.close()} className="bg-black px-4 py-2 rounded">
-            <Text className="text-white">Close</Text>
+          <Pressable onPress={() => modalRef.current?.close()} className="mt-6 bg-black px-5 py-3 rounded-xl">
+            <Text className="text-white text-center">Close</Text>
           </Pressable>
         </ScrollView>
       </BlurView>
