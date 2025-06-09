@@ -13,7 +13,7 @@ interface HostRowProps {
   className?: string;
 }
 
-export default function HostRow({ host, className }: HostRowProps) {
+function HostRow({ host, className }: HostRowProps) {
   if (!host) return null;
   return (
     <View className={`flex-row items-center ${className ?? ''}`}>
@@ -29,3 +29,10 @@ export default function HostRow({ host, className }: HostRowProps) {
     </View>
   );
 }
+
+HostRow.defaultProps = {
+  host: undefined,
+  className: '',
+};
+
+export default HostRow;
