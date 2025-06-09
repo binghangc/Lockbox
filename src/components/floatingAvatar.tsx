@@ -22,7 +22,7 @@ export default function FloatingAvatar({ uri }: { uri: string }) {
         }),
       ]),
     ).start();
-  }, []);
+  }, [glowAnim]);
 
   return (
     <View className="items-center justify-center mb-6 relative">
