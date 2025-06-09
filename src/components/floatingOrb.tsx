@@ -3,14 +3,6 @@ import { useEffect, useRef, useMemo } from 'react';
 
 const { width, height } = Dimensions.get('window');
 
-type FloatingOrbProps = {
-  top: number;
-  left: number;
-  size?: number;
-  color?: string;
-  shadowColor?: string;
-};
-
 const orbColors = [
   { color: 'bg-purple-500/20', shadow: '#a855f7' },
   { color: 'bg-pink-400/30', shadow: '#f472b6' },
@@ -23,11 +15,16 @@ export default function FloatingOrb() {
   const floatAnim = useRef(new Animated.Value(0)).current;
 
   const { top, left, color, shadow } = useMemo(() => {
-    const { color, shadow } =
+    const { color: orbColor, shadow: orbShadow } =
       orbColors[Math.floor(Math.random() * orbColors.length)];
-    const top = Math.random() * (height * 0.5);
-    const left = Math.random() * (width - 150);
-    return { top, left, color, shadow };
+    const randomTop = Math.random() * (height * 0.5);
+    const randomLeft = Math.random() * (width - 150);
+    return {
+      top: randomTop,
+      left: randomLeft,
+      color: orbColor,
+      shadow: orbShadow,
+    };
   }, []);
 
   useEffect(() => {
@@ -47,7 +44,7 @@ export default function FloatingOrb() {
         }),
       ]),
     ).start();
-  }, []);
+  }, [floatAnim]);
 
   return (
     <Animated.View
