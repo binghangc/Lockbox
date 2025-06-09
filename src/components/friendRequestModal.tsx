@@ -1,4 +1,4 @@
-import { View, Text, Pressable, Animated } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import { Modalize } from 'react-native-modalize';
 import { useRef, useEffect } from 'react';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -12,7 +12,6 @@ type Props = {
   onClose: () => void;
   onAccept: () => void;
   onReject: () => void;
-  scaleAnim: Animated.Value;
 };
 
 export default function FriendRequestModal({
@@ -24,16 +23,16 @@ export default function FriendRequestModal({
 }: Props) {
   const modalRef = useRef<Modalize>(null);
 
-  // Only render if request is present
-  if (!request) return null;
-
   useEffect(() => {
-    if (visible) {
+    if (request && visible) {
       modalRef.current?.open();
     } else {
       modalRef.current?.close();
     }
-  }, [visible]);
+  }, [visible, request]);
+
+  // Only render if request is present
+  if (!request) return null;
 
   return (
     <Modalize
