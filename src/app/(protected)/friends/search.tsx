@@ -7,6 +7,7 @@ import { Profile } from "@/types"
 import UserProfileModal from "@/components/userProfileModal";
 import { useUser } from "@/components/UserContext";
 import { Feather } from "@expo/vector-icons";
+import AddFriendButton from '@/components/friends/addFriendButton';
 
 type SearchResult = Profile & { status: "accepted" | "pending" | "none" };
 
@@ -51,8 +52,41 @@ export default function FriendsSearchScreen() {
         debouncedSearch(text);
     };
 
+    const handleSendFriendRequest = async (targetUserId: string) => {
+        try {
+            const token = await AsyncStorage.getItem("access_token");
+        
+            const res = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/friends/send-request`, {
+                method: "POST",
+                headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                uid1: user!.id,
+                uid2: targetUserId,
+                }),
+            });
+        
+            const result = await res.json();
+            if (!res.ok) {
+                throw new Error(result.error || "Something went wrong");
+            }
+        
+            // Optimistically update the user's status in the results list
+            setResults(prev =>
+                prev.map(u =>
+                u.id === targetUserId ? { ...u, status: "pending" } : u
+                )
+            );
+            } catch (error: any) {
+            console.error("Friend request error:", error.message);
+            }
+    };
+
     const accepted = results.filter(r => r.status === "accepted");
     const notaccepted = results.filter(r => r.status != "accepted");
+    const pending = results.filter(r => r.status === "pending");
 
     return (
         <View className="flex-1 bg-black px-4 pt-12">
@@ -102,28 +136,42 @@ export default function FriendsSearchScreen() {
                 {notaccepted.length > 0 && (
                     <>
                     <Text className="text-white text-sm font-semibold mt-4 mb-2">USERS</Text>
-                    {notaccepted.map((item) => (
-                        <TouchableOpacity
-                        key={item.id}
-                        className="bg-zinc-900 rounded-2xl px-4 py-3 flex-row items-center mb-3"
-                        onPress={() => setSelectedUser(item)}
-                        >
-                        <View className="w-14 h-14 rounded-full items-center justify-center">
-                            <View className="absolute w-14 h-14 rounded-full bg-blue-400/30 opacity-60 blur-md" />
-                            <View className="absolute w-12 h-12 rounded-full bg-blue-400/40 blur-sm" />
-                            <Image
-                            source={{ uri: item.avatar_url }}
-                            className="w-12 h-12 rounded-full border-2 border-white"
+                    {notaccepted.map((item) => {
+                        const isRequestSent = pending.some(p => p.id === item.id);
+
+                        return (
+                            <View
+                            key={item.id}
+                            className="bg-zinc-900 rounded-2xl px-4 py-3 flex-row items-center justify-between mb-3"
+                            >
+                            <TouchableOpacity
+                                onPress={() => setSelectedUser(item)}
+                                className="flex-row items-center"
+                            >
+                                <View className="w-14 h-14 rounded-full items-center justify-center">
+                                <View className="absolute w-14 h-14 rounded-full bg-blue-400/30 opacity-60 blur-md" />
+                                <View className="absolute w-12 h-12 rounded-full bg-blue-400/40 blur-sm" />
+                                <Image
+                                    source={{ uri: item.avatar_url }}
+                                    className="w-12 h-12 rounded-full border-2 border-white"
+                                />
+                                </View>
+                                <View className="ml-3">
+                                <Text className="text-white text-lg font-semibold">{item.name}</Text>
+                                {item.username && (
+                                    <Text className="text-white/60 text-sm">@{item.username}</Text>
+                                )}
+                                </View>
+                            </TouchableOpacity>
+
+                            {/* Add button aligned to the right */}
+                            <AddFriendButton
+                                isRequestSent={isRequestSent}
+                                onPress={() => handleSendFriendRequest(item.id)}
                             />
-                        </View>
-                        <View className="ml-3 flex-1">
-                            <Text className="text-white text-lg font-semibold">{item.name}</Text>
-                            {item.username && (
-                            <Text className="text-white/60 text-sm">@{item.username}</Text>
-                            )}
-                        </View>
-                        </TouchableOpacity>
-                    ))}
+                            </View>
+                        );
+                        })}
                     </>
                 )}
             </View>
