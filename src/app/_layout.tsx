@@ -1,5 +1,5 @@
 import '../../global.css';
-import { Slot, Stack, useRouter } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { AppState } from 'react-native';
 import { useEffect, useState } from 'react';
 import { ThemeProvider, DarkTheme } from '@react-navigation/native';
@@ -47,7 +47,7 @@ export default function RootLayout() {
       }
     });
     return () => subscription.remove();
-  }, []);
+  }, [router, sessionChecked]);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
