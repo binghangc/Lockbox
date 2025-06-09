@@ -15,8 +15,8 @@ import FriendActionButton from '@/components/friendActionButton';
 type FriendRow = Profile & { friendshipId: string };
 type FriendsListProps = {
   onSelect: (user: Profile) => void | Promise<void>;
-  mode?: 'default' | 'invite';
-  alreadyInvitedIds?: string[];
+  mode: 'default' | 'invite';
+  alreadyInvitedIds: string[];
 };
 
 export default function FriendsList({
@@ -53,7 +53,7 @@ export default function FriendsList({
 
       const data = await res.json();
       setFriends(data);
-    } catch (error) {
+    } catch {
       console.error('Friends error:', 'failed to retrieve friends');
     } finally {
       setLoading(false);
@@ -62,15 +62,18 @@ export default function FriendsList({
 
   useEffect(() => {
     listFriends();
+  }, []);
 
+  useEffect(() => {
     setInviteStatus((prev) => {
       const updated = { ...prev };
-      for (const id of alreadyInvitedIds) {
+      alreadyInvitedIds.forEach((id) => {
         updated[id] = 'sent';
-      }
+      });
       return updated;
     });
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(alreadyInvitedIds)]);
 
   if (loading) {
     return (
@@ -104,7 +107,7 @@ export default function FriendsList({
       data={friends}
       keyExtractor={(item) => item.id}
       className="mt-4"
-      renderItem={({ item }: { item: FriendRow }) => {
+      renderItem={({ item }) => {
         const status =
           inviteStatus[item.id] ??
           (alreadyInvitedIds?.includes(item.id) ? 'sent' : undefined);
@@ -152,14 +155,12 @@ export default function FriendsList({
                         ...prev,
                         [item.id]: 'sent',
                       }));
-                      alert('Invite sent successfully!');
                     })
                     .catch(() => {
                       setInviteStatus((prev) => ({
                         ...prev,
                         [item.id]: 'failed',
                       }));
-                      alert('Failed to send invite.');
                     });
                 } else {
                   onSelect(item);
