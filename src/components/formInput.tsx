@@ -5,7 +5,15 @@ interface FormInputProps extends TextInputProps {
   label: string;
 }
 
-export default function FormInput({ label, ...props }: FormInputProps) {
+export default function FormInput({
+  label,
+  value,
+  onChangeText,
+  placeholder,
+  secureTextEntry,
+  keyboardType,
+  ..._rest
+}: FormInputProps) {
   return (
     <View className="mb-4">
       <Text className="text-white mb-2">{label}</Text>
@@ -13,7 +21,11 @@ export default function FormInput({ label, ...props }: FormInputProps) {
         className="bg-neutral-800 text-white px-4 py-3 rounded-md w-full"
         placeholderTextColor="#888"
         autoCapitalize="none"
-        {...props}
+        value={value}
+        onChangeText={onChangeText}
+        placeholder={placeholder}
+        secureTextEntry={secureTextEntry}
+        keyboardType={keyboardType}
       />
     </View>
   );
