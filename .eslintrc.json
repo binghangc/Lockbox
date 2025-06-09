@@ -36,7 +36,10 @@
   },
   "rules": {
     "prettier/prettier": "error",
-    "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+    "@typescript-eslint/no-unused-vars": [
+      "warn",
+      { "argsIgnorePattern": "^_" }
+    ],
     "camelcase": "off",
     "no-console": "off",
     "func-names": "off",
@@ -45,10 +48,7 @@
     "class-methods-use-this": "off",
     "node/no-unsupported-features/es-syntax": "off",
     "react/react-in-jsx-scope": "off",
-    "react/jsx-filename-extension": [
-      1,
-      { "extensions": [".tsx"] }
-    ],
+    "react/jsx-filename-extension": [1, { "extensions": [".tsx"] }],
     "import/extensions": [
       "error",
       "ignorePackages",

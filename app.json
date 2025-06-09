@@ -22,15 +22,12 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/lockicon.png",
         "backgroundColor": "#ffffff"
-      }, 
+      },
       "package": "com.lockedin.lockbox"
     },
     "web": {
       "favicon": "./assets/lockicon.png"
     },
-    "plugins": [
-      "expo-secure-store",
-      "expo-router"
-    ]
+    "plugins": ["expo-secure-store", "expo-router"]
   }
 }
