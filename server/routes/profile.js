@@ -18,24 +18,11 @@ const supabase = createClient(
     process.env.EXPO_PUBLIC_SUPABASE_SERVICE_ROLE_KEY
 );
 
+const authMiddleware = require('../middleware/auth');
+
 // API endpoint to get profile information
-router.get('/', async (req, res) => {
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(401).json({ error: 'Missing or malformed Authorization header' });
-    }
-
-    const token = authHeader?.split(' ')[1];
-
-    const { data, error } = await supabase.auth.getUser(token);
-    const user = data?.user;
-
-    if (error || !user) {
-        return res.status(401).json({ error: 'Invalid or expired token' });
-    }
-
-    console.log('Authenticated user ID:', user.id);
+router.get('/', authMiddleware, async (req, res) => {
+    const user = req.user;
 
     const { data: profile, error: profileError } = await supabase
         .from('profiles')
