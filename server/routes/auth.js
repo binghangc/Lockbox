@@ -22,6 +22,7 @@ router.post('/signup', async (req, res) => {
             email,
             password,
             options: {
+                emailRedirectTo: process.env.EXPO_PUBLIC_REDIRECT_URL,
                 data: {
                     name: username,
                     username,
@@ -32,13 +33,13 @@ router.post('/signup', async (req, res) => {
 
         if (error) {
             return res.status(400).json({ error: error.message });
+        } else {
+
         }
 
         res.status(200).json({
-            message: 'Signup successful! You can log in now.',
-            session: data.session,
-            user: data.user,
-          });
+            message: 'Signup successful! Please check your email.',
+        });
     } catch (err) {
         console.error('Unexpected server error during signup:', err);
         res.status(500).json({ error: 'Server error during signup. Try again.' });
@@ -73,15 +74,15 @@ router.post('/forgot-password', async (req, res) => {
     if (!email) return res.status(400).json({ error: 'Missing email' });
 
     try {
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${ process.env.EXPO_PUBLIC_REDIRECT_URL }/reset-password`, 
-    });
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+            redirectTo: `${ process.env.EXPO_PUBLIC_REDIRECT_URL }/auth/reset-password`, 
+        });
 
-    if (error) throw error;
+        if (error) throw error;
 
-    res.json({ success: true });
+        res.json({ success: true });
     } catch (err) {
-    res.status(500).json({ error: err.message });
+        res.status(500).json({ error: err.message });
     }
 });
 

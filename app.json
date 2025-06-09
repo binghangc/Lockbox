@@ -30,7 +30,8 @@
     },
     "plugins": [
       "expo-secure-store",
-      "expo-router"
+      "expo-router",
+      "expo-dev-client"
     ]
   }
 }

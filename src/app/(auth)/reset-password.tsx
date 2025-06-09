@@ -11,14 +11,14 @@ export default function ResetPasswordScreen() {
         if (!access_token || !newPassword) return;
 
         try {
-            const response = await fetch(`${ process.env.EXPO_PUBLIC_API_URL }:3000/auth/reset-password`, {
+            const response = await fetch(`${ process.env.EXPO_PUBLIC_API_URL }/auth/reset-password`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                access_token,
-                new_password: newPassword,
+                    access_token,
+                    new_password: newPassword,
                 }),
             });
 

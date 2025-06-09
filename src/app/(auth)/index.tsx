@@ -6,7 +6,7 @@ import { useRouter } from 'expo-router';
 import { useUser } from '@/components/UserContext';
 import FloatingOrb from '@/components/floatingOrb';
 
-const ENABLE_FORGOT_PASSWORD = false;
+const ENABLE_FORGOT_PASSWORD = true;
 
 export default function LoginScreen() {
     const [mode, setMode] = useState<'login' | 'signup'>('login');
@@ -32,6 +32,13 @@ export default function LoginScreen() {
             const result = await response.json();
             if (!response.ok) {
                 Alert.alert('Error', result.error || 'Something went wrong');
+                return;
+            }
+
+            if (mode === 'signup') {
+                // no session yet — show confirmation message
+                Alert.alert('Almost there!', result.message || 'Check your email to confirm your account.');
+                setMode('login'); // optional: switch to login screen
                 return;
             }
 
