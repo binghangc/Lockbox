@@ -1,5 +1,4 @@
-
-export const linking = {
+const linking = {
   prefixes: ['lockbox://', `${process.env.EXPO_PUBLIC_REDIRECT_URL}`],
   config: {
     screens: {
@@ -7,3 +6,5 @@ export const linking = {
     },
   },
 };
+
+export default linking;
