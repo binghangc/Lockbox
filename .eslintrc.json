@@ -62,6 +62,7 @@
     "import/no-extraneous-dependencies": "off",
     "@typescript-eslint/no-require-imports": "off",
     "node/no-unpublished-require": "off",
-    "react/no-unstable-nested-components": "off"
+    "react/no-unstable-nested-components": "off",
+    "react/require-default-props": "off"
   }
 }

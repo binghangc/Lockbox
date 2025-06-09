@@ -4,11 +4,9 @@ import {
   Button,
   ActivityIndicator,
   TouchableOpacity,
-  Alert,
   ScrollView,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useState, useEffect } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FloatingAvatar from '@/components/floatingAvatar';
@@ -17,7 +15,7 @@ import FloatingAvatar from '@/components/floatingAvatar';
 import { useUser } from '@/components/UserContext';
 
 export default function ProfileScreen() {
-  const { user, setUser, loading } = useUser();
+  const { user, loading } = useUser();
   const { logout } = useUser();
   const router = useRouter();
   const [tripCount, setTripCount] = useState<number | null>(null);
@@ -104,8 +102,8 @@ export default function ProfileScreen() {
           {[
             { label: 'Trips', count: tripCount ?? '-' },
             { label: 'Friends', count: friendCount ?? '-' },
-          ].map((stat, index) => (
-            <View key={index} className="items-center">
+          ].map((stat) => (
+            <View key={stat.label} className="items-center">
               <Text className="text-white text-xl font-bold">{stat.count}</Text>
               <Text className="text-neutral-400 text-sm font-semibold">
                 {stat.label}
