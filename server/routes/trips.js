@@ -96,7 +96,12 @@ router.get('/', async (req, res) => {
     return res.status(500).json({ error: tripsErr.message });
   }
 
-  return res.json(trips);
+  const enrichedTrips = trips.map((trip) => ({
+    ...trip,
+    is_host: trip.user_id === userId,
+  }));
+
+  return res.json(enrichedTrips);
 });
 
 // GET /trips/:id - Get a single trip by ID
