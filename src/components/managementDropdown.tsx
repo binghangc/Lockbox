@@ -47,7 +47,7 @@ export default function ManagementDropdown({
             left: position.x + position.width - MENU_WIDTH,
             width: MENU_WIDTH,
             borderRadius: 8,
-            paddingVertical: 2,
+            paddingVertical: 1,
             overflow: 'hidden',
             zIndex: 30,
           } as ViewStyle
