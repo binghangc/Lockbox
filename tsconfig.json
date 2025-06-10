@@ -4,7 +4,16 @@
     "strict": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
-    }
-  }
+      "@/*": [
+        "src/*"
+      ]
+    },
+    "jsxImportSource": "nativewind"
+  },
+  "include": [
+    "src",
+    "server",
+    "src/global.d.ts",
+    "nativewind-env.d.ts"
+  ]
 }

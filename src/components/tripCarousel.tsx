@@ -1,7 +1,7 @@
-import React from 'react';
 import { View, FlatList } from 'react-native';
 import { Trip } from '@/types';
 import TripCard from './tripCard';
+import CreateTripCard from './createTripCard';
 
 interface TripCarouselProps {
   trips: Trip[];
@@ -20,14 +20,20 @@ export default function TripCarousel({ trips }: TripCarouselProps) {
   return (
     <View className="mb-6 overflow-visible">
       <FlatList
-        data={sortedTrips}
+        data={[...sortedTrips, { id: 'create-trip-placeholder' } as Trip]}
         keyExtractor={(item) => item.id}
         horizontal
         scrollEnabled
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{ paddingLeft: 13, paddingRight: 4 }}
         ItemSeparatorComponent={TripSeparator}
-        renderItem={({ item }) => <TripCard trip={item} />}
+        renderItem={({ item }) =>
+          item.id === 'create-trip-placeholder' ? (
+            <CreateTripCard />
+          ) : (
+            <TripCard trip={item} />
+          )
+        }
         decelerationRate="fast"
         snapToAlignment="start"
       />

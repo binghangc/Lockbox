@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { ThemeProvider, DarkTheme } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { UserProvider } from '@/components/UserContext';
-import { supabase } from '../../lib/supabase';
+import supabase from '../../lib/supabase';
 
 const myTheme = {
   ...DarkTheme,
