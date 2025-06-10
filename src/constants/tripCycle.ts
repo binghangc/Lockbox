@@ -6,9 +6,25 @@ import matchMyFreak from '../../assets/thumbs/match-my-freak.avif';
 import nokiaInvite from '../../assets/thumbs/nokia-invite.avif';
 import popeCrowd from '../../assets/thumbs/pope-crowd.avif';
 import quarterLifeCrisis from '../../assets/thumbs/quarter-life-crisis.avif';
+import barbenheimer from '../../assets/thumbs/barbenheimer-roadtrip.avif';
+import buns from '../../assets/thumbs/buns-out.avif';
+import legallyblonde from '../../assets/thumbs/grad-like-its-hard.avif';
+import healthinsurance from '../../assets/thumbs/health-insurance-26.avif';
+import liquidtreats from '../../assets/thumbs/liquid-treats.avif';
+import stopstraight from '../../assets/thumbs/stop-being-straight.avif';
+import wazzap from '../../assets/thumbs/wazzap-halloween.avif';
+import visionboard from '../../assets/thumbs/vision-board-healing.avif';
 
 const tripThumbnails = [
   eliteZoomcall,
+  barbenheimer,
+  buns,
+  legallyblonde,
+  healthinsurance,
+  liquidtreats,
+  stopstraight,
+  wazzap,
+  visionboard,
   ibsHotPeople,
   icespiceGraduation,
   kirbyRainbow,

@@ -12,6 +12,7 @@
   },
   "include": [
     "src",
+    "lib",
     "server",
     "src/global.d.ts",
     "nativewind-env.d.ts"
