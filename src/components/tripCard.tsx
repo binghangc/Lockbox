@@ -2,6 +2,7 @@ import { Text, TouchableOpacity, Image, View } from 'react-native';
 import { Trip } from '@/types';
 import { useRouter } from 'expo-router';
 import { BlurView } from 'expo-blur';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import HostRow from './hostRow';
 
 interface TripCardProps {
@@ -45,6 +46,35 @@ export default function TripCard({ trip }: TripCardProps) {
           {trip.title}
         </Text>
         <HostRow host={trip.host} className="mt-0" />
+      </TouchableOpacity>
+      <TouchableOpacity
+        onPress={() => console.log('Open trip management modal')}
+        style={{
+          position: 'absolute',
+          top: 5,
+          right: 5,
+          width: 25,
+          height: 25,
+          borderRadius: 20,
+          overflow: 'hidden',
+          zIndex: 20,
+        }}
+      >
+        <BlurView
+          intensity={50}
+          tint="dark"
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <MaterialCommunityIcons
+            name="dots-horizontal"
+            size={18}
+            color="white"
+          />
+        </BlurView>
       </TouchableOpacity>
     </View>
   );
