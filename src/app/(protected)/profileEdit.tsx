@@ -97,67 +97,75 @@ export default function EditProfileScreen() {
     }
   };
 
-    const handleUploadImage = async (user: any, setUser: Function, setUploading: Function) => {
-        try {
-            const result = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes: ImagePicker.MediaTypeOptions.Images,
-                quality: 1,
-                allowsEditing: true,
-                aspect: [1, 1],
-            });
-        
-            if (result.canceled) return;
-        
-            const uri = result.assets[0].uri;
-            const name = uri.split('/').pop() || 'avatar.jpg';
-        
-            const file = {
-                uri,
-                type: 'image/jpeg',
-                name,
-            };
-        
-            const formData = new FormData();
-            formData.append('avatar', file as any);
-            formData.append('user_id', user.id); // remove if switching to token-based auth
-        
-            setUploading(true);
-        
-            const res = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/profile/upload-avatar`, {
-                method: 'POST',
-                headers: {
-                'Content-Type': 'multipart/form-data',
-                },
-                body: formData,
-            });
-        
-            const clone = res.clone();
-            let data;
-            try {
-                data = await res.json();
-            } catch (err) {
-                const raw = await clone.text();
-                console.error('👀 RAW RESPONSE:', raw);
-                Alert.alert('Upload failed', 'Server did not return valid JSON');
-                return;
-            }
-        
-            if (!res.ok) {
-                Alert.alert('Upload failed', data.error || 'Try again');
-                return;
-            }
-        
-            setUser({ ...user, avatar_url: data.avatar_url });
-            Alert.alert('Upload Successful', 'Your profile picture has been updated!');
-        } catch (err) {
-            console.error('Image upload failed:', err);
-            Alert.alert('Error', 'Something went wrong while uploading');
-        } finally {
-            setUploading(false);
-        }
-    };
-      
+  const handleUploadImage = async (
+    currentUser: { id: string; avatar_url?: string },
+    updateUser: (updatedUser: { id: string; avatar_url: string }) => void,
+    toggleUploading: (isUploading: boolean) => void,
+  ) => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 1,
+        allowsEditing: true,
+        aspect: [1, 1],
+      });
 
+      if (result.canceled) return;
+
+      const { uri } = result.assets[0];
+      const name = uri.split('/').pop() || 'avatar.jpg';
+
+      const file = {
+        uri,
+        type: 'image/jpeg',
+        name,
+      };
+
+      const formData = new FormData();
+      formData.append('avatar', file);
+      formData.append('user_id', currentUser.id); // remove if switching to token-based auth
+
+      setUploading(true);
+
+      const res = await fetch(
+        `${process.env.EXPO_PUBLIC_API_URL}/profile/upload-avatar`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+          body: formData,
+        },
+      );
+
+      const clone = res.clone();
+      let data;
+      try {
+        data = await res.json();
+      } catch {
+        const raw = await clone.text();
+        console.error('👀 RAW RESPONSE:', raw);
+        Alert.alert('Upload failed', 'Server did not return valid JSON');
+        return;
+      }
+
+      if (!res.ok) {
+        Alert.alert('Upload failed', data.error || 'Try again');
+        return;
+      }
+
+      updateUser({ ...currentUser, avatar_url: data.avatar_url });
+      Alert.alert(
+        'Upload Successful',
+        'Your profile picture has been updated!',
+      );
+    } catch (err) {
+      console.error('Image upload failed:', err);
+      Alert.alert('Error', 'Something went wrong while uploading');
+    } finally {
+      toggleUploading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -176,27 +184,31 @@ export default function EditProfileScreen() {
     );
   }
 
-    return (
-        <View className="flex-1 bg-black items-center justify-center px-6">
-
-            {user.avatar_url ? (
-                <TouchableOpacity onPress={() => handleUploadImage(user, setUser, setUploading)} className="relative mb-4">
-                    <Image
-                    source={{
-                        uri: uploading
-                        ? 'https://upload.wikimedia.org/wikipedia/commons/b/b1/Loading_icon.gif'
-                        : user.avatar_url || 'https://via.placeholder.com/150',
-                    }}
-                    className="w-32 h-32 rounded-full border border-gray-300"
-                    />
-                    <View className="absolute bottom-2 right-2 bg-neutral-800 p-1 rounded-full">
-                    <Feather name="edit-2" size={16} color="#aaa" />
-                    </View>
-                </TouchableOpacity>
-            ) : (
-                <View className="w-32 h-32 rounded-full bg-gray-700 mb-4" />
-            )}
-            <Text className="text-gray-400 text-lg mb-2">@{user.username || 'Username not set'}</Text>
+  return (
+    <View className="flex-1 bg-black items-center justify-center px-6">
+      {user.avatar_url ? (
+        <TouchableOpacity
+          onPress={() => handleUploadImage(user, setUser, setUploading)}
+          className="relative mb-4"
+        >
+          <Image
+            source={{
+              uri: uploading
+                ? 'https://upload.wikimedia.org/wikipedia/commons/b/b1/Loading_icon.gif'
+                : user.avatar_url || 'https://via.placeholder.com/150',
+            }}
+            className="w-32 h-32 rounded-full border border-gray-300"
+          />
+          <View className="absolute bottom-2 right-2 bg-neutral-800 p-1 rounded-full">
+            <Feather name="edit-2" size={16} color="#aaa" />
+          </View>
+        </TouchableOpacity>
+      ) : (
+        <View className="w-32 h-32 rounded-full bg-gray-700 mb-4" />
+      )}
+      <Text className="text-gray-400 text-lg mb-2">
+        @{user.username || 'Username not set'}
+      </Text>
 
       {/* Name */}
       <View className="w-full mb-3">

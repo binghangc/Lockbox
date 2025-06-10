@@ -3,38 +3,40 @@
 // This enables autocomplete, go to definition, etc.
 
 // Setup type definitions for built-in Supabase Runtime APIs
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js";
+// eslint-disable-next-line import/no-unresolved
+import { serve } from 'https://deno.land/std@0.168.0/http/server';
+// eslint-disable-next-line import/no-unresolved, import/extensions
+import { createClient } from 'https://deno.land/x/supabase_js/mod.ts';
 
 serve(async (_req) => {
   const supabase = createClient(
-    Deno.env.get("PROJECT_URL")!,
-    Deno.env.get("SERVICE_ROLE_KEY")!
+    Deno.env.get('PROJECT_URL')!,
+    Deno.env.get('SERVICE_ROLE_KEY')!,
   );
 
   const now = new Date().toISOString();
 
   const { error: ongoingError } = await supabase
-    .from("trips")
-    .update({ status: "ongoing" })
-    .lt("start_date", now)
-    .gt("end_date", now)
-    .neq("status", "ongoing");
+    .from('trips')
+    .update({ status: 'ongoing' })
+    .lt('start_date', now)
+    .gt('end_date', now)
+    .neq('status', 'ongoing');
 
   const { error: endedError } = await supabase
-    .from("trips")
-    .update({ status: "ended" })
-    .lte("end_date", now)
-    .neq("status", "ended");
+    .from('trips')
+    .update({ status: 'ended' })
+    .lte('end_date', now)
+    .neq('status', 'ended');
 
   if (ongoingError || endedError) {
     return new Response(
-      JSON.stringify({ message: "Failed", ongoingError, endedError }),
-      { status: 500 }
+      JSON.stringify({ message: 'Failed', ongoingError, endedError }),
+      { status: 500 },
     );
   }
 
-  return new Response(JSON.stringify({ message: "Trip statuses updated" }), {
+  return new Response(JSON.stringify({ message: 'Trip statuses updated' }), {
     status: 200,
   });
 });

@@ -1,9 +1,8 @@
 require('dotenv').config();
 
-
 const fs = require('fs');
 const path = require('path');
-const r2 = require('../server/utils/r2client'); // your configured AWS SDK R2 client
+const r2 = require('../server/utils/r2client.js'); // your configured AWS SDK R2 client
 
 const uploadDefaultAvatar = async () => {
   const filePath = path.join(__dirname, '../assets/defaultavatar.jpg');

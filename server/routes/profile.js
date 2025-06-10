@@ -61,8 +61,8 @@ router.patch('/edit', async (req, res) => {
 
 router.post('/upload-avatar', upload.single('avatar'), async (req, res) => {
   const { user_id } = req.body;
-  const file = req.file;
-  
+  const { file } = req;
+
   if (!user_id || !file) {
     return res.status(400).json({ error: 'Missing user_id or file' });
   }
