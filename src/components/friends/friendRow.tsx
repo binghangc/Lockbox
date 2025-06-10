@@ -1,24 +1,26 @@
-import { View, Text, TouchableOpacity, Image, Alert } from "react-native";
-import React from "react";
-import FriendActionButton from "@/components/friends/friendActionButton"; 
-import type { Profile } from "@/types";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { View, Text, TouchableOpacity, Image, Alert } from 'react-native';
+import React from 'react';
+import FriendActionButton from '@/components/friends/friendActionButton';
+import type { Profile } from '@/types';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type FriendRow = Profile & { friendshipId?: string };
 
 type Props = {
   item: FriendRow;
-  mode?: "default" | "invite";
+  mode?: 'default' | 'invite';
   alreadyInvitedIds: string[];
-  inviteStatus: Record<string, "idle" | "loading" | "sent" | "failed">;
+  inviteStatus: Record<string, 'idle' | 'loading' | 'sent' | 'failed'>;
   onSelect: (item: FriendRow) => void;
-  setInviteStatus: React.Dispatch<React.SetStateAction<Record<string, "idle" | "loading" | "sent" | "failed">>>;
+  setInviteStatus: React.Dispatch<
+    React.SetStateAction<Record<string, 'idle' | 'loading' | 'sent' | 'failed'>>
+  >;
   refreshList?: () => void;
 };
 
 export default function FriendRow({
   item,
-  mode = "default",
+  mode = 'default',
   alreadyInvitedIds,
   inviteStatus,
   onSelect,
@@ -27,21 +29,19 @@ export default function FriendRow({
 }: Props) {
   const status =
     inviteStatus[item.id] ??
-    (alreadyInvitedIds?.includes(item.id) ? "sent" : undefined);
+    (alreadyInvitedIds?.includes(item.id) ? 'sent' : undefined);
 
   const handlePress = () => {
-    if (mode === "invite") {
-      if (status === "sent") return;
+    if (mode === 'invite') {
+      if (status === 'sent') return;
 
-      setInviteStatus((prev) => ({ ...prev, [item.id]: "loading" }));
+      setInviteStatus((prev) => ({ ...prev, [item.id]: 'loading' }));
       Promise.resolve(onSelect(item))
         .then(() => {
-          setInviteStatus((prev) => ({ ...prev, [item.id]: "sent" }));
-          alert("Invite sent successfully!");
+          setInviteStatus((prev) => ({ ...prev, [item.id]: 'sent' }));
         })
         .catch(() => {
-          setInviteStatus((prev) => ({ ...prev, [item.id]: "failed" }));
-          alert("Failed to send invite.");
+          setInviteStatus((prev) => ({ ...prev, [item.id]: 'failed' }));
         });
     } else {
       onSelect(item);
@@ -50,43 +50,48 @@ export default function FriendRow({
 
   const handleRemoveFriend = async () => {
     Alert.alert(
-      "Remove Friendship",
+      'Remove Friendship',
       `Are you sure you want to remove your friendship with ${item.name}?`,
       [
-        { text: "Cancel", style: "cancel" },
+        { text: 'Cancel', style: 'cancel' },
         {
-          text: "Remove",
-          style: "destructive",
+          text: 'Remove',
+          style: 'destructive',
           onPress: async () => {
-            const token = await AsyncStorage.getItem("access_token");
-            const res = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/friends/remove/${item.id}`, {
-              method: "DELETE",
-              headers: { Authorization: `Bearer ${token}` },
-            });
-  
+            const token = await AsyncStorage.getItem('access_token');
+            const res = await fetch(
+              `
+              ${process.env.EXPO_PUBLIC_API_URL}/friends/remove/${item.id}`,
+              {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${token}` },
+              },
+            );
+
             if (!res.ok) {
-              alert("Failed to remove friend");
               return;
             }
-  
+
             Alert.alert(
-              "Friend Removed",
-              `Friend removed successfully! Bye bye ${item.name}.`, [
+              'Friend Removed',
+              `Friend removed successfully! Bye bye ${item.name}.`,
+              [
                 {
-                  text: "OK",
+                  text: 'OK',
                   onPress: () => {
                     refreshList?.();
                   },
                 },
-              ]);
+              ],
+            );
           },
         },
-      ]
+      ],
     );
   };
 
   return (
-    <View style={{ overflow: "visible", position: "relative" }}>
+    <View style={{ overflow: 'visible', position: 'relative' }}>
       <TouchableOpacity
         key={item.id}
         className="bg-zinc-900 rounded-2xl px-4 py-3 flex-row items-center mb-3"
@@ -109,7 +114,10 @@ export default function FriendRow({
         <FriendActionButton
           mode={mode}
           status={status}
-          disabled={mode === "invite" && (status === "sent" || alreadyInvitedIds.includes(item.id))}
+          disabled={
+            mode === 'invite' &&
+            (status === 'sent' || alreadyInvitedIds.includes(item.id))
+          }
           onPress={handlePress}
           onRemove={handleRemoveFriend}
         />

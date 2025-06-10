@@ -24,34 +24,31 @@ export default function FloatingAvatar({ uri }: { uri: string }) {
     ).start();
   }, [glowAnim]);
 
-    return (
-        <View className="items-center justify-center mb-6 relative">
-        {/* Animated glowing orb behind the avatar */}
-        <Animated.View
-            style={{
-                position: "absolute",
-                width: 144, // w-36
-                height: 144,
-                borderRadius: 9999,
-                transform: [{ scale: glowAnim }],
-            }}
-        >
-            <LinearGradient
-                colors={['#c084fc33', '#8b5cf633', '#ec489933']} // soft purple to pink gradient
-                start={{ x: 0.3, y: 0.3 }}
-                end={{ x: 0.7, y: 0.7 }}
-                style={{
-                    width: '100%',
-                    height: '100%',
-                    borderRadius: 9999,
-                }}
-            />
-        </Animated.View>
-        {/* User avatar */}
-        <Image
-            source={{ uri }}
-            className="w-40 h-40 rounded-full z-10"
+  return (
+    <View className="items-center justify-center mb-6 relative">
+      {/* Animated glowing orb behind the avatar */}
+      <Animated.View
+        style={{
+          position: 'absolute',
+          width: 144, // w-36
+          height: 144,
+          borderRadius: 9999,
+          transform: [{ scale: glowAnim }],
+        }}
+      >
+        <LinearGradient
+          colors={['#c084fc33', '#8b5cf633', '#ec489933']} // soft purple to pink gradient
+          start={{ x: 0.3, y: 0.3 }}
+          end={{ x: 0.7, y: 0.7 }}
+          style={{
+            width: '100%',
+            height: '100%',
+            borderRadius: 9999,
+          }}
         />
-        </View>
+      </Animated.View>
+      {/* User avatar */}
+      <Image source={{ uri }} className="w-40 h-40 rounded-full z-10" />
+    </View>
   );
 }

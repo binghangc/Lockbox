@@ -51,17 +51,20 @@ export default function LoginScreen() {
         return;
       }
 
-            if (mode === 'signup') {
-                // no session yet — show confirmation message
-                Alert.alert('Almost there!', result.message || 'Check your email to confirm your account.');
-                setMode('login'); // optional: switch to login screen
-                return;
-            }
+      if (mode === 'signup') {
+        // no session yet — show confirmation message
+        Alert.alert(
+          'Almost there!',
+          result.message || 'Check your email to confirm your account.',
+        );
+        setMode('login'); // optional: switch to login screen
+        return;
+      }
 
-            const token = result.session?.access_token;
-            if (!token) throw new Error('Missing access token from response');
-            await AsyncStorage.setItem('access_token', token);
-            setToken(token);
+      const token = result.session?.access_token;
+      if (!token) throw new Error('Missing access token from response');
+      await AsyncStorage.setItem('access_token', token);
+      setToken(token);
 
       const profileRes = await fetch(
         `${process.env.EXPO_PUBLIC_API_URL}/profile`,
@@ -141,68 +144,79 @@ export default function LoginScreen() {
           className="bg-white/10 text-white px-4 py-3 rounded-md mb-4"
         />
 
-            {mode === 'signup' && (
-            <TextInput
-                placeholder="Username"
-                placeholderTextColor="#aaa"
-                value={username}
-                onChangeText={setUsername}
-                autoCapitalize="none"
-                className="bg-white/10 text-white px-4 py-3 rounded-md mb-4"
-            />
-            )}
+        {mode === 'signup' && (
+          <TextInput
+            placeholder="Username"
+            placeholderTextColor="#aaa"
+            value={username}
+            onChangeText={setUsername}
+            autoCapitalize="none"
+            className="bg-white/10 text-white px-4 py-3 rounded-md mb-4"
+          />
+        )}
 
-            <TextInput
-                placeholder="Password"
-                placeholderTextColor="#aaa"
-                value={password}
-                secureTextEntry
-                onChangeText={setPassword}
-                className="bg-white/10 text-white px-4 py-3 rounded-md mb-6"
-            />
+        <TextInput
+          placeholder="Password"
+          placeholderTextColor="#aaa"
+          value={password}
+          secureTextEntry
+          onChangeText={setPassword}
+          className="bg-white/10 text-white px-4 py-3 rounded-md mb-6"
+        />
 
-            {/* Forgot Password */}
-            {/** TO DO: reset link not working */}
-            {mode === 'login' && ENABLE_FORGOT_PASSWORD && (
-                <TouchableOpacity
-                    onPress={async () => {
-                    if (!email) return Alert.alert('Oops', 'Enter your email first!');
-                    
-                    try {
-                        const res = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/auth/forgot-password`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ email }),
-                        });
-                
-                        const data = await res.json();
-                        if (!res.ok) throw new Error(data.error || 'Failed to send reset email');
-                
-                        Alert.alert('Check your email', 'We just sent a password reset link ✉️');
-                    } catch (err) {
-                        Alert.alert('Error', 'Failed to send reset email');
-                    }
-                    }}
-                    className="mb-6"
-                >
-                    <Text className="text-blue-400 text-sm text-right">Forgot your password?</Text>
-                </TouchableOpacity>
-            )}
+        {/* Forgot Password */}
+        {/** TO DO: reset link not working */}
+        {mode === 'login' && ENABLE_FORGOT_PASSWORD && (
+          <TouchableOpacity
+            onPress={async () => {
+              if (!email) {
+                Alert.alert('Oops', 'Enter your email first!');
+                return;
+              }
 
-            <TouchableOpacity
-                className={`bg-blue-600 py-3 rounded-md ${loading ? 'opacity-50' : ''}`}
-                disabled={loading}
-                onPress={handleSubmit}
-                >
-                {loading ? (
-                    <ActivityIndicator color="white" />
-                ) : (
-                    <Text className="text-white text-center font-bold">
-                    {mode === 'login' ? 'Log In' : 'Sign Up'}
-                    </Text>
-                )}
-            </TouchableOpacity>
-        </BlurView>
-        </KeyboardAvoidingView>
-    );
+              try {
+                const res = await fetch(
+                  `${process.env.EXPO_PUBLIC_API_URL}/auth/forgot-password`,
+                  {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email }),
+                  },
+                );
+                const data = await res.json();
+                if (!res.ok) {
+                  throw new Error(data.error || 'Failed to send reset email');
+                }
+                Alert.alert(
+                  'Check your email',
+                  'We just sent a password reset link ✉️',
+                );
+              } catch {
+                Alert.alert('Error', 'Failed to send reset email');
+              }
+            }}
+            className="mb-6"
+          >
+            <Text className="text-blue-400 text-sm text-right">
+              Forgot your password?
+            </Text>
+          </TouchableOpacity>
+        )}
+
+        <TouchableOpacity
+          className={`bg-blue-600 py-3 rounded-md ${loading ? 'opacity-50' : ''}`}
+          disabled={loading}
+          onPress={handleSubmit}
+        >
+          {loading ? (
+            <ActivityIndicator color="white" />
+          ) : (
+            <Text className="text-white text-center font-bold">
+              {mode === 'login' ? 'Log In' : 'Sign Up'}
+            </Text>
+          )}
+        </TouchableOpacity>
+      </BlurView>
+    </KeyboardAvoidingView>
+  );
 }

@@ -9,11 +9,11 @@ const supabase = createClient(
   process.env.EXPO_PUBLIC_SUPABASE_SERVICE_ROLE_KEY,
 );
 
-const authMiddleware = require('../middleware/auth');
+const authMiddleware = require('../middleware/auth.js');
 
 // API endpoint for getting list of invites
 router.get('/', authMiddleware, async (req, res) => {
-    const user_id = req.user.id;
+  const user_id = req.user.id;
 
   const { data: invites, error: invitesError } = await supabase
     .from('invites')

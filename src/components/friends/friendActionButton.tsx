@@ -1,10 +1,10 @@
-import { useState } from "react";
-import { Pressable, Text, View } from "react-native";
-import { Feather } from "@expo/vector-icons";
+import { useState } from 'react';
+import { Pressable, Text, View } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 
 type Props = {
-  mode: "default" | "invite";
-  status?: "idle" | "loading" | "sent" | "failed";
+  mode: 'default' | 'invite';
+  status?: 'idle' | 'loading' | 'sent' | 'failed';
   onPress: () => void;
   disabled?: boolean;
   onRemove?: () => void;
@@ -19,14 +19,14 @@ export default function FriendActionButton({
 }: Props) {
   const [showOptions, setShowOptions] = useState(false);
 
-  if (mode === "invite") {
+  if (mode === 'invite') {
     return (
       <Pressable
         onPress={onPress}
         disabled={disabled}
         className="px-3 py-1 bg-blue-600 rounded-full"
       >
-        {status === "sent" ? (
+        {status === 'sent' ? (
           <Feather name="check" size={16} color="white" />
         ) : (
           <Feather name="send" size={16} color="white" />
@@ -48,14 +48,17 @@ export default function FriendActionButton({
         <View className="absolute right-10 top-1 bg-zinc-800 rounded-xl px-3 py-2 min-w-[150px] z-50">
           <Pressable
             onPress={() => {
-              setShowOptions(false); 
+              setShowOptions(false);
               onRemove?.();
             }}
             className="flex-row items-center space-x-3"
           >
             <Feather name="user-x" size={16} color="#ef4444" className="mr-1" />
-            <Text className="text-red-500 font-semibold text-sm" numberOfLines={1}>
-               Remove friendship
+            <Text
+              className="text-red-500 font-semibold text-sm"
+              numberOfLines={1}
+            >
+              Remove friendship
             </Text>
           </Pressable>
         </View>

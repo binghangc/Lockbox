@@ -9,12 +9,13 @@ const supabase = createClient(
   process.env.EXPO_PUBLIC_SUPABASE_SERVICE_ROLE_KEY,
 );
 
-const authMiddleware = require('../middleware/auth');
+const authMiddleware = require('../middleware/auth.js');
 
 // POST /trips - Create a new trip
 router.post('/', authMiddleware, async (req, res) => {
   const user_id = req.user.id;
-  const { title, description, start_date, end_date, country, thumbnail_url } = req.body;
+  const { title, description, start_date, end_date, country, thumbnail_url } =
+    req.body;
 
   const { data, error } = await supabase.from('trips').insert([
     {
