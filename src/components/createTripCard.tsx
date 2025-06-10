@@ -26,12 +26,12 @@ export default function CreateTripCard() {
       onPress={() => router.push('/(protected)/newTrip')}
       className="w-72 items-center"
     >
-      <View className="w-72 aspect-square border-2 border-dashed border-neutral-500 justify-center items-center bg-black">
-        <Image source={thumbnail} className="w-36 h-36" resizeMode="cover" />
+      <View className="w-72 aspect-square border-2 border-dashed border-neutral-500 justify-center items-center bg-transparent">
+        <Image source={thumbnail} className="w-40 h-40" resizeMode="cover" />
         <View
           style={{
             position: 'absolute',
-            bottom: 16,
+            bottom: 35,
             backgroundColor: 'white',
             paddingHorizontal: 14,
             paddingVertical: 6,
