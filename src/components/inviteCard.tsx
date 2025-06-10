@@ -1,20 +1,7 @@
 import React from 'react';
-import {
-  Text,
-  TouchableOpacity,
-  Image,
-  View,
-  ScrollView,
-  Alert,
-} from 'react-native';
+import { Text, TouchableOpacity, Image, View } from 'react-native';
 import { Invite } from '@/types';
 import { Feather, FontAwesome6 } from '@expo/vector-icons';
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import InviteRow from './inviteRow';
 
 export default function InviteCard({
   invite,
@@ -23,78 +10,20 @@ export default function InviteCard({
   invite: Invite;
   onClose: () => void;
 }) {
-  const insets = useSafeAreaInsets();
-  const handleResponse = async (response: string) => {
-    console.log('User chose:', response);
-
-    const token = await AsyncStorage.getItem('access_token');
-
-    if (!token) {
-      Alert.alert('Error', "You're not logged in.");
-      return;
-    }
-
-    const endpointMap: Record<string, string> = {
-      going: '/accept-invite',
-      not_going: '/decline-invite',
-    };
-
-    const endpoint = endpointMap[response];
-
-    if (!endpoint) {
-      Alert.alert('Unknown response', "That response type isn't supported.");
-      return;
-    }
-
-    try {
-      const res = await fetch(
-        `${process.env.EXPO_PUBLIC_API_URL}/invites${endpoint}`,
-        {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            id: invite.id,
-            user_id: invite.user_id,
-            trip_id: invite.trip_id,
-          }),
-        },
-      );
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        console.error('Error:', data.error);
-        Alert.alert('Failed', data.error || 'Something went wrong.');
-        return;
-      }
-
-      Alert.alert('Success', `You responded: ${response.replace('_', ' ')}`);
-      onClose();
-    } catch (err) {
-      console.error('API error:', err);
-      Alert.alert('Error', 'Something went wrong while sending your response.');
-    }
-  };
-
   return (
-    <SafeAreaView className="flex-1 bg-black">
-      <View style={{ paddingTop: insets.top }} className="flex-1 px-4">
-        <View className="flex-row items-center justify-between pt-6 pb-4">
-          <TouchableOpacity onPress={onClose}>
-            <Feather name="x" size={28} color="white" />
-          </TouchableOpacity>
-          <Text className="text-white text-2xl font-bold">
-            You&#39;re Invited!
-          </Text>
-          <View className="w-7" />
-        </View>
-        <ScrollView
-          contentContainerStyle={{ paddingBottom: 100 }}
-          className="px-4"
-        >
+    <View className="flex-1 bg-black">
+      <View className="px-4">
+        <View className="flex-1 justify-between">
+          <View className="flex-row items-center justify-between pt-6 pb-4">
+            <TouchableOpacity onPress={onClose}>
+              <Feather name="x" size={28} color="white" />
+            </TouchableOpacity>
+            <Text className="text-white text-2xl font-bold">
+              You&apos;re Invited!
+            </Text>
+            <View className="w-7" />
+          </View>
+
           <Image
             source={{ uri: invite.trip.thumbnail_url }}
             className="w-full aspect-square mb-1"
@@ -136,12 +65,8 @@ export default function InviteCard({
               {invite.trip.description}
             </Text>
           )}
-        </ScrollView>
-
-        <View className="absolute bottom-6 left-0 right-0 items-center">
-          <InviteRow onSelect={handleResponse} />
         </View>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }

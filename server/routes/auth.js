@@ -12,20 +12,22 @@ const supabase = createClient(
   process.env.EXPO_PUBLIC_SUPABASE_SERVICE_ROLE_KEY,
 );
 
+const { DEFAULT_AVATAR_URL } = require('../config/constants.js');
+
 // API endpoint for signup
 router.post('/signup', async (req, res) => {
   try {
     const { email, password, username } = req.body;
 
-    const { data, error } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
+        emailRedirectTo: process.env.EXPO_PUBLIC_REDIRECT_URL,
         data: {
           name: username,
           username,
-          avatar_url:
-            'https://i.pinimg.com/736x/c3/9a/f4/c39af4399a87bc3d7701101b728cddc9.jpg',
+          avatar_url: DEFAULT_AVATAR_URL,
         },
       },
     });
@@ -35,9 +37,7 @@ router.post('/signup', async (req, res) => {
     }
 
     return res.status(200).json({
-      message: 'Signup successful! You can log in now.',
-      session: data.session,
-      user: data.user,
+      message: 'Signup successful! Please check your email.',
     });
   } catch (err) {
     console.error('Unexpected server error during signup:', err);
@@ -75,14 +75,18 @@ router.post('/login', async (req, res) => {
 // API endpoint for forgot password
 router.post('/forgot-password', async (req, res) => {
   const { email } = req.body;
-  if (!email) return res.status(400).json({ error: 'Missing email' });
+  if (!email) {
+    return res.status(400).json({ error: 'Missing email' });
+  }
 
   try {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${process.env.EXPO_PUBLIC_REDIRECT_URL}/reset-password`,
+      redirectTo: `${process.env.EXPO_PUBLIC_REDIRECT_URL}/auth/reset-password`,
     });
 
-    if (error) throw error;
+    if (error) {
+      return res.status(400).json({ error: error.message });
+    }
 
     return res.json({ success: true });
   } catch (err) {

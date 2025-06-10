@@ -12,7 +12,8 @@ export default function ResetPasswordScreen() {
 
     try {
       const response = await fetch(
-        `${process.env.EXPO_PUBLIC_API_URL}:3000/auth/reset-password`,
+        `
+        ${process.env.EXPO_PUBLIC_API_URL}/auth/reset-password`,
         {
           method: 'POST',
           headers: {

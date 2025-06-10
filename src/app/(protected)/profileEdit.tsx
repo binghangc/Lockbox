@@ -97,19 +97,22 @@ export default function EditProfileScreen() {
     }
   };
 
-  const handleUploadImage = async () => {
+  const handleUploadImage = async (
+    currentUser: { id: string; avatar_url?: string },
+    updateUser: (updatedUser: { id: string; avatar_url: string }) => void,
+    toggleUploading: (isUploading: boolean) => void,
+  ) => {
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
-        // API SHIFTS IN THE FUTURE MAY CHANGE THIS
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         quality: 1,
         allowsEditing: true,
+        aspect: [1, 1],
       });
 
       if (result.canceled) return;
 
-      const image = result.assets[0];
-      const { uri } = image;
+      const { uri } = result.assets[0];
       const name = uri.split('/').pop() || 'avatar.jpg';
 
       const file = {
@@ -119,12 +122,8 @@ export default function EditProfileScreen() {
       };
 
       const formData = new FormData();
-      formData.append('avatar', file as unknown as Blob);
-      if (!user) {
-        Alert.alert('Error', 'User not found. Please log in again.');
-        return;
-      }
-      formData.append('user_id', user.id);
+      formData.append('avatar', file);
+      formData.append('user_id', currentUser.id); // remove if switching to token-based auth
 
       setUploading(true);
 
@@ -140,34 +139,31 @@ export default function EditProfileScreen() {
       );
 
       const clone = res.clone();
-
       let data;
       try {
-        data = await res.json(); // attempt normal parse
+        data = await res.json();
       } catch {
-        const raw = await clone.text(); // fallback to raw response (HTML, error, etc)
-        console.error('👀 RAW RESPONSE:', raw); // this will reveal the actual error
+        const raw = await clone.text();
+        console.error('👀 RAW RESPONSE:', raw);
         Alert.alert('Upload failed', 'Server did not return valid JSON');
-        setUploading(false);
         return;
       }
-      setUploading(false);
 
       if (!res.ok) {
         Alert.alert('Upload failed', data.error || 'Try again');
         return;
       }
 
-      // Update user context
-      setUser({ ...user, avatar_url: data.avatar_url });
+      updateUser({ ...currentUser, avatar_url: data.avatar_url });
       Alert.alert(
         'Upload Successful',
         'Your profile picture has been updated!',
       );
     } catch (err) {
       console.error('Image upload failed:', err);
-      setUploading(false);
       Alert.alert('Error', 'Something went wrong while uploading');
+    } finally {
+      toggleUploading(false);
     }
   };
 
@@ -191,7 +187,10 @@ export default function EditProfileScreen() {
   return (
     <View className="flex-1 bg-black items-center justify-center px-6">
       {user.avatar_url ? (
-        <TouchableOpacity onPress={handleUploadImage} className="relative mb-4">
+        <TouchableOpacity
+          onPress={() => handleUploadImage(user, setUser, setUploading)}
+          className="relative mb-4"
+        >
           <Image
             source={{
               uri: uploading

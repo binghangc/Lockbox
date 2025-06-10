@@ -15,7 +15,7 @@ import { useRouter } from 'expo-router';
 import { useUser } from '@/components/UserContext';
 import FloatingOrb from '@/components/floatingOrb';
 
-const ENABLE_FORGOT_PASSWORD = false;
+const ENABLE_FORGOT_PASSWORD = true;
 
 export default function LoginScreen() {
   const [mode, setMode] = useState<'login' | 'signup'>('login');
@@ -48,6 +48,16 @@ export default function LoginScreen() {
       const result = await response.json();
       if (!response.ok) {
         Alert.alert('Error', result.error || 'Something went wrong');
+        return;
+      }
+
+      if (mode === 'signup') {
+        // no session yet — show confirmation message
+        Alert.alert(
+          'Almost there!',
+          result.message || 'Check your email to confirm your account.',
+        );
+        setMode('login'); // optional: switch to login screen
         return;
       }
 
@@ -140,6 +150,7 @@ export default function LoginScreen() {
             placeholderTextColor="#aaa"
             value={username}
             onChangeText={setUsername}
+            autoCapitalize="none"
             className="bg-white/10 text-white px-4 py-3 rounded-md mb-4"
           />
         )}
@@ -160,7 +171,7 @@ export default function LoginScreen() {
             onPress={async () => {
               if (!email) {
                 Alert.alert('Oops', 'Enter your email first!');
-                return undefined;
+                return;
               }
 
               try {
@@ -172,11 +183,10 @@ export default function LoginScreen() {
                     body: JSON.stringify({ email }),
                   },
                 );
-
                 const data = await res.json();
-                if (!res.ok)
+                if (!res.ok) {
                   throw new Error(data.error || 'Failed to send reset email');
-
+                }
                 Alert.alert(
                   'Check your email',
                   'We just sent a password reset link ✉️',
@@ -184,7 +194,6 @@ export default function LoginScreen() {
               } catch {
                 Alert.alert('Error', 'Failed to send reset email');
               }
-              return undefined;
             }}
             className="mb-6"
           >

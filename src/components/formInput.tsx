@@ -1,32 +1,31 @@
 import React from 'react';
+import type { ReactNode } from 'react';
 import { Text, TextInput, View, TextInputProps } from 'react-native';
 
 interface FormInputProps extends TextInputProps {
-  label: string;
+  label?: string;
+  icon?: ReactNode;
 }
 
-export default function FormInput({
-  label,
-  value,
-  onChangeText,
-  placeholder,
-  secureTextEntry,
-  keyboardType,
-  ..._rest
-}: FormInputProps) {
+export default function FormInput({ label, icon, ...props }: FormInputProps) {
   return (
     <View className="mb-4">
-      <Text className="text-white mb-2">{label}</Text>
-      <TextInput
-        className="bg-neutral-800 text-white px-4 py-3 rounded-md w-full"
-        placeholderTextColor="#888"
-        autoCapitalize="none"
-        value={value}
-        onChangeText={onChangeText}
-        placeholder={placeholder}
-        secureTextEntry={secureTextEntry}
-        keyboardType={keyboardType}
-      />
+      {label && <Text className="text-white mb-2">{label}</Text>}
+      <View className="flex-row items-center bg-neutral-800 rounded-md px-4">
+        {icon && <View className="mr-2">{icon}</View>}
+        <TextInput
+          className="flex-1 text-white py-3"
+          placeholderTextColor="#888"
+          autoCapitalize="none"
+          value={props.value}
+          onChangeText={props.onChangeText}
+          placeholder={props.placeholder}
+          keyboardType={props.keyboardType}
+          secureTextEntry={props.secureTextEntry}
+          editable={props.editable}
+          maxLength={props.maxLength}
+        />
+      </View>
     </View>
   );
 }

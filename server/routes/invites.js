@@ -9,26 +9,11 @@ const supabase = createClient(
   process.env.EXPO_PUBLIC_SUPABASE_SERVICE_ROLE_KEY,
 );
 
+const authMiddleware = require('../middleware/auth.js');
+
 // API endpoint for getting list of invites
-router.get('/', async (req, res) => {
-  const authHeader = req.headers.authorization;
-
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res
-      .status(401)
-      .json({ error: 'Missing or malformed Authorization header' });
-  }
-
-  const token = authHeader.split(' ')[1];
-  const { data: authData, error: authError } =
-    await supabase.auth.getUser(token);
-  const user = authData?.user;
-
-  if (authError || !user) {
-    return res.status(401).json({ error: 'Invalid or expired token' });
-  }
-
-  const user_id = user.id;
+router.get('/', authMiddleware, async (req, res) => {
+  const user_id = req.user.id;
 
   const { data: invites, error: invitesError } = await supabase
     .from('invites')
