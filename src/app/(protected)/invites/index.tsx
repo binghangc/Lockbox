@@ -3,9 +3,9 @@ import { Feather } from '@expo/vector-icons';
 import { useRouter, Stack } from 'expo-router';
 import { useState, useRef, useEffect } from 'react';
 import { Modalize } from 'react-native-modalize';
-import InvitesList from '@/components/invitesList';
-import InviteCard from '@/components/inviteCard';
-import InviteRow from '@/components/inviteRow';
+import InvitesList from '@/components/invites/invitesList';
+import InviteCard from '@/components/invites/inviteCard';
+import InviteRow from '@/components/invites/inviteRow';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Invite } from '@/types';
 

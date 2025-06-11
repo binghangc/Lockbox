@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity, Image } from 'react-native';
 import React from 'react';
-import InviteFriendActionButton from '@/components/inviteFriendActionButton';
+import InviteFriendActionButton from '@/components/invites/inviteFriendActionButton';
 import type { Profile } from '@/types';
 
 type FriendRow = Profile & { friendshipId?: string };

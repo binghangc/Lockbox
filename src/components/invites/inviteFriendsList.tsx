@@ -1,7 +1,7 @@
 import { FlatList, View, Text, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import InviteFriendRow from '@/components/inviteFriendRow';
+import InviteFriendRow from '@/components/invites/inviteFriendRow';
 import useFriends from '@/hooks/useFriends';
 
 type Props = {
