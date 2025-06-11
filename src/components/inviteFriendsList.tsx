@@ -1,7 +1,8 @@
 import { FlatList, View, Text, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
-import FriendRow from '@/components/friends/friendRow';
-import { useFriends } from '@/hooks/useFriends';
+import { useEffect, useState } from 'react';
+import InviteFriendRow from '@/components/inviteFriendRow';
+import useFriends from '@/hooks/useFriends';
 
 type Props = {
   onSelect: (user: Profile) => void | Promise<void>;
@@ -14,7 +15,7 @@ export default function InviteFriendsList({
   alreadyInvitedIds = [],
   onCountUpdate,
 }: Props) {
-  const { friends, loading, fetchFriends } = useFriends(onCountUpdate);
+  const { friends, loading } = useFriends(onCountUpdate);
   const router = useRouter();
   const [inviteStatus, setInviteStatus] = useState<
     Record<string, 'idle' | 'loading' | 'sent' | 'failed'>
@@ -30,6 +31,12 @@ export default function InviteFriendsList({
     );
     setInviteStatus(updatedStatus);
   }, [alreadyInvitedIds]);
+
+  useEffect(() => {
+    if (!loading) {
+      onCountUpdate?.(friends.length);
+    }
+  }, [friends.length, loading, onCountUpdate]);
 
   if (loading) {
     return (
@@ -63,15 +70,13 @@ export default function InviteFriendsList({
       data={friends}
       keyExtractor={(item) => item.id}
       renderItem={({ item }) => (
-        <FriendRow
+        <InviteFriendRow
           key={item.id}
           item={item}
-          mode="invite"
           alreadyInvitedIds={alreadyInvitedIds}
           inviteStatus={inviteStatus}
           onSelect={onSelect}
           setInviteStatus={setInviteStatus}
-          refreshList={fetchFriends}
         />
       )}
     />
