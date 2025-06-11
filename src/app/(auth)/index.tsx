@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Alert,
   View,
@@ -95,16 +95,23 @@ export default function LoginScreen() {
     }
   };
 
+  const [orbKeys, setOrbKeys] = useState<string[]>([]);
+
+  useEffect(() => {
+    const keys = Array.from({ length: 5 }).map(
+      () => `floating-orb-${Math.random().toString(36).substr(2, 9)}`,
+    );
+    setOrbKeys(keys);
+  }, []);
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       className="flex-1 items-center justify-center px-6 bg-neutral-900"
     >
       {/* Orbs behind the card */}
-      {Array.from({ length: 5 }).map((_, _idx) => (
-        <FloatingOrb
-          key={`floating-orb-${Math.random().toString(36).substr(2, 9)}`}
-        />
+      {orbKeys.map((key) => (
+        <FloatingOrb key={key} />
       ))}
 
       <BlurView
