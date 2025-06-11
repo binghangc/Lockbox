@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View, Text } from 'react-native';
 import { useUser } from '@/components/UserContext';
 import { Profile } from '@/types';
-import FriendsList from '@/components/friends/friendsList';
+import DefaultFriendsList from '@/components/friends/defaultFriendsList';
 import UserProfileModal from '@/components/userProfileModal';
 
 export default function FriendsSection() {
@@ -16,7 +16,7 @@ export default function FriendsSection() {
         <Text className="text-s text-gray-400 font-semibold mb-2">
           MY FRIENDS ({friendCount})
         </Text>
-        <FriendsList
+        <DefaultFriendsList
           onSelect={(selectedFriend) => setSelectedUser(selectedFriend)}
           onCountUpdate={setFriendCount}
         />
