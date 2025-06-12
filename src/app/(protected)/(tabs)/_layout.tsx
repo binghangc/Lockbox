@@ -2,8 +2,11 @@ import { router, Tabs } from 'expo-router';
 import { Octicons, FontAwesome5 } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { View, TouchableOpacity } from 'react-native';
+import { useInvites } from '@/components/InvitesContext';
 
 export default function TabsLayout() {
+  const { invites } = useInvites();
+
   return (
     <View style={{ flex: 1, backgroundColor: '#111' }}>
       <LinearGradient
@@ -45,7 +48,23 @@ export default function TabsLayout() {
                   onPress={() => router.push('/invites')}
                   style={{ marginRight: 16 }}
                 >
-                  <FontAwesome5 name="ticket-alt" size={24} color="white" />
+                  <View>
+                    <FontAwesome5 name="ticket-alt" size={24} color="white" />
+                    {invites.length > 0 && (
+                      <View
+                        style={{
+                          position: 'absolute',
+                          top: -4,
+                          right: -4,
+                          width: 10,
+                          height: 10,
+                          borderRadius: 5,
+                          backgroundColor: '#3B82F6',
+                          borderWidth: 1,
+                        }}
+                      />
+                    )}
+                  </View>
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => router.push('/friends')}

@@ -6,6 +6,7 @@ import * as Linking from 'expo-linking';
 import { ThemeProvider, DarkTheme } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { UserProvider } from '@/components/UserContext';
+import { InvitesProvider } from '@/components/InvitesContext';
 import supabase from '../../lib/supabase';
 
 const myTheme = {
@@ -68,9 +69,11 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <UserProvider>
-        <ThemeProvider value={myTheme}>
-          <Stack screenOptions={{ headerShown: false }} />
-        </ThemeProvider>
+        <InvitesProvider>
+          <ThemeProvider value={myTheme}>
+            <Stack screenOptions={{ headerShown: false }} />
+          </ThemeProvider>
+        </InvitesProvider>
       </UserProvider>
     </GestureHandlerRootView>
   );
