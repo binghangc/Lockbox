@@ -11,18 +11,22 @@ import { Invite } from '@/types';
 
 const InvitesContext = createContext<{
   invites: Invite[];
+  loading: boolean;
   refreshInvites: () => void;
 }>({
   invites: [],
+  loading: false,
   refreshInvites: () => {},
 });
 
 export function InvitesProvider({ children }: { children: React.ReactNode }) {
   const [invites, setInvites] = useState<Invite[]>([]);
+  const [loading, setLoading] = useState(false);
   const { user } = useUser();
 
   const listInvites = async () => {
     try {
+      setLoading(true);
       const token = await AsyncStorage.getItem('access_token');
       const res = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/invites`, {
         headers: {
@@ -40,6 +44,8 @@ export function InvitesProvider({ children }: { children: React.ReactNode }) {
       }
     } catch (error) {
       console.error('Invites error:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -52,8 +58,8 @@ export function InvitesProvider({ children }: { children: React.ReactNode }) {
   }, [user]);
 
   const value = useMemo(
-    () => ({ invites, refreshInvites: listInvites }),
-    [invites],
+    () => ({ invites, refreshInvites: listInvites, loading }),
+    [invites, loading],
   );
 
   return (

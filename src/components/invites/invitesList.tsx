@@ -6,9 +6,8 @@ import {
   Image,
   ImageBackground,
 } from 'react-native';
-import { useEffect, useState } from 'react';
 import type { Invite } from '@/types';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useInvites } from '@/components/InvitesContext';
 import { BlurView } from 'expo-blur';
 
 type InvitesListProps = {
@@ -16,39 +15,7 @@ type InvitesListProps = {
 };
 
 export default function InvitesList({ onInviteSelected }: InvitesListProps) {
-  const [invites, setInvites] = useState<Invite[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  const listInvites = async () => {
-    try {
-      setLoading(true);
-      const token = await AsyncStorage.getItem('access_token');
-      const res = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/invites`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!res.ok) {
-        const { error } = await res.json();
-        console.error('Error fetching invites:', error);
-        return;
-      }
-
-      const data = await res.json();
-      setInvites(data);
-    } catch (error) {
-      console.error('Invites error:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    listInvites();
-  }, []);
+  const { invites, refreshInvites, loading } = useInvites();
 
   if (loading) {
     return (
@@ -118,6 +85,8 @@ export default function InvitesList({ onInviteSelected }: InvitesListProps) {
           </ImageBackground>
         </Pressable>
       )}
+      onRefresh={refreshInvites}
+      refreshing={loading}
     />
   );
 }
