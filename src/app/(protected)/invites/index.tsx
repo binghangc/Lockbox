@@ -93,7 +93,6 @@ export default function InvitesScreen() {
         ref={modalRef}
         adjustToContentHeight={false}
         modalHeight={Dimensions.get('window').height - 100}
-        withHandle={false}
         onClosed={() => setSelectedInvite(null)}
         modalStyle={{ backgroundColor: 'black' }}
         scrollViewProps={{
@@ -116,10 +115,7 @@ export default function InvitesScreen() {
         {selectedInvite && (
           <View className="flex-1 relative">
             {/* content */}
-            <InviteCard
-              invite={selectedInvite}
-              onClose={() => modalRef.current?.close()}
-            />
+            <InviteCard invite={selectedInvite} />
           </View>
         )}
       </Modalize>

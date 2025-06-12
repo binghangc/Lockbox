@@ -1,24 +1,15 @@
 import React from 'react';
 import { Text, TouchableOpacity, Image, View } from 'react-native';
 import { Invite } from '@/types';
-import { Feather, FontAwesome6 } from '@expo/vector-icons';
+import { FontAwesome6 } from '@expo/vector-icons';
 
-export default function InviteCard({
-  invite,
-  onClose,
-}: {
-  invite: Invite;
-  onClose: () => void;
-}) {
+export default function InviteCard({ invite }: { invite: Invite }) {
   return (
     <View className="flex-1 bg-black">
       <View className="px-4">
         <View className="flex-1 justify-between">
-          <View className="flex-row items-center justify-between pt-6 pb-4">
-            <TouchableOpacity onPress={onClose}>
-              <Feather name="x" size={28} color="white" />
-            </TouchableOpacity>
-            <Text className="text-white text-2xl font-bold">
+          <View className="w-full items-center justify-between pt-6 pb-4">
+            <Text className="text-white text-center text-2xl font-bold">
               You&apos;re Invited!
             </Text>
             <View className="w-7" />
