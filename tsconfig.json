@@ -4,9 +4,7 @@
     "strict": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "src/*"
-      ]
+      "@/*": ["src/*"]
     },
     "jsxImportSource": "nativewind"
   },
@@ -18,8 +16,5 @@
     "src/global.d.ts",
     "nativewind-env.d.ts"
   ],
-  "exclude": [
-    "supabase/functions",
-    "babel.config.js"
-  ]
+  "exclude": ["supabase/functions", "babel.config.js"]
 }
