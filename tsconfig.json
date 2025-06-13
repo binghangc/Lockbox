@@ -5,6 +5,16 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
-    }
-  }
+    },
+    "jsxImportSource": "nativewind"
+  },
+  "include": [
+    "src",
+    "lib",
+    "server",
+    "index.ts",
+    "src/global.d.ts",
+    "nativewind-env.d.ts"
+  ],
+  "exclude": ["supabase/functions", "babel.config.js"]
 }

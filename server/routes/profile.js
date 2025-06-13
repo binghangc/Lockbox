@@ -1,7 +1,6 @@
 /**
  * File contains API routes for profiles using Supabase.
  */
-
 const express = require('express');
 
 const router = express.Router();
@@ -13,11 +12,10 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 const { createClient } = require('@supabase/supabase-js');
 const r2 = require('../utils/r2client.js');
-require('dotenv').config();
 
 const supabase = createClient(
-  process.env.EXPO_PUBLIC_SUPABASE_URL,
-  process.env.EXPO_PUBLIC_SUPABASE_SERVICE_ROLE_KEY,
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY,
 );
 
 const authMiddleware = require('../middleware/auth.js');

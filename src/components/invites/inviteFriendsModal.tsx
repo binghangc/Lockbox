@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { View, Text, Pressable, Modal, Alert } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import FriendsList from '@/components/friends/friendsList';
+import InviteFriendsList from '@/components/invites/inviteFriendsList';
 import { Profile } from '@/types';
 import { useUser } from '@/components/UserContext';
 import { BlurView } from 'expo-blur';
@@ -110,7 +110,7 @@ export default function InviteFriendsModal({
           <Text className="text-lg font-semibold text-white mb-3">
             Get your friends on board!
           </Text>
-          <FriendsList
+          <InviteFriendsList
             mode="invite"
             onSelect={handleInvite}
             alreadyInvitedIds={alreadyInvitedIds}

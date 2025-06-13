@@ -2,11 +2,10 @@ const express = require('express');
 
 const router = express.Router();
 const { createClient } = require('@supabase/supabase-js');
-require('dotenv').config();
 
 const supabase = createClient(
-  process.env.EXPO_PUBLIC_SUPABASE_URL,
-  process.env.EXPO_PUBLIC_SUPABASE_SERVICE_ROLE_KEY,
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY,
 );
 
 const authMiddleware = require('../middleware/auth.js');
@@ -68,7 +67,12 @@ router.get('/', authMiddleware, async (req, res) => {
     return res.status(500).json({ error: tripsErr.message });
   }
 
-  return res.json(trips);
+  const enrichedTrips = trips.map((trip) => ({
+    ...trip,
+    is_host: trip.user_id === userId,
+  }));
+
+  return res.json(enrichedTrips);
 });
 
 // GET /trips/:id - Get a single trip by ID

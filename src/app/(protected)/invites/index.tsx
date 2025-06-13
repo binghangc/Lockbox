@@ -3,9 +3,9 @@ import { Feather } from '@expo/vector-icons';
 import { useRouter, Stack } from 'expo-router';
 import { useState, useRef, useEffect } from 'react';
 import { Modalize } from 'react-native-modalize';
-import InvitesList from '@/components/invitesList';
-import InviteCard from '@/components/inviteCard';
-import InviteRow from '@/components/inviteRow';
+import InvitesList from '@/components/invites/invitesList';
+import InviteCard from '@/components/invites/inviteCard';
+import InviteRow from '@/components/invites/inviteRow';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Invite } from '@/types';
 
@@ -93,7 +93,6 @@ export default function InvitesScreen() {
         ref={modalRef}
         adjustToContentHeight={false}
         modalHeight={Dimensions.get('window').height - 100}
-        withHandle={false}
         onClosed={() => setSelectedInvite(null)}
         modalStyle={{ backgroundColor: 'black' }}
         scrollViewProps={{
@@ -116,10 +115,7 @@ export default function InvitesScreen() {
         {selectedInvite && (
           <View className="flex-1 relative">
             {/* content */}
-            <InviteCard
-              invite={selectedInvite}
-              onClose={() => modalRef.current?.close()}
-            />
+            <InviteCard invite={selectedInvite} />
           </View>
         )}
       </Modalize>

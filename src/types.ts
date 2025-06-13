@@ -24,6 +24,8 @@ export type Trip = {
   user_id: string;
   host: Profile;
   participants: { profile: Profile; role: Role }[];
+
+  is_host: boolean;
 };
 
 export type Invite = {

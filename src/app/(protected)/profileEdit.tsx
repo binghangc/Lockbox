@@ -18,7 +18,7 @@ import { Feather } from '@expo/vector-icons';
 import { useUser } from '@/components/UserContext';
 import FormInput from '@/components/formInput';
 import EditActionRow from '@/components/editActionRow';
-import { supabase } from '../../../lib/supabase';
+import supabase from '../../../lib/supabase';
 
 export default function EditProfileScreen() {
   const router = useRouter();

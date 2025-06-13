@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View, Text, TouchableOpacity, Alert } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { FontAwesome5 } from '@expo/vector-icons';
-import InviteFriendsModal from '@/components/inviteFriendsModal';
+import InviteFriendsModal from '@/components/invites/inviteFriendsModal';
 
 export default function TripPillbar({
   tripId,

@@ -3,37 +3,11 @@ import { Pressable, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 
 type Props = {
-  mode: 'default' | 'invite';
-  status?: 'idle' | 'loading' | 'sent' | 'failed';
-  onPress: () => void;
-  disabled?: boolean;
   onRemove?: () => void;
 };
 
-export default function FriendActionButton({
-  mode,
-  status,
-  onPress,
-  disabled,
-  onRemove,
-}: Props) {
+export default function DefaultFriendActionButton({ onRemove }: Props) {
   const [showOptions, setShowOptions] = useState(false);
-
-  if (mode === 'invite') {
-    return (
-      <Pressable
-        onPress={onPress}
-        disabled={disabled}
-        className="px-3 py-1 bg-blue-600 rounded-full"
-      >
-        {status === 'sent' ? (
-          <Feather name="check" size={16} color="white" />
-        ) : (
-          <Feather name="send" size={16} color="white" />
-        )}
-      </Pressable>
-    );
-  }
 
   return (
     <View className="relative overflow-visible z-50">
