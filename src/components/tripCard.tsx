@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 import { BlurView } from 'expo-blur';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import ManagementDropdown from '@/components/managementDropdown';
+import ConfirmModal from '@/components/confirmModal'; // Make sure this path points to the correct ConfirmModal component that accepts the expected props
 import HostRow from './hostRow';
 
 interface TripCardProps {
@@ -27,6 +28,18 @@ export default function TripCard({
     width: 0,
     height: 0,
   });
+  const [confirmAction, setConfirmAction] = useState<'delete' | 'leave' | null>(
+    null,
+  );
+
+  const handleDelete = () => {
+    setConfirmAction('delete');
+    setMenuVisible(false);
+  };
+  const handleLeave = () => {
+    setConfirmAction('leave');
+    setMenuVisible(false);
+  };
 
   return (
     <View style={{ position: 'relative' }}>
@@ -104,9 +117,27 @@ export default function TripCard({
         visible={menuVisible}
         position={menuPosition}
         isHost={trip.is_host}
-        onDelete={() => onDeleteTrip?.(trip.id)}
-        onLeave={() => onLeaveTrip?.(trip.id)}
+        onDelete={handleDelete}
+        onLeave={handleLeave}
         onClose={() => setMenuVisible(false)}
+      />
+      <ConfirmModal
+        visible={confirmAction !== null}
+        message={
+          confirmAction === 'delete'
+            ? 'Are you sure you want to delete this trip?'
+            : 'Are you sure you want to leave this trip?'
+        }
+        confirmText={confirmAction === 'delete' ? 'Delete Trip' : 'Leave Trip'}
+        onCancel={() => setConfirmAction(null)}
+        onConfirm={() => {
+          if (confirmAction === 'delete') {
+            onDeleteTrip?.(trip.id);
+          } else if (confirmAction === 'leave') {
+            onLeaveTrip?.(trip.id);
+          }
+          setConfirmAction(null);
+        }}
       />
     </View>
   );
