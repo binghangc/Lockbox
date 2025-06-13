@@ -2,8 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Image, Pressable, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import tripThumbnails from '@/constants/tripCycle';
-import MaskedView from '@react-native-masked-view/masked-view';
-import { LinearGradient } from 'expo-linear-gradient';
 
 export default function CreateTripCard() {
   const router = useRouter();
