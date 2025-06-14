@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Modal, View, Text, TouchableOpacity } from 'react-native';
 import { BlurView } from 'expo-blur';
 
 interface ConfirmModalProps {
@@ -9,48 +9,6 @@ interface ConfirmModalProps {
   onConfirm: () => void;
   onCancel: () => void;
 }
-
-const styles = StyleSheet.create({
-  backdrop: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  container: {
-    width: 280,
-    backgroundColor: '#222',
-    borderRadius: 12,
-    padding: 20,
-  },
-  message: {
-    color: '#fff',
-    fontSize: 16,
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  buttons: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-  },
-  cancelBtn: {
-    marginRight: 16,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-  },
-  cancelText: {
-    color: '#aaa',
-    fontSize: 14,
-  },
-  confirmBtn: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-  },
-  confirmText: {
-    color: '#FF4C4C',
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-});
 
 export default function ConfirmModal({
   visible,
@@ -66,17 +24,29 @@ export default function ConfirmModal({
       visible={visible}
       onRequestClose={onCancel}
     >
-      <BlurView intensity={50} tint="dark" style={styles.backdrop}>
-        <View style={styles.container}>
-          <Text style={styles.message}>{message}</Text>
-          <View style={styles.buttons}>
-            <TouchableOpacity style={styles.cancelBtn} onPress={onCancel}>
-              <Text style={styles.cancelText}>Cancel</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.confirmBtn} onPress={onConfirm}>
-              <Text style={styles.confirmText}>{confirmText}</Text>
-            </TouchableOpacity>
-          </View>
+      <BlurView
+        intensity={40}
+        tint="dark"
+        className="flex-1 justify-center items-center"
+      >
+        <View className="bg-zinc-900 rounded-2xl py-6 px-5 w-72 items-center">
+          <Text className="text-lg font-semibold text-zinc-100 text-center mb-6">
+            {message}
+          </Text>
+          <TouchableOpacity
+            className="bg-zinc-800 rounded-xl py-3 w-full items-center mb-3"
+            onPress={onConfirm}
+          >
+            <Text className="text-red-500 text-lg font-semibold">
+              {confirmText}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            className="border border-zinc-700 bg-transparent rounded-xl py-3 w-full items-center"
+            onPress={onCancel}
+          >
+            <Text className="text-zinc-400 text-lg font-medium">Cancel</Text>
+          </TouchableOpacity>
         </View>
       </BlurView>
     </Modal>
