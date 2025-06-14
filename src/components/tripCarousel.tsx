@@ -5,13 +5,19 @@ import CreateTripCard from './createTripCard';
 
 interface TripCarouselProps {
   trips: Trip[];
+  onDeleteTrip?: (tripId: string) => void;
+  onLeaveTrip?: (tripId: string) => void;
 }
 
 function TripSeparator() {
   return <View className="w-3" />;
 }
 
-export default function TripCarousel({ trips }: TripCarouselProps) {
+export default function TripCarousel({
+  trips,
+  onDeleteTrip,
+  onLeaveTrip,
+}: TripCarouselProps) {
   const sortedTrips = [...trips].sort(
     (a, b) =>
       new Date(a.start_date).getTime() - new Date(b.start_date).getTime(),
@@ -31,7 +37,11 @@ export default function TripCarousel({ trips }: TripCarouselProps) {
           item.id === 'create-trip-placeholder' ? (
             <CreateTripCard />
           ) : (
-            <TripCard trip={item} />
+            <TripCard
+              trip={item}
+              onDeleteTrip={onDeleteTrip}
+              onLeaveTrip={onLeaveTrip}
+            />
           )
         }
         decelerationRate="fast"

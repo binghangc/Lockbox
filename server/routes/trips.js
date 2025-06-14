@@ -108,4 +108,66 @@ router.get('/:id', async (req, res) => {
   return res.json(data);
 });
 
+// DELETE /trips/:id - Delete a trip (host only)
+router.delete('/:id', authMiddleware, async (req, res) => {
+  const tripId = req.params.id;
+  const userId = req.user.id;
+
+  const { data: trip, error: fetchError } = await supabase
+    .from('trips')
+    .select('user_id')
+    .eq('id', tripId)
+    .single();
+
+  if (fetchError) {
+    return res.status(500).json({ error: fetchError.message });
+  }
+
+  if (!trip || trip.user_id !== userId) {
+    return res.status(403).json({ error: 'You are not the trip owner.' });
+  }
+
+  const { error: deleteError } = await supabase
+    .from('trips')
+    .delete()
+    .eq('id', tripId);
+
+  if (deleteError) {
+    return res.status(500).json({ error: deleteError.message });
+  }
+
+  return res.json({ success: true });
+});
+
+// POST /trips/:id/leave - Leave a trip (participant only)
+router.post('/:id/leave', authMiddleware, async (req, res) => {
+  const tripId = req.params.id;
+  const userId = req.user.id;
+
+  const { data: trip, error: tripError } = await supabase
+    .from('trips')
+    .select('user_id')
+    .eq('id', tripId)
+    .single();
+
+  if (tripError) {
+    return res.status(500).json({ error: tripError.message });
+  }
+
+  if (trip?.user_id === userId) {
+    return res.status(400).json({ error: 'Host cannot leave their own trip.' });
+  }
+
+  const { error: leaveError } = await supabase
+    .from('participants')
+    .delete()
+    .match({ trip_id: tripId, user_id: userId });
+
+  if (leaveError) {
+    return res.status(500).json({ error: leaveError.message });
+  }
+
+  return res.json({ success: true });
+});
+
 module.exports = router;

@@ -46,6 +46,52 @@ export default function HomeScreen() {
     fetchTrips();
   }, []);
 
+  const handleDeleteTrip = async (tripId: string) => {
+    try {
+      const token = await AsyncStorage.getItem('access_token');
+      const res = await fetch(
+        `${process.env.EXPO_PUBLIC_API_URL}/trips/${tripId}`,
+        {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      if (res.ok) {
+        setTrips((prev) => prev.filter((t) => t.id !== tripId));
+      } else {
+        console.error('Failed to delete trip');
+      }
+    } catch (error) {
+      console.error('Delete error:', error);
+    }
+  };
+
+  const handleLeaveTrip = async (tripId: string) => {
+    try {
+      const token = await AsyncStorage.getItem('access_token');
+      const res = await fetch(
+        `${process.env.EXPO_PUBLIC_API_URL}/trips/${tripId}/leave`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      if (res.ok) {
+        setTrips((prev) => prev.filter((t) => t.id !== tripId));
+      } else {
+        console.error('Failed to leave trip');
+      }
+    } catch (error) {
+      console.error('Leave error:', error);
+    }
+  };
+
   return (
     <ScrollView
       style={{ paddingTop: insets.top, backgroundColor: 'rgb(17, 17, 17)' }}
@@ -83,7 +129,11 @@ export default function HomeScreen() {
           ))}
         </View>
       </View>
-      <TripCarousel trips={filteredTrips} />
+      <TripCarousel
+        trips={filteredTrips}
+        onDeleteTrip={handleDeleteTrip}
+        onLeaveTrip={handleLeaveTrip}
+      />
     </ScrollView>
   );
 }
