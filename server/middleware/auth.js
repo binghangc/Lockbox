@@ -1,4 +1,4 @@
-const supabase = require('../utils/supabaseclient.js');
+const supabase = require('../utils/supabaseUserClient.js');
 
 const authMiddleware = async (req, res, next) => {
   const authHeader = req.headers.authorization;

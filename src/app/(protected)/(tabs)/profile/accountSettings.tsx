@@ -10,10 +10,12 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import DeleteAccountModal, {
   DeleteAccountModalRef,
 } from '@/components/deleteAccountModal';
+import { useUser } from '@/components/UserContext';
 
 export default function AccountSettingsScreen() {
   const insets = useSafeAreaInsets();
   const deleteModalRef = useRef<DeleteAccountModalRef>(null);
+  const { deleteAccount } = useUser();
 
   function SettingItem({
     icon,
@@ -100,7 +102,7 @@ export default function AccountSettingsScreen() {
           </Text>
         </TouchableOpacity>
       </BlurView>
-      <DeleteAccountModal ref={deleteModalRef} />
+      <DeleteAccountModal ref={deleteModalRef} onConfirm={deleteAccount} />
     </View>
   );
 }

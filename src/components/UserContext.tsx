@@ -10,6 +10,8 @@ type UserContextType = {
   setToken: React.Dispatch<React.SetStateAction<string | null>>;
   logout: () => void;
   deleteAccount: () => void;
+  deleting: boolean;
+  setDeleting: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const UserContext = createContext<UserContextType | null>(null);
@@ -18,6 +20,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -72,18 +75,25 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   }, [setUser, setToken]);
 
   const deleteAccount = React.useCallback(async () => {
+    setDeleting(true);
     try {
+      // Call backend delete endpoint
       const res = await fetch(
         `${process.env.EXPO_PUBLIC_API_URL}/auth/delete`,
-        {
-          method: 'DELETE',
-          headers: { Authorization: `Bearer ${token}` },
-        },
+        { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } },
       );
-
+      // Log status and raw body for debugging
+      const text = await res.text();
+      console.log('[DELETE /auth/delete] status=', res.status, 'body=', text);
       if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.message || 'Account deletion failed');
+        // Try to parse JSON error, fallback to raw text
+        let parsed;
+        try {
+          parsed = JSON.parse(text);
+        } catch {
+          parsed = { message: text };
+        }
+        throw new Error(parsed.message || 'Account deletion failed');
       }
 
       console.log('Account deleted');
@@ -91,6 +101,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       console.error('Error deleting account:', err);
     } finally {
       await logout();
+      setDeleting(false);
     }
   }, [token, logout]);
 
@@ -103,8 +114,20 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       setToken,
       logout,
       deleteAccount,
+      deleting,
+      setDeleting,
     }),
-    [user, loading, token, setUser, setToken, logout, deleteAccount],
+    [
+      user,
+      loading,
+      token,
+      setUser,
+      setToken,
+      logout,
+      deleteAccount,
+      deleting,
+      setDeleting,
+    ],
   );
 
   return (
