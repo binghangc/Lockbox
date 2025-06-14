@@ -13,7 +13,9 @@ router.post('/vibe-check', async (req, res) => {
 
   try {
     const vibe = await generateVibeCheck(prompt);
-    res.json({ vibe });
+
+    const vibes = Array.isArray(vibe) ? vibe : [vibe];
+    res.json({ vibes });
   } catch (error) {
     console.error('API Error:', error.message);
     res

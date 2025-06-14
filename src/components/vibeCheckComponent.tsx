@@ -8,8 +8,8 @@ import {
 } from 'react-native';
 
 export default function VibeCheckComponent() {
-  const [prompt, setPrompt] = useState<string>('');
-  const [vibe, setVibe] = useState<string>('');
+  const [itinerary, setItinerary] = useState<string>('');
+  const [vibes, setVibes] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -19,14 +19,14 @@ export default function VibeCheckComponent() {
   );
 
   const handleSubmit = async () => {
-    if (!prompt.trim()) {
-      setError('Please enter a prompt.');
+    if (!itinerary.trim()) {
+      setError('Please set your itinerary.');
       return;
     }
 
     setIsLoading(true);
     setError(null);
-    setVibe('');
+    setVibes([]);
 
     try {
       const response = await fetch(
@@ -36,7 +36,7 @@ export default function VibeCheckComponent() {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ prompt }),
+          body: JSON.stringify({ prompt: itinerary }),
         },
       );
 
@@ -46,7 +46,11 @@ export default function VibeCheckComponent() {
         throw new Error(data.error || `HTTP error! status: ${response.status}`);
       }
 
-      setVibe(data.vibe);
+      if (Array.isArray(data.vibes)) {
+        setVibes(data.vibes);
+      } else {
+        throw new Error('Invalid response format from API.');
+      }
     } catch (err) {
       console.error('Failed to fetch vibe:', err);
       setError(
@@ -65,12 +69,14 @@ export default function VibeCheckComponent() {
 
       <TextInput
         className="h-32 p-3 rounded-lg border border-neutral-400 text-white"
-        value={prompt}
-        onChangeText={setPrompt}
-        placeholder="Enter your scenario for a vibe check..."
+        value={itinerary}
+        onChangeText={setItinerary}
+        placeholder="Paste your whole itinerary here..."
         placeholderTextColor="#aaa"
         editable={!isLoading}
         multiline
+        scrollEnabled
+        textAlignVertical
       />
 
       <TouchableOpacity
@@ -79,7 +85,7 @@ export default function VibeCheckComponent() {
         disabled={isLoading}
       >
         <Text className="text-white font-medium">
-          {isLoading ? 'Getting Vibe...' : 'Get Vibe'}
+          {isLoading ? 'Getting Vibes...' : 'Get Vibes'}
         </Text>
       </TouchableOpacity>
 
@@ -87,12 +93,15 @@ export default function VibeCheckComponent() {
 
       {error && <Text className="text-red-500">Error: {error}</Text>}
 
-      {vibe !== '' && (
-        <View className="bg-neutral-800 p-4 rounded-lg mt-4">
-          <Text className="text-white font-bold mb-2">Vibe:</Text>
-          <Text className="text-white">{vibe}</Text>
-        </View>
-      )}
+      {vibes.length > 0 &&
+        vibes.map((vibe) => (
+          <View
+            key={vibe}
+            className="bg-neutral-800 p-4 rounded-lg mt-4 space-y-2"
+          >
+            <Text className="text-white">{vibe}</Text>
+          </View>
+        ))}
     </View>
   );
 }

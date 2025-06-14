@@ -48,7 +48,7 @@ export default function TabsLayout() {
                   onPress={() => router.push('/vibechecks')}
                   style={{ marginRight: 16 }}
                 >
-                  <Octicons name="people" size={24} color="white" />
+                  <Octicons name="light-bulb" size={24} color="white" />
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => router.push('/invites')}
