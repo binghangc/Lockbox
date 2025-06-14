@@ -34,6 +34,9 @@ app.use('/invites', require('./routes/invites.js'));
 // API friends endpoints: get friends information, search new friends, and respond to requests
 app.use('/friends', require('./routes/friends.js'));
 
+// API vibechekcs endpoints: generate vibe checks and call ai agent
+app.use('/vibechecks', require('./routes/vibechecks.js'));
+
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
