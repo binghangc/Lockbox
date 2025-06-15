@@ -4,20 +4,12 @@
 const express = require('express');
 const { createClient } = require('@supabase/supabase-js');
 
+const supabase = require('../utils/supabaseUserClient.js');
+
 const router = express.Router();
 
-// Initialize Supabase client for user-level actions
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_ANON_KEY,
-);
-
 // Initialize Supabase admin client for admin-level actions
-const supabaseAdmin = createClient(
-  process.env.SUPABASE_URL,
-  // eslint-disable-next-line prettier/prettier
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
+const supabaseAdmin = require('../utils/supabaseAdminClient.js');
 
 // DEBUG: List all users to verify Supabase Admin client
 router.get('/debug/list-users', async (req, res) => {
@@ -119,15 +111,11 @@ router.post('/reset-password', async (req, res) => {
   }
 
   try {
-    const supabaseWithToken = createClient(
-      process.env.SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_ROLE_KEY,
-      {
-        global: {
-          headers: { Authorization: `Bearer ${access_token}` },
-        },
+    const supabaseWithToken = createClient(process.env.SUPABASE_URL, '', {
+      global: {
+        headers: { Authorization: `Bearer ${access_token}` },
       },
-    );
+    });
 
     const { error } = await supabaseWithToken.auth.updateUser({
       password: new_password,
@@ -245,6 +233,23 @@ router.delete('/delete', async (req, res) => {
   }
 
   console.log('[DELETE /auth/delete] Success, returning to client');
+  return res.json({ success: true });
+});
+
+// POST /auth/signout - sign out the current session
+router.post('/signout', async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  const token = authHeader.split(' ')[1];
+  const { error } = await supabase.auth.signOut(token);
+
+  if (error) {
+    return res.status(400).json({ error: error.message });
+  }
+
   return res.json({ success: true });
 });
 
