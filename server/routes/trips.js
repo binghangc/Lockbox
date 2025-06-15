@@ -85,8 +85,9 @@ router.get('/:id', async (req, res) => {
   if (userError || !userData?.user) {
     return res.status(401).json({ error: 'Invalid token' });
   }
+  const userId = userData.user.id;
 
-  const { data, error } = await supabase
+  const { data: trip, error } = await supabase
     .from('trips')
     .select(
       `
@@ -105,7 +106,8 @@ router.get('/:id', async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 
-  return res.json(data);
+  const is_host = trip.user_id === userId;
+  return res.json({ ...trip, is_host });
 });
 
 // DELETE /trips/:id - Delete a trip (host only)

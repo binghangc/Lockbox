@@ -98,11 +98,9 @@ export default function HomeScreen() {
       contentContainerStyle={{ paddingVertical: 70 }}
     >
       <View className="px-4">
-        <Text className="text-white text-2xl font-bold mb-1">
-          T-minus 10 days till
-        </Text>
+        <Text className="text-white text-2xl font-bold mb-1">Bags packed</Text>
         <Text className="text-white text-2xl font-bold mb-4">
-          Hawaiian Paradise 🌴
+          Memories loading...
         </Text>
 
         <View className="flex-row gap-2 mb-6">

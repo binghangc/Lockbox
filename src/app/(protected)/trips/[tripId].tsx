@@ -1,5 +1,4 @@
 import dayjs from 'dayjs';
-import { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -12,29 +11,11 @@ import {
 } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import Octicons from '@expo/vector-icons/Octicons';
 import { BlurView } from 'expo-blur';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import TripPillbar from '@/components/tripPillbar';
-import { useUser } from '@/components/UserContext';
-
-interface TripHost {
-  id: string;
-  name: string;
-  avatar_url: string;
-}
-
-interface Trip {
-  id: string;
-  title: string;
-  thumbnail_url: string;
-  start_date: string;
-  end_date: string;
-  host?: TripHost;
-  country?: string;
-  description?: string;
-}
+import useTrips from '@/hooks/useTrips';
 
 export const screenOptions = {
   headerTransparent: true,
@@ -56,48 +37,10 @@ export const screenOptions = {
 
 export default function TripDetailScreen() {
   const { tripId } = useLocalSearchParams();
-  const { user } = useUser();
-  const [trip, setTrip] = useState<Trip | null>(null);
-  const [isHost, setIsHost] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const { trip, isHost, loading } = useTrips(tripId);
   const insets = useSafeAreaInsets();
 
   const HEADER_HEIGHT = insets.top + 60;
-
-  useEffect(() => {
-    const fetchTrip = async () => {
-      try {
-        const token = await AsyncStorage.getItem('access_token');
-        const res = await fetch(
-          `${process.env.EXPO_PUBLIC_API_URL}/trips/${tripId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        );
-
-        const data = await res.json();
-        if (res.ok) {
-          setTrip(data);
-
-          if (data.host?.id === user?.id) {
-            setIsHost(true);
-          } else {
-            setIsHost(false);
-          }
-        } else {
-          console.error(data.error);
-        }
-      } catch (err) {
-        console.error('Fetch error:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (tripId && user) fetchTrip();
-  }, [tripId, user]);
 
   if (loading) {
     return (
@@ -138,11 +81,13 @@ export default function TripDetailScreen() {
               {trip.title}
             </Text>
           </View>
-          <Image
-            source={{ uri: trip.thumbnail_url }}
-            style={{ width: '100%', aspectRatio: 1, marginBottom: 20 }}
-            resizeMode="cover"
-          />
+          <View className="items-center px-4 mb-5">
+            <Image
+              source={{ uri: trip.thumbnail_url }}
+              style={{ width: '100%', aspectRatio: 1 }}
+              resizeMode="cover"
+            />
+          </View>
           {/* Trip Dates */}
           <View className="flex-row items-center justify-between p-3">
             <Text
