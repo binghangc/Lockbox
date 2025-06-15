@@ -10,7 +10,7 @@ import {
   StyleSheet,
   StatusBar,
 } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Octicons from '@expo/vector-icons/Octicons';
@@ -61,6 +61,7 @@ export default function TripDetailScreen() {
   const [isHost, setIsHost] = useState(false);
   const [loading, setLoading] = useState(true);
   const insets = useSafeAreaInsets();
+  const router = useRouter();
 
   const HEADER_HEIGHT = insets.top + 60;
 
@@ -190,6 +191,15 @@ export default function TripDetailScreen() {
               <Text className="text-neutral-400 text-lg mt-4">
                 {trip.description}
               </Text>
+            )}
+
+            {isHost && (
+              <TouchableOpacity
+                className="bg-white rounded-lg px-4 py-3 mt-6 self-center"
+                onPress={() => router.push(`/trips/${trip.id}/itinerary`)}
+              >
+                <Text className="text-black font-semibold">Edit Itinerary</Text>
+              </TouchableOpacity>
             )}
           </View>
         </View>

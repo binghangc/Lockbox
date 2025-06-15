@@ -108,4 +108,25 @@ router.get('/:id', async (req, res) => {
   return res.json(data);
 });
 
+// API endpoint for users to update their itinerary
+router.patch('/itinerary/:id', authMiddleware, async (req, res) => {
+  const { itinerary } = req.body;
+  const trip_id = req.params.id;
+
+  if (!itinerary || typeof itinerary !== 'string') {
+    return res.status(400).json({ error: 'Missing or invalid params' });
+  }
+
+  const { error } = await supabase
+    .from('trips')
+    .update({ itinerary })
+    .eq('id', trip_id);
+
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+
+  return res.status(200).json({ message: 'Itinerary updated successfully' });
+});
+
 module.exports = router;
