@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 import type { Profile } from '@/types';
 
@@ -9,7 +9,7 @@ export default function useFriends(onCountUpdate?: (n: number) => void) {
   const [friends, setFriends] = useState<FriendRow[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const listFriends = async () => {
+  const listFriends = useCallback(async () => {
     try {
       setLoading(true);
       const token = await AsyncStorage.getItem('access_token');
@@ -35,17 +35,11 @@ export default function useFriends(onCountUpdate?: (n: number) => void) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [onCountUpdate]);
 
   useEffect(() => {
     listFriends();
   }, [listFriends]);
-
-  useEffect(() => {
-    if (!loading) {
-      onCountUpdate?.(friends.length);
-    }
-  }, [friends.length, loading, onCountUpdate]);
 
   return { friends, loading, listFriends };
 }
