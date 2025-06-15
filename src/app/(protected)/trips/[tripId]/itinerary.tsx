@@ -3,6 +3,10 @@ import { View, Text } from 'react-native';
 import ItineraryInput from '@/components/itineraryInput';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+export const screenOptions = {
+  headerShown: false, // 👈 hide the default header
+};
+
 export default function ItineraryScreen() {
   const { tripId } = useLocalSearchParams();
   const insets = useSafeAreaInsets();
@@ -18,7 +22,7 @@ export default function ItineraryScreen() {
   return (
     <View
       className="flex-1 bg-black p-4"
-      style={{ paddingTop: insets.top + 60 }}
+      style={{ flex: 1, paddingTop: insets.top }}
     >
       <ItineraryInput tripId={tripId} />
     </View>

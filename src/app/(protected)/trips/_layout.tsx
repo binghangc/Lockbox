@@ -67,6 +67,20 @@ export default function TripsLayout() {
         headerBackground,
         title: '',
       })}
-    />
+    >
+      <Stack.Screen
+        name="[tripId]/itinerary"
+        options={{
+          presentation: 'modal',
+          title: 'Trip Itinerary',
+          animation: 'slide_from_bottom',
+          gestureEnabled: true,
+          headerShown: true,
+          contentStyle: {
+            backgroundColor: 'transparent',
+          },
+        }}
+      />
+    </Stack>
   );
 }
