@@ -9,6 +9,8 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+const fallbackImage = require('../../assets/lockicon.png');
+
 export default function ItineraryInput({ tripId }: { tripId: string }) {
   const [itinerary, setItinerary] = useState<string>('');
   const [title, setTitle] = useState('');
@@ -83,7 +85,7 @@ export default function ItineraryInput({ tripId }: { tripId: string }) {
 
   return (
     <ImageBackground
-      source={{ uri: thumbnailUrl }}
+      source={thumbnailUrl ? { uri: thumbnailUrl } : fallbackImage}
       style={{ flex: 1 }}
       blurRadius={10}
     >

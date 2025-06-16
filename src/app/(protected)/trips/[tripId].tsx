@@ -34,6 +34,7 @@ interface Trip {
   host?: TripHost;
   country?: string;
   description?: string;
+  itinerary?: string;
 }
 
 export const screenOptions = {
@@ -59,6 +60,7 @@ export default function TripDetailScreen() {
   const { user } = useUser();
   const [trip, setTrip] = useState<Trip | null>(null);
   const [isHost, setIsHost] = useState(false);
+  const [hasItinerary, setHasItinerary] = useState(false);
   const [loading, setLoading] = useState(true);
   const insets = useSafeAreaInsets();
   const router = useRouter();
@@ -86,6 +88,12 @@ export default function TripDetailScreen() {
             setIsHost(true);
           } else {
             setIsHost(false);
+          }
+
+          if (!data.itinerary) {
+            setHasItinerary(false);
+          } else {
+            setHasItinerary(true);
           }
         } else {
           console.error(data.error);
@@ -194,12 +202,26 @@ export default function TripDetailScreen() {
             )}
 
             {isHost && (
-              <TouchableOpacity
-                className="bg-white rounded-lg px-4 py-3 mt-6 self-center"
-                onPress={() => router.push(`/trips/${trip.id}/itinerary`)}
-              >
-                <Text className="text-black font-semibold">Edit Itinerary</Text>
-              </TouchableOpacity>
+              <>
+                <TouchableOpacity
+                  className="bg-white rounded-lg px-4 py-3 mt-6 self-center"
+                  onPress={() => router.push(`/trips/${trip.id}/itinerary`)}
+                >
+                  <Text className="text-black font-semibold">
+                    Edit Itinerary
+                  </Text>
+                </TouchableOpacity>
+                {hasItinerary && (
+                  <TouchableOpacity
+                    className="bg-white rounded-lg px-4 py-3 mt-6 self-center"
+                    onPress={() => router.push(`/trips/${trip.id}/vibechecks`)}
+                  >
+                    <Text className="text-black font-semibold">
+                      Generate Vibe Checks
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              </>
             )}
           </View>
         </View>

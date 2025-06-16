@@ -4,7 +4,7 @@ import ItineraryInput from '@/components/itineraryInput';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export const screenOptions = {
-  headerShown: false, // 👈 hide the default header
+  headerShown: false,
 };
 
 export default function ItineraryScreen() {
