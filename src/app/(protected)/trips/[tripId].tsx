@@ -37,7 +37,8 @@ export const screenOptions = {
 
 export default function TripDetailScreen() {
   const { tripId } = useLocalSearchParams();
-  const { trip, isHost, loading } = useTrips(tripId);
+  const tripIdStr = Array.isArray(tripId) ? tripId[0] : tripId;
+  const { trip, isHost, loading } = useTrips(tripIdStr);
   const insets = useSafeAreaInsets();
 
   const HEADER_HEIGHT = insets.top + 60;
@@ -139,7 +140,9 @@ export default function TripDetailScreen() {
           </View>
         </View>
       </ScrollView>
-      <TripPillbar tripId={trip.id} isHost={isHost} />
+      <TripPillbar
+        status={(trip.status as 'upcoming' | 'ongoing' | 'ended') || 'upcoming'}
+      />
     </View>
   );
 }

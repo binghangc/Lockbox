@@ -11,6 +11,7 @@ export interface Trip {
   host?: { id: string; name: string; avatar_url: string };
   country?: string;
   description?: string;
+  status?: string;
   // Add other trip fields as needed
 }
 
