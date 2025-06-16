@@ -3,7 +3,7 @@ const { generateVibeCheck } = require('../utils/geminiclient.js');
 
 const router = express.Router();
 
-const supabase = require('../utils/supabaseclient.js');
+const supabase = require('../utils/supabaseAdminClient.js');
 
 // API Endpoint
 router.post('/vibe-check', async (req, res) => {

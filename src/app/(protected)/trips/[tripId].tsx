@@ -38,7 +38,7 @@ export const screenOptions = {
 export default function TripDetailScreen() {
   const { tripId } = useLocalSearchParams();
   const tripIdStr = Array.isArray(tripId) ? tripId[0] : tripId;
-  const { trip, isHost, loading } = useTrips(tripIdStr);
+  const { trip, isHost, loading, hasItinerary } = useTrips(tripIdStr);
   const insets = useSafeAreaInsets();
   const router = useRouter();
 

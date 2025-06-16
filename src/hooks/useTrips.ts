@@ -12,6 +12,7 @@ export interface Trip {
   country?: string;
   description?: string;
   status?: string;
+  itinerary?: string;
   // Add other trip fields as needed
 }
 
@@ -19,6 +20,7 @@ export default function useTrips(tripId?: string) {
   const { user } = useUser();
   const [trip, setTrip] = useState<Trip | null>(null);
   const [isHost, setIsHost] = useState(false);
+  const [hasItinerary, setHasItinerary] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -39,6 +41,7 @@ export default function useTrips(tripId?: string) {
         if (!cancelled && res.ok) {
           setTrip(data);
           setIsHost(data.is_host ?? false);
+          setHasItinerary(data.itinerary ?? false);
         }
       } catch (err) {
         if (!cancelled) console.error('Fetch trip error:', err);
@@ -53,5 +56,5 @@ export default function useTrips(tripId?: string) {
     };
   }, [tripId, user]);
 
-  return { trip, isHost, loading };
+  return { trip, isHost, loading, hasItinerary };
 }
