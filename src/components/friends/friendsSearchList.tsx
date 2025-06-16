@@ -1,16 +1,11 @@
 import { useState } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ActivityIndicator,
-  Image,
-} from 'react-native';
+import { View, Text, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { debounce } from 'lodash';
 import FormInput from '@/components/formInput';
 import { Profile } from '@/types';
 import { Feather } from '@expo/vector-icons';
+import FriendRowBase from '@/components/friendRowBase';
 
 type SearchResult = Profile & { status: 'accepted' | 'pending' | 'none' };
 
@@ -93,30 +88,12 @@ export default function FriendsSearchList({
               MY FRIENDS
             </Text>
             {accepted.map((item) => (
-              <TouchableOpacity
+              <FriendRowBase
                 key={item.id}
-                className="bg-zinc-900 rounded-2xl px-4 py-3 flex-row items-center mb-3"
-                onPress={() => onUserPress(item)}
-              >
-                <View className="w-14 h-14 rounded-full items-center justify-center">
-                  <View className="absolute w-14 h-14 rounded-full bg-blue-400/30 opacity-60 blur-md" />
-                  <View className="absolute w-12 h-12 rounded-full bg-blue-400/40 blur-sm" />
-                  <Image
-                    source={{ uri: item.avatar_url }}
-                    className="w-12 h-12 rounded-full border-2 border-white"
-                  />
-                </View>
-                <View className="ml-3 flex-1">
-                  <Text className="text-white text-lg font-semibold">
-                    {item.name}
-                  </Text>
-                  {item.username && (
-                    <Text className="text-white/60 text-sm">
-                      @{item.username}
-                    </Text>
-                  )}
-                </View>
-              </TouchableOpacity>
+                item={item}
+                onPress={() => onUserPress?.(item)}
+                RightAction={null} // or some status icon if you want
+              />
             ))}
           </>
         )}
@@ -127,36 +104,12 @@ export default function FriendsSearchList({
               USERS
             </Text>
             {notaccepted.map((item) => (
-              <View
+              <FriendRowBase
                 key={item.id}
-                className="bg-zinc-900 rounded-2xl px-4 py-3 flex-row items-center justify-between mb-3"
-              >
-                <TouchableOpacity
-                  onPress={() => onUserPress(item)}
-                  className="flex-row items-center"
-                >
-                  <View className="w-14 h-14 rounded-full items-center justify-center">
-                    <View className="absolute w-14 h-14 rounded-full bg-blue-400/30 opacity-60 blur-md" />
-                    <View className="absolute w-12 h-12 rounded-full bg-blue-400/40 blur-sm" />
-                    <Image
-                      source={{ uri: item.avatar_url }}
-                      className="w-12 h-12 rounded-full border-2 border-white"
-                    />
-                  </View>
-                  <View className="ml-3">
-                    <Text className="text-white text-lg font-semibold">
-                      {item.name}
-                    </Text>
-                    {item.username && (
-                      <Text className="text-white/60 text-sm">
-                        @{item.username}
-                      </Text>
-                    )}
-                  </View>
-                </TouchableOpacity>
-
-                {actionComponent?.(item)}
-              </View>
+                item={item}
+                onPress={() => onUserPress?.(item)}
+                RightAction={actionComponent?.(item) ?? null}
+              />
             ))}
           </>
         )}

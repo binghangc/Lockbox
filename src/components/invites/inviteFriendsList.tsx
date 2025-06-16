@@ -3,6 +3,9 @@ import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import InviteFriendRow from '@/components/invites/inviteFriendRow';
 import useFriends from '@/hooks/useFriends';
+import { Feather } from '@expo/vector-icons';
+import { debounce } from 'lodash';
+import FormInput from '@/components/formInput';
 
 type Props = {
   onSelect: (user: Profile) => void | Promise<void>;
@@ -20,6 +23,23 @@ export default function InviteFriendsList({
   const [inviteStatus, setInviteStatus] = useState<
     Record<string, 'idle' | 'loading' | 'sent' | 'failed'>
   >({});
+  const [query, setQuery] = useState('');
+  const [rawQuery, setRawQuery] = useState('');
+
+  const debouncedUpdate = debounce((text: string) => {
+    setQuery(text);
+  }, 300);
+
+  const handleSearchChange = (text: string) => {
+    setRawQuery(text);
+    debouncedUpdate(text);
+  };
+
+  const filteredFriends = friends.filter(
+    (f) =>
+      f.name.toLowerCase().includes(query.toLowerCase()) ||
+      (f.username?.toLowerCase() ?? '').includes(query.toLowerCase()),
+  );
 
   useEffect(() => {
     const updatedStatus = alreadyInvitedIds.reduce(
@@ -66,19 +86,33 @@ export default function InviteFriendsList({
   }
 
   return (
-    <FlatList
-      data={friends}
-      keyExtractor={(item) => item.id}
-      renderItem={({ item }) => (
-        <InviteFriendRow
-          key={item.id}
-          item={item}
-          alreadyInvitedIds={alreadyInvitedIds}
-          inviteStatus={inviteStatus}
-          onSelect={onSelect}
-          setInviteStatus={setInviteStatus}
-        />
-      )}
-    />
+    <>
+      <FormInput
+        label="Type away"
+        placeholder="Search by username"
+        value={rawQuery}
+        onChangeText={handleSearchChange}
+        placeholderTextColor="#888"
+        autoCorrect={false}
+        autoCapitalize="none"
+        spellCheck={false}
+        icon={<Feather name="search" size={20} color="#888" />}
+      />
+
+      <FlatList
+        data={filteredFriends}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <InviteFriendRow
+            key={item.id}
+            item={item}
+            alreadyInvitedIds={alreadyInvitedIds}
+            inviteStatus={inviteStatus}
+            onSelect={onSelect}
+            setInviteStatus={setInviteStatus}
+          />
+        )}
+      />
+    </>
   );
 }
