@@ -5,7 +5,7 @@ import { useRouter } from 'expo-router';
 import { BlurView } from 'expo-blur';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import ManagementDropdown from '@/components/managementDropdown';
-import ConfirmModal from '@/components/confirmModal'; // Make sure this path points to the correct ConfirmModal component that accepts the expected props
+import ConfirmModal from '@/components/confirmModal';
 import HostRow from './hostRow';
 
 interface TripCardProps {

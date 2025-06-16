@@ -86,7 +86,6 @@ export default function ProfileSettings() {
           onPress={async () => {
             console.log('Logging out user...');
             await logout(); // clear tokens & state
-            router.replace('/(auth)'); // jump to auth stack index
           }}
           hasChevron={false}
         />
