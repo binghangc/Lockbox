@@ -1,10 +1,11 @@
 import React, { useRef } from 'react';
-import { useLocalSearchParams, Stack } from 'expo-router';
+import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import useTrips from '@/hooks/useTrips';
 import Octicons from '@expo/vector-icons/Octicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { BlurView } from 'expo-blur';
+import InviteFriendsModal from '@/components/invites/inviteFriendsModal';
 
 import TripControllerModal from '@/components/tripControllerModal';
 
@@ -63,13 +64,17 @@ function headerLeftWithNavigation({
 const headerBackground = () => <HeaderBackground />;
 
 export default function TripsLayout() {
+  const router = useRouter();
   const modalRef = useRef<Modalize | null>(null);
+  const inviteModalRef = useRef<Modalize | null>(null);
   const { tripId } = useLocalSearchParams();
   const { isHost } = useTrips(Array.isArray(tripId) ? tripId[0] : tripId);
   const onEdit = () => {};
   const onSync = () => {};
   const onPin = () => {};
-  const onInvite = () => {};
+  const onInvite = () => {
+    router.push(`/trips/${tripId}/send-invites`);
+  };
   const onDelete = () => {};
   const onLeave = () => {};
 
@@ -122,6 +127,7 @@ export default function TripsLayout() {
         onDelete={onDelete}
         onLeave={onLeave}
       />
+      <InviteFriendsModal ref={inviteModalRef} tripId={tripId} />
     </>
   );
 }
