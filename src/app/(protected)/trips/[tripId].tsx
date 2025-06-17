@@ -16,6 +16,7 @@ import { BlurView } from 'expo-blur';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import TripPillbar from '@/components/tripPillbar';
 import useTrips from '@/hooks/useTrips';
+import ParticipantRowList from '@/components/participantRowList';
 
 export const screenOptions = {
   headerTransparent: true,
@@ -43,6 +44,9 @@ export default function TripDetailScreen() {
   const router = useRouter();
 
   const HEADER_HEIGHT = insets.top + 60;
+
+  const onSelect = (user: Profile) => {};
+  const onCountUpdate = (count: number) => {};
 
   if (loading) {
     return (
@@ -138,6 +142,18 @@ export default function TripDetailScreen() {
                 {trip.description}
               </Text>
             )}
+
+            {/* Participants */}
+            <View className="p-3">
+              <Text className="text-white text-2xl font-semibold">
+                Participants
+              </Text>
+              <ParticipantRowList
+                onSelect={onSelect}
+                onCountUpdate={onCountUpdate}
+              />
+            </View>
+
 
             {isHost && hasItinerary && (
               <TouchableOpacity

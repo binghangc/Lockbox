@@ -228,4 +228,21 @@ router.patch('/:id/edit', authMiddleware, async (req, res) => {
   return res.status(200).json({ trip, message: 'Trip updated successfully' });
 });
 
+// API endpoint for retrieving the participants in a trip
+router.get('/:id/participants', authMiddleware, async (req, res) => {
+  const trip_id = req.params.id;
+
+  try {
+    const { data, error } = await supabase
+      .from('participants')
+      .select('user_id, role, profiles(*)')
+      .eq('trip_id', trip_id);
+
+    if (error) throw error;
+    return res.json(data);
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;
