@@ -193,4 +193,39 @@ router.patch('/itinerary/:id', authMiddleware, async (req, res) => {
   return res.status(200).json({ message: 'Itinerary updated successfully' });
 });
 
+router.patch('/:id/edit', authMiddleware, async (req, res) => {
+  const trip_id = req.params.id;
+  const { title, description, thumbnail_url, start_date, end_date, country } =
+    req.body;
+  const user_id = req.user.id;
+
+  if (!trip_id) {
+    return res.status(400).json({ error: 'Missing or invalid params' });
+  }
+
+  const { data: trip, error } = await supabase
+    .from('trips')
+    .update({
+      title,
+      description,
+      start_date,
+      end_date,
+      country,
+      thumbnail_url,
+    })
+    .eq('id', trip_id)
+    .select()
+    .single();
+
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+
+  if (trip?.user_id !== user_id) {
+    return res.status(400).json({ error: 'Only hosts can edit trip.' });
+  }
+
+  return res.status(200).json({ trip, message: 'Trip updated successfully' });
+});
+
 module.exports = router;

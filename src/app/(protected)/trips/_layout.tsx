@@ -69,10 +69,14 @@ export default function TripsLayout() {
   const inviteModalRef = useRef<Modalize | null>(null);
   const { tripId } = useLocalSearchParams();
   const { isHost } = useTrips(Array.isArray(tripId) ? tripId[0] : tripId);
-  const onEdit = () => {};
+  const onEdit = () => {
+    modalRef.current?.close();
+    router.push(`/trips/${tripId}/edit`);
+  };
   const onSync = () => {};
   const onPin = () => {};
   const onInvite = () => {
+    modalRef.current?.close();
     router.push(`/trips/${tripId}/send-invites`);
   };
   const onDelete = () => {};
