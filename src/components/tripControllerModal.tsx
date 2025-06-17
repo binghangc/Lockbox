@@ -2,17 +2,16 @@ import React, { useRef } from 'react';
 import { TouchableOpacity, Text, View } from 'react-native';
 import { Modalize } from 'react-native-modalize';
 import { BlurView } from 'expo-blur';
-import {
-  Foundation,
-  Ionicons,
-  MaterialIcons,
-  FontAwesome5,
-  MaterialCommunityIcons,
-} from '@expo/vector-icons';
+import Foundation from '@expo/vector-icons/Foundation';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 type TripControllerModalProps = {
   isHost: boolean;
   onEdit: () => void;
+  onItinerary: () => void;
   onSync: () => void;
   onPin: () => void;
   onInvite: () => void;
@@ -24,6 +23,7 @@ type TripControllerModalProps = {
 export default function TripControllerModal({
   isHost,
   onEdit,
+  onItinerary,
   onSync,
   onPin,
   onInvite,
@@ -130,6 +130,12 @@ export default function TripControllerModal({
             icon: <Foundation name="pencil" size={20} color="white" />,
             label: 'Edit Trip',
             onPress: onEdit,
+          })}
+        {isHost &&
+          renderItem({
+            icon: <FontAwesome5 name="newspaper" size={20} color="white" />,
+            label: 'Edit Itinerary',
+            onPress: onItinerary,
           })}
         {isHost &&
           renderItem({

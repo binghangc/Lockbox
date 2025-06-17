@@ -139,27 +139,15 @@ export default function TripDetailScreen() {
               </Text>
             )}
 
-            {isHost && (
-              <>
-                <TouchableOpacity
-                  className="bg-white rounded-lg px-4 py-3 mt-6 self-center"
-                  onPress={() => router.push(`/trips/${trip.id}/itinerary`)}
-                >
-                  <Text className="text-black font-semibold">
-                    Edit Itinerary
-                  </Text>
-                </TouchableOpacity>
-                {hasItinerary && (
-                  <TouchableOpacity
-                    className="bg-white rounded-lg px-4 py-3 mt-6 self-center"
-                    onPress={() => router.push(`/trips/${trip.id}/vibechecks`)}
-                  >
-                    <Text className="text-black font-semibold">
-                      Generate Vibe Checks
-                    </Text>
-                  </TouchableOpacity>
-                )}
-              </>
+            {isHost && hasItinerary && (
+              <TouchableOpacity
+                className="bg-white rounded-lg px-4 py-3 mt-6 self-center"
+                onPress={() => router.push(`/trips/${trip.id}/vibechecks`)}
+              >
+                <Text className="text-black font-semibold">
+                  Generate Vibe Checks
+                </Text>
+              </TouchableOpacity>
             )}
           </View>
         </View>

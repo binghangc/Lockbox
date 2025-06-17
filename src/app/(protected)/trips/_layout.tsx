@@ -70,8 +70,12 @@ export default function TripsLayout() {
   const { tripId } = useLocalSearchParams();
   const { isHost } = useTrips(Array.isArray(tripId) ? tripId[0] : tripId);
   const onEdit = () => {
-    modalRef.current?.close();
     router.push(`/trips/${tripId}/edit`);
+    modalRef.current?.close();
+  };
+  const onItinerary = () => {
+    router.push(`/trips/${tripId}/itinerary`);
+    modalRef.current?.close();
   };
   const onSync = () => {};
   const onPin = () => {};
@@ -125,6 +129,7 @@ export default function TripsLayout() {
         triggerRef={modalRef}
         isHost={isHost}
         onEdit={onEdit}
+        onItinerary={onItinerary}
         onSync={onSync}
         onPin={onPin}
         onInvite={onInvite}
