@@ -145,15 +145,23 @@ export default function TripDetailScreen() {
 
             {/* Participants */}
             <View className="p-3">
-              <Text className="text-white text-2xl font-semibold">
-                Participants
-              </Text>
+              <View className="flex-row justify-between items-center mt-4 mb-2 px-4">
+                <Text className="text-white text-2xl font-semibold">
+                  Participants
+                </Text>
+                <TouchableOpacity
+                  onPress={() => router.push(`/trips/${tripId}/participants`)}
+                >
+                  <Text className="text-sm text-gray-300 font-medium">
+                    SEE ALL
+                  </Text>
+                </TouchableOpacity>
+              </View>
               <ParticipantRowList
                 onSelect={onSelect}
                 onCountUpdate={onCountUpdate}
               />
             </View>
-
 
             {isHost && hasItinerary && (
               <TouchableOpacity

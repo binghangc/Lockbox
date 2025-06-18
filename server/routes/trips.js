@@ -235,7 +235,7 @@ router.get('/:id/participants', authMiddleware, async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('participants')
-      .select('user_id, role, profiles(*)')
+      .select('user_id, role, profile:profiles(*)')
       .eq('trip_id', trip_id);
 
     if (error) throw error;
