@@ -42,7 +42,7 @@ export default function ItineraryInput({ tripId }: { tripId: string }) {
         },
       );
 
-      const data = await response.json();
+      const data = await res.json();
 
       if (!res.ok) {
         throw new Error(data.error || `HTTP error! status: ${res.status}`);

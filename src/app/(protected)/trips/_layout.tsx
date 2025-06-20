@@ -81,7 +81,7 @@ export default function TripsLayout() {
   const onPin = () => {};
   const onInvite = () => {
     modalRef.current?.close();
-    router.push(`/trips/${tripId}/send-invites`);
+    router.push(`/trips/${tripId}/sendInvites`);
   };
   const onDelete = () => {};
   const onLeave = () => {};
@@ -124,6 +124,13 @@ export default function TripsLayout() {
             },
           }}
         />
+        <Stack.Screen
+          name="[tripId]/edit"
+          options={{
+            headerShown: false,
+            animation: 'slide_from_bottom',
+          }}
+        />
       </Stack>
       <TripControllerModal
         triggerRef={modalRef}
@@ -136,7 +143,10 @@ export default function TripsLayout() {
         onDelete={onDelete}
         onLeave={onLeave}
       />
-      <InviteFriendsModal ref={inviteModalRef} tripId={tripId} />
+      <InviteFriendsModal
+        ref={inviteModalRef}
+        tripId={Array.isArray(tripId) ? tripId[0] : tripId}
+      />
     </>
   );
 }
