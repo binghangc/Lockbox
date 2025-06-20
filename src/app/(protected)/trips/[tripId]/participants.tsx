@@ -37,7 +37,7 @@ export default function ParticipantsScreen() {
           </Text>
           <ParticipantsList
             onSelect={(selectedParticipant) =>
-              setSelectedUser(selectedParticipant)
+              setSelectedUser(selectedParticipant.profile)
             }
             onCountUpdate={setParticipantCount}
           />
