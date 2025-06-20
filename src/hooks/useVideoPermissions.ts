@@ -10,8 +10,10 @@ export default function useVideoPermissions() {
     microphonePermission?.granted === true;
 
   const requestPermissions = async () => {
-    await requestCameraPermission();
-    await requestMicrophonePermission();
+    const camera = await requestCameraPermission();
+    const mic = await requestMicrophonePermission();
+
+    return camera?.granted === true && mic?.granted === true;
   };
 
   return {

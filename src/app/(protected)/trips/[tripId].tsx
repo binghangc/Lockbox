@@ -9,14 +9,14 @@ import {
   StyleSheet,
   StatusBar,
 } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Octicons from '@expo/vector-icons/Octicons';
 import { BlurView } from 'expo-blur';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import TripPillbar from '@/components/tripPillbar';
 import useTrips from '@/hooks/useTrips';
-import ParticipantRowList from '@/components/participantRowList';
+import VideoBubbleController from '@/components/video/videoBubbleController';
 
 export const screenOptions = {
   headerTransparent: true,
@@ -39,14 +39,10 @@ export const screenOptions = {
 export default function TripDetailScreen() {
   const { tripId } = useLocalSearchParams();
   const tripIdStr = Array.isArray(tripId) ? tripId[0] : tripId;
-  const { trip, isHost, loading, hasItinerary } = useTrips(tripIdStr);
+  const { trip, loading } = useTrips(tripIdStr);
   const insets = useSafeAreaInsets();
-  const router = useRouter();
 
   const HEADER_HEIGHT = insets.top + 60;
-
-  const onSelect = (user: Profile) => {};
-  const onCountUpdate = (count: number) => {};
 
   if (loading) {
     return (
@@ -142,43 +138,26 @@ export default function TripDetailScreen() {
                 {trip.description}
               </Text>
             )}
-
-            {/* Participants */}
-            <View className="p-3">
-              <View className="flex-row justify-between items-center mt-4 mb-2 px-4">
-                <Text className="text-white text-2xl font-semibold">
-                  Participants
-                </Text>
-                <TouchableOpacity
-                  onPress={() => router.push(`/trips/${tripId}/participants`)}
-                >
-                  <Text className="text-sm text-gray-300 font-medium">
-                    SEE ALL
-                  </Text>
-                </TouchableOpacity>
-              </View>
-              <ParticipantRowList
-                onSelect={onSelect}
-                onCountUpdate={onCountUpdate}
-              />
-            </View>
-
-            {isHost && hasItinerary && (
-              <TouchableOpacity
-                className="bg-white rounded-lg px-4 py-3 mt-6 self-center"
-                onPress={() => router.push(`/trips/${trip.id}/vibechecks`)}
-              >
-                <Text className="text-black font-semibold">
-                  Generate Vibe Checks
-                </Text>
-              </TouchableOpacity>
-            )}
           </View>
         </View>
       </ScrollView>
-      <TripPillbar
-        status={(trip.status as 'upcoming' | 'ongoing' | 'ended') || 'upcoming'}
-      />
+      <VideoBubbleController>
+        {({
+          onLongPress,
+          onPressOut,
+        }: {
+          onLongPress: () => void;
+          onPressOut: () => void;
+        }) => (
+          <TripPillbar
+            status={
+              (trip.status as 'upcoming' | 'ongoing' | 'ended') || 'upcoming'
+            }
+            onLongPressBubble={onLongPress}
+            onPressOutBubble={onPressOut}
+          />
+        )}
+      </VideoBubbleController>
     </View>
   );
 }
