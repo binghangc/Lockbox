@@ -39,8 +39,12 @@ const styles = StyleSheet.create({
 
 export default function TripPillbar({
   status,
+  onLongPressBubble,
+  onPressOutBubble,
 }: {
   status: 'upcoming' | 'ongoing' | 'ended';
+  onLongPressBubble?: () => void;
+  onPressOutBubble?: () => void;
 }) {
   console.log('TripPillbar rendered with status:', status);
   const insets = useSafeAreaInsets();
@@ -91,10 +95,10 @@ export default function TripPillbar({
             <BlurView
               intensity={50}
               tint="dark"
-              className="rounded-full px-8 py-3 flex-row justify-center items-center bg-white/5"
               experimentalBlurMethod={
                 Platform.OS === 'android' ? 'dimezisBlurView' : undefined
               }
+              className="rounded-full px-8 py-3 flex-row justify-center items-center bg-white/5"
               style={[
                 { overflow: 'hidden', borderRadius: 9999, minHeight: 48 },
               ]}
@@ -104,7 +108,17 @@ export default function TripPillbar({
                 <TouchableOpacity
                   style={styles.bubbleContainer}
                   activeOpacity={0.7}
-                  onPress={() => {}}
+                  onPressIn={() => console.log('[TripPillbar] onPressIn')}
+                  onPress={() => console.log('[TripPillbar] onPress')}
+                  onLongPress={() => {
+                    console.log('[TripPillbar] onLongPress');
+                    onLongPressBubble?.();
+                  }}
+                  onPressOut={() => {
+                    console.log('[TripPillbar] onPressOut');
+                    onPressOutBubble?.();
+                  }}
+                  delayLongPress={200}
                 >
                   <LinearGradient
                     start={[0.2, 0.2]}
