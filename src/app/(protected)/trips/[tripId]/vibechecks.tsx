@@ -59,6 +59,52 @@ export default function VibeCheckScreen() {
     }
   };
 
+  const handleSelect = async () => {
+    // if no vibecheck selected
+    if (true) {
+      console.warn('No vibecheck selected');
+    }
+
+    if (!token) {
+      console.error('No token in context');
+    }
+
+    try {
+      // index is the day index
+      const res = await fetch(
+        `${process.env.EXPO_PUBLIC_API_URL}/vibechecks/${tripId}/${index}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            title: tripTitle,
+            description: tripDescription,
+            start_date: startDate,
+            end_date: endDate,
+            country: selectedCountry.name,
+            thumbnail_url:
+              thumbnailUrl ||
+              'https://pub-8c0b91be3e2945c88ce582ecb937b8b6.r2.dev/wine-hand.avif',
+          }),
+        });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        console.error('Error saving trip:', data.error);
+        return;
+      }
+
+      console.log('Trip saved:', data);
+      router.replace('/(tabs)');
+    } catch (err) {
+      console.error('Failed to save trip:', err);
+    }
+  };
+
   return (
     <View
       className="p-4 space-y-4"

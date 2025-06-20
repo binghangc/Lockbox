@@ -64,6 +64,18 @@ export default function TripDetailScreen() {
     );
   }
 
+  let handlePress;
+
+  if (trip.status === 'upcoming') {
+    handlePress = () => {
+      router.push(`/trips/${tripId}/itinerary`);
+    };
+  } else {
+    handlePress = () => {
+      console.log('Not implemented yet.');
+    };
+  }
+
   return (
     <View style={{ flex: 1, backgroundColor: 'transparent' }}>
       <StatusBar
@@ -177,6 +189,7 @@ export default function TripDetailScreen() {
         </View>
       </ScrollView>
       <TripPillbar
+        handlePress={handlePress}
         status={(trip.status as 'upcoming' | 'ongoing' | 'ended') || 'upcoming'}
       />
     </View>

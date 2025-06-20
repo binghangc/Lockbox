@@ -39,8 +39,10 @@ const styles = StyleSheet.create({
 
 export default function TripPillbar({
   status,
+  handlePress,
 }: {
   status: 'upcoming' | 'ongoing' | 'ended';
+  handlePress: () => void;
 }) {
   console.log('TripPillbar rendered with status:', status);
   const insets = useSafeAreaInsets();
@@ -102,9 +104,9 @@ export default function TripPillbar({
               <View className="flex-row items-center">
                 {/* Gradient bubble around icon */}
                 <TouchableOpacity
+                  onPress={handlePress}
                   style={styles.bubbleContainer}
                   activeOpacity={0.7}
-                  onPress={() => {}}
                 >
                   <LinearGradient
                     start={[0.2, 0.2]}

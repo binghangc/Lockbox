@@ -245,4 +245,49 @@ router.get('/:id/participants', authMiddleware, async (req, res) => {
   }
 });
 
+router.post('/:id/submit-itinerary', authMiddleware, async (req, res) => {
+  const trip_id = req.params.id;
+  const { user } = req;
+  const itineraries = req.body;
+
+  if (!Array.isArray(itineraries) || itineraries.length === 0) {
+    return res
+      .status(400)
+      .json({ error: 'Itinerary must be a non-empty array' });
+  }
+
+  try {
+    const { data: trip, error: tripError } = await supabase
+      .from('trips')
+      .select('id, user_id')
+      .eq('id', trip_id)
+      .single();
+
+    if (tripError || !trip) throw new Error('Trip not found');
+
+    if (trip.user_id !== user.id) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+
+    const payload = itineraries.map((entry, index) => ({
+      trip_id,
+      date: entry.date,
+      itinerary: entry.itinerary,
+      day_index: index + 1,
+      updated_at: new Date().toISOString(),
+    }));
+
+    const { error: insertError } = await supabase
+      .from('itineraries')
+      .insert(payload);
+
+    if (insertError) throw insertError;
+
+    return res.status(200).json({ success: true });
+  } catch (err) {
+    console.error('[POST /:trip_id/itinerary] Error:', err.message);
+    return res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;
