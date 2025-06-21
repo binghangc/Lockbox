@@ -1,6 +1,7 @@
 import React from 'react';
-import { View } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { CameraView, CameraType } from 'expo-camera';
+import { BlurView } from 'expo-blur';
 
 type Props = {
   cameraRef: React.RefObject<CameraView | null>;
@@ -12,17 +13,37 @@ export default function VideoBubblePreview({
   facing = 'front',
 }: Props) {
   return (
-    <View className="absolute bottom-20 right-4 w-28 h-48 rounded-2xl overflow-hidden border border-white/20">
-      <CameraView
-        ref={cameraRef}
-        mode="video"
-        facing={facing}
-        mirror={facing === 'front'}
-        mute={false}
-        videoQuality="480p"
-        videoBitrate={10000000}
-        className="w-full h-full"
-      />
+    <View
+      style={{
+        ...StyleSheet.absoluteFillObject,
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
+    >
+      <BlurView intensity={100} tint="dark" style={StyleSheet.absoluteFill} />
+
+      <View
+        style={{
+          width: 200,
+          height: 200,
+          borderRadius: 100,
+          overflow: 'hidden',
+          borderWidth: 2,
+          borderColor: 'rgba(255, 255, 255, 0.2)',
+          backgroundColor: 'black',
+        }}
+      >
+        <CameraView
+          ref={cameraRef}
+          mode="video"
+          facing={facing}
+          mirror={facing === 'front'}
+          mute={false}
+          videoQuality="480p"
+          videoBitrate={10000000}
+          className="w-full h-full"
+        />
+      </View>
     </View>
   );
 }

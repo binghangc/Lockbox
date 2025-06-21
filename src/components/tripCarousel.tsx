@@ -1,7 +1,7 @@
 import { View, FlatList } from 'react-native';
 import { Trip } from '@/types';
 import TripCard from './tripCard';
-import CreateTripCard from './createTripCard';
+import CreateTripCard from './newTrip/createTripCard';
 
 interface TripCarouselProps {
   trips: Trip[];

@@ -142,19 +142,17 @@ export default function TripDetailScreen() {
         </View>
       </ScrollView>
       <VideoBubbleController>
-        {({
-          onLongPress,
-          onPressOut,
-        }: {
-          onLongPress: () => void;
-          onPressOut: () => void;
-        }) => (
+        {({ onLongPress, onPressOut }) => (
           <TripPillbar
             status={
               (trip.status as 'upcoming' | 'ongoing' | 'ended') || 'upcoming'
             }
-            onLongPressBubble={onLongPress}
-            onPressOutBubble={onPressOut}
+            onLongPressBubble={
+              trip.status === 'ongoing' ? onLongPress : undefined
+            }
+            onPressOutBubble={
+              trip.status === 'ongoing' ? onPressOut : undefined
+            }
           />
         )}
       </VideoBubbleController>

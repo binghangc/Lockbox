@@ -1,10 +1,4 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  Platform,
-  TouchableOpacity,
-} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -46,7 +40,6 @@ export default function TripPillbar({
   onLongPressBubble?: () => void;
   onPressOutBubble?: () => void;
 }) {
-  console.log('TripPillbar rendered with status:', status);
   const insets = useSafeAreaInsets();
 
   let mainActionIcon;
@@ -95,9 +88,6 @@ export default function TripPillbar({
             <BlurView
               intensity={50}
               tint="dark"
-              experimentalBlurMethod={
-                Platform.OS === 'android' ? 'dimezisBlurView' : undefined
-              }
               className="rounded-full px-8 py-3 flex-row justify-center items-center bg-white/5"
               style={[
                 { overflow: 'hidden', borderRadius: 9999, minHeight: 48 },
@@ -108,16 +98,8 @@ export default function TripPillbar({
                 <TouchableOpacity
                   style={styles.bubbleContainer}
                   activeOpacity={0.7}
-                  onPressIn={() => console.log('[TripPillbar] onPressIn')}
-                  onPress={() => console.log('[TripPillbar] onPress')}
-                  onLongPress={() => {
-                    console.log('[TripPillbar] onLongPress');
-                    onLongPressBubble?.();
-                  }}
-                  onPressOut={() => {
-                    console.log('[TripPillbar] onPressOut');
-                    onPressOutBubble?.();
-                  }}
+                  onLongPress={onLongPressBubble}
+                  onPressOut={onPressOutBubble}
                   delayLongPress={200}
                 >
                   <LinearGradient

@@ -16,15 +16,15 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import { useState, useRef } from 'react';
 import DatePickerModal, {
   DatePickerModalRef,
-} from '@/components/datePickerModal';
+} from '@/components/newTrip/datePickerModal';
 import LocationPickerModal, {
   LocationPickerModalRef,
-} from '@/components/locationPickerModal';
+} from '@/components/newTrip/locationPickerModal';
 import ThumbnailPickerModal, {
   ThumbnailPickerModalRef,
 } from '@/components/thumbnailPickerModal';
 import { useUser } from '@/components/UserContext';
-import CreateTripHeader from '@/components/createTripHeader';
+import CreateTripHeader from '@/components/newTrip/createTripHeader';
 
 export default function NewTrip() {
   const router = useRouter();
