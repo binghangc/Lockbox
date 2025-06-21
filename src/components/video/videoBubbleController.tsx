@@ -13,6 +13,11 @@ type Props = {
 };
 
 export default function VideoBubbleController({ children }: Props) {
+  // VIDEO-BUBBLE SIZE
+  const bubbleSize = 350;
+  // MAX-VIDEO DURATION (in sec)
+  const maxDuration = 15;
+
   const { granted, requestPermissions } = useVideoPermissions();
   const {
     cameraRef,
@@ -21,12 +26,9 @@ export default function VideoBubbleController({ children }: Props) {
     stopRecording,
     videoUri,
     maxDurationMs,
-  } = useVideoRecorder();
+  } = useVideoRecorder({ maxDurationSec: maxDuration });
 
   const [showPreview, setShowPreview] = useState(false);
-
-  // VIDEO-BUBBLE SIZE
-  const bubbleSize = 350;
 
   const onLongPress = async () => {
     if (!granted) {

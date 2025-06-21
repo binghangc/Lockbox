@@ -10,8 +10,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 8,
     elevation: 4,
-    width: 56,
-    height: 56,
+    width: 58,
+    height: 58,
     borderRadius: 28,
     justifyContent: 'center',
     alignItems: 'center',
@@ -100,7 +100,13 @@ export default function TripPillbar({
                   activeOpacity={0.7}
                   onLongPress={onLongPressBubble}
                   onPressOut={onPressOutBubble}
-                  delayLongPress={200}
+                  hitSlop={10}
+                  pressRetentionOffset={{
+                    top: 20,
+                    bottom: 20,
+                    left: 20,
+                    right: 20,
+                  }}
                 >
                   <LinearGradient
                     start={[0.2, 0.2]}
