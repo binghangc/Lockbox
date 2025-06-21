@@ -66,9 +66,13 @@ export default function TripDetailScreen() {
 
   let handlePress;
 
-  if (trip.status === 'upcoming') {
+  if (trip.status === 'upcoming' && isHost) {
     handlePress = () => {
       router.push(`/trips/${tripId}/itinerary`);
+    };
+  } else if (trip.status === 'upcoming' && !isHost) {
+    handlePress = () => {
+      console.log('Not host - do nothing.');
     };
   } else {
     handlePress = () => {
@@ -190,6 +194,7 @@ export default function TripDetailScreen() {
       </ScrollView>
       <TripPillbar
         handlePress={handlePress}
+        isHost={isHost}
         status={(trip.status as 'upcoming' | 'ongoing' | 'ended') || 'upcoming'}
       />
     </View>

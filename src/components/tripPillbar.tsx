@@ -39,9 +39,11 @@ const styles = StyleSheet.create({
 
 export default function TripPillbar({
   status,
+  isHost,
   handlePress,
 }: {
   status: 'upcoming' | 'ongoing' | 'ended';
+  isHost: boolean;
   handlePress: () => void;
 }) {
   console.log('TripPillbar rendered with status:', status);
@@ -59,7 +61,9 @@ export default function TripPillbar({
 
   let pillText = '';
   if (status === 'upcoming') {
-    pillText = 'Superpower your vibechecks with our vibe genie';
+    pillText = isHost
+      ? 'Superpower your vibechecks with our vibe genie'
+      : 'Vibes are brewing';
   } else if (status === 'ongoing') {
     pillText = 'Insert vibechecks here';
   } else if (status === 'ended') {
