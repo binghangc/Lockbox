@@ -2,15 +2,20 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { CameraView, CameraType } from 'expo-camera';
 import { BlurView } from 'expo-blur';
+import CircularProgressArc from './circularProgressArc';
 
 type Props = {
   cameraRef: React.RefObject<CameraView | null>;
   facing?: CameraType;
+  size: number;
+  maxDurationMs: number;
 };
 
 export default function VideoBubblePreview({
   cameraRef,
   facing = 'front',
+  size,
+  maxDurationMs,
 }: Props) {
   return (
     <View
@@ -24,25 +29,29 @@ export default function VideoBubblePreview({
 
       <View
         style={{
-          width: 200,
-          height: 200,
-          borderRadius: 100,
+          width: size,
+          height: size,
+          borderRadius: size / 2,
           overflow: 'hidden',
-          borderWidth: 2,
-          borderColor: 'rgba(255, 255, 255, 0.2)',
           backgroundColor: 'black',
         }}
       >
-        <CameraView
-          ref={cameraRef}
-          mode="video"
-          facing={facing}
-          mirror={facing === 'front'}
-          mute={false}
-          videoQuality="480p"
-          videoBitrate={10000000}
-          className="w-full h-full"
-        />
+        <CircularProgressArc
+          size={size}
+          thickness={2.5}
+          cycleDuration={maxDurationMs}
+        >
+          <CameraView
+            ref={cameraRef}
+            mode="video"
+            facing={facing}
+            mirror={facing === 'front'}
+            mute={false}
+            videoQuality="480p"
+            videoBitrate={10000000}
+            style={{ width: size, height: size }}
+          />
+        </CircularProgressArc>
       </View>
     </View>
   );

@@ -1,7 +1,8 @@
 import { useRef, useState } from 'react';
 import { CameraView } from 'expo-camera';
 
-const useVideoRecorder = () => {
+const useVideoRecorder = (maxDurationSec: number = 15) => {
+  const maxDurationMs = maxDurationSec * 1000;
   const cameraRef = useRef<CameraView | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [videoUri, setVideoUri] = useState<string | null>(null);
@@ -11,9 +12,7 @@ const useVideoRecorder = () => {
     setIsRecording(true);
     try {
       const video = await cameraRef.current.recordAsync({
-        maxDuration: 15,
-        videoQuality: '480p',
-        mute: false,
+        maxDuration: maxDurationSec,
       });
       if (video && video.uri) {
         setVideoUri(video.uri);
@@ -36,6 +35,7 @@ const useVideoRecorder = () => {
     videoUri,
     startRecording,
     stopRecording,
+    maxDurationMs,
   };
 };
 
