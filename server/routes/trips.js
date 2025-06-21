@@ -10,6 +10,8 @@ const supabase = createClient(
 
 const authMiddleware = require('../middleware/auth.js');
 
+const { generateVibeCheck } = require('../utils/geminiclient.js');
+
 // POST /trips - Create a new trip
 router.post('/', authMiddleware, async (req, res) => {
   const user_id = req.user.id;
@@ -269,6 +271,7 @@ router.post('/:id/submit-itinerary', authMiddleware, async (req, res) => {
       return res.status(403).json({ error: 'Forbidden' });
     }
 
+    // Step 1: insert itineraries
     const payload = itineraries.map((entry, index) => ({
       trip_id,
       date: entry.date,
@@ -277,15 +280,55 @@ router.post('/:id/submit-itinerary', authMiddleware, async (req, res) => {
       updated_at: new Date().toISOString(),
     }));
 
-    const { error: insertError } = await supabase
+    const { data: inserted, error: insertError } = await supabase
       .from('itineraries')
-      .insert(payload);
+      .upsert(payload, { onConflict: ['trip_id', 'date'] })
+      .select();
 
     if (insertError) throw insertError;
+
+    const vibechecks = await Promise.all(
+      inserted.map(async (entry) => {
+        const vibecheck = await generateVibeCheck({
+          itineraryText: entry.itinerary,
+          tripDate: entry.date,
+        });
+
+        return {
+          trip_id,
+          date: entry.date,
+          vibecheck: vibecheck,
+          itinerary_id: entry.id,
+        };
+      }),
+    );
+
+    const { error: vibeInsertError } = await supabase
+      .from('vibechecks')
+      .upsert(vibechecks, { onConflict: ['trip_id', 'date'] });
+
+    if (vibeInsertError) throw vibeInsertError;
 
     return res.status(200).json({ success: true });
   } catch (err) {
     console.error('[POST /:trip_id/itinerary] Error:', err.message);
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/:trip_id/itinerary/', authMiddleware, async (req, res) => {
+  const { trip_id } = req.params;
+
+  try {
+    const { data, error } = await supabase
+      .from('itineraries')
+      .select('date, itinerary')
+      .eq('trip_id', trip_id);
+
+    if (error && error.code !== 'PGRST116') throw error;
+
+    return res.json(data);
+  } catch (err) {
     return res.status(500).json({ error: err.message });
   }
 });

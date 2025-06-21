@@ -34,8 +34,7 @@ router.post('/vibe-check/:tripId', async (req, res) => {
     const { data: trip, error } = await supabase
       .from('trips')
       .select('title, itinerary')
-      .eq('id', tripId)
-      .single();
+      .eq('id', tripId);
 
     if (error || !trip?.itinerary) {
       return res.status(404).json({ error: 'Trip or itinerary not found' });
