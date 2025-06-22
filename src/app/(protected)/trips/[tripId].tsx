@@ -18,6 +18,7 @@ import TripPillbar from '@/components/tripPillbar';
 import useTrips from '@/hooks/useTrips';
 import useTodayVibecheck from '@/hooks/useTodayVibecheck';
 import ParticipantRowList from '@/components/participantRowList';
+import VibecheckShuffleButton from '@/components/vibecheckShuffleButton';
 
 export const screenOptions = {
   headerTransparent: true,
@@ -203,6 +204,11 @@ export default function TripDetailScreen() {
           vcloading
             ? 'Loading vibecheck...'
             : vibecheck || 'No vibecheck for today.'
+        }
+        bottomAccessory={
+          isHost && trip.status === 'ongoing' ? (
+            <VibecheckShuffleButton onPress={() => console.log('shuffle')} />
+          ) : null
         }
       />
     </View>

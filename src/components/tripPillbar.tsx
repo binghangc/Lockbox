@@ -42,11 +42,13 @@ export default function TripPillbar({
   isHost,
   handlePress,
   ongoingPillText,
+  bottomAccessory,
 }: {
   status: 'upcoming' | 'ongoing' | 'ended';
   isHost: boolean;
   handlePress: () => void;
   ongoingPillText?: string;
+  bottomAccessory?: React.ReactNode;
 }) {
   console.log('TripPillbar rendered with status:', status);
   const insets = useSafeAreaInsets();
@@ -131,6 +133,10 @@ export default function TripPillbar({
                 <Text className="text-gray-100 text-xl font-semibold flex-1">
                   {pillText}
                 </Text>
+
+                {bottomAccessory && (
+                  <View className="ml-2">{bottomAccessory}</View>
+                )}
               </View>
             </BlurView>
           </View>
