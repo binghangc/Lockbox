@@ -4,7 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import useRecordHint from '@/hooks/video/useRecordHint';
 import RecordHintBar from '@/components/video/recordHintBar';
-import * as Haptics from 'expo-haptics';
+import useHaptics from '@/hooks/useHaptics';
 
 const styles = StyleSheet.create({
   bubbleContainer: {
@@ -45,6 +45,7 @@ export default function TripPillbar({
 }) {
   const insets = useSafeAreaInsets();
   const { showHint, show } = useRecordHint();
+  const { tap, hold } = useHaptics();
 
   let mainActionIcon;
 
@@ -105,12 +106,12 @@ export default function TripPillbar({
                   activeOpacity={0.7}
                   onPress={() => {
                     if (status === 'ongoing') {
-                      Haptics.selectionAsync();
+                      tap();
                       show();
                     }
                   }}
                   onLongPress={() => {
-                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                    hold();
                     onLongPressBubble?.();
                   }}
                   onPressOut={onPressOutBubble}
