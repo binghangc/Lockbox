@@ -54,7 +54,9 @@ export default function VibeCheckComponent() {
     } catch (err) {
       console.error('Failed to fetch vibe:', err);
       setError(
-        err.message || 'Failed to fetch vibe. Check console for details.',
+        err instanceof Error
+          ? err.message
+          : 'Failed to fetch vibe. Check console for details.',
       );
     } finally {
       setIsLoading(false);
@@ -76,7 +78,7 @@ export default function VibeCheckComponent() {
         editable={!isLoading}
         multiline
         scrollEnabled
-        textAlignVertical
+        textAlignVertical="top"
       />
 
       <TouchableOpacity
