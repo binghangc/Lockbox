@@ -14,7 +14,10 @@ router.post('/vibe-check', async (req, res) => {
   }
 
   try {
-    const vibe = await generateVibeCheck(prompt);
+    const vibe = await generateVibeCheck({
+      itineraryText: prompt,
+      tripDate: '2025-06-25',
+    });
 
     const vibes = Array.isArray(vibe) ? vibe : [vibe];
     return res.json({ vibes });

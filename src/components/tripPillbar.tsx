@@ -41,10 +41,12 @@ export default function TripPillbar({
   status,
   isHost,
   handlePress,
+  ongoingPillText,
 }: {
   status: 'upcoming' | 'ongoing' | 'ended';
   isHost: boolean;
   handlePress: () => void;
+  ongoingPillText?: string;
 }) {
   console.log('TripPillbar rendered with status:', status);
   const insets = useSafeAreaInsets();
@@ -65,7 +67,7 @@ export default function TripPillbar({
       ? 'Superpower your vibechecks with our vibe genie'
       : 'Vibes are brewing';
   } else if (status === 'ongoing') {
-    pillText = 'Insert vibechecks here';
+    pillText = ongoingPillText;
   } else if (status === 'ended') {
     pillText = 'View your memories';
   }

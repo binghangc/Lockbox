@@ -93,6 +93,8 @@ export default function useItineraries(tripId: string, tripDays: string[]) {
     }
   };
 
+  const hasItinerary = dailyPlans.some((plan) => plan.trim().length > 0);
+
   return {
     dailyPlans,
     setDailyPlans,
@@ -100,5 +102,6 @@ export default function useItineraries(tripId: string, tripDays: string[]) {
     loading,
     isSubmitting,
     submitItinerary,
+    hasItinerary,
   };
 }

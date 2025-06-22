@@ -26,6 +26,8 @@ import ThumbnailPickerModal, {
 import { useUser } from '@/components/UserContext';
 import CreateTripHeader from '@/components/createTripHeader';
 import useTrips from '@/hooks/useTrips';
+import useItineraries from '@/hooks/useItineraries';
+import getTripDays from '@/utils/date';
 
 export default function EditTrip() {
   const router = useRouter();
@@ -33,6 +35,9 @@ export default function EditTrip() {
   const { tripId } = useLocalSearchParams();
   const tripIdStr = Array.isArray(tripId) ? tripId[0] : tripId;
   const { trip } = useTrips(tripIdStr);
+
+  const tripDays = trip ? getTripDays(trip.start_date, trip.end_date) : [];
+  const { hasItinerary } = useItineraries(trip?.id, tripDays);
 
   // const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const modalRef = useRef<DatePickerModalRef>(null);
@@ -203,7 +208,11 @@ export default function EditTrip() {
         </View>
 
         {/* Date Button */}
-        <TouchableOpacity activeOpacity={0.8} onPress={openDatePicker}>
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={openDatePicker}
+          disabled={hasItinerary}
+        >
           <BlurView
             intensity={40}
             tint="light"

@@ -333,4 +333,36 @@ router.get('/:trip_id/itinerary/', authMiddleware, async (req, res) => {
   }
 });
 
+// API endpoint to get vibechecks for a date
+router.get('/:id/vibecheck/:date', authMiddleware, async (req, res) => {
+  const trip_id = req.params.id;
+  const { date } = req.params;
+
+  if (!date) {
+    return res.status(400).json({ error: 'Missing date query parameter' });
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('vibechecks')
+      .select('vibecheck')
+      .eq('trip_id', trip_id)
+      .eq('date', date)
+      .single();
+
+    if (error) throw error;
+
+    if (!data) {
+      return res
+        .status(404)
+        .json({ error: 'No vibecheck found for this date' });
+    }
+
+    return res.json({ vibecheck: data.vibecheck });
+  } catch (err) {
+    console.error('Error fetching vibecheck:', err.message);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 module.exports = router;

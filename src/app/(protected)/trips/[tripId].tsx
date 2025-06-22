@@ -16,6 +16,7 @@ import { BlurView } from 'expo-blur';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import TripPillbar from '@/components/tripPillbar';
 import useTrips from '@/hooks/useTrips';
+import useTodayVibecheck from '@/hooks/useTodayVibecheck';
 import ParticipantRowList from '@/components/participantRowList';
 
 export const screenOptions = {
@@ -42,6 +43,8 @@ export default function TripDetailScreen() {
   const { trip, isHost, loading, hasItinerary } = useTrips(tripIdStr);
   const insets = useSafeAreaInsets();
   const router = useRouter();
+
+  const { vibecheck, vcloading } = useTodayVibecheck(tripIdStr);
 
   const HEADER_HEIGHT = insets.top + 60;
 
@@ -196,6 +199,11 @@ export default function TripDetailScreen() {
         handlePress={handlePress}
         isHost={isHost}
         status={(trip.status as 'upcoming' | 'ongoing' | 'ended') || 'upcoming'}
+        ongoingPillText={
+          vcloading
+            ? 'Loading vibecheck...'
+            : vibecheck || 'No vibecheck for today.'
+        }
       />
     </View>
   );

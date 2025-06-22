@@ -14,6 +14,7 @@ import dayjs from 'dayjs';
 import useTrips from '@/hooks/useTrips';
 import ItineraryDayNavigator from '@/components/itineraryDayNavigator';
 import useItineraries from '@/hooks/useItineraries';
+import getTripDays from '@/utils/date';
 
 export const screenOptions = {
   headerShown: false,
@@ -31,25 +32,13 @@ export default function ItineraryScreen() {
 
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const getTripDays = (start: string, end: string) => {
-    const days = [];
-    let current = dayjs(start);
-    const last = dayjs(end);
-
-    while (current.isBefore(last) || current.isSame(last)) {
-      days.push(current.format('YYYY-MM-DD'));
-      current = current.add(1, 'day');
-    }
-
-    return days;
-  };
-
   const tripDays = trip ? getTripDays(trip.start_date, trip.end_date) : [];
 
   const {
     dailyPlans,
     setDailyPlans,
     isEditing,
+    isSubmitting,
     loading: itineraryLoading,
     submitItinerary,
   } = useItineraries(trip?.id, tripDays);
@@ -137,16 +126,21 @@ export default function ItineraryScreen() {
           onSelectDay={setCurrentIndex}
         />
 
-        {currentIndex === tripDays.length - 1 && (
-          <TouchableOpacity
-            onPress={() => handleSubmit(dailyPlans)}
-            className="mt-6 bg-white py-3 rounded-lg"
-          >
-            <Text className="text-black text-center font-bold">
-              {isEditing ? 'Edit Itinerary' : 'Submit Itinerary'}
-            </Text>
-          </TouchableOpacity>
-        )}
+        {currentIndex === tripDays.length - 1 &&
+          (isSubmitting ? (
+            <View className="bg-white/10 py-3 mt-6 rounded-lg items-center">
+              <Text className="text-white text-base">Saving...</Text>
+            </View>
+          ) : (
+            <TouchableOpacity
+              onPress={() => handleSubmit(dailyPlans)}
+              className="mt-6 bg-white py-3 rounded-lg"
+            >
+              <Text className="text-black text-center font-bold">
+                {isEditing ? 'Edit Itinerary' : 'Submit Itinerary'}
+              </Text>
+            </TouchableOpacity>
+          ))}
       </View>
     </ImageBackground>
   );

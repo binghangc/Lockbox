@@ -18,12 +18,28 @@ async function generateVibeCheck({ itineraryText, tripDate }) {
   const formattedDate = dayjs(tripDate).format('dddd, MMMM D');
   try {
     const message = new HumanMessage(
-      `It's ${formattedDate}. Here's an itinerary:\n\n${itineraryText}\n\nGive me ONE single short, funny, Gen-Z-coded vibe check prompt based on this trip. 
-      Keep each vibe check to one phrase, max 5-7 words. This prompt is actually for a travel app where friends can 
-      post short videos based on a prompt and their trip itinerary, so it's meant to store memories. 
-      Rephrase this prompt into categories people can cache different memories into (eg funny laugh till you cry, 
-      food, romantic, silly epic fails, awkward moments, pure joy, etc). Don't give explanations. 
-      no [phrase]:[prompt] format. maybe include some meme references, or some references to popular media. Label it 1.`,
+      `It's ${formattedDate}. Here's an itinerary:\n\n${itineraryText}\n\n
+      
+      You are an emotionally intelligent Gen-Z travel assistant. Based on this specific itinerary, Give me ONE single short, funny, Gen-Z-coded vibe check prompt that references the locations or activities or food here (but not all three). 
+
+      If it’s a hill — mention climbing, views, exhaustion.  
+      If it's a food spot — mention cravings, mess, first bites.  
+      If it’s a museum — mention getting lost, random statues, or “too many rooms.”
+      Don't just name the place (eg no "Capitoline core unlocked" something like "Calves crying on Capitoline Hill" instead).
+      
+      Guidelines:
+      - Keep each vibe check to one phrase, max 5-7 words. 
+      - Only return the final prompt. No explanations. No numbering.
+      - MUST be hyper-specific to this itinerary
+      - No colons or labels like "Funny:" or "Alhambra:".
+      - Don't be generic. Phrases like "Main character moments" are not specific to the trip unless they fit the content perfectly.
+      - Bonus if it sounds like a meme or references any popular media.
+      
+      
+      
+      This prompt is actually for a travel app where friends can post short videos based on a prompt and their trip itinerary, so it's meant to store memories. 
+      They function as categories people can cache different memories into (eg funny laugh till you cry, 
+      food, romantic, silly epic fails, awkward moments, pure joy, etc).`,
     );
     const response = await chatModel.invoke([message]);
 
@@ -36,7 +52,7 @@ async function generateVibeCheck({ itineraryText, tripDate }) {
       if (/^[A-Za-z\s]{1,20}:\s/.test(noNumber)) {
         cleaned = noNumber.replace(/^[A-Za-z\s]{1,20}:\s*/, '');
       }
-      return cleaned;
+      return raw;
     }
 
     return ['Could not generate vibe checks. Please try again.'];
