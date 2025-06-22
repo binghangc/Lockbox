@@ -2,6 +2,8 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import useRecordHint from '@/hooks/video/useRecordHint';
+import RecordHintBar from '@/components/video/recordHintBar';
 
 const styles = StyleSheet.create({
   bubbleContainer: {
@@ -41,6 +43,7 @@ export default function TripPillbar({
   onPressOutBubble?: () => void;
 }) {
   const insets = useSafeAreaInsets();
+  const { showHint, show } = useRecordHint();
 
   let mainActionIcon;
 
@@ -73,6 +76,7 @@ export default function TripPillbar({
           zIndex: 999,
         }}
       >
+        {showHint && status === 'ongoing' && <RecordHintBar />}
         <LinearGradient
           start={[0, 0.5]}
           end={[1, 0.5]}
@@ -98,6 +102,9 @@ export default function TripPillbar({
                 <TouchableOpacity
                   style={styles.bubbleContainer}
                   activeOpacity={0.7}
+                  onPress={() => {
+                    if (status === 'ongoing') show();
+                  }}
                   onLongPress={onLongPressBubble}
                   onPressOut={onPressOutBubble}
                   hitSlop={10}

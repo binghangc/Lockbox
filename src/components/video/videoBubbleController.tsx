@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import useVideoPermissions from '@/hooks/useVideoPermissions';
-import useVideoRecorder from '@/hooks/useVideoRecorder';
+import useVideoPermissions from '@/hooks/video/useVideoPermissions';
+import useVideoRecorder from '@/hooks/video/useVideoRecorder';
 import VideoBubblePreview from './videoBubblePreview';
 
 type Props = {
