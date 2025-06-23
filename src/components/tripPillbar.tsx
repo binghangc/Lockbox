@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import useRecordHint from '@/hooks/video/useRecordHint';
 import RecordHintBar from '@/components/video/recordHintBar';
 import useHaptics from '@/hooks/useHaptics';
+import PILLBAR from '@/constants/pillbarConfig';
 
 const styles = StyleSheet.create({
   bubbleContainer: {
@@ -13,13 +14,13 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 8,
     elevation: 4,
-    width: 58,
-    height: 58,
-    borderRadius: 28,
+    width: PILLBAR.BUBBLE_WIDTH,
+    height: PILLBAR.BUBBLE_HEIGHT,
+    borderRadius: PILLBAR.BUBBLE_RADIUS,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
-    marginLeft: -12,
+    marginRight: PILLBAR.BUBBLE_MARGIN_RIGHT,
+    marginLeft: PILLBAR.BUBBLE_MARGIN_LEFT,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.3)',
   },
@@ -29,7 +30,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    borderRadius: 28,
+    borderRadius: PILLBAR.BUBBLE_RADIUS,
     overflow: 'hidden',
   },
 });
@@ -80,23 +81,23 @@ export default function TripPillbar({
       >
         {showHint && status === 'ongoing' && <RecordHintBar />}
         <LinearGradient
-          start={[0, 0.5]}
-          end={[1, 0.5]}
-          locations={[0, 0.5, 1]}
-          colors={[
-            'rgba(255,255,255,0.1)',
-            'rgba(255,255,255,0)',
-            'rgba(255,255,255,0.1)',
-          ]}
-          style={{ borderRadius: 9999, padding: 1 }}
+          start={PILLBAR.GRADIENT_START}
+          end={PILLBAR.GRADIENT_END}
+          locations={PILLBAR.GRADIENT_LOCATIONS}
+          colors={PILLBAR.GRADIENT_COLORS}
+          style={{ borderRadius: PILLBAR.BORDER_RADIUS_FULL, padding: 1 }}
         >
           <View style={{ overflow: 'hidden', borderRadius: 9999 }}>
             <BlurView
-              intensity={50}
-              tint="dark"
+              intensity={PILLBAR.BLUR_INTENSITY}
+              tint={PILLBAR.BLUR_TINT}
               className="rounded-full px-8 py-3 flex-row justify-center items-center bg-white/5"
               style={[
-                { overflow: 'hidden', borderRadius: 9999, minHeight: 48 },
+                {
+                  overflow: 'hidden',
+                  borderRadius: PILLBAR.BORDER_RADIUS_FULL,
+                  minHeight: PILLBAR.PILLBAR_HEIGHT,
+                },
               ]}
             >
               <View className="flex-row items-center">
