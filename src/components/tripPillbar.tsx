@@ -35,11 +35,11 @@ export default function TripPillbar({
       {/* Pillbar */}
       <View
         style={{
-          position: 'absolute',
-          bottom: insets.bottom + 16,
-          left: 16,
-          right: 16,
-          zIndex: 999,
+          position: PILLBAR.CONTAINER_POSITION,
+          bottom: insets.bottom + PILLBAR.CONTAINER_BOTTOM_OFFSET,
+          left: PILLBAR.CONTAINER_HORIZONTAL_MARGIN,
+          right: PILLBAR.CONTAINER_HORIZONTAL_MARGIN,
+          zIndex: PILLBAR.CONTAINER_Z_INDEX,
         }}
       >
         {showHint && status === 'ongoing' && <RecordHintBar />}
@@ -48,18 +48,23 @@ export default function TripPillbar({
           end={PILLBAR.GRADIENT_END}
           locations={PILLBAR.GRADIENT_LOCATIONS}
           colors={PILLBAR.GRADIENT_COLORS}
-          style={{ borderRadius: PILLBAR.BORDER_RADIUS_FULL, padding: 1 }}
+          style={{
+            borderRadius: PILLBAR.BORDER_RADIUS_FULL,
+            padding: PILLBAR.GRADIENT_PADDING,
+          }}
         >
           <View style={{ overflow: 'hidden', borderRadius: 9999 }}>
             <BlurView
               intensity={PILLBAR.BLUR_INTENSITY}
               tint={PILLBAR.BLUR_TINT}
-              className="rounded-full px-8 py-3 flex-row justify-center items-center bg-white/5"
+              className="rounded-full flex-row justify-center items-center bg-white/5"
               style={[
                 {
                   overflow: 'hidden',
                   borderRadius: PILLBAR.BORDER_RADIUS_FULL,
                   minHeight: PILLBAR.PILLBAR_HEIGHT,
+                  paddingHorizontal: PILLBAR.PILLBAR_PADDING_HORIZONTAL,
+                  paddingVertical: PILLBAR.PILLBAR_PADDING_VERTICAL,
                 },
               ]}
             >
