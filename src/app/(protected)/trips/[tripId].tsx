@@ -173,7 +173,7 @@ export default function TripDetailScreen() {
         isVisible={selectedUser !== null}
         onClose={() => setSelectedUser(null)}
         user={selectedUser}
-        currentUserId={user?.id}
+        currentUserId={user?.id ?? ''}
         isFriends
       />
       <TripPillbarContainer

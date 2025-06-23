@@ -29,16 +29,29 @@ export default function TripPillbar({
   const pan = useRef(new Animated.ValueXY()).current;
   const [dragEnabled, setDragEnabled] = useState(false);
   const [barWidth, setBarWidth] = useState(0);
-  const threshold = useMemo(() => barWidth * 0.75, [barWidth]);
+  const threshold = useMemo(() => (barWidth - 16) * 0.75, [barWidth]);
   const panResponder = useMemo(
     () =>
       PanResponder.create({
         onStartShouldSetPanResponder: () => status === 'ongoing' && dragEnabled,
         onMoveShouldSetPanResponder: (_, gesture) =>
           status === 'ongoing' && dragEnabled && Math.abs(gesture.dx) > 5,
-        onPanResponderMove: Animated.event([null, { dx: pan.x }], {
-          useNativeDriver: false,
-        }),
+        onPanResponderMove: (_, gestureState) => {
+          const maxDistance =
+            barWidth -
+            PILLBAR.BUBBLE_WIDTH -
+            PILLBAR.PILLBAR_PADDING_HORIZONTAL * 2;
+          if (gestureState.dx < 0) {
+            pan.setValue({ x: 0, y: 0 });
+          } else {
+            const restrictedDistance = maxDistance - 16;
+            if (gestureState.dx > restrictedDistance) {
+              pan.setValue({ x: restrictedDistance, y: 0 });
+            } else {
+              pan.setValue({ x: gestureState.dx, y: 0 });
+            }
+          }
+        },
         onPanResponderRelease: (_, gesture) => {
           if (status === 'ongoing' && dragEnabled) {
             if (gesture.dx > threshold) {
@@ -59,7 +72,15 @@ export default function TripPillbar({
           }
         },
       }),
-    [status, dragEnabled, pan, onSwipeSend, onPressOutBubble, threshold],
+    [
+      status,
+      dragEnabled,
+      pan,
+      onSwipeSend,
+      onPressOutBubble,
+      threshold,
+      barWidth,
+    ],
   );
 
   function handleLongPressWrapper() {
