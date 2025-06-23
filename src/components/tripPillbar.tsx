@@ -1,4 +1,7 @@
-import { View, Text } from 'react-native';
+import React, { useRef, useState, useMemo } from 'react';
+/* eslint-disable react/jsx-props-no-spreading */
+/* eslint-disable react/jsx-no-bind */
+import { View, Text, Animated, PanResponder } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -11,19 +14,63 @@ export default function TripPillbar({
   onPressBubble,
   onLongPressBubble,
   onPressOutBubble,
+  onSwipeSend,
 }: {
   status: 'upcoming' | 'ongoing' | 'ended';
   pillText: string;
   onPressBubble?: () => void;
   onLongPressBubble?: () => void;
   onPressOutBubble?: () => void;
+  onSwipeSend?: () => void;
 }) {
   const insets = useSafeAreaInsets();
+  const pan = useRef(new Animated.ValueXY()).current;
+  const [dragEnabled, setDragEnabled] = useState(false);
+  const [barWidth, setBarWidth] = useState(0);
+  const threshold = useMemo(() => barWidth * 0.25, [barWidth]);
+  const panResponder = useMemo(
+    () =>
+      PanResponder.create({
+        onStartShouldSetPanResponder: () => status === 'ongoing' && dragEnabled,
+        onMoveShouldSetPanResponder: (_, gesture) =>
+          status === 'ongoing' && dragEnabled && Math.abs(gesture.dx) > 5,
+        onPanResponderMove: Animated.event([null, { dx: pan.x }], {
+          useNativeDriver: false,
+        }),
+        onPanResponderRelease: (_, gesture) => {
+          if (gesture.dx > threshold) {
+            if (onSwipeSend) onSwipeSend();
+            // stop recording after a successful swipe
+            if (onPressOutBubble) onPressOutBubble();
+          }
+          // reset position & drag state
+          Animated.spring(pan, {
+            toValue: { x: 0, y: 0 },
+            useNativeDriver: false,
+          }).start();
+          setDragEnabled(false);
+        },
+      }),
+    [status, dragEnabled, pan, onSwipeSend, onPressOutBubble, threshold],
+  );
+
+  function handleLongPressWrapper() {
+    setDragEnabled(true);
+    if (onLongPressBubble) onLongPressBubble();
+  }
+
+  function handlePressOutWrapper() {
+    // Only stop recording if not currently dragging
+    if (!dragEnabled) {
+      if (onPressOutBubble) onPressOutBubble();
+    }
+  }
 
   return (
     <>
       {/* Pillbar */}
       <View
+        onLayout={(e) => setBarWidth(e.nativeEvent.layout.width)}
         style={{
           position: PILLBAR.CONTAINER_POSITION,
           bottom: insets.bottom + PILLBAR.CONTAINER_BOTTOM_OFFSET,
@@ -58,13 +105,26 @@ export default function TripPillbar({
               ]}
             >
               <View className="flex-row items-center">
-                <MainActionBubble
-                  status={status}
-                  onPress={onPressBubble}
-                  onLongPress={onLongPressBubble}
-                  onPressOut={onPressOutBubble}
-                />
-
+                {status === 'ongoing' ? (
+                  <Animated.View
+                    {...panResponder.panHandlers}
+                    style={{ transform: [{ translateX: pan.x }] }}
+                  >
+                    <MainActionBubble
+                      status={status}
+                      onPress={onPressBubble}
+                      onLongPress={handleLongPressWrapper}
+                      onPressOut={handlePressOutWrapper}
+                    />
+                  </Animated.View>
+                ) : (
+                  <MainActionBubble
+                    status={status}
+                    onPress={onPressBubble}
+                    onLongPress={onLongPressBubble}
+                    onPressOut={handlePressOutWrapper}
+                  />
+                )}
                 {/* Pill text */}
                 <Text className="text-gray-100 text-xl font-semibold flex-1">
                   {pillText}

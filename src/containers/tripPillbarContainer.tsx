@@ -65,6 +65,7 @@ export default function TripPillbarContainer({
                 : undefined
             }
             onPressOutBubble={status === 'ongoing' ? onPressOut : undefined}
+            onSwipeSend={status === 'ongoing' ? onPressOut : undefined}
           />
         )}
       </VideoBubbleController>
