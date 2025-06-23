@@ -36,20 +36,20 @@ export default function ParticipantsScreen() {
             PARTICIPANTS ({participantCount})
           </Text>
           <ParticipantsList
-            onSelect={(selectedParticipant) =>
-              setSelectedUser(selectedParticipant.profile)
-            }
+            onSelect={(selectedParticipant) => {
+              setSelectedUser(selectedParticipant);
+            }}
             onCountUpdate={setParticipantCount}
           />
         </View>
-        <UserProfileModal
-          isVisible={selectedUser !== null}
-          onClose={() => setSelectedUser(null)}
-          user={selectedUser}
-          currentUserId={user?.id}
-          isFriends
-        />
       </View>
+      <UserProfileModal
+        isVisible={selectedUser !== null}
+        onClose={() => setSelectedUser(null)}
+        user={selectedUser}
+        currentUserId={user?.id}
+        isFriends
+      />
     </>
   );
 }

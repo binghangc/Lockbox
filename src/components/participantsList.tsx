@@ -47,7 +47,7 @@ export default function ParticipantsList({ onSelect, onCountUpdate }: Props) {
       renderItem={({ item }) => (
         <FriendRowBase
           item={item.profile}
-          onPress={onSelect}
+          onPress={() => onSelect(item.profile)}
           RightAction={null}
         />
       )}
