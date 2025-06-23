@@ -65,6 +65,7 @@ export default function MainActionBubble({
         left: 20,
         right: 20,
       }}
+      delayLongPress={350}
     >
       <LinearGradient
         start={[0.2, 0.2]}
