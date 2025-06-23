@@ -19,6 +19,7 @@ import useTrips from '@/hooks/useTrips';
 import useTodayVibecheck from '@/hooks/useTodayVibecheck';
 import ParticipantRowList from '@/components/participantRowList';
 import VibecheckShuffleButton from '@/components/vibecheckShuffleButton';
+import { useCallback } from 'react';
 
 export const screenOptions = {
   headerTransparent: true,
@@ -51,7 +52,7 @@ export default function TripDetailScreen() {
   const HEADER_HEIGHT = insets.top + 60;
 
   const onSelect = (user: Profile) => {};
-  const onCountUpdate = (count: number) => {};
+  const onCountUpdate = useCallback((count: number) => {}, []);
 
   if (loading) {
     return (
