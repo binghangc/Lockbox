@@ -24,13 +24,22 @@ export default function RootLayout() {
 
   useEffect(() => {
     const handleDeepLink = async (event: { url: string }) => {
-      console.log('🔗 Deep link received:', event.url);
-      const { error } = await supabase.auth.exchangeCodeForSession(event.url);
+      const { url } = event;
+      console.log('🔗 Deep link received:', url);
+
+      const hasCode = url.includes('code=');
+
+      if (!hasCode) {
+        console.log('⚠️ Deep link does not contain a code. Skipping...');
+        return;
+      }
+
+      const { error } = await supabase.auth.exchangeCodeForSession(url);
       if (error) {
         console.error('❌ Deep link session exchange error:', error.message);
       } else {
         console.log('✅ Session established via deep link!');
-        router.replace('/(tabs)'); // go to home after confirmation
+        router.replace('/(tabs)');
       }
     };
 

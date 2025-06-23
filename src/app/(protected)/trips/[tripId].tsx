@@ -49,13 +49,16 @@ export default function TripDetailScreen() {
   const { user } = useUser();
   const isHost = user?.id === trip?.host?.id;
   const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
+  const [participantCount, setParticipantCount] = useState<number>(0);
 
   const HEADER_HEIGHT = insets.top + 60;
 
   const onSelect = (u: Profile) => {
     setSelectedUser(u);
   };
-  const onCountUpdate = useCallback((count: number) => {}, []);
+  const onCountUpdate = useCallback((count: number) => {
+    setParticipantCount(count);
+  }, []);
 
   if (loading) {
     return (
@@ -172,7 +175,7 @@ export default function TripDetailScreen() {
             <View className="p-3">
               <View className="flex-row justify-between items-center mt-4 mb-2 px-4">
                 <Text className="text-white text-2xl font-semibold">
-                  Participants
+                  Participants ({participantCount})
                 </Text>
                 <TouchableOpacity
                   onPress={() => router.push(`/trips/${tripId}/participants`)}

@@ -174,27 +174,7 @@ router.post('/:id/leave', authMiddleware, async (req, res) => {
   return res.json({ success: true });
 });
 
-// API endpoint for users to update their itinerary
-router.patch('/itinerary/:id', authMiddleware, async (req, res) => {
-  const { itinerary } = req.body;
-  const trip_id = req.params.id;
-
-  if (!itinerary || typeof itinerary !== 'string') {
-    return res.status(400).json({ error: 'Missing or invalid params' });
-  }
-
-  const { error } = await supabase
-    .from('trips')
-    .update({ itinerary })
-    .eq('id', trip_id);
-
-  if (error) {
-    return res.status(500).json({ error: error.message });
-  }
-
-  return res.status(200).json({ message: 'Itinerary updated successfully' });
-});
-
+// API endpoint for users to edit their trips.
 router.patch('/:id/edit', authMiddleware, async (req, res) => {
   const trip_id = req.params.id;
   const { title, description, thumbnail_url, start_date, end_date, country } =
@@ -247,6 +227,7 @@ router.get('/:id/participants', authMiddleware, async (req, res) => {
   }
 });
 
+// API endpoint for users to save their itineraries and generate vibechecks
 router.post('/:id/submit-itinerary', authMiddleware, async (req, res) => {
   const trip_id = req.params.id;
   const { user } = req;
@@ -261,7 +242,7 @@ router.post('/:id/submit-itinerary', authMiddleware, async (req, res) => {
   try {
     const { data: trip, error: tripError } = await supabase
       .from('trips')
-      .select('id, user_id')
+      .select('id, user_id, title, country')
       .eq('id', trip_id)
       .single();
 
@@ -292,6 +273,9 @@ router.post('/:id/submit-itinerary', authMiddleware, async (req, res) => {
         const vibecheck = await generateVibeCheck({
           itineraryText: entry.itinerary,
           tripDate: entry.date,
+          tripTitle: trip.title,
+          country: trip.country,
+          description: trip.description,
         });
 
         return {
@@ -365,6 +349,7 @@ router.get('/:id/vibecheck/:date', authMiddleware, async (req, res) => {
   }
 });
 
+// API endpoint to update vibechecks for a date
 router.patch('/:id/vibecheck/:date', authMiddleware, async (req, res) => {
   const { id, date } = req.params;
 

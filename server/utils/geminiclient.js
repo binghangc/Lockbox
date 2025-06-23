@@ -14,7 +14,13 @@ const chatModel = new ChatGoogleGenerativeAI({
   // add other configurations like temperature, topK, topP here
 });
 
-async function generateVibeCheck({ itineraryText, tripDate }) {
+async function generateVibeCheck({
+  itineraryText,
+  tripDate,
+  tripTitle,
+  country,
+  description,
+}) {
   const formattedDate = dayjs(tripDate).format('dddd, MMMM D');
   try {
     const message = new HumanMessage(
@@ -28,6 +34,11 @@ async function generateVibeCheck({ itineraryText, tripDate }) {
       Don't just name the place (eg no "Capitoline core unlocked").
       Use playful metaphors or specific reactions to the activity. 
       Avoid repeating themes like “calves crying” — keep responses fresh and diverse.
+
+      Trip information:
+      - Title: ${tripTitle}
+      - Country: ${country}
+      - Description: ${description}
       
       Guidelines:
       - Keep each vibe check to one phrase, max 5-7 words. 
@@ -47,13 +58,6 @@ async function generateVibeCheck({ itineraryText, tripDate }) {
 
     if (response && typeof response.content === 'string') {
       const raw = response.content.trim();
-      const firstLine = raw.split('\n')[0].trim();
-      const noNumber = firstLine.replace(/^\s*\d+[.)-]\s*/, '');
-      let cleaned = noNumber;
-
-      if (/^[A-Za-z\s]{1,20}:\s/.test(noNumber)) {
-        cleaned = noNumber.replace(/^[A-Za-z\s]{1,20}:\s*/, '');
-      }
       return raw;
     }
 
