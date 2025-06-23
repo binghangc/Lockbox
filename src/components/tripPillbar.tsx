@@ -1,12 +1,20 @@
-import React, { useRef, useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 /* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable react/jsx-no-bind */
-import { View, Text, Animated, PanResponder } from 'react-native';
+import { View, PanResponder } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import PILLBAR from '@/constants/pillbarConfig';
+import AnimatedReanimated, {
+  useSharedValue,
+  useAnimatedStyle,
+  interpolate,
+  Extrapolation,
+} from 'react-native-reanimated';
 import MainActionBubble from './mainActionBubble';
+
+const { Text: AnimatedText } = AnimatedReanimated;
 
 export default function TripPillbar({
   status,
@@ -26,65 +34,65 @@ export default function TripPillbar({
   bottomAccessory?: React.ReactNode;
 }) {
   const insets = useSafeAreaInsets();
-  const pan = useRef(new Animated.ValueXY()).current;
   const [dragEnabled, setDragEnabled] = useState(false);
   const [barWidth, setBarWidth] = useState(0);
-  const threshold = useMemo(() => (barWidth - 16) * 0.75, [barWidth]);
+  const threshold = useMemo(() => (barWidth - 16) * 0.5, [barWidth]);
+  const isSliding = useSharedValue(false);
+  const showAccessory = useSharedValue(true);
+
+  const panX = useSharedValue(0);
+
   const panResponder = useMemo(
     () =>
       PanResponder.create({
         onStartShouldSetPanResponder: () => status === 'ongoing' && dragEnabled,
         onMoveShouldSetPanResponder: (_, gesture) =>
-          status === 'ongoing' && dragEnabled && Math.abs(gesture.dx) > 5,
+          status === 'ongoing' && dragEnabled && Math.abs(gesture.dx) > 0,
         onPanResponderMove: (_, gestureState) => {
           const maxDistance =
             barWidth -
             PILLBAR.BUBBLE_WIDTH -
             PILLBAR.PILLBAR_PADDING_HORIZONTAL * 2;
           if (gestureState.dx < 0) {
-            pan.setValue({ x: 0, y: 0 });
+            panX.value = 0;
           } else {
             const restrictedDistance = maxDistance - 16;
-            if (gestureState.dx > restrictedDistance) {
-              pan.setValue({ x: restrictedDistance, y: 0 });
-            } else {
-              pan.setValue({ x: gestureState.dx, y: 0 });
-            }
+            panX.value = Math.min(gestureState.dx, restrictedDistance);
           }
         },
         onPanResponderRelease: (_, gesture) => {
           if (status === 'ongoing' && dragEnabled) {
             if (gesture.dx > threshold) {
-              console.log('send');
+              console.log('Slide to send triggered');
               if (onSwipeSend) onSwipeSend();
-              // stop recording after a successful swipe
               if (onPressOutBubble) onPressOutBubble();
-            } else {
-              console.log('cancel');
-              if (onPressOutBubble) onPressOutBubble();
+            } else if (onPressOutBubble) {
+              console.log('Slide to cancel triggered');
+              onPressOutBubble();
             }
-            // reset position & drag state
-            Animated.spring(pan, {
-              toValue: { x: 0, y: 0 },
-              useNativeDriver: false,
-            }).start();
+            panX.value = 0;
             setDragEnabled(false);
+            isSliding.value = false;
+            showAccessory.value = true;
           }
         },
       }),
     [
       status,
       dragEnabled,
-      pan,
       onSwipeSend,
       onPressOutBubble,
       threshold,
       barWidth,
+      isSliding,
+      panX,
     ],
   );
 
   function handleLongPressWrapper() {
     setDragEnabled(true);
+    isSliding.value = true;
+    showAccessory.value = false;
     if (onLongPressBubble) onLongPressBubble();
   }
 
@@ -92,7 +100,46 @@ export default function TripPillbar({
     if (!dragEnabled) {
       if (onPressOutBubble) onPressOutBubble();
     }
+    showAccessory.value = true;
   }
+
+  const animatedPillTextStyle = useAnimatedStyle(() => {
+    const inputRange = [0, threshold];
+    return {
+      opacity: interpolate(
+        panX.value,
+        inputRange,
+        [0.7, 0],
+        Extrapolation.CLAMP,
+      ),
+      transform: [
+        {
+          translateX: interpolate(
+            panX.value,
+            inputRange,
+            [0, panX.value],
+            Extrapolation.CLAMP,
+          ),
+        },
+      ],
+    };
+  });
+
+  const animatedPanStyle = useAnimatedStyle(() => ({
+    transform: [
+      {
+        translateX: panX.value,
+      },
+    ],
+  }));
+
+  const animatedAccessoryStyle = useAnimatedStyle(() => {
+    const shouldShow = showAccessory.value && !isSliding.value;
+    return {
+      opacity: shouldShow ? 1 : 0,
+      transform: [{ scale: shouldShow ? 1 : 0.8 }],
+    };
+  });
 
   return (
     <>
@@ -134,9 +181,9 @@ export default function TripPillbar({
             >
               <View className="flex-row items-center">
                 {status === 'ongoing' ? (
-                  <Animated.View
+                  <AnimatedReanimated.View
                     {...panResponder.panHandlers}
-                    style={{ transform: [{ translateX: pan.x }] }}
+                    style={[animatedPanStyle]}
                   >
                     <MainActionBubble
                       status={status}
@@ -144,7 +191,7 @@ export default function TripPillbar({
                       onLongPress={handleLongPressWrapper}
                       onPressOut={handlePressOutWrapper}
                     />
-                  </Animated.View>
+                  </AnimatedReanimated.View>
                 ) : (
                   <MainActionBubble
                     status={status}
@@ -154,12 +201,19 @@ export default function TripPillbar({
                   />
                 )}
                 {/* Pill text */}
-                <Text className="text-gray-100 text-xl font-semibold flex-1">
-                  {pillText}
-                </Text>
+                <AnimatedText
+                  className="text-gray-100 text-xl font-semibold flex-1"
+                  style={animatedPillTextStyle}
+                >
+                  {dragEnabled ? 'Slide to send' : pillText}
+                </AnimatedText>
 
                 {bottomAccessory && (
-                  <View className="ml-2">{bottomAccessory}</View>
+                  <AnimatedReanimated.View
+                    style={[{ marginLeft: 8 }, animatedAccessoryStyle]}
+                  >
+                    {bottomAccessory}
+                  </AnimatedReanimated.View>
                 )}
               </View>
             </BlurView>

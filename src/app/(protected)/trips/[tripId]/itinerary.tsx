@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   ImageBackground,
   Alert,
+  Platform,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useState } from 'react';
@@ -97,7 +98,12 @@ export default function ItineraryScreen() {
       style={{ flex: 1 }}
       blurRadius={10}
     >
-      <View className="px-5 py-20" style={{ paddingTop: insets.top + 10 }}>
+      <View
+        className="px-5 py-20"
+        style={{
+          paddingTop: insets.top + (Platform.OS === 'android' ? 70 : 10),
+        }}
+      >
         <Text className="text-white text-3xl font-extrabold mb-2">
           📍 Trip Itinerary: {trip.title}
         </Text>
