@@ -2,7 +2,10 @@ import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import dayjs from 'dayjs';
 
-export default function useTodayVibecheck(tripId: string) {
+export default function useTodayVibecheck(
+  tripId: string,
+  tripStatus: 'upcoming' | 'ongoing' | 'ended',
+) {
   const [vibecheck, setVibecheck] = useState<string | null>(null);
   const [vcloading, setLoading] = useState(true);
 
@@ -54,8 +57,14 @@ export default function useTodayVibecheck(tripId: string) {
   };
 
   useEffect(() => {
+    if (tripStatus !== 'ongoing') {
+      setVibecheck(null);
+      setLoading(false);
+      return;
+    }
+
     fetchVibecheck();
-  }, [tripId]);
+  }, [tripId, tripStatus]);
 
   return { vibecheck, vcloading, reshuffleVibecheck };
 }

@@ -26,8 +26,10 @@ export default function TripPillbarContainer({
   const insets = useSafeAreaInsets();
   const { tap, hold } = useHaptics();
   const { showHint, show } = useRecordHint();
-  const { vibecheck, reshuffleVibecheck, vcloading } =
-    useTodayVibecheck(tripId);
+  const { vibecheck, reshuffleVibecheck, vcloading } = useTodayVibecheck(
+    tripId,
+    status,
+  );
 
   let pillText = '';
   if (status === 'upcoming') {
