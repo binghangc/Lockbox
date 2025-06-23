@@ -365,4 +365,35 @@ router.get('/:id/vibecheck/:date', authMiddleware, async (req, res) => {
   }
 });
 
+router.patch('/:id/vibecheck/:date', authMiddleware, async (req, res) => {
+  const { id, date } = req.params;
+
+  const { data: itinerary, error: itineraryError } = await supabase
+    .from('itineraries')
+    .select('id, itinerary')
+    .eq('trip_id', id)
+    .eq('date', date)
+    .single();
+
+  if (itineraryError || !itinerary) {
+    return res.status(500).json({ error: itineraryError.message });
+  }
+
+  const vibe = await generateVibeCheck({
+    itineraryText: itinerary.itinerary,
+    tripDate: date,
+  });
+
+  const { error } = await supabase
+    .from('vibechecks')
+    .update({ vibecheck: vibe })
+    .eq('trip_id', id)
+    .eq('date', date)
+    .eq('itinerary_id', itinerary.id);
+
+  if (error) return res.status(500).json({ error: error.message });
+
+  return res.json({ vibecheck: vibe });
+});
+
 module.exports = router;

@@ -25,7 +25,9 @@ async function generateVibeCheck({ itineraryText, tripDate }) {
       If it’s a hill — mention climbing, views, exhaustion.  
       If it's a food spot — mention cravings, mess, first bites.  
       If it’s a museum — mention getting lost, random statues, or “too many rooms.”
-      Don't just name the place (eg no "Capitoline core unlocked" something like "Calves crying on Capitoline Hill" instead).
+      Don't just name the place (eg no "Capitoline core unlocked").
+      Use playful metaphors or specific reactions to the activity. 
+      Avoid repeating themes like “calves crying” — keep responses fresh and diverse.
       
       Guidelines:
       - Keep each vibe check to one phrase, max 5-7 words. 

@@ -40,5 +40,5 @@ export default function useTodayVibecheck(tripId: string) {
     fetchVibecheck();
   }, [tripId]);
 
-  return { vibecheck, vcloading };
+  return { vibecheck, setVibecheck, vcloading };
 }
