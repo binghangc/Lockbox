@@ -2,7 +2,6 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import ParticipantAvatar from '@/components/participantAvatar';
 import useParticipants from '@/hooks/useParticipants';
-import { useRouter } from 'expo-router';
 
 type Props = {
   onSelect: (user: Profile) => void | Promise<void>;
@@ -11,7 +10,6 @@ type Props = {
 
 export default function ParticipantRowList({ onSelect, onCountUpdate }: Props) {
   const { participants, loading } = useParticipants(onCountUpdate);
-  const router = useRouter();
 
   const unique = Array.from(
     new Map(participants.map((p) => [p.user_id, p])).values(),
@@ -36,7 +34,7 @@ export default function ParticipantRowList({ onSelect, onCountUpdate }: Props) {
           avatarUrl={p.profile?.avatar_url}
           size={80}
           isHost={p.role === 'host'}
-          onPress={() => onSelect?.(p)}
+          onPress={() => onSelect?.(p.profile)}
         />
       ))}
     </View>

@@ -10,6 +10,8 @@ const supabase = createClient(
 
 const authMiddleware = require('../middleware/auth.js');
 
+const { generateVibeCheck } = require('../utils/geminiclient.js');
+
 // POST /trips - Create a new trip
 router.post('/', authMiddleware, async (req, res) => {
   const user_id = req.user.id;
@@ -243,6 +245,155 @@ router.get('/:id/participants', authMiddleware, async (req, res) => {
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
+});
+
+router.post('/:id/submit-itinerary', authMiddleware, async (req, res) => {
+  const trip_id = req.params.id;
+  const { user } = req;
+  const itineraries = req.body;
+
+  if (!Array.isArray(itineraries) || itineraries.length === 0) {
+    return res
+      .status(400)
+      .json({ error: 'Itinerary must be a non-empty array' });
+  }
+
+  try {
+    const { data: trip, error: tripError } = await supabase
+      .from('trips')
+      .select('id, user_id')
+      .eq('id', trip_id)
+      .single();
+
+    if (tripError || !trip) throw new Error('Trip not found');
+
+    if (trip.user_id !== user.id) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+
+    // Step 1: insert itineraries
+    const payload = itineraries.map((entry, index) => ({
+      trip_id,
+      date: entry.date,
+      itinerary: entry.itinerary,
+      day_index: index + 1,
+      updated_at: new Date().toISOString(),
+    }));
+
+    const { data: inserted, error: insertError } = await supabase
+      .from('itineraries')
+      .upsert(payload, { onConflict: ['trip_id', 'date'] })
+      .select();
+
+    if (insertError) throw insertError;
+
+    const vibechecks = await Promise.all(
+      inserted.map(async (entry) => {
+        const vibecheck = await generateVibeCheck({
+          itineraryText: entry.itinerary,
+          tripDate: entry.date,
+        });
+
+        return {
+          trip_id,
+          date: entry.date,
+          vibecheck: vibecheck,
+          itinerary_id: entry.id,
+        };
+      }),
+    );
+
+    const { error: vibeInsertError } = await supabase
+      .from('vibechecks')
+      .upsert(vibechecks, { onConflict: ['trip_id', 'date'] });
+
+    if (vibeInsertError) throw vibeInsertError;
+
+    return res.status(200).json({ success: true });
+  } catch (err) {
+    console.error('[POST /:trip_id/itinerary] Error:', err.message);
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/:trip_id/itinerary/', authMiddleware, async (req, res) => {
+  const { trip_id } = req.params;
+
+  try {
+    const { data, error } = await supabase
+      .from('itineraries')
+      .select('date, itinerary')
+      .eq('trip_id', trip_id);
+
+    if (error && error.code !== 'PGRST116') throw error;
+
+    return res.json(data);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// API endpoint to get vibechecks for a date
+router.get('/:id/vibecheck/:date', authMiddleware, async (req, res) => {
+  const trip_id = req.params.id;
+  const { date } = req.params;
+
+  if (!date) {
+    return res.status(400).json({ error: 'Missing date query parameter' });
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('vibechecks')
+      .select('vibecheck')
+      .eq('trip_id', trip_id)
+      .eq('date', date)
+      .single();
+
+    if (error) throw error;
+
+    if (!data) {
+      return res
+        .status(404)
+        .json({ error: 'No vibecheck found for this date' });
+    }
+
+    return res.json({ vibecheck: data.vibecheck });
+  } catch (err) {
+    console.error('Error fetching vibecheck:', err.message);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.patch('/:id/vibecheck/:date', authMiddleware, async (req, res) => {
+  const { id, date } = req.params;
+
+  const { data: itinerary, error: itineraryError } = await supabase
+    .from('itineraries')
+    .select('id, itinerary')
+    .eq('trip_id', id)
+    .eq('date', date)
+    .single();
+
+  if (itineraryError || !itinerary) {
+    return res.status(500).json({ error: itineraryError.message });
+  }
+
+  const vibe = await generateVibeCheck({
+    itineraryText: itinerary.itinerary,
+    tripDate: date,
+  });
+
+  const { error } = await supabase
+    .from('vibechecks')
+    .update({ vibecheck: vibe })
+    .eq('trip_id', id)
+    .eq('date', date)
+    .eq('itinerary_id', itinerary.id);
+
+  if (error) return res.status(500).json({ error: error.message });
+
+  return res.json({ vibecheck: vibe });
 });
 
 module.exports = router;

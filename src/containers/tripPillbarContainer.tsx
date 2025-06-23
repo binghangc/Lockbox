@@ -7,26 +7,46 @@ import RecordHintBar from '@/components/video/recordHintBar';
 import React from 'react';
 import VideoBubbleController from '@/components/video/videoBubbleController';
 import TripPillbar from '@/components/tripPillbar';
+import useTodayVibecheck from '@/hooks/useTodayVibecheck';
+import VibecheckShuffleButton from '@/components/vibecheckShuffleButton';
 
 type TripPillbarContainerProps = {
+  tripId: string;
   status: 'upcoming' | 'ongoing' | 'ended';
+  isHost: boolean;
+  handlePress: () => void;
 };
 
 export default function TripPillbarContainer({
+  tripId,
   status,
+  isHost,
+  handlePress,
 }: TripPillbarContainerProps) {
   const insets = useSafeAreaInsets();
   const { tap, hold } = useHaptics();
   const { showHint, show } = useRecordHint();
+  const { vibecheck, reshuffleVibecheck, vcloading } =
+    useTodayVibecheck(tripId);
 
   let pillText = '';
   if (status === 'upcoming') {
     pillText = 'Superpower your vibechecks with our vibe genie';
   } else if (status === 'ongoing') {
-    pillText = 'Insert vibechecks here';
+    pillText = vcloading
+      ? 'Loading vibecheck...'
+      : vibecheck || 'No vibecheck for today.';
   } else if (status === 'ended') {
     pillText = 'View your memories';
   }
+
+  const bottomAccessory =
+    isHost && status === 'ongoing' ? (
+      <VibecheckShuffleButton
+        onPress={reshuffleVibecheck}
+        loading={vcloading}
+      />
+    ) : null;
 
   return (
     <>
@@ -44,17 +64,19 @@ export default function TripPillbarContainer({
         </View>
       )}
       <VideoBubbleController>
-        {({ onLongPress, onPressOut }) => (
+        {({ onLongPress, onPressOut, onSend }) => (
           <TripPillbar
             status={status}
             pillText={pillText}
+            bottomAccessory={bottomAccessory}
             onPressBubble={
               status === 'ongoing'
                 ? () => {
                     tap();
                     show();
+                    handlePress();
                   }
-                : undefined
+                : handlePress
             }
             onLongPressBubble={
               status === 'ongoing'
@@ -65,7 +87,7 @@ export default function TripPillbarContainer({
                 : undefined
             }
             onPressOutBubble={status === 'ongoing' ? onPressOut : undefined}
-            onSwipeSend={status === 'ongoing' ? onPressOut : undefined}
+            onSwipeSend={status === 'ongoing' ? onSend : undefined}
           />
         )}
       </VideoBubbleController>

@@ -15,6 +15,7 @@ export default function TripPillbar({
   onLongPressBubble,
   onPressOutBubble,
   onSwipeSend,
+  bottomAccessory,
 }: {
   status: 'upcoming' | 'ongoing' | 'ended';
   pillText: string;
@@ -22,6 +23,7 @@ export default function TripPillbar({
   onLongPressBubble?: () => void;
   onPressOutBubble?: () => void;
   onSwipeSend?: () => void;
+  bottomAccessory?: React.ReactNode;
 }) {
   const insets = useSafeAreaInsets();
   const pan = useRef(new Animated.ValueXY()).current;
@@ -134,6 +136,10 @@ export default function TripPillbar({
                 <Text className="text-gray-100 text-xl font-semibold flex-1">
                   {pillText}
                 </Text>
+
+                {bottomAccessory && (
+                  <View className="ml-2">{bottomAccessory}</View>
+                )}
               </View>
             </BlurView>
           </View>

@@ -9,13 +9,17 @@ import {
   StyleSheet,
   StatusBar,
 } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Octicons from '@expo/vector-icons/Octicons';
 import { BlurView } from 'expo-blur';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import useTrips from '@/hooks/useTrips';
 import TripPillbarContainer from '@/containers/tripPillbarContainer';
+import UserProfileModal from '@/components/userProfileModal';
+import { useState, useCallback } from 'react';
+import { useUser } from '@/components/UserContext';
+import { Profile } from '@/types';
 
 export const screenOptions = {
   headerTransparent: true,
@@ -41,7 +45,16 @@ export default function TripDetailScreen() {
   const { trip, loading } = useTrips(tripIdStr);
   const insets = useSafeAreaInsets();
 
+  const { user } = useUser();
+  const isHost = user?.id === trip?.host?.id;
+  const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
+
   const HEADER_HEIGHT = insets.top + 60;
+
+  const onSelect = (u: Profile) => {
+    setSelectedUser(u);
+  };
+  const onCountUpdate = useCallback((count: number) => {}, []);
 
   if (loading) {
     return (
@@ -57,6 +70,22 @@ export default function TripDetailScreen() {
         <Text className="text-white">Trip not found</Text>
       </View>
     );
+  }
+
+  let handlePress;
+
+  if (trip.status === 'upcoming' && isHost) {
+    handlePress = () => {
+      router.push(`/trips/${tripId}/itinerary`);
+    };
+  } else if (trip.status === 'upcoming' && !isHost) {
+    handlePress = () => {
+      console.log('Not host - do nothing.');
+    };
+  } else {
+    handlePress = () => {
+      console.log('Not implemented yet.');
+    };
   }
 
   return (
@@ -140,8 +169,18 @@ export default function TripDetailScreen() {
           </View>
         </View>
       </ScrollView>
+      <UserProfileModal
+        isVisible={selectedUser !== null}
+        onClose={() => setSelectedUser(null)}
+        user={selectedUser}
+        currentUserId={user?.id}
+        isFriends
+      />
       <TripPillbarContainer
+        tripId={tripIdStr}
+        isHost={isHost}
         status={(trip.status as 'upcoming' | 'ongoing' | 'ended') || 'upcoming'}
+        handlePress={handlePress}
       />
     </View>
   );

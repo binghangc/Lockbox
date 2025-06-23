@@ -11,7 +11,6 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 type TripControllerModalProps = {
   isHost: boolean;
   onEdit: () => void;
-  onItinerary: () => void;
   onSync: () => void;
   onPin: () => void;
   onInvite: () => void;
@@ -23,7 +22,6 @@ type TripControllerModalProps = {
 export default function TripControllerModal({
   isHost,
   onEdit,
-  onItinerary,
   onSync,
   onPin,
   onInvite,
@@ -130,12 +128,6 @@ export default function TripControllerModal({
             icon: <Foundation name="pencil" size={20} color="white" />,
             label: 'Edit Trip',
             onPress: onEdit,
-          })}
-        {isHost &&
-          renderItem({
-            icon: <FontAwesome5 name="newspaper" size={20} color="white" />,
-            label: 'Edit Itinerary',
-            onPress: onItinerary,
           })}
         {isHost &&
           renderItem({
