@@ -2,33 +2,23 @@ import { View, Text } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import useRecordHint from '@/hooks/video/useRecordHint';
-import RecordHintBar from '@/components/video/recordHintBar';
-import useHaptics from '@/hooks/useHaptics';
 import PILLBAR from '@/constants/pillbarConfig';
 import MainActionBubble from './mainActionBubble';
 
 export default function TripPillbar({
   status,
+  pillText,
+  onPressBubble,
   onLongPressBubble,
   onPressOutBubble,
 }: {
   status: 'upcoming' | 'ongoing' | 'ended';
+  pillText: string;
+  onPressBubble?: () => void;
   onLongPressBubble?: () => void;
   onPressOutBubble?: () => void;
 }) {
   const insets = useSafeAreaInsets();
-  const { showHint, show } = useRecordHint();
-  const { tap, hold } = useHaptics();
-
-  let pillText = '';
-  if (status === 'upcoming') {
-    pillText = 'Superpower your vibechecks with our vibe genie';
-  } else if (status === 'ongoing') {
-    pillText = 'Insert vibechecks here';
-  } else if (status === 'ended') {
-    pillText = 'View your memories';
-  }
 
   return (
     <>
@@ -42,7 +32,6 @@ export default function TripPillbar({
           zIndex: PILLBAR.CONTAINER_Z_INDEX,
         }}
       >
-        {showHint && status === 'ongoing' && <RecordHintBar />}
         <LinearGradient
           start={PILLBAR.GRADIENT_START}
           end={PILLBAR.GRADIENT_END}
@@ -71,18 +60,8 @@ export default function TripPillbar({
               <View className="flex-row items-center">
                 <MainActionBubble
                   status={status}
-                  onPress={() => {
-                    if (status === 'ongoing') {
-                      tap();
-                      show();
-                    }
-                  }}
-                  onLongPress={() => {
-                    if (status === 'ongoing') {
-                      hold();
-                      onLongPressBubble?.();
-                    }
-                  }}
+                  onPress={onPressBubble}
+                  onLongPress={onLongPressBubble}
                   onPressOut={onPressOutBubble}
                 />
 

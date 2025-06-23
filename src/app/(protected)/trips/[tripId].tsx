@@ -14,9 +14,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Octicons from '@expo/vector-icons/Octicons';
 import { BlurView } from 'expo-blur';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
-import TripPillbar from '@/components/tripPillbar';
 import useTrips from '@/hooks/useTrips';
-import VideoBubbleController from '@/components/video/videoBubbleController';
+import TripPillbarContainer from '@/containers/tripPillbarContainer';
 
 export const screenOptions = {
   headerTransparent: true,
@@ -141,21 +140,9 @@ export default function TripDetailScreen() {
           </View>
         </View>
       </ScrollView>
-      <VideoBubbleController>
-        {({ onLongPress, onPressOut }) => (
-          <TripPillbar
-            status={
-              (trip.status as 'upcoming' | 'ongoing' | 'ended') || 'upcoming'
-            }
-            onLongPressBubble={
-              trip.status === 'ongoing' ? onLongPress : undefined
-            }
-            onPressOutBubble={
-              trip.status === 'ongoing' ? onPressOut : undefined
-            }
-          />
-        )}
-      </VideoBubbleController>
+      <TripPillbarContainer
+        status={(trip.status as 'upcoming' | 'ongoing' | 'ended') || 'upcoming'}
+      />
     </View>
   );
 }

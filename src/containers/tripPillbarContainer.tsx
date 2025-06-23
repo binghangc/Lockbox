@@ -1,51 +1,73 @@
+import { View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import PILLBAR from '@/constants/pillbarConfig';
+import useHaptics from '@/hooks/useHaptics';
+import useRecordHint from '@/hooks/video/useRecordHint';
+import RecordHintBar from '@/components/video/recordHintBar';
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, View } from 'react-native';
-import { useHoldToRecord } from '@/hooks/video/useHoldToRecord';
-import { useSlideToCancel } from '@/hooks/video/useSlideToCancel';
+import VideoBubbleController from '@/components/video/videoBubbleController';
+import TripPillbar from '@/components/tripPillbar';
 
-interface TripPillbarProps {
+type TripPillbarContainerProps = {
   status: 'upcoming' | 'ongoing' | 'ended';
-  onLongPressBubble?: () => void;
-  onPressOutBubble?: () => void;
-}
+};
 
-export default function TripPillbar({
+export default function TripPillbarContainer({
   status,
-  onLongPressBubble,
-  onPressOutBubble,
-}: TripPillbarProps) {
-  const { hold, release } = useHoldToRecord();
-  const { show } = useSlideToCancel();
+}: TripPillbarContainerProps) {
+  const insets = useSafeAreaInsets();
+  const { tap, hold } = useHaptics();
+  const { showHint, show } = useRecordHint();
+
+  let pillText = '';
+  if (status === 'upcoming') {
+    pillText = 'Superpower your vibechecks with our vibe genie';
+  } else if (status === 'ongoing') {
+    pillText = 'Insert vibechecks here';
+  } else if (status === 'ended') {
+    pillText = 'View your memories';
+  }
 
   return (
-    <TouchableOpacity
-      style={styles.pill}
-      onLongPress={() => {
-        hold();
-        show();
-        onLongPressBubble?.();
-      }}
-      onPressOut={() => {
-        release();
-        onPressOutBubble?.();
-      }}
-    >
-      <View>
-        <Text style={styles.text}>{status.toUpperCase()}</Text>
-      </View>
-    </TouchableOpacity>
+    <>
+      {showHint && status === 'ongoing' && (
+        <View
+          style={{
+            position: PILLBAR.CONTAINER_POSITION,
+            bottom: insets.bottom + PILLBAR.CONTAINER_BOTTOM_OFFSET + 3,
+            left: PILLBAR.CONTAINER_HORIZONTAL_MARGIN,
+            right: PILLBAR.CONTAINER_HORIZONTAL_MARGIN,
+            zIndex: PILLBAR.CONTAINER_Z_INDEX + 1,
+          }}
+        >
+          <RecordHintBar />
+        </View>
+      )}
+      <VideoBubbleController>
+        {({ onLongPress, onPressOut }) => (
+          <TripPillbar
+            status={status}
+            pillText={pillText}
+            onPressBubble={
+              status === 'ongoing'
+                ? () => {
+                    tap();
+                    show();
+                  }
+                : undefined
+            }
+            onLongPressBubble={
+              status === 'ongoing'
+                ? () => {
+                    hold();
+                    onLongPress();
+                  }
+                : undefined
+            }
+            onPressOutBubble={status === 'ongoing' ? onPressOut : undefined}
+          />
+        )}
+      </VideoBubbleController>
+    </>
   );
 }
-
-const styles = StyleSheet.create({
-  pill: {
-    backgroundColor: 'blue',
-    padding: 16,
-    borderRadius: 24,
-    alignItems: 'center',
-  },
-  text: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
-});
