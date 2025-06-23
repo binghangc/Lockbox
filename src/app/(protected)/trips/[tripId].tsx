@@ -19,7 +19,6 @@ import useTrips from '@/hooks/useTrips';
 import useTodayVibecheck from '@/hooks/useTodayVibecheck';
 import ParticipantRowList from '@/components/participantRowList';
 import VibecheckShuffleButton from '@/components/vibecheckShuffleButton';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const screenOptions = {
   headerTransparent: true,
@@ -46,7 +45,8 @@ export default function TripDetailScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
 
-  const { vibecheck, setVibecheck, vcloading } = useTodayVibecheck(tripIdStr);
+  const { vibecheck, reshuffleVibecheck, vcloading } =
+    useTodayVibecheck(tripIdStr);
 
   const HEADER_HEIGHT = insets.top + 60;
 
@@ -84,29 +84,6 @@ export default function TripDetailScreen() {
       console.log('Not implemented yet.');
     };
   }
-
-  const handleShuffle = async () => {
-    const token = await AsyncStorage.getItem('access_token');
-    const today = dayjs().format('YYYY-MM-DD');
-
-    try {
-      const res = await fetch(
-        `${process.env.EXPO_PUBLIC_API_URL}/trips/${tripIdStr}/vibecheck/${today}`,
-        {
-          method: 'PATCH',
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-      const result = await res.json();
-
-      if (!res.ok) throw new Error(result.error);
-      setVibecheck(result.vibecheck);
-    } catch (err) {
-      console.error('Shuffle failed:', err.message);
-    }
-  };
 
   return (
     <View style={{ flex: 1, backgroundColor: 'transparent' }}>
@@ -231,7 +208,7 @@ export default function TripDetailScreen() {
         }
         bottomAccessory={
           isHost && trip.status === 'ongoing' ? (
-            <VibecheckShuffleButton onPress={handleShuffle} />
+            <VibecheckShuffleButton onPress={reshuffleVibecheck} />
           ) : null
         }
       />
