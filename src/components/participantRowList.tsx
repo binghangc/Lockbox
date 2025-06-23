@@ -36,7 +36,7 @@ export default function ParticipantRowList({ onSelect, onCountUpdate }: Props) {
           avatarUrl={p.profile?.avatar_url}
           size={80}
           isHost={p.role === 'host'}
-          onPress={() => onSelect?.(p)}
+          onPress={() => onSelect?.(p.profile)}
         />
       ))}
     </View>

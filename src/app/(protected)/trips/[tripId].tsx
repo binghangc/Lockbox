@@ -19,7 +19,9 @@ import useTrips from '@/hooks/useTrips';
 import useTodayVibecheck from '@/hooks/useTodayVibecheck';
 import ParticipantRowList from '@/components/participantRowList';
 import VibecheckShuffleButton from '@/components/vibecheckShuffleButton';
-import { useCallback } from 'react';
+import UserProfileModal from '@/components/userProfileModal';
+import { useState, useCallback } from 'react';
+import { useUser } from '@/components/UserContext';
 
 export const screenOptions = {
   headerTransparent: true,
@@ -46,12 +48,17 @@ export default function TripDetailScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
 
+  const { user } = useUser();
+  const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
+
   const { vibecheck, reshuffleVibecheck, vcloading } =
     useTodayVibecheck(tripIdStr);
 
   const HEADER_HEIGHT = insets.top + 60;
 
-  const onSelect = (user: Profile) => {};
+  const onSelect = (u: Profile) => {
+    setSelectedUser(u);
+  };
   const onCountUpdate = useCallback((count: number) => {}, []);
 
   if (loading) {
@@ -198,6 +205,13 @@ export default function TripDetailScreen() {
           </View>
         </View>
       </ScrollView>
+      <UserProfileModal
+        isVisible={selectedUser !== null}
+        onClose={() => setSelectedUser(null)}
+        user={selectedUser}
+        currentUserId={user?.id}
+        isFriends
+      />
       <TripPillbar
         handlePress={handlePress}
         isHost={isHost}
