@@ -11,6 +11,7 @@ import AnimatedReanimated, {
   useAnimatedStyle,
   interpolate,
   Extrapolation,
+  withSpring,
 } from 'react-native-reanimated';
 import MainActionBubble from './mainActionBubble';
 
@@ -36,6 +37,7 @@ export default function TripPillbar({
   const insets = useSafeAreaInsets();
   const [dragEnabled, setDragEnabled] = useState(false);
   const [barWidth, setBarWidth] = useState(0);
+  const [hasSent, setHasSent] = useState(false);
   const threshold = useMemo(() => (barWidth - 16) * 0.5, [barWidth]);
   const isSliding = useSharedValue(false);
   const showAccessory = useSharedValue(true);
@@ -62,15 +64,27 @@ export default function TripPillbar({
         },
         onPanResponderRelease: (_, gesture) => {
           if (status === 'ongoing' && dragEnabled) {
+            const maxDistance =
+              barWidth -
+              PILLBAR.BUBBLE_WIDTH -
+              PILLBAR.PILLBAR_PADDING_HORIZONTAL * 2;
+            const restrictedDistance = maxDistance - 16;
+
             if (gesture.dx > threshold) {
+              panX.value = withSpring(restrictedDistance, {
+                damping: 10,
+                stiffness: 100,
+              });
               console.log('Slide to send triggered');
               if (onSwipeSend) onSwipeSend();
               if (onPressOutBubble) onPressOutBubble();
-            } else if (onPressOutBubble) {
+              setHasSent(true);
+            } else {
+              panX.value = withSpring(0, { damping: 10, stiffness: 100 });
               console.log('Slide to cancel triggered');
-              onPressOutBubble();
+              if (onPressOutBubble) onPressOutBubble();
             }
-            panX.value = 0;
+
             setDragEnabled(false);
             isSliding.value = false;
             showAccessory.value = true;
@@ -86,6 +100,7 @@ export default function TripPillbar({
       barWidth,
       isSliding,
       panX,
+      showAccessory,
     ],
   );
 
@@ -134,7 +149,7 @@ export default function TripPillbar({
   }));
 
   const animatedAccessoryStyle = useAnimatedStyle(() => {
-    const shouldShow = showAccessory.value && !isSliding.value;
+    const shouldShow = showAccessory.value && !isSliding.value && !hasSent;
     return {
       opacity: shouldShow ? 1 : 0,
       transform: [{ scale: shouldShow ? 1 : 0.8 }],
