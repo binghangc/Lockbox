@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import dayjs from 'dayjs';
 
@@ -11,7 +11,7 @@ export default function useTodayVibecheck(
 
   const today = dayjs().format('YYYY-MM-DD');
 
-  const fetchVibecheck = async () => {
+  const fetchVibecheck = useCallback(async () => {
     setLoading(true);
     const token = await AsyncStorage.getItem('access_token');
     try {
@@ -31,7 +31,7 @@ export default function useTodayVibecheck(
     } finally {
       setLoading(false);
     }
-  };
+  }, [tripId, today]);
 
   const reshuffleVibecheck = async () => {
     setLoading(true);
@@ -64,7 +64,7 @@ export default function useTodayVibecheck(
     }
 
     fetchVibecheck();
-  }, [tripId, tripStatus]);
+  }, [tripStatus, fetchVibecheck]);
 
   return { vibecheck, vcloading, reshuffleVibecheck };
 }
