@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text } from 'react-native';
-import ParticipantAvatar from '@/components/participantAvatar';
+import ParticipantAvatar from '@/components/participants/participantAvatar';
 import useParticipants from '@/hooks/useParticipants';
 
 type Props = {

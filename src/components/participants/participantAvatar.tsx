@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, TouchableOpacity, Text, Image } from 'react-native';
 import { FontAwesome6 } from '@expo/vector-icons';
-import defaultAvatar from '../../assets/defaultavatar.jpg';
+import defaultAvatar from '../../../assets/defaultavatar.jpg';
 
 type ParticipantAvatarProps = {
   name: string;

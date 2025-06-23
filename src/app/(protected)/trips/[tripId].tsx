@@ -17,6 +17,7 @@ import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import useTrips from '@/hooks/useTrips';
 import TripPillbarContainer from '@/containers/tripPillbarContainer';
 import UserProfileModal from '@/components/userProfileModal';
+import ParticipantRowList from '@/components/participants/participantRowList';
 import { useState, useCallback } from 'react';
 import { useUser } from '@/components/UserContext';
 import { Profile } from '@/types';
@@ -166,6 +167,26 @@ export default function TripDetailScreen() {
                 {trip.description}
               </Text>
             )}
+
+            {/* Participants */}
+            <View className="p-3">
+              <View className="flex-row justify-between items-center mt-4 mb-2 px-4">
+                <Text className="text-white text-2xl font-semibold">
+                  Participants
+                </Text>
+                <TouchableOpacity
+                  onPress={() => router.push(`/trips/${tripId}/participants`)}
+                >
+                  <Text className="text-sm text-gray-300 font-medium">
+                    SEE ALL
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <ParticipantRowList
+                onSelect={onSelect}
+                onCountUpdate={onCountUpdate}
+              />
+            </View>
           </View>
         </View>
       </ScrollView>
