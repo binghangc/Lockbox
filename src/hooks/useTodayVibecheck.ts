@@ -31,6 +31,7 @@ export default function useTodayVibecheck(tripId: string) {
   };
 
   const reshuffleVibecheck = async () => {
+    setLoading(true);
     const token = await AsyncStorage.getItem('access_token');
     try {
       const res = await fetch(
@@ -47,6 +48,8 @@ export default function useTodayVibecheck(tripId: string) {
       setVibecheck(result.vibecheck);
     } catch (err) {
       console.error('Shuffle failed:', err.message);
+    } finally {
+      setLoading(false);
     }
   };
 

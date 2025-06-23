@@ -208,7 +208,10 @@ export default function TripDetailScreen() {
         }
         bottomAccessory={
           isHost && trip.status === 'ongoing' ? (
-            <VibecheckShuffleButton onPress={reshuffleVibecheck} />
+            <VibecheckShuffleButton
+              onPress={reshuffleVibecheck}
+              loading={vcloading}
+            />
           ) : null
         }
       />

@@ -1,9 +1,9 @@
-import { Text, TouchableOpacity, View, StyleSheet } from 'react-native';
+import { TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 
 type Props = {
   onPress?: () => void;
-  disabled?: boolean;
+  loading?: boolean;
 };
 
 const styles = StyleSheet.create({
@@ -26,16 +26,20 @@ const styles = StyleSheet.create({
 
 export default function VibecheckShuffleButton({
   onPress = () => {},
-  disabled = false,
+  loading = false,
 }: Props) {
   return (
     <TouchableOpacity
       onPress={onPress}
-      disabled={disabled}
-      style={[styles.button, disabled && { opacity: 0.5 }]}
+      disabled={loading}
+      style={[styles.button, loading && { opacity: 0.5 }]}
       activeOpacity={0.8}
     >
-      <FontAwesome6 name="shuffle" size={14} color="white" />
+      {loading ? (
+        <ActivityIndicator size="small" color="white" className="mr-2" />
+      ) : (
+        <FontAwesome6 name="shuffle" size={14} color="white" />
+      )}
     </TouchableOpacity>
   );
 }
