@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -6,34 +6,7 @@ import useRecordHint from '@/hooks/video/useRecordHint';
 import RecordHintBar from '@/components/video/recordHintBar';
 import useHaptics from '@/hooks/useHaptics';
 import PILLBAR from '@/constants/pillbarConfig';
-
-const styles = StyleSheet.create({
-  bubbleContainer: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 4,
-    width: PILLBAR.BUBBLE_WIDTH,
-    height: PILLBAR.BUBBLE_HEIGHT,
-    borderRadius: PILLBAR.BUBBLE_RADIUS,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: PILLBAR.BUBBLE_MARGIN_RIGHT,
-    marginLeft: PILLBAR.BUBBLE_MARGIN_LEFT,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.3)',
-  },
-  bubbleGradient: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    borderRadius: PILLBAR.BUBBLE_RADIUS,
-    overflow: 'hidden',
-  },
-});
+import MainActionBubble from './mainActionBubble';
 
 export default function TripPillbar({
   status,
@@ -47,16 +20,6 @@ export default function TripPillbar({
   const insets = useSafeAreaInsets();
   const { showHint, show } = useRecordHint();
   const { tap, hold } = useHaptics();
-
-  let mainActionIcon;
-
-  if (status === 'upcoming') {
-    mainActionIcon = <Text className="text-3xl">✨</Text>;
-  } else if (status === 'ongoing') {
-    mainActionIcon = <Text className="text-3xl">🎥</Text>;
-  } else if (status === 'ended') {
-    mainActionIcon = <Text className="text-3xl">🔓</Text>;
-  }
 
   let pillText = '';
   if (status === 'upcoming') {
@@ -101,10 +64,8 @@ export default function TripPillbar({
               ]}
             >
               <View className="flex-row items-center">
-                {/* Gradient bubble around icon */}
-                <TouchableOpacity
-                  style={styles.bubbleContainer}
-                  activeOpacity={0.7}
+                <MainActionBubble
+                  status={status}
                   onPress={() => {
                     if (status === 'ongoing') {
                       tap();
@@ -112,30 +73,13 @@ export default function TripPillbar({
                     }
                   }}
                   onLongPress={() => {
-                    hold();
-                    onLongPressBubble?.();
+                    if (status === 'ongoing') {
+                      hold();
+                      onLongPressBubble?.();
+                    }
                   }}
                   onPressOut={onPressOutBubble}
-                  hitSlop={10}
-                  pressRetentionOffset={{
-                    top: 20,
-                    bottom: 20,
-                    left: 20,
-                    right: 20,
-                  }}
-                >
-                  <LinearGradient
-                    start={[0.2, 0.2]}
-                    end={[0.8, 0.8]}
-                    colors={[
-                      'rgba(255,255,255,0.25)',
-                      'rgba(255,255,255,0.05)',
-                      'rgba(255,255,255,0)',
-                    ]}
-                    style={styles.bubbleGradient}
-                  />
-                  {mainActionIcon}
-                </TouchableOpacity>
+                />
 
                 {/* Pill text */}
                 <Text className="text-gray-100 text-xl font-semibold flex-1">
