@@ -7,6 +7,7 @@ type Props = {
   children: (props: {
     onLongPress: () => void;
     onPressOut: () => void;
+    onSend: () => void;
     isRecording: boolean;
     videoUri: string | null;
   }) => React.ReactNode;
@@ -43,11 +44,17 @@ export default function VideoBubbleController({ children }: Props) {
     setShowPreview(false);
   };
 
+  const onSend = () => {
+    stopRecording();
+    setShowPreview(false);
+  };
+
   return (
     <>
       {children({
         onLongPress,
         onPressOut,
+        onSend,
         isRecording,
         videoUri,
       })}

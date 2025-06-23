@@ -27,7 +27,7 @@ export default function TripPillbar({
   const pan = useRef(new Animated.ValueXY()).current;
   const [dragEnabled, setDragEnabled] = useState(false);
   const [barWidth, setBarWidth] = useState(0);
-  const threshold = useMemo(() => barWidth * 0.25, [barWidth]);
+  const threshold = useMemo(() => barWidth * 0.75, [barWidth]);
   const panResponder = useMemo(
     () =>
       PanResponder.create({
@@ -38,17 +38,23 @@ export default function TripPillbar({
           useNativeDriver: false,
         }),
         onPanResponderRelease: (_, gesture) => {
-          if (gesture.dx > threshold) {
-            if (onSwipeSend) onSwipeSend();
-            // stop recording after a successful swipe
-            if (onPressOutBubble) onPressOutBubble();
+          if (status === 'ongoing' && dragEnabled) {
+            if (gesture.dx > threshold) {
+              console.log('send');
+              if (onSwipeSend) onSwipeSend();
+              // stop recording after a successful swipe
+              if (onPressOutBubble) onPressOutBubble();
+            } else {
+              console.log('cancel');
+              if (onPressOutBubble) onPressOutBubble();
+            }
+            // reset position & drag state
+            Animated.spring(pan, {
+              toValue: { x: 0, y: 0 },
+              useNativeDriver: false,
+            }).start();
+            setDragEnabled(false);
           }
-          // reset position & drag state
-          Animated.spring(pan, {
-            toValue: { x: 0, y: 0 },
-            useNativeDriver: false,
-          }).start();
-          setDragEnabled(false);
         },
       }),
     [status, dragEnabled, pan, onSwipeSend, onPressOutBubble, threshold],
@@ -60,7 +66,6 @@ export default function TripPillbar({
   }
 
   function handlePressOutWrapper() {
-    // Only stop recording if not currently dragging
     if (!dragEnabled) {
       if (onPressOutBubble) onPressOutBubble();
     }
