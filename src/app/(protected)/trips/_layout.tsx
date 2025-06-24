@@ -73,10 +73,6 @@ export default function TripsLayout() {
     router.push(`/trips/${tripId}/edit`);
     modalRef.current?.close();
   };
-  const onItinerary = () => {
-    router.push(`/trips/${tripId}/itinerary`);
-    modalRef.current?.close();
-  };
   const onSync = () => {};
   const onPin = () => {};
   const onInvite = () => {
@@ -136,7 +132,6 @@ export default function TripsLayout() {
         triggerRef={modalRef}
         isHost={isHost}
         onEdit={onEdit}
-        onItinerary={onItinerary}
         onSync={onSync}
         onPin={onPin}
         onInvite={onInvite}
