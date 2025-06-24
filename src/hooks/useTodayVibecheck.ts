@@ -27,7 +27,11 @@ export default function useTodayVibecheck(
       if (!res.ok) throw new Error(result.error);
       setVibecheck(result.vibecheck);
     } catch (err) {
-      console.error('Error fetching vibecheck:', err.message);
+      if (err instanceof Error) {
+        console.error('Error fetching vibecheck:', err.message);
+      } else {
+        console.error('Error fetching vibecheck:', err);
+      }
     } finally {
       setLoading(false);
     }
@@ -50,7 +54,11 @@ export default function useTodayVibecheck(
       if (!res.ok) throw new Error(result.error);
       setVibecheck(result.vibecheck);
     } catch (err) {
-      console.error('Shuffle failed:', err.message);
+      if (err instanceof Error) {
+        console.error('Shuffle failed:', err.message);
+      } else {
+        console.error('Shuffle failed:', err);
+      }
     } finally {
       setLoading(false);
     }
