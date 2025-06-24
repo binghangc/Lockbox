@@ -8,6 +8,8 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY,
 );
 
+const dayjs = require('dayjs');
+
 const authMiddleware = require('../middleware/auth.js');
 
 const { generateVibeCheck } = require('../utils/geminiclient.js');
@@ -18,20 +20,33 @@ router.post('/', authMiddleware, async (req, res) => {
   const { title, description, start_date, end_date, country, thumbnail_url } =
     req.body;
 
-  const { data, error } = await supabase.from('trips').insert([
-    {
-      user_id,
-      title,
-      description,
-      start_date,
-      end_date,
-      country,
-      thumbnail_url,
-    },
-  ]);
+  const today = dayjs().format('YYYY-MM-DD');
+  const start = dayjs(start_date).format('YYYY-MM-DD');
+
+  const status = start === today ? 'ongoing' : 'upcoming';
+
+  const { data, error } = await supabase
+    .from('trips')
+    .insert([
+      {
+        user_id,
+        title,
+        description,
+        start_date,
+        end_date,
+        country,
+        thumbnail_url,
+        status,
+      },
+    ])
+    .select();
 
   if (error) return res.status(500).json({ error: error.message });
-  return res.status(201).json({ message: 'Trip created', data });
+  return res.status(201).json({
+    message: 'Trip created',
+    data,
+    needsImmediateItinerary: status === 'ongoing',
+  });
 });
 
 // GET /trips - Get all trips for the logged-in user (host or participant)
