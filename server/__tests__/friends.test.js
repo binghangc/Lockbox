@@ -326,3 +326,5 @@ describe('Friends: Reject Request Flow', () => {
     await deleteTestUsers();
   });
 });
+
+// TODO: route for remove friendship
