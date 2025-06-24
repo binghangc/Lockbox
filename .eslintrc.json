@@ -70,5 +70,13 @@
     "react/no-unstable-nested-components": "off",
     "react/require-default-props": "off",
     "node/no-extraneous-require": "off"
-  }
+  },
+  "overrides": [
+    {
+      "files": ["**/__tests__/**/*.js", "**/*.test.js", "**/*.test.ts"],
+      "env": {
+        "jest": true
+      }
+    }
+  ]
 }

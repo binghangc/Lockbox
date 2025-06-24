@@ -31,7 +31,6 @@ router.post('/signup', async (req, res) => {
       email,
       password,
       options: {
-        emailRedirectTo: process.env.EXPO_PUBLIC_REDIRECT_URL,
         data: {
           name: username,
           username,
@@ -81,7 +80,7 @@ router.post('/login', async (req, res) => {
 });
 
 // API endpoint for forgot password
-router.post('/forgot-password', async (req, res) => {
+/* router.post('/forgot-password', async (req, res) => {
   const { email } = req.body;
   if (!email) {
     return res.status(400).json({ error: 'Missing email' });
@@ -100,7 +99,7 @@ router.post('/forgot-password', async (req, res) => {
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
-});
+}); */
 
 // API endpoint for reset password
 router.post('/reset-password', async (req, res) => {
