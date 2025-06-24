@@ -3,35 +3,46 @@ import { CameraView } from 'expo-camera';
 
 type UseVideoRecorderOptions = {
   maxDurationSec: number;
+  onRecordingFinished?: (uri: string | null) => void;
 };
 
-const useVideoRecorder = ({ maxDurationSec }: UseVideoRecorderOptions) => {
+const useVideoRecorder = ({
+  maxDurationSec,
+  onRecordingFinished,
+}: UseVideoRecorderOptions) => {
   const maxDurationMs = maxDurationSec * 1000;
   const cameraRef = useRef<CameraView | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [videoUri, setVideoUri] = useState<string | null>(null);
 
   const startRecording = async () => {
-    if (!cameraRef.current || isRecording) return;
+    if (isRecording || !cameraRef.current) {
+      console.warn('Camera is not ready or already recording');
+      return;
+    }
+
     setIsRecording(true);
+    const options = {
+      quality: '480p',
+      maxDuration: maxDurationSec,
+      mute: false,
+    };
+
     try {
-      const video = await cameraRef.current.recordAsync({
-        maxDuration: maxDurationSec,
-      });
-      if (video && video.uri) {
-        setVideoUri(video.uri);
-      }
+      const recordedVideo = await cameraRef.current.recordAsync(options);
+      const uri = recordedVideo?.uri ?? null;
+      console.log('[useVideoRecorder] 📼 Recorded video URI:', uri);
+      setVideoUri(uri);
+      onRecordingFinished?.(uri);
     } catch (error) {
-      console.error('Recording failed:', error);
-    } finally {
+      console.error('Recording error:', error);
       setIsRecording(false);
     }
   };
 
   const stopRecording = () => {
-    if (cameraRef.current && isRecording) {
-      cameraRef.current.stopRecording();
-    }
+    setIsRecording(false);
+    cameraRef.current?.stopRecording();
   };
   return {
     cameraRef,

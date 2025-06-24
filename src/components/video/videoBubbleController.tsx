@@ -20,6 +20,7 @@ export default function VideoBubbleController({ children }: Props) {
   const maxDuration = 15;
 
   const { granted, requestPermissions } = useVideoPermissions();
+  const [showPreview, setShowPreview] = useState(false);
   const {
     cameraRef,
     isRecording,
@@ -27,9 +28,10 @@ export default function VideoBubbleController({ children }: Props) {
     stopRecording,
     videoUri,
     maxDurationMs,
-  } = useVideoRecorder({ maxDurationSec: maxDuration });
-
-  const [showPreview, setShowPreview] = useState(false);
+  } = useVideoRecorder({
+    maxDurationSec: maxDuration,
+    onRecordingFinished: () => setShowPreview(false),
+  });
 
   const onLongPress = async () => {
     if (!granted) {
@@ -41,12 +43,10 @@ export default function VideoBubbleController({ children }: Props) {
 
   const onPressOut = () => {
     stopRecording();
-    setShowPreview(false);
   };
 
   const onSend = () => {
     stopRecording();
-    setShowPreview(false);
   };
 
   return (
