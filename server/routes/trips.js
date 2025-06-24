@@ -25,21 +25,28 @@ router.post('/', authMiddleware, async (req, res) => {
 
   const status = start === today ? 'ongoing' : 'upcoming';
 
-  const { data, error } = await supabase.from('trips').insert([
-    {
-      user_id,
-      title,
-      description,
-      start_date,
-      end_date,
-      country,
-      thumbnail_url,
-      status,
-    },
-  ]);
+  const { data, error } = await supabase
+    .from('trips')
+    .insert([
+      {
+        user_id,
+        title,
+        description,
+        start_date,
+        end_date,
+        country,
+        thumbnail_url,
+        status,
+      },
+    ])
+    .select();
 
   if (error) return res.status(500).json({ error: error.message });
-  return res.status(201).json({ message: 'Trip created', data });
+  return res.status(201).json({
+    message: 'Trip created',
+    data,
+    needsImmediateItinerary: status === 'ongoing',
+  });
 });
 
 // GET /trips - Get all trips for the logged-in user (host or participant)
