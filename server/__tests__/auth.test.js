@@ -4,12 +4,14 @@ const request = require('supertest');
 const app = require('../app.js');
 const supabaseAdmin = require('../utils/supabaseAdminClient.js');
 const deleteTestUsers = require('../utils/test/deleteTestUsers.js');
+const createTestUser = require('../utils/test/createTestUser.js');
 
 const EMAIL_PREFIXES = [
   'signup_test',
   'duplicate_test',
   'login_test',
   'fail_login_test',
+  'delete_test',
 ];
 
 // Signup Flow Test
@@ -139,5 +141,39 @@ describe('Auth: Login Flow', () => {
 
     expect(res.statusCode).toBe(400);
     expect(res.body).toHaveProperty('error');
+  });
+});
+
+// Delete User Flow
+describe('Auth: Delete User Flow', () => {
+  let user;
+
+  beforeAll(async () => {
+    user = await createTestUser({
+      prefix: 'delete_test',
+      username: 'deleteuser',
+    });
+  });
+
+  it('should delete the user and related data successfully', async () => {
+    const res = await request(app)
+      .delete('/auth/delete')
+      .set('Authorization', `Bearer ${user.token}`);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.success).toBe(true);
+
+    const { data: listed } = await supabaseAdmin.auth.admin.listUsers();
+    const deleted = listed.users.find((u) => u.id === user.id);
+    expect(deleted).toBeUndefined();
+  });
+
+  it('should return 401 if no token is provided', async () => {
+    const res = await request(app).delete('/auth/delete');
+    expect(res.statusCode).toBe(401);
+  });
+
+  afterAll(async () => {
+    await deleteTestUsers(EMAIL_PREFIXES);
   });
 });
