@@ -2,49 +2,28 @@ const request = require('supertest');
 const app = require('../app.js');
 const supabaseAdmin = require('../utils/supabaseAdminClient.js');
 const deleteTestUsers = require('../utils/test/deleteTestUsers.js');
+const createTestUser = require('../utils/test/createTestUser.js');
 
 const EMAIL_PREFIXES = ['leave_trip', 'participants'];
 
 // Leave Trip route
 describe('Trips: Leave Trip Flow', () => {
   let hostToken;
-  let participantToken;
+  let partToken;
   let tripId;
 
   beforeAll(async () => {
-    const password = 'Test1234!';
-    const ts = Date.now();
-    const hostEmail = `leave_trip_host_${ts}@lockbox.dev`;
-    const partEmail = `leave_trip_participant_${ts}@lockbox.dev`;
-
-    await request(app)
-      .post('/auth/signup')
-      .send({ email: hostEmail, password, username: 'hostuser' });
-    await request(app)
-      .post('/auth/signup')
-      .send({ email: partEmail, password, username: 'partuser' });
-
-    const { users } = (await supabaseAdmin.auth.admin.listUsers()).data;
-    const hostUser = users.find((u) => u.email === hostEmail);
-    const partUser = users.find((u) => u.email === partEmail);
-
-    await supabaseAdmin.auth.admin.updateUserById(hostUser.id, {
-      email_confirm: true,
+    const hostUser = await createTestUser({
+      prefix: 'leave_trip_host',
+      username: 'hostuser',
     });
-    await supabaseAdmin.auth.admin.updateUserById(partUser.id, {
-      email_confirm: true,
+    const partUser = await createTestUser({
+      prefix: 'leave_trip_participant',
+      username: 'partuser',
     });
 
-    hostToken = (
-      await request(app)
-        .post('/auth/login')
-        .send({ email: hostEmail, password })
-    ).body.session.access_token;
-    participantToken = (
-      await request(app)
-        .post('/auth/login')
-        .send({ email: partEmail, password })
-    ).body.session.access_token;
+    hostToken = hostUser.token;
+    partToken = partUser.token;
 
     const today = new Date().toISOString().slice(0, 10);
     const tripRes = await request(app)
@@ -70,7 +49,7 @@ describe('Trips: Leave Trip Flow', () => {
   it('should allow a participant to leave the trip', async () => {
     const res = await request(app)
       .post(`/trips/${tripId}/leave`)
-      .set('Authorization', `Bearer ${participantToken}`);
+      .set('Authorization', `Bearer ${partToken}`);
 
     expect(res.statusCode).toBe(200);
     expect(res.body.success).toBe(true);
@@ -88,7 +67,7 @@ describe('Trips: Leave Trip Flow', () => {
   it('should succeed silently if non-participant tries to leave', async () => {
     const res = await request(app)
       .post(`/trips/${tripId}/leave`)
-      .set('Authorization', `Bearer ${participantToken}`);
+      .set('Authorization', `Bearer ${partToken}`);
 
     expect(res.statusCode).toBe(200);
     expect(res.body.success).toBe(true);
@@ -102,49 +81,25 @@ describe('Trips: Leave Trip Flow', () => {
 // Get Participants
 describe('Trips: Get Participants Flow', () => {
   let tripId;
-  let hostToken;
-  let partToken;
+  let hostUser;
   let partUser;
 
   beforeAll(async () => {
     await deleteTestUsers(EMAIL_PREFIXES);
 
-    const hostEmail = `participants_host_${Date.now()}@lockbox.dev`;
-    const password = 'Test123!';
-    await request(app).post('/auth/signup').send({
-      email: hostEmail,
-      password,
+    hostUser = await createTestUser({
+      prefix: 'participants_host',
       username: 'hostuser',
     });
-
-    const partEmail = `participants_nonhost${Date.now()}@lockbox.dev`;
-    await request(app).post('/auth/signup').send({
-      email: partEmail,
-      password,
+    partUser = await createTestUser({
+      prefix: 'participants_nonhost',
       username: 'participantuser',
     });
-
-    const { users } = (await supabaseAdmin.auth.admin.listUsers()).data;
-    const hostUser = users.find((u) => u.email === hostEmail);
-    partUser = users.find((u) => u.email === partEmail);
-
-    await supabaseAdmin.auth.admin.updateUserById(hostUser.id, {
-      email_confirm: true,
-    });
-    await supabaseAdmin.auth.admin.updateUserById(partUser.id, {
-      email_confirm: true,
-    });
-
-    const loginHost = await request(app).post('/auth/login').send({
-      email: hostEmail,
-      password,
-    });
-    hostToken = loginHost.body.session.access_token;
 
     const today = new Date().toISOString().slice(0, 10);
     const tripRes = await request(app)
       .post('/trips')
-      .set('Authorization', `Bearer ${hostToken}`)
+      .set('Authorization', `Bearer ${hostUser.token}`)
       .send({
         title: 'Test Trip',
         description: 'Testing participants',
@@ -155,12 +110,6 @@ describe('Trips: Get Participants Flow', () => {
       });
 
     tripId = tripRes.body.data[0].id;
-
-    const loginPart = await request(app).post('/auth/login').send({
-      email: partEmail,
-      password,
-    });
-    partToken = loginPart.body.session.access_token;
 
     await supabaseAdmin
       .from('participants')
@@ -175,7 +124,7 @@ describe('Trips: Get Participants Flow', () => {
   it('host should see participant profiles', async () => {
     const res = await request(app)
       .get(`/trips/${tripId}/participants`)
-      .set('Authorization', `Bearer ${hostToken}`);
+      .set('Authorization', `Bearer ${hostUser.token}`);
 
     expect(res.statusCode).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
@@ -188,7 +137,7 @@ describe('Trips: Get Participants Flow', () => {
   it('participants should see participant profiles', async () => {
     const res = await request(app)
       .get(`/trips/${tripId}/participants`)
-      .set('Authorization', `Bearer ${partToken}`);
+      .set('Authorization', `Bearer ${partUser.token}`);
 
     expect(res.statusCode).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);

@@ -1,7 +1,7 @@
 const request = require('supertest');
 const app = require('../app.js');
-const supabaseAdmin = require('../utils/supabaseAdminClient.js');
 const deleteTestUsers = require('../utils/test/deleteTestUsers.js');
+const createTestUser = require('../utils/test/createTestUser.js');
 
 const EMAIL_PREFIXES = ['friend_test', 'send_request_test'];
 
@@ -17,33 +17,14 @@ describe('Friends: Get Flow', () => {
   });
 
   it('should return an empty friends list for new user', async () => {
-    const testEmail = `friend_test_${Date.now()}@lockbox.dev`;
-    const password = 'Test1234!';
-
-    await request(app).post('/auth/signup').send({
-      email: testEmail,
-      password,
+    const user = await createTestUser({
+      prefix: 'friend_test',
       username: 'friendtest',
     });
 
-    const { data } = await supabaseAdmin.auth.admin.listUsers();
-    const { users } = data;
-
-    const user = users.find((u) => u.email === testEmail);
-    await supabaseAdmin.auth.admin.updateUserById(user.id, {
-      email_confirm: true,
-    });
-
-    const loginRes = await request(app).post('/auth/login').send({
-      email: testEmail,
-      password,
-    });
-
-    const token = loginRes.body.session.access_token;
-
     const res = await request(app)
       .get('/friends')
-      .set('Authorization', `Bearer ${token}`);
+      .set('Authorization', `Bearer ${user.token}`);
 
     expect(res.statusCode).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
@@ -58,52 +39,22 @@ describe('Friends: Get Flow', () => {
 describe('Friends: Accept Request Flow', () => {
   let userA;
   let userB;
-  let tokenA;
 
   beforeAll(async () => {
-    const timestamp = Date.now();
-    const testEmailA = `send_request_test_a_${timestamp}@lockbox.dev`;
-    const testEmailB = `send_request_test_b_${timestamp}@lockbox.dev`;
-    const password = 'Test1234!';
-
-    // Sign up both users
-    await request(app).post('/auth/signup').send({
-      email: testEmailA,
-      password,
-      username: `sendrequesta`,
+    userA = await createTestUser({
+      prefix: 'send_request_test_a',
+      username: 'sendrequesta',
     });
-
-    await request(app).post('/auth/signup').send({
-      email: testEmailB,
-      password,
-      username: `sendrequestb`,
+    userB = await createTestUser({
+      prefix: 'send_request_test_b',
+      username: 'sendrequestb',
     });
-
-    const { data } = await supabaseAdmin.auth.admin.listUsers();
-    const { users } = data;
-
-    userA = users.find((u) => u.email === testEmailA);
-    userB = users.find((u) => u.email === testEmailB);
-    await Promise.all([
-      supabaseAdmin.auth.admin.updateUserById(userA.id, {
-        email_confirm: true,
-      }),
-      supabaseAdmin.auth.admin.updateUserById(userB.id, {
-        email_confirm: true,
-      }),
-    ]);
-
-    const loginRes = await request(app).post('/auth/login').send({
-      email: testEmailA,
-      password,
-    });
-    tokenA = loginRes.body.session.access_token;
   });
 
   it('should send a friend request and return success', async () => {
     const sendRes = await request(app)
       .post('/friends/send-request')
-      .set('Authorization', `Bearer ${tokenA}`)
+      .set('Authorization', `Bearer ${userA.token}`)
       .send({ uid1: userA.id, uid2: userB.id })
       .expect(200);
 
@@ -115,16 +66,9 @@ describe('Friends: Accept Request Flow', () => {
   });
 
   it('should show the friend request as pending for userB', async () => {
-    const loginResB = await request(app).post('/auth/login').send({
-      email: userB.email,
-      password: 'Test1234!',
-    });
-
-    const tokenB = loginResB.body.session.access_token;
-
     const pendingRes = await request(app)
       .get('/friends/requests')
-      .set('Authorization', `Bearer ${tokenB}`);
+      .set('Authorization', `Bearer ${userB.token}`);
 
     expect(pendingRes.statusCode).toBe(200);
 
@@ -137,16 +81,9 @@ describe('Friends: Accept Request Flow', () => {
   });
 
   it('should show the friend request as accepted once userB accepts', async () => {
-    const loginResB = await request(app).post('/auth/login').send({
-      email: userB.email,
-      password: 'Test1234!',
-    });
-
-    const tokenB = loginResB.body.session.access_token;
-
     const pendingRes = await request(app)
       .get('/friends/requests')
-      .set('Authorization', `Bearer ${tokenB}`);
+      .set('Authorization', `Bearer ${userB.token}`);
 
     const requestToAccept = pendingRes.body.find(
       (req) => req.uid1 === userA.id && req.uid2 === userB.id,
@@ -156,7 +93,7 @@ describe('Friends: Accept Request Flow', () => {
 
     const acceptedRes = await request(app)
       .patch('/friends/accept-request')
-      .set('Authorization', `Bearer ${tokenB}`)
+      .set('Authorization', `Bearer ${userB.token}`)
       .send({
         id: requestToAccept.id,
         uid1: userA.id,
@@ -170,7 +107,7 @@ describe('Friends: Accept Request Flow', () => {
 
     const friendsRes = await request(app)
       .get('/friends')
-      .set('Authorization', `Bearer ${tokenB}`);
+      .set('Authorization', `Bearer ${userB.token}`);
 
     const newFriend = friendsRes.body.find(
       (f) => f.username === 'sendrequesta',
@@ -188,52 +125,22 @@ describe('Friends: Accept Request Flow', () => {
 describe('Friends: Reject Request Flow', () => {
   let userA;
   let userB;
-  let tokenA;
 
   beforeAll(async () => {
-    const timestamp = Date.now();
-    const testEmailA = `send_request_test_a_${timestamp}@lockbox.dev`;
-    const testEmailB = `send_request_test_b_${timestamp}@lockbox.dev`;
-    const password = 'Test1234!';
-
-    // Sign up both users
-    await request(app).post('/auth/signup').send({
-      email: testEmailA,
-      password,
-      username: `sendrequesta`,
+    userA = await createTestUser({
+      prefix: 'send_request_test_a',
+      username: 'sendrequesta',
     });
-
-    await request(app).post('/auth/signup').send({
-      email: testEmailB,
-      password,
-      username: `sendrequestb`,
+    userB = await createTestUser({
+      prefix: 'send_request_test_b',
+      username: 'sendrequestb',
     });
-
-    const { data } = await supabaseAdmin.auth.admin.listUsers();
-    const { users } = data;
-
-    userA = users.find((u) => u.email === testEmailA);
-    userB = users.find((u) => u.email === testEmailB);
-    await Promise.all([
-      supabaseAdmin.auth.admin.updateUserById(userA.id, {
-        email_confirm: true,
-      }),
-      supabaseAdmin.auth.admin.updateUserById(userB.id, {
-        email_confirm: true,
-      }),
-    ]);
-
-    const loginRes = await request(app).post('/auth/login').send({
-      email: testEmailA,
-      password,
-    });
-    tokenA = loginRes.body.session.access_token;
   });
 
   it('should send a friend request and return success', async () => {
     const sendRes = await request(app)
       .post('/friends/send-request')
-      .set('Authorization', `Bearer ${tokenA}`)
+      .set('Authorization', `Bearer ${userA.token}`)
       .send({ uid1: userA.id, uid2: userB.id })
       .expect(200);
 
@@ -245,16 +152,9 @@ describe('Friends: Reject Request Flow', () => {
   });
 
   it('should show the friend request as pending for userB', async () => {
-    const loginResB = await request(app).post('/auth/login').send({
-      email: userB.email,
-      password: 'Test1234!',
-    });
-
-    const tokenB = loginResB.body.session.access_token;
-
     const pendingRes = await request(app)
       .get('/friends/requests')
-      .set('Authorization', `Bearer ${tokenB}`);
+      .set('Authorization', `Bearer ${userB.token}`);
 
     expect(pendingRes.statusCode).toBe(200);
 
@@ -267,16 +167,9 @@ describe('Friends: Reject Request Flow', () => {
   });
 
   it('should show the friend request as rejected once userB rejects', async () => {
-    const loginResB = await request(app).post('/auth/login').send({
-      email: userB.email,
-      password: 'Test1234!',
-    });
-
-    const tokenB = loginResB.body.session.access_token;
-
     const pendingRes = await request(app)
       .get('/friends/requests')
-      .set('Authorization', `Bearer ${tokenB}`);
+      .set('Authorization', `Bearer ${userB.token}`);
 
     const requestToReject = pendingRes.body.find(
       (req) => req.uid1 === userA.id && req.uid2 === userB.id,
@@ -286,7 +179,7 @@ describe('Friends: Reject Request Flow', () => {
 
     const rejectedRes = await request(app)
       .patch('/friends/reject-request')
-      .set('Authorization', `Bearer ${tokenB}`)
+      .set('Authorization', `Bearer ${userB.token}`)
       .send({
         id: requestToReject.id,
         uid1: userA.id,

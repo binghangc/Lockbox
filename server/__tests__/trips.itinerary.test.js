@@ -1,14 +1,9 @@
 const request = require('supertest');
 const app = require('../app.js');
-const supabaseAdmin = require('../utils/supabaseAdminClient.js');
 const deleteTestUsers = require('../utils/test/deleteTestUsers.js');
+const createTestUser = require('../utils/test/createTestUser.js');
 
-const EMAIL_PREFIXES = [
-  'submit_itinerary',
-  'create_trip_test',
-  'delete_trip',
-  'edit_trip',
-];
+const EMAIL_PREFIXES = ['submit_itinerary'];
 
 jest.mock('../utils/geminiclient.js', () => ({
   generateVibeCheck: jest
@@ -29,35 +24,19 @@ describe('Itinerary + Vibecheck Flow', () => {
   beforeAll(async () => {
     await deleteTestUsers(EMAIL_PREFIXES);
 
-    const password = 'Test1234!';
-    const emailA = `submit_itinerary_host_${Date.now()}@lockbox.dev`;
-    const emailB = `submit_itinerary_other_${Date.now()}@lockbox.dev`;
-
-    // Signup A and B
-    await request(app)
-      .post('/auth/signup')
-      .send({ email: emailA, password, username: 'hostuser' });
-    await request(app)
-      .post('/auth/signup')
-      .send({ email: emailB, password, username: 'otheruser' });
-
-    const { users } = (await supabaseAdmin.auth.admin.listUsers()).data;
-    userA = users.find((u) => u.email === emailA);
-    userB = users.find((u) => u.email === emailB);
-
-    await supabaseAdmin.auth.admin.updateUserById(userA.id, {
-      email_confirm: true,
+    const userARes = await createTestUser({
+      prefix: 'submit_itinerary_host',
+      username: 'hostuser',
     });
-    await supabaseAdmin.auth.admin.updateUserById(userB.id, {
-      email_confirm: true,
+    const userBRes = await createTestUser({
+      prefix: 'submit_itinerary_other',
+      username: 'otheruser',
     });
 
-    tokenA = (
-      await request(app).post('/auth/login').send({ email: emailA, password })
-    ).body.session.access_token;
-    tokenB = (
-      await request(app).post('/auth/login').send({ email: emailB, password })
-    ).body.session.access_token;
+    userA = userARes;
+    userB = userBRes;
+    tokenA = userA.token;
+    tokenB = userB.token;
 
     const today = new Date().toISOString().slice(0, 10);
     const createRes = await request(app)

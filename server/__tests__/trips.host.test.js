@@ -3,6 +3,7 @@ const dayjs = require('dayjs');
 const app = require('../app.js');
 const supabaseAdmin = require('../utils/supabaseAdminClient.js');
 const deleteTestUsers = require('../utils/test/deleteTestUsers.js');
+const createTestUser = require('../utils/test/createTestUser.js');
 
 const EMAIL_PREFIXES = [
   'trip_test',
@@ -23,33 +24,14 @@ describe('Trips: Get Flow', () => {
   });
 
   it('should return an empty friends list for new user', async () => {
-    const testEmail = `trip_test_${Date.now()}@lockbox.dev`;
-    const password = 'Test1234!';
-
-    await request(app).post('/auth/signup').send({
-      email: testEmail,
-      password,
+    const user = await createTestUser({
+      prefix: 'trip_test',
       username: 'triptest',
     });
 
-    const { data } = await supabaseAdmin.auth.admin.listUsers();
-    const { users } = data;
-
-    const user = users.find((u) => u.email === testEmail);
-    await supabaseAdmin.auth.admin.updateUserById(user.id, {
-      email_confirm: true,
-    });
-
-    const loginRes = await request(app).post('/auth/login').send({
-      email: testEmail,
-      password,
-    });
-
-    const token = loginRes.body.session.access_token;
-
     const res = await request(app)
       .get('/trips')
-      .set('Authorization', `Bearer ${token}`);
+      .set('Authorization', `Bearer ${user.token}`);
 
     expect(res.statusCode).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
@@ -63,40 +45,19 @@ describe('Trips: Get Flow', () => {
 // Create Trips Flow: upcoming trip
 describe('Trips: Post Flow (Upcoming)', () => {
   let user;
-  let token;
   let tripId;
 
   beforeAll(async () => {
-    const timestamp = Date.now();
-    const testEmail = `create_trip_test_${timestamp}@lockbox.dev`;
-    const password = 'Test1234!';
-
-    await request(app).post('/auth/signup').send({
-      email: testEmail,
-      password,
-      username: `createtriptest`,
+    user = await createTestUser({
+      prefix: 'create_trip_test',
+      username: 'createtriptest',
     });
-
-    const { data } = await supabaseAdmin.auth.admin.listUsers();
-    const { users } = data;
-
-    user = users.find((u) => u.email === testEmail);
-
-    await supabaseAdmin.auth.admin.updateUserById(user.id, {
-      email_confirm: true,
-    });
-
-    const loginRes = await request(app).post('/auth/login').send({
-      email: testEmail,
-      password,
-    });
-    token = loginRes.body.session.access_token;
   });
 
   it('should return 400 error when fields are left blank', async () => {
     const createRes = await request(app)
       .post('/trips/')
-      .set('Authorization', `Bearer ${token}`)
+      .set('Authorization', `Bearer ${user.token}`)
       .send({});
 
     expect(createRes.statusCode).toBeGreaterThanOrEqual(400);
@@ -106,7 +67,7 @@ describe('Trips: Post Flow (Upcoming)', () => {
   it('should return 500 for invalid date format', async () => {
     const res = await request(app)
       .post('/trips')
-      .set('Authorization', `Bearer ${token}`)
+      .set('Authorization', `Bearer ${user.token}`)
       .send({
         title: 'Test Trip',
         description: 'Test desc',
@@ -123,7 +84,7 @@ describe('Trips: Post Flow (Upcoming)', () => {
   it('should create an upcoming trip with valid data', async () => {
     const res = await request(app)
       .post('/trips')
-      .set('Authorization', `Bearer ${token}`)
+      .set('Authorization', `Bearer ${user.token}`)
       .send({
         title: 'Valid Trip',
         description: 'Some description',
@@ -145,7 +106,7 @@ describe('Trips: Post Flow (Upcoming)', () => {
   it('should return the correct trip by ID', async () => {
     const res = await request(app)
       .get(`/trips/${tripId}`)
-      .set('Authorization', `Bearer ${token}`);
+      .set('Authorization', `Bearer ${user.token}`);
 
     expect(res.statusCode).toBe(200);
     expect(res.body).toHaveProperty('id', tripId);
@@ -162,40 +123,19 @@ describe('Trips: Post Flow (Upcoming)', () => {
 // Create Trips Flow: ongoing trip
 describe('Trips: Post Flow (Ongoing)', () => {
   let user;
-  let token;
   let tripId;
 
   beforeAll(async () => {
-    const timestamp = Date.now();
-    const testEmail = `create_trip_test_${timestamp}@lockbox.dev`;
-    const password = 'Test1234!';
-
-    await request(app).post('/auth/signup').send({
-      email: testEmail,
-      password,
-      username: `createtriptest`,
+    user = await createTestUser({
+      prefix: 'create_trip_test',
+      username: 'createtriptest',
     });
-
-    const { data } = await supabaseAdmin.auth.admin.listUsers();
-    const { users } = data;
-
-    user = users.find((u) => u.email === testEmail);
-
-    await supabaseAdmin.auth.admin.updateUserById(user.id, {
-      email_confirm: true,
-    });
-
-    const loginRes = await request(app).post('/auth/login').send({
-      email: testEmail,
-      password,
-    });
-    token = loginRes.body.session.access_token;
   });
 
   it('should create an ongoing trip with valid data', async () => {
     const res = await request(app)
       .post('/trips')
-      .set('Authorization', `Bearer ${token}`)
+      .set('Authorization', `Bearer ${user.token}`)
       .send({
         title: 'Valid Ongoing Trip',
         description: 'Some description',
@@ -218,7 +158,7 @@ describe('Trips: Post Flow (Ongoing)', () => {
   it('should return the correct trip by ID', async () => {
     const res = await request(app)
       .get(`/trips/${tripId}`)
-      .set('Authorization', `Bearer ${token}`);
+      .set('Authorization', `Bearer ${user.token}`);
 
     expect(res.statusCode).toBe(200);
     expect(res.body).toHaveProperty('id', tripId);
@@ -235,46 +175,23 @@ describe('Trips: Post Flow (Ongoing)', () => {
 // Delete Trip route
 describe('Trips: Delete Flow', () => {
   let userA;
-  let tokenA;
   let userB;
-  let tokenB;
   let tripId;
 
   beforeAll(async () => {
-    const password = 'Test1234!';
-    const emailA = `delete_trip_host_${Date.now()}@lockbox.dev`;
-    const emailB = `delete_trip_other_${Date.now()}@lockbox.dev`;
-
-    // Signup A and B
-    await request(app)
-      .post('/auth/signup')
-      .send({ email: emailA, password, username: 'hostuser' });
-    await request(app)
-      .post('/auth/signup')
-      .send({ email: emailB, password, username: 'otheruser' });
-
-    const { users } = (await supabaseAdmin.auth.admin.listUsers()).data;
-    userA = users.find((u) => u.email === emailA);
-    userB = users.find((u) => u.email === emailB);
-
-    await supabaseAdmin.auth.admin.updateUserById(userA.id, {
-      email_confirm: true,
+    userA = await createTestUser({
+      prefix: 'delete_trip_host',
+      username: 'hostuser',
     });
-    await supabaseAdmin.auth.admin.updateUserById(userB.id, {
-      email_confirm: true,
+    userB = await createTestUser({
+      prefix: 'delete_trip_other',
+      username: 'otheruser',
     });
-
-    tokenA = (
-      await request(app).post('/auth/login').send({ email: emailA, password })
-    ).body.session.access_token;
-    tokenB = (
-      await request(app).post('/auth/login').send({ email: emailB, password })
-    ).body.session.access_token;
 
     const today = new Date().toISOString().slice(0, 10);
     const createRes = await request(app)
       .post('/trips')
-      .set('Authorization', `Bearer ${tokenA}`)
+      .set('Authorization', `Bearer ${userA.token}`)
       .send({
         title: 'Trip to Delete',
         description: 'Testing deletion',
@@ -291,7 +208,7 @@ describe('Trips: Delete Flow', () => {
   it('should return 403 when trying to delete trip as non-host', async () => {
     const res = await request(app)
       .delete(`/trips/${tripId}`)
-      .set('Authorization', `Bearer ${tokenB}`);
+      .set('Authorization', `Bearer ${userB.token}`);
 
     expect(res.statusCode).toBe(403);
     expect(res.body.error).toMatch(/not the trip owner/i);
@@ -300,7 +217,7 @@ describe('Trips: Delete Flow', () => {
   it('should allow the host to delete their trip', async () => {
     const res = await request(app)
       .delete(`/trips/${tripId}`)
-      .set('Authorization', `Bearer ${tokenA}`);
+      .set('Authorization', `Bearer ${userA.token}`);
 
     expect(res.statusCode).toBe(200);
     expect(res.body.success).toBe(true);
@@ -309,7 +226,7 @@ describe('Trips: Delete Flow', () => {
   it('should return 403 or 500 when trying to delete already-deleted trip', async () => {
     const res = await request(app)
       .delete(`/trips/${tripId}`)
-      .set('Authorization', `Bearer ${tokenA}`);
+      .set('Authorization', `Bearer ${userA.token}`);
 
     console.log(res.statusCode);
     expect([403, 500, 404]).toContain(res.statusCode);
@@ -322,49 +239,24 @@ describe('Trips: Delete Flow', () => {
 
 // Edit Trips flow
 describe('Trips: Edit Flow', () => {
-  let hostToken;
-  let nonHostToken;
+  let hostUser;
+  let partUser;
   let tripId;
 
   beforeAll(async () => {
-    const password = 'Test1234!';
-    const ts = Date.now();
-    const hostEmail = `edit_trip_host_${ts}@lockbox.dev`;
-    const nonHostEmail = `edit_trip_nonhost_${ts}@lockbox.dev`;
-
-    await request(app)
-      .post('/auth/signup')
-      .send({ email: hostEmail, password, username: 'hostuser' });
-    await request(app)
-      .post('/auth/signup')
-      .send({ email: nonHostEmail, password, username: 'nonhostuser' });
-
-    const { users } = (await supabaseAdmin.auth.admin.listUsers()).data;
-    const hostUser = users.find((u) => u.email === hostEmail);
-    const nonHostUser = users.find((u) => u.email === nonHostEmail);
-
-    await supabaseAdmin.auth.admin.updateUserById(hostUser.id, {
-      email_confirm: true,
+    hostUser = await createTestUser({
+      prefix: 'edit_trip_host',
+      username: 'hostuser',
     });
-    await supabaseAdmin.auth.admin.updateUserById(nonHostUser.id, {
-      email_confirm: true,
+    partUser = await createTestUser({
+      prefix: 'edit_trip_nonhost',
+      username: 'partuser',
     });
-
-    hostToken = (
-      await request(app)
-        .post('/auth/login')
-        .send({ email: hostEmail, password })
-    ).body.session.access_token;
-    nonHostToken = (
-      await request(app)
-        .post('/auth/login')
-        .send({ email: nonHostEmail, password })
-    ).body.session.access_token;
 
     const today = new Date().toISOString().slice(0, 10);
     const tripRes = await request(app)
       .post('/trips')
-      .set('Authorization', `Bearer ${hostToken}`)
+      .set('Authorization', `Bearer ${hostUser.token}`)
       .send({
         title: 'Edit Trip Test',
         description: 'Testing editing',
@@ -379,15 +271,13 @@ describe('Trips: Edit Flow', () => {
     // Manually insert participant
     await supabaseAdmin
       .from('participants')
-      .insert([
-        { trip_id: tripId, user_id: nonHostUser.id, role: 'participant' },
-      ]);
+      .insert([{ trip_id: tripId, user_id: partUser.id, role: 'participant' }]);
   }, 15000);
 
   it('should update trip successfully for host', async () => {
     const res = await request(app)
       .patch(`/trips/${tripId}/edit`)
-      .set('Authorization', `Bearer ${hostToken}`)
+      .set('Authorization', `Bearer ${hostUser.token}`)
       .send({ title: 'Updated Trip Title' });
 
     expect(res.statusCode).toBe(200);
@@ -398,7 +288,7 @@ describe('Trips: Edit Flow', () => {
   it('should return 400 if non-host tries to edit trip', async () => {
     const res = await request(app)
       .patch(`/trips/${tripId}/edit`)
-      .set('Authorization', `Bearer ${nonHostToken}`)
+      .set('Authorization', `Bearer ${partUser.token}`)
       .send({ title: 'Malicious Edit' });
 
     expect(res.statusCode).toBe(400);
@@ -416,7 +306,7 @@ describe('Trips: Edit Flow', () => {
   it('should fail gracefully with empty update payload', async () => {
     const res = await request(app)
       .patch(`/trips/${tripId}/edit`)
-      .set('Authorization', `Bearer ${hostToken}`)
+      .set('Authorization', `Bearer ${hostUser.token}`)
       .send({});
 
     expect(res.statusCode).toBeGreaterThanOrEqual(400);
