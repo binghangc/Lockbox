@@ -100,8 +100,6 @@ router.post('/upload-avatar', upload.single('avatar'), async (req, res) => {
   }
 });
 
-module.exports = router;
-
 // API endpoint to fetch user stats from public view
 router.get('/stats/:userId', async (req, res) => {
   const { userId } = req.params;
@@ -119,3 +117,5 @@ router.get('/stats/:userId', async (req, res) => {
 
   return res.status(200).json(data);
 });
+
+module.exports = router;
