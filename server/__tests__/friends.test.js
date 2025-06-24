@@ -3,7 +3,7 @@ const app = require('../app.js');
 const deleteTestUsers = require('../utils/test/deleteTestUsers.js');
 const createTestUser = require('../utils/test/createTestUser.js');
 
-const EMAIL_PREFIXES = ['friend_test', 'send_request_test'];
+const EMAIL_PREFIXES = ['friend_test', 'send_request_test', 'remove_test'];
 
 // Get Friends Test
 describe('Friends: Get Flow', () => {
@@ -190,7 +190,6 @@ describe('Friends: Reject Request Flow', () => {
     expect(rejectedRes.body.message).toBe(
       'Friend request rejected successfully',
     );
-    // TODO: query reject requests
   });
 
   afterAll(async () => {
@@ -198,4 +197,68 @@ describe('Friends: Reject Request Flow', () => {
   });
 });
 
-// TODO: route for remove friendship
+// Remove Friendship Flow
+describe('Friends: Remove Flow', () => {
+  let userA;
+  let userB;
+
+  beforeAll(async () => {
+    await deleteTestUsers(['remove_test_a', 'remove_test_b']);
+
+    userA = await createTestUser({
+      prefix: 'remove_test_a',
+      username: 'removea',
+    });
+    userB = await createTestUser({
+      prefix: 'remove_test_b',
+      username: 'removeb',
+    });
+
+    // Send request A to B and accept
+    await request(app)
+      .post('/friends/send-request')
+      .set('Authorization', `Bearer ${userA.token}`)
+      .send({ uid1: userA.id, uid2: userB.id });
+
+    const pendingRes = await request(app)
+      .get('/friends/requests')
+      .set('Authorization', `Bearer ${userB.token}`);
+
+    const friendRequest = pendingRes.body.find(
+      (req) => req.uid1 === userA.id && req.uid2 === userB.id,
+    );
+
+    expect(friendRequest).toBeDefined();
+
+    await request(app)
+      .patch('/friends/accept-request')
+      .set('Authorization', `Bearer ${userB.token}`)
+      .send({
+        id: friendRequest.id,
+        uid1: userA.id,
+        uid2: userB.id,
+      });
+  });
+
+  it('should successfully remove a friend', async () => {
+    const res = await request(app)
+      .delete(`/friends/remove/${userB.id}`)
+      .set('Authorization', `Bearer ${userA.token}`);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.message).toMatch(/removed/i);
+  });
+
+  it("should confirm the friend is no longer in A's friend list", async () => {
+    const res = await request(app)
+      .get('/friends')
+      .set('Authorization', `Bearer ${userA.token}`);
+
+    const stillFriend = res.body.find((f) => f.id === userB.id);
+    expect(stillFriend).toBeUndefined();
+  });
+
+  afterAll(async () => {
+    await deleteTestUsers(EMAIL_PREFIXES);
+  });
+});
