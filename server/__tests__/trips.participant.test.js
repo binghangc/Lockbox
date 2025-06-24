@@ -1,31 +1,9 @@
 const request = require('supertest');
 const app = require('../app.js');
 const supabaseAdmin = require('../utils/supabaseAdminClient.js');
+const deleteTestUsers = require('../utils/test/deleteTestUsers.js');
 
 const EMAIL_PREFIXES = ['leave_trip', 'participants'];
-
-async function deleteTestUsers() {
-  const { data, error } = await supabaseAdmin.auth.admin.listUsers();
-  if (error) {
-    console.error('Error listing users:', error.message);
-    return;
-  }
-
-  const { users } = data;
-
-  const testUsers = users.filter(
-    (u) =>
-      u.email.endsWith('@lockbox.dev') &&
-      EMAIL_PREFIXES.some((prefix) => u.email.startsWith(prefix)),
-  );
-
-  await Promise.all(
-    testUsers.map((user) => {
-      console.log(`Deleting test user: ${user.email}`);
-      return supabaseAdmin.auth.admin.deleteUser(user.id);
-    }),
-  );
-}
 
 // Leave Trip route
 describe('Trips: Leave Trip Flow', () => {
@@ -117,7 +95,7 @@ describe('Trips: Leave Trip Flow', () => {
   });
 
   afterAll(async () => {
-    await deleteTestUsers();
+    await deleteTestUsers(EMAIL_PREFIXES);
   });
 });
 
@@ -129,7 +107,7 @@ describe('Trips: Get Participants Flow', () => {
   let partUser;
 
   beforeAll(async () => {
-    await deleteTestUsers();
+    await deleteTestUsers(EMAIL_PREFIXES);
 
     const hostEmail = `participants_host_${Date.now()}@lockbox.dev`;
     const password = 'Test123!';
@@ -221,6 +199,6 @@ describe('Trips: Get Participants Flow', () => {
   });
 
   afterAll(async () => {
-    await deleteTestUsers();
+    await deleteTestUsers(EMAIL_PREFIXES);
   });
 });

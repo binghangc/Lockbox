@@ -1,36 +1,14 @@
 const request = require('supertest');
 const app = require('../app.js');
 const supabaseAdmin = require('../utils/supabaseAdminClient.js');
+const deleteTestUsers = require('../utils/test/deleteTestUsers.js');
 
 const EMAIL_PREFIXES = ['friend_test', 'send_request_test'];
-
-async function deleteTestUsers() {
-  const { data, error } = await supabaseAdmin.auth.admin.listUsers();
-  if (error) {
-    console.error('Error listing users:', error.message);
-    return;
-  }
-
-  const { users } = data;
-
-  const testUsers = users.filter(
-    (u) =>
-      u.email.endsWith('@lockbox.dev') &&
-      EMAIL_PREFIXES.some((prefix) => u.email.startsWith(prefix)),
-  );
-
-  await Promise.all(
-    testUsers.map((user) => {
-      console.log(`Deleting test user: ${user.email}`);
-      return supabaseAdmin.auth.admin.deleteUser(user.id);
-    }),
-  );
-}
 
 // Get Friends Test
 describe('Friends: Get Flow', () => {
   beforeAll(async () => {
-    await deleteTestUsers();
+    await deleteTestUsers(EMAIL_PREFIXES);
   });
 
   it('should return 401 if no auth token is provided', async () => {
@@ -72,7 +50,7 @@ describe('Friends: Get Flow', () => {
   });
 
   afterAll(async () => {
-    await deleteTestUsers();
+    await deleteTestUsers(EMAIL_PREFIXES);
   });
 });
 
@@ -202,7 +180,7 @@ describe('Friends: Accept Request Flow', () => {
   });
 
   afterAll(async () => {
-    await deleteTestUsers();
+    await deleteTestUsers(EMAIL_PREFIXES);
   });
 });
 
@@ -323,7 +301,7 @@ describe('Friends: Reject Request Flow', () => {
   });
 
   afterAll(async () => {
-    await deleteTestUsers();
+    await deleteTestUsers(EMAIL_PREFIXES);
   });
 });
 

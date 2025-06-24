@@ -3,6 +3,7 @@ require('dotenv').config({ path: '../server/.env.server' });
 const request = require('supertest');
 const app = require('../app.js');
 const supabaseAdmin = require('../utils/supabaseAdminClient.js');
+const deleteTestUsers = require('../utils/test/deleteTestUsers.js');
 
 const EMAIL_PREFIXES = [
   'signup_test',
@@ -11,33 +12,10 @@ const EMAIL_PREFIXES = [
   'fail_login_test',
 ];
 
-async function deleteTestUsers() {
-  const { data, error } = await supabaseAdmin.auth.admin.listUsers();
-  if (error) {
-    console.error('Error listing users:', error.message);
-    return;
-  }
-
-  const { users } = data;
-
-  const testUsers = users.filter(
-    (u) =>
-      u.email.endsWith('@lockbox.dev') &&
-      EMAIL_PREFIXES.some((prefix) => u.email.startsWith(prefix)),
-  );
-
-  await Promise.all(
-    testUsers.map((user) => {
-      console.log(`Deleting test user: ${user.email}`);
-      return supabaseAdmin.auth.admin.deleteUser(user.id);
-    }),
-  );
-}
-
 // Signup Flow Test
 describe('Auth: Signup Flow', () => {
   beforeAll(async () => {
-    await deleteTestUsers();
+    await deleteTestUsers(EMAIL_PREFIXES);
   });
 
   it('should reject signup with missing fields', async () => {
@@ -96,7 +74,7 @@ describe('Auth: Signup Flow', () => {
   });
 
   afterAll(async () => {
-    await deleteTestUsers();
+    await deleteTestUsers(EMAIL_PREFIXES);
   });
 });
 

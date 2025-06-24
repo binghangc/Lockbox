@@ -2,6 +2,7 @@ const request = require('supertest');
 const dayjs = require('dayjs');
 const app = require('../app.js');
 const supabaseAdmin = require('../utils/supabaseAdminClient.js');
+const deleteTestUsers = require('../utils/test/deleteTestUsers.js');
 
 const EMAIL_PREFIXES = [
   'trip_test',
@@ -10,33 +11,10 @@ const EMAIL_PREFIXES = [
   'edit_trip',
 ];
 
-async function deleteTestUsers() {
-  const { data, error } = await supabaseAdmin.auth.admin.listUsers();
-  if (error) {
-    console.error('Error listing users:', error.message);
-    return;
-  }
-
-  const { users } = data;
-
-  const testUsers = users.filter(
-    (u) =>
-      u.email.endsWith('@lockbox.dev') &&
-      EMAIL_PREFIXES.some((prefix) => u.email.startsWith(prefix)),
-  );
-
-  await Promise.all(
-    testUsers.map((user) => {
-      console.log(`Deleting test user: ${user.email}`);
-      return supabaseAdmin.auth.admin.deleteUser(user.id);
-    }),
-  );
-}
-
 // Get Trips Test for dashboard
 describe('Trips: Get Flow', () => {
   beforeAll(async () => {
-    await deleteTestUsers();
+    await deleteTestUsers(EMAIL_PREFIXES);
   });
 
   it('should return 401 if no auth token is provided', async () => {
@@ -78,7 +56,7 @@ describe('Trips: Get Flow', () => {
   });
 
   afterAll(async () => {
-    await deleteTestUsers();
+    await deleteTestUsers(EMAIL_PREFIXES);
   });
 });
 
@@ -177,7 +155,7 @@ describe('Trips: Post Flow (Upcoming)', () => {
   });
 
   afterAll(async () => {
-    await deleteTestUsers();
+    await deleteTestUsers(EMAIL_PREFIXES);
   });
 });
 
@@ -250,7 +228,7 @@ describe('Trips: Post Flow (Ongoing)', () => {
   });
 
   afterAll(async () => {
-    await deleteTestUsers();
+    await deleteTestUsers(EMAIL_PREFIXES);
   });
 });
 
@@ -338,7 +316,7 @@ describe('Trips: Delete Flow', () => {
   });
 
   afterAll(async () => {
-    await deleteTestUsers();
+    await deleteTestUsers(EMAIL_PREFIXES);
   });
 });
 
@@ -445,6 +423,6 @@ describe('Trips: Edit Flow', () => {
   });
 
   afterAll(async () => {
-    await deleteTestUsers();
+    await deleteTestUsers(EMAIL_PREFIXES);
   });
 });
