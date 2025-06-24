@@ -1,4 +1,10 @@
-import { ScrollView, View, Text, Pressable } from 'react-native';
+import {
+  ScrollView,
+  View,
+  Text,
+  Pressable,
+  ActivityIndicator,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useState } from 'react';
 import TripCarousel from '@/components/tripCarousel';
@@ -64,6 +70,22 @@ export default function HomeScreen() {
       console.error('Leave error:', error);
     }
   };
+
+  if (loading) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: 'black',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        <ActivityIndicator size="large" color="white" />
+        <Text className="text-white mt-4">Loading your trips...</Text>
+      </View>
+    );
+  }
 
   return (
     <ScrollView
