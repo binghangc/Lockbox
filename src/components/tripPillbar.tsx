@@ -1,18 +1,13 @@
-import React, { useState, useMemo } from 'react';
+import React from 'react';
 /* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable react/jsx-no-bind */
-import { View, PanResponder } from 'react-native';
+import { View } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import PILLBAR from '@/constants/pillbarConfig';
-import AnimatedReanimated, {
-  useSharedValue,
-  useAnimatedStyle,
-  interpolate,
-  Extrapolation,
-  withSpring,
-} from 'react-native-reanimated';
+import AnimatedReanimated from 'react-native-reanimated';
+import usePillbarController from '@/hooks/usePillbarController';
 import MainActionBubble from './mainActionBubble';
 
 const { Text: AnimatedText } = AnimatedReanimated;
@@ -35,125 +30,20 @@ export default function TripPillbar({
   bottomAccessory?: React.ReactNode;
 }) {
   const insets = useSafeAreaInsets();
-  const [dragEnabled, setDragEnabled] = useState(false);
-  const [barWidth, setBarWidth] = useState(0);
-  const [hasSent, setHasSent] = useState(false);
-  const threshold = useMemo(() => (barWidth - 16) * 0.5, [barWidth]);
-  const isSliding = useSharedValue(false);
-  const showAccessory = useSharedValue(true);
-
-  const panX = useSharedValue(0);
-
-  const panResponder = useMemo(
-    () =>
-      PanResponder.create({
-        onStartShouldSetPanResponder: () => status === 'ongoing' && dragEnabled,
-        onMoveShouldSetPanResponder: (_, gesture) =>
-          status === 'ongoing' && dragEnabled && Math.abs(gesture.dx) > 0,
-        onPanResponderMove: (_, gestureState) => {
-          const maxDistance =
-            barWidth -
-            PILLBAR.BUBBLE_WIDTH -
-            PILLBAR.PILLBAR_PADDING_HORIZONTAL * 2;
-          if (gestureState.dx < 0) {
-            panX.value = 0;
-          } else {
-            const restrictedDistance = maxDistance - 16;
-            panX.value = Math.min(gestureState.dx, restrictedDistance);
-          }
-        },
-        onPanResponderRelease: (_, gesture) => {
-          if (status === 'ongoing' && dragEnabled) {
-            const maxDistance =
-              barWidth -
-              PILLBAR.BUBBLE_WIDTH -
-              PILLBAR.PILLBAR_PADDING_HORIZONTAL * 2;
-            const restrictedDistance = maxDistance - 16;
-
-            if (gesture.dx > threshold) {
-              panX.value = withSpring(restrictedDistance, {
-                damping: 10,
-                stiffness: 100,
-              });
-              console.log('Slide to send triggered');
-              if (onSwipeSend) onSwipeSend();
-              if (onPressOutBubble) onPressOutBubble();
-              setHasSent(true);
-            } else {
-              panX.value = withSpring(0, { damping: 10, stiffness: 100 });
-              console.log('Slide to cancel triggered');
-              if (onPressOutBubble) onPressOutBubble();
-            }
-
-            setDragEnabled(false);
-            isSliding.value = false;
-            showAccessory.value = true;
-          }
-        },
-      }),
-    [
-      status,
-      dragEnabled,
-      onSwipeSend,
-      onPressOutBubble,
-      threshold,
-      barWidth,
-      isSliding,
-      panX,
-      showAccessory,
-    ],
-  );
-
-  function handleLongPressWrapper() {
-    setDragEnabled(true);
-    isSliding.value = true;
-    showAccessory.value = false;
-    if (onLongPressBubble) onLongPressBubble();
-  }
-
-  function handlePressOutWrapper() {
-    if (!dragEnabled) {
-      if (onPressOutBubble) onPressOutBubble();
-    }
-    showAccessory.value = true;
-  }
-
-  const animatedPillTextStyle = useAnimatedStyle(() => {
-    const inputRange = [0, threshold];
-    return {
-      opacity: interpolate(
-        panX.value,
-        inputRange,
-        [0.7, 0],
-        Extrapolation.CLAMP,
-      ),
-      transform: [
-        {
-          translateX: interpolate(
-            panX.value,
-            inputRange,
-            [0, panX.value],
-            Extrapolation.CLAMP,
-          ),
-        },
-      ],
-    };
-  });
-
-  const animatedPanStyle = useAnimatedStyle(() => ({
-    transform: [
-      {
-        translateX: panX.value,
-      },
-    ],
-  }));
-
-  const animatedAccessoryStyle = useAnimatedStyle(() => {
-    const shouldShow = showAccessory.value && !isSliding.value && !hasSent;
-    return {
-      opacity: shouldShow ? 1 : 0,
-      transform: [{ scale: shouldShow ? 1 : 0.8 }],
-    };
+  const {
+    panResponder,
+    setBarWidth,
+    animatedPanStyle,
+    animatedPillTextStyle,
+    animatedAccessoryStyle,
+    handleLongPress,
+    handlePressOut,
+    dragEnabled,
+  } = usePillbarController({
+    status,
+    onSwipeSend,
+    onPressOutBubble,
+    onLongPressBubble,
   });
 
   return (
@@ -203,8 +93,8 @@ export default function TripPillbar({
                     <MainActionBubble
                       status={status}
                       onPress={onPressBubble}
-                      onLongPress={handleLongPressWrapper}
-                      onPressOut={handlePressOutWrapper}
+                      onLongPress={handleLongPress}
+                      onPressOut={handlePressOut}
                     />
                   </AnimatedReanimated.View>
                 ) : (
@@ -212,13 +102,13 @@ export default function TripPillbar({
                     status={status}
                     onPress={onPressBubble}
                     onLongPress={onLongPressBubble}
-                    onPressOut={handlePressOutWrapper}
+                    onPressOut={handlePressOut}
                   />
                 )}
                 {/* Pill text */}
                 <AnimatedText
                   className="text-gray-100 text-xl font-semibold flex-1"
-                  style={animatedPillTextStyle}
+                  style={[animatedPillTextStyle]}
                 >
                   {dragEnabled ? 'Slide to send' : pillText}
                 </AnimatedText>

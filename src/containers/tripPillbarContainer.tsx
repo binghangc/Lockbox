@@ -88,8 +88,22 @@ export default function TripPillbarContainer({
                   }
                 : undefined
             }
-            onPressOutBubble={status === 'ongoing' ? onPressOut : undefined}
-            onSwipeSend={status === 'ongoing' ? onSend : undefined}
+            onPressOutBubble={
+              status === 'ongoing'
+                ? () => {
+                    console.log('cancel');
+                    onPressOut();
+                  }
+                : undefined
+            }
+            onSwipeSend={
+              status === 'ongoing'
+                ? () => {
+                    console.log('send');
+                    onSend();
+                  }
+                : undefined
+            }
           />
         )}
       </VideoBubbleController>
