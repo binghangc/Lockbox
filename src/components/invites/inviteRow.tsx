@@ -1,4 +1,4 @@
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -78,7 +78,7 @@ export default function InviteResponseBar({
   return (
     <View className="absolute bottom-6 left-0 right-0 flex-row justify-center space-x-4 px-6">
       {responses.map((r) => (
-        <Pressable
+        <TouchableOpacity
           key={r.label}
           onPress={() =>
             onSelect(
@@ -99,7 +99,7 @@ export default function InviteResponseBar({
               <Text style={styles.text}>{r.label}</Text>
             </LinearGradient>
           </BlurView>
-        </Pressable>
+        </TouchableOpacity>
       ))}
     </View>
   );

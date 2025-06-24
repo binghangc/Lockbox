@@ -1,9 +1,8 @@
 import { ScrollView, View, Text, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useState, useEffect } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useState } from 'react';
 import TripCarousel from '@/components/tripCarousel';
-import type { Trip } from '@/types';
+import useAllTrips from '@/hooks/useAllTrips';
 
 const FILTERS = ['upcoming', 'ongoing', 'ended', 'pinned'] as const;
 
@@ -12,39 +11,11 @@ export default function HomeScreen() {
     (typeof FILTERS)[number] | null
   >(null);
 
-  const [trips, setTrips] = useState<Trip[]>([]);
+  const { trips, loading, refreshTrips } = useAllTrips();
   const insets = useSafeAreaInsets();
   const filteredTrips = selectedFilter
     ? trips.filter((trip) => trip.status === selectedFilter)
     : trips;
-
-  useEffect(() => {
-    const fetchTrips = async () => {
-      try {
-        const token = await AsyncStorage.getItem('access_token');
-        console.log(
-          'Fetching from:',
-          `${process.env.EXPO_PUBLIC_API_URL}/trips`,
-        );
-        const res = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/trips`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        const data = await res.json();
-        if (res.ok) {
-          setTrips(data);
-        } else {
-          console.error('Error fetching trips:', data.error);
-        }
-      } catch (error) {
-        console.error('Fetch error:', error);
-      }
-    };
-
-    fetchTrips();
-  }, []);
 
   const handleDeleteTrip = async (tripId: string) => {
     try {
@@ -61,6 +32,7 @@ export default function HomeScreen() {
 
       if (res.ok) {
         setTrips((prev) => prev.filter((t) => t.id !== tripId));
+        refreshTrips();
       } else {
         console.error('Failed to delete trip');
       }
@@ -84,6 +56,7 @@ export default function HomeScreen() {
 
       if (res.ok) {
         setTrips((prev) => prev.filter((t) => t.id !== tripId));
+        refreshTrips();
       } else {
         console.error('Failed to leave trip');
       }
