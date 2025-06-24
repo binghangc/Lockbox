@@ -349,12 +349,15 @@ router.get('/:id/vibecheck/:date', authMiddleware, async (req, res) => {
       .eq('date', date)
       .single();
 
-    if (error) throw error;
-
-    if (!data) {
+    if (error?.code === 'PGRST116' || !data) {
+      // PGRST116 = no rows found
       return res
         .status(404)
         .json({ error: 'No vibecheck found for this date' });
+    }
+
+    if (error) {
+      return res.status(500).json({ error: error.message });
     }
 
     return res.json({ vibecheck: data.vibecheck });
@@ -376,7 +379,7 @@ router.patch('/:id/vibecheck/:date', authMiddleware, async (req, res) => {
     .single();
 
   if (itineraryError || !itinerary) {
-    return res.status(500).json({ error: itineraryError.message });
+    return res.status(500).json({ error: 'Itinerary not found or invalid.' });
   }
 
   const vibe = await generateVibeCheck({
