@@ -24,7 +24,7 @@ export default function TripPillbarContainer({
   handlePress,
 }: TripPillbarContainerProps) {
   const insets = useSafeAreaInsets();
-  const { tap, hold } = useHaptics();
+  const { tap, hold, send, cancel } = useHaptics();
   const { showHint, show } = useRecordHint();
   const { vibecheck, reshuffleVibecheck, vcloading } = useTodayVibecheck(
     tripId,
@@ -93,6 +93,7 @@ export default function TripPillbarContainer({
                 ? () => {
                     console.log('cancel');
                     onPressOut();
+                    cancel(); // haptics
                   }
                 : undefined
             }
@@ -101,6 +102,7 @@ export default function TripPillbarContainer({
                 ? () => {
                     console.log('send');
                     onSend();
+                    send(); // haptics
                   }
                 : undefined
             }
