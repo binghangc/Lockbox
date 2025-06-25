@@ -1,15 +1,14 @@
-name: Node.js Backend CI/CD
+name: Node.js Backend Tests
 
 on:
   push:
-    paths:
-      - 'server/**'
-    branches:
-      - prod
-      - dev
+    branches: [dev, prod]
+  pull_request:
+    branches: [dev, prod]
 
 jobs:
-  backend:
+  test:
+    name: Server Tests
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -29,11 +28,13 @@ jobs:
           echo "SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" >> .env.server
           echo "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> .env.server
 
+      - name: Debug env file
+        run: |
+          echo "Contents of .env.server:"
+          cat .env.server || echo "File not found"
+
       - name: Install dependencies
         run: npm install
 
-      - name: Trigger Render Deployment
-        if: github.ref == 'refs/heads/prod'
-        run: curl "$RENDER_DEPLOY_HOOK_URL"
-        env:
-          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+      - name: Run Tests
+        run: npm test

@@ -15,11 +15,11 @@ describe('Trips: Leave Trip Flow', () => {
   beforeAll(async () => {
     const hostUser = await createTestUser({
       prefix: 'leave_trip_host',
-      username: 'hostuser',
+      username: 'leavetriphost',
     });
     const partUser = await createTestUser({
       prefix: 'leave_trip_participant',
-      username: 'partuser',
+      username: 'leavetrippart',
     });
 
     hostToken = hostUser.token;
@@ -44,7 +44,7 @@ describe('Trips: Leave Trip Flow', () => {
     await supabaseAdmin
       .from('participants')
       .insert([{ trip_id: tripId, user_id: partUser.id, role: 'participant' }]);
-  }, 15000);
+  });
 
   it('should allow a participant to leave the trip', async () => {
     const res = await request(app)
@@ -72,10 +72,6 @@ describe('Trips: Leave Trip Flow', () => {
     expect(res.statusCode).toBe(200);
     expect(res.body.success).toBe(true);
   });
-
-  afterAll(async () => {
-    await deleteTestUsers(EMAIL_PREFIXES);
-  });
 });
 
 // Get Participants
@@ -89,11 +85,11 @@ describe('Trips: Get Participants Flow', () => {
 
     hostUser = await createTestUser({
       prefix: 'participants_host',
-      username: 'hostuser',
+      username: 'getparthost',
     });
     partUser = await createTestUser({
       prefix: 'participants_nonhost',
-      username: 'participantuser',
+      username: 'getpartpart',
     });
 
     const today = new Date().toISOString().slice(0, 10);
@@ -114,7 +110,7 @@ describe('Trips: Get Participants Flow', () => {
     await supabaseAdmin
       .from('participants')
       .insert([{ trip_id: tripId, user_id: partUser.id, role: 'participant' }]);
-  }, 15000);
+  });
 
   it('should return 401 without token', async () => {
     const res = await request(app).get(`/trips/${tripId}/participants`);
@@ -131,7 +127,7 @@ describe('Trips: Get Participants Flow', () => {
 
     const participant = res.body.find((p) => p.user_id === partUser.id);
     expect(participant).toBeDefined();
-    expect(participant.profile).toHaveProperty('username', 'participantuser');
+    expect(participant.profile).toHaveProperty('username', 'getpartpart');
   });
 
   it('participants should see participant profiles', async () => {
@@ -144,10 +140,10 @@ describe('Trips: Get Participants Flow', () => {
 
     const participant = res.body.find((p) => p.user_id === partUser.id);
     expect(participant).toBeDefined();
-    expect(participant.profile).toHaveProperty('username', 'participantuser');
+    expect(participant.profile).toHaveProperty('username', 'getpartpart');
   });
+});
 
-  afterAll(async () => {
-    await deleteTestUsers(EMAIL_PREFIXES);
-  });
+afterAll(async () => {
+  await deleteTestUsers(EMAIL_PREFIXES);
 });

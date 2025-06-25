@@ -15,11 +15,11 @@ describe('Invites Flow', () => {
 
     host = await createTestUser({
       prefix: 'invite_test',
-      username: 'hostuser',
+      username: 'invitehost',
     });
     invitee = await createTestUser({
       prefix: 'invite_test',
-      username: 'inviteeuser',
+      username: 'invitepart',
     });
 
     const today = new Date().toISOString().slice(0, 10);
@@ -37,7 +37,7 @@ describe('Invites Flow', () => {
       });
 
     tripId = tripRes.body.data[0].id;
-  }, 15000);
+  });
 
   it('should send an invite to another user', async () => {
     const res = await request(app).post('/invites/send-invite').send({
@@ -129,8 +129,8 @@ describe('Invites Flow', () => {
     const res = await request(app).post('/invites/send-invite').send({});
     expect(res.statusCode).toBe(400);
   });
+});
 
-  afterAll(async () => {
-    await deleteTestUsers(EMAIL_PREFIXES);
-  });
+afterAll(async () => {
+  await deleteTestUsers(EMAIL_PREFIXES);
 });

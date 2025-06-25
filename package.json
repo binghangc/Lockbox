@@ -10,7 +10,7 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "prettier:check": "prettier --check .",
     "prettier:write": "prettier --write .",
-    "test": "jest"
+    "test": "cd server && npm test"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
@@ -78,7 +78,6 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-react-native": "^5.0.0",
-    "jest": "^30.0.2",
     "prettier": "^3.5.3",
     "supertest": "^7.1.1",
     "typescript": "^5.3.3"

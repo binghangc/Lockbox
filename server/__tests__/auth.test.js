@@ -72,10 +72,6 @@ describe('Auth: Signup Flow', () => {
     expect(res.statusCode).toBe(400);
     expect(res.body).toHaveProperty('error');
   });
-
-  afterAll(async () => {
-    await deleteTestUsers(EMAIL_PREFIXES);
-  });
 });
 
 // Login Flow Test
@@ -170,8 +166,8 @@ describe('Auth: Delete User Flow', () => {
     const res = await request(app).delete('/auth/delete');
     expect(res.statusCode).toBe(401);
   });
+});
 
-  afterAll(async () => {
-    await deleteTestUsers(EMAIL_PREFIXES);
-  });
+afterAll(async () => {
+  await deleteTestUsers(EMAIL_PREFIXES);
 });

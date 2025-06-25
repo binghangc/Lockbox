@@ -7,7 +7,8 @@ const createTestUser = require('../../utils/test/createTestUser.js');
 
 const EMAIL_PREFIXES = [
   'trip_test',
-  'create_trip_test',
+  'create_upcoming_trip',
+  'create_ongoing_trip',
   'delete_trip',
   'edit_trip',
 ];
@@ -36,10 +37,6 @@ describe('Trips: Get Flow', () => {
     expect(res.statusCode).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
   });
-
-  afterAll(async () => {
-    await deleteTestUsers(EMAIL_PREFIXES);
-  });
 });
 
 // Create Trips Flow: upcoming trip
@@ -49,8 +46,8 @@ describe('Trips: Post Flow (Upcoming)', () => {
 
   beforeAll(async () => {
     user = await createTestUser({
-      prefix: 'create_trip_test',
-      username: 'createtriptest',
+      prefix: 'create_upcoming_trip',
+      username: 'createupcoming',
     });
   });
 
@@ -114,10 +111,6 @@ describe('Trips: Post Flow (Upcoming)', () => {
     expect(res.body).toHaveProperty('is_host', true);
     expect(res.body.host).toHaveProperty('id', user.id);
   });
-
-  afterAll(async () => {
-    await deleteTestUsers(EMAIL_PREFIXES);
-  });
 });
 
 // Create Trips Flow: ongoing trip
@@ -127,8 +120,8 @@ describe('Trips: Post Flow (Ongoing)', () => {
 
   beforeAll(async () => {
     user = await createTestUser({
-      prefix: 'create_trip_test',
-      username: 'createtriptest',
+      prefix: 'create_ongoing_trip',
+      username: 'createongoing',
     });
   });
 
@@ -166,10 +159,6 @@ describe('Trips: Post Flow (Ongoing)', () => {
     expect(res.body).toHaveProperty('is_host', true);
     expect(res.body.host).toHaveProperty('id', user.id);
   });
-
-  afterAll(async () => {
-    await deleteTestUsers(EMAIL_PREFIXES);
-  });
 });
 
 // Delete Trip route
@@ -181,11 +170,11 @@ describe('Trips: Delete Flow', () => {
   beforeAll(async () => {
     userA = await createTestUser({
       prefix: 'delete_trip_host',
-      username: 'hostuser',
+      username: 'tripdeletehost',
     });
     userB = await createTestUser({
       prefix: 'delete_trip_other',
-      username: 'otheruser',
+      username: 'tripdeletepart',
     });
 
     const today = new Date().toISOString().slice(0, 10);
@@ -203,7 +192,7 @@ describe('Trips: Delete Flow', () => {
       });
 
     tripId = createRes.body.data[0].id;
-  }, 15000);
+  });
 
   it('should return 403 when trying to delete trip as non-host', async () => {
     const res = await request(app)
@@ -231,10 +220,6 @@ describe('Trips: Delete Flow', () => {
     console.log(res.statusCode);
     expect([403, 500, 404]).toContain(res.statusCode);
   });
-
-  afterAll(async () => {
-    await deleteTestUsers(EMAIL_PREFIXES);
-  });
 });
 
 // Edit Trips flow
@@ -246,11 +231,11 @@ describe('Trips: Edit Flow', () => {
   beforeAll(async () => {
     hostUser = await createTestUser({
       prefix: 'edit_trip_host',
-      username: 'hostuser',
+      username: 'edittriphost',
     });
     partUser = await createTestUser({
       prefix: 'edit_trip_nonhost',
-      username: 'partuser',
+      username: 'edittrippart',
     });
 
     const today = new Date().toISOString().slice(0, 10);
@@ -272,7 +257,7 @@ describe('Trips: Edit Flow', () => {
     await supabaseAdmin
       .from('participants')
       .insert([{ trip_id: tripId, user_id: partUser.id, role: 'participant' }]);
-  }, 15000);
+  });
 
   it('should update trip successfully for host', async () => {
     const res = await request(app)
@@ -311,8 +296,8 @@ describe('Trips: Edit Flow', () => {
 
     expect(res.statusCode).toBeGreaterThanOrEqual(400);
   });
+});
 
-  afterAll(async () => {
-    await deleteTestUsers(EMAIL_PREFIXES);
-  });
+afterAll(async () => {
+  await deleteTestUsers(EMAIL_PREFIXES);
 });

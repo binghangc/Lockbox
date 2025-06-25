@@ -3,10 +3,29 @@ const app = require('../app.js');
 const deleteTestUsers = require('../utils/test/deleteTestUsers.js');
 const createTestUser = require('../utils/test/createTestUser.js');
 
-jest.mock('../utils/r2client');
+jest.mock('../utils/r2client.js', () => {
+  const putObject = jest.fn(() => ({
+    promise: jest.fn().mockResolvedValue({
+      ETag: '"mocked-etag"',
+      Location: 'https://mocked-r2-url.com/file.png',
+      Bucket: 'mocked-bucket',
+      Key: 'mocked-key',
+    }),
+  }));
+
+  return {
+    putObject,
+  };
+});
+
 const r2 = require('../utils/r2client.js');
 
-const EMAIL_PREFIXES = ['profile_test'];
+const EMAIL_PREFIXES = [
+  'profile_get_test',
+  'profile_edit_test',
+  'profile_upload_test',
+  'profile_stats_test',
+];
 
 // Get Profiles Flow
 describe('Profile: Get Flow', () => {
@@ -15,8 +34,8 @@ describe('Profile: Get Flow', () => {
   beforeAll(async () => {
     await deleteTestUsers(EMAIL_PREFIXES);
     user = await createTestUser({
-      prefix: 'profile_test',
-      username: 'testprofile',
+      prefix: 'profile_get_test',
+      username: 'profiletest',
     });
   });
 
@@ -28,16 +47,12 @@ describe('Profile: Get Flow', () => {
     expect(res.statusCode).toBe(200);
     expect(res.body).toHaveProperty('user');
     expect(res.body).toHaveProperty('profile');
-    expect(res.body.profile).toHaveProperty('username', 'testprofile');
+    expect(res.body.profile).toHaveProperty('username', 'profiletest');
   });
 
   it('should return 401 with no token', async () => {
     const res = await request(app).get('/profile');
     expect(res.statusCode).toBe(401);
-  });
-
-  afterAll(async () => {
-    await deleteTestUsers(EMAIL_PREFIXES);
   });
 });
 
@@ -47,8 +62,8 @@ describe('Profile: Edit Name/Bio Flow', () => {
 
   beforeAll(async () => {
     user = await createTestUser({
-      prefix: 'profile_test',
-      username: 'testprofile',
+      prefix: 'profile_edit_test',
+      username: 'edittest',
     });
   });
 
@@ -72,10 +87,6 @@ describe('Profile: Edit Name/Bio Flow', () => {
       .send({ user_id: user.id, field: 'bio', value: 123 });
     expect(res.statusCode).toBe(400);
   });
-
-  afterAll(async () => {
-    await deleteTestUsers(EMAIL_PREFIXES);
-  });
 });
 
 // Upload Avatar Flow
@@ -84,8 +95,8 @@ describe('Profile: Upload Avatar Flow', () => {
 
   beforeAll(async () => {
     user = await createTestUser({
-      prefix: 'profile_test',
-      username: 'testprofile',
+      prefix: 'profile_upload_test',
+      username: 'avatarurltest',
     });
   });
 
@@ -111,10 +122,6 @@ describe('Profile: Upload Avatar Flow', () => {
 
     expect(res.statusCode).toBe(400);
   });
-
-  afterAll(async () => {
-    await deleteTestUsers(EMAIL_PREFIXES);
-  });
 });
 
 // Get User Stats Flow
@@ -123,8 +130,8 @@ describe('Profile: Get User Stats Flow', () => {
 
   beforeAll(async () => {
     user = await createTestUser({
-      prefix: 'profile_test',
-      username: 'testprofile',
+      prefix: 'profile_stats_test',
+      username: 'statstest',
     });
   });
   it('should return public stats', async () => {
@@ -133,8 +140,8 @@ describe('Profile: Get User Stats Flow', () => {
     expect(res.body).toHaveProperty('trip_count');
     expect(res.body).toHaveProperty('friend_count');
   });
+});
 
-  afterAll(async () => {
-    await deleteTestUsers(EMAIL_PREFIXES);
-  });
+afterAll(async () => {
+  await deleteTestUsers(EMAIL_PREFIXES);
 });
