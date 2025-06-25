@@ -28,6 +28,11 @@ jobs:
           echo "SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" >> .env.server
           echo "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> .env.server
 
+      - name: Debug env file
+        run: |
+          echo "Contents of .env.server:"
+          cat .env.server || echo "File not found"
+
       - name: Install dependencies
         run: npm install
 
