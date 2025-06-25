@@ -2,17 +2,9 @@ name: Node.js Backend Tests
 
 on:
   push:
-    paths:
-      - 'server/**'
-    branches:
-      - dev
-      - prod
+    branches: [dev, prod]
   pull_request:
-    paths:
-      - 'server/**'
-    branches:
-      - prod
-      - dev
+    branches: [dev, prod]
 
 jobs:
   test:
