@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { TouchableOpacity, Text, View } from 'react-native';
+import { View } from 'react-native';
 import { Modalize } from 'react-native-modalize';
 import { BlurView } from 'expo-blur';
 import Foundation from '@expo/vector-icons/Foundation';
@@ -7,6 +7,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import TripControllerItem from '@/components/tripControllerItem';
 
 type TripControllerModalProps = {
   isHost: boolean;
@@ -37,60 +38,6 @@ export default function TripControllerModal({
     close: () => modalRef.current?.close(),
   }));
 
-  function renderItem({
-    icon,
-    label,
-    onPress,
-    hasChevron = false,
-  }: {
-    icon: React.ReactNode;
-    label: string;
-    onPress: () => void;
-    hasChevron?: boolean;
-  }) {
-    return (
-      <TouchableOpacity onPress={onPress} className="px-3 mb-3">
-        <View style={{ borderRadius: 4, overflow: 'hidden' }}>
-          <BlurView
-            intensity={60}
-            tint="dark"
-            style={{
-              borderRadius: 30,
-              paddingVertical: 16,
-              paddingHorizontal: 20,
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-            }}
-          >
-            <View className="flex-row items-center">
-              <View className="w-6 h-6 rounded-md items-center justify-center mr-2">
-                {icon}
-              </View>
-              <Text
-                className={`text-lg font-semibold ${
-                  label === 'Delete Trip' || label === 'Leave Trip'
-                    ? 'text-[#FF3B30]'
-                    : 'text-white'
-                }`}
-              >
-                {label}
-              </Text>
-            </View>
-            {hasChevron && (
-              <MaterialCommunityIcons
-                name="chevron-right"
-                size={24}
-                color="white"
-                style={{ opacity: 0.6 }}
-              />
-            )}
-          </BlurView>
-        </View>
-      </TouchableOpacity>
-    );
-  }
-
   return (
     <Modalize
       ref={modalRef}
@@ -117,49 +64,55 @@ export default function TripControllerModal({
         }}
       >
         <View className="mt-3">
-          {renderItem({
-            icon: <Ionicons name="calendar-clear" size={20} color="white" />,
-            label: 'Sync to Calendar',
-            onPress: onSync,
-          })}
+          <TripControllerItem
+            icon={<Ionicons name="calendar-clear" size={20} color="white" />}
+            label="Sync to Calendar"
+            onPress={onSync}
+          />
         </View>
-        {isHost &&
-          renderItem({
-            icon: <Foundation name="pencil" size={20} color="white" />,
-            label: 'Edit Trip',
-            onPress: onEdit,
-          })}
-        {isHost &&
-          renderItem({
-            icon: <MaterialIcons name="push-pin" size={20} color="white" />,
-            label: 'Pin Trip',
-            onPress: onPin,
-          })}
-        {isHost &&
-          renderItem({
-            icon: <FontAwesome5 name="user-plus" size={15} color="white" />,
-            label: 'Send Invites',
-            onPress: onInvite,
-          })}
-        {!isHost &&
-          renderItem({
-            icon: <MaterialIcons name="push-pin" size={20} color="white" />,
-            label: 'Pin Trip',
-            onPress: onPin,
-          })}
-        {renderItem({
-          icon: isHost ? (
-            <MaterialCommunityIcons
-              name="trash-can-outline"
-              size={24}
-              color="#FF3B30"
-            />
-          ) : (
-            <FontAwesome5 name="running" size={20} color="#FF3B30" />
-          ),
-          label: isHost ? 'Delete Trip' : 'Leave Trip',
-          onPress: isHost ? onDelete : onLeave,
-        })}
+        {isHost && (
+          <TripControllerItem
+            icon={<Foundation name="pencil" size={20} color="white" />}
+            label="Edit Trip"
+            onPress={onEdit}
+          />
+        )}
+        {isHost && (
+          <TripControllerItem
+            icon={<MaterialIcons name="push-pin" size={20} color="white" />}
+            label="Pin Trip"
+            onPress={onPin}
+          />
+        )}
+        {isHost && (
+          <TripControllerItem
+            icon={<FontAwesome5 name="user-plus" size={15} color="white" />}
+            label="Send Invites"
+            onPress={onInvite}
+          />
+        )}
+        {!isHost && (
+          <TripControllerItem
+            icon={<MaterialIcons name="push-pin" size={20} color="white" />}
+            label="Pin Trip"
+            onPress={onPin}
+          />
+        )}
+        <TripControllerItem
+          icon={
+            isHost ? (
+              <MaterialCommunityIcons
+                name="trash-can-outline"
+                size={24}
+                color="#FF3B30"
+              />
+            ) : (
+              <FontAwesome5 name="running" size={20} color="#FF3B30" />
+            )
+          }
+          label={isHost ? 'Delete Trip' : 'Leave Trip'}
+          onPress={isHost ? onDelete : onLeave}
+        />
       </BlurView>
     </Modalize>
   );
