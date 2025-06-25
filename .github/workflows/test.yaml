@@ -1,15 +1,16 @@
-name: Node.js Backend CI/CD
+name: Node.js Backend Tests
 
 on:
   push:
     paths:
       - 'server/**'
     branches:
-      - prod
       - dev
+      - prod
 
 jobs:
-  backend:
+  test:
+    name: Server Tests
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -32,8 +33,5 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Trigger Render Deployment
-        if: github.ref == 'refs/heads/prod'
-        run: curl "$RENDER_DEPLOY_HOOK_URL"
-        env:
-          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+      - name: Run Tests
+        run: npm test
