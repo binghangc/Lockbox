@@ -46,8 +46,6 @@ describe('Auth: Signup Flow', () => {
       username: `testuser123`,
     });
 
-    console.log('[TEST DEBUG] Response:', res.body);
-
     expect(res.statusCode).toBe(200);
     expect(res.body).toHaveProperty(
       'message',
