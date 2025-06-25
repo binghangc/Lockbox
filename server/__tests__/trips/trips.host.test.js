@@ -23,7 +23,7 @@ describe('Trips: Get Flow', () => {
     expect(res.statusCode).toBe(401);
   });
 
-  it('should return an empty friends list for new user', async () => {
+  it('should return an empty trips list for new user', async () => {
     const user = await createTestUser({
       prefix: 'trip_test',
       username: 'triptest',
