@@ -21,6 +21,7 @@ export default function VideoBubbleController({ children }: Props) {
 
   const { granted, requestPermissions } = useVideoPermissions();
   const [showPreview, setShowPreview] = useState(false);
+  const [shouldStartRecording, setShouldStartRecording] = useState(false);
   const {
     cameraRef,
     isRecording,
@@ -37,16 +38,26 @@ export default function VideoBubbleController({ children }: Props) {
     if (!granted) {
       await requestPermissions();
     }
+    console.log(
+      'Long press - showing preview and setting flag to start recording',
+    );
     setShowPreview(true);
-    await startRecording();
+    setShouldStartRecording(true);
+    // Don't call startRecording here - let onCameraReady handle it
   };
 
   const onPressOut = () => {
+    console.log('Press out - canceling');
     stopRecording();
+    setShowPreview(false);
+    setShouldStartRecording(false);
   };
 
   const onSend = () => {
+    console.log('Send - stopping recording');
     stopRecording();
+    setShouldStartRecording(false);
+    setShowPreview(false);
   };
 
   return (
@@ -63,6 +74,16 @@ export default function VideoBubbleController({ children }: Props) {
           cameraRef={cameraRef}
           size={bubbleSize}
           maxDurationMs={maxDurationMs}
+          onCameraReady={() => {
+            console.log('[📷 Camera] ✅ onCameraReady fired!');
+            if (shouldStartRecording) {
+              console.log('[📹] Starting recording now...');
+              setShouldStartRecording(false); // Reset flag
+              setTimeout(() => {
+                startRecording();
+              }, 100);
+            }
+          }}
         />
       )}
     </>

@@ -9,6 +9,7 @@ type Props = {
   facing?: CameraType;
   size: number;
   maxDurationMs: number;
+  onCameraReady?: () => void;
 };
 
 export default function VideoBubblePreview({
@@ -16,6 +17,7 @@ export default function VideoBubblePreview({
   facing = 'front',
   size,
   maxDurationMs,
+  onCameraReady,
 }: Props) {
   return (
     <View
@@ -50,6 +52,7 @@ export default function VideoBubblePreview({
             videoQuality="480p"
             videoBitrate={10000000}
             style={{ width: size, height: size }}
+            onCameraReady={onCameraReady}
           />
         </CircularProgressArc>
       </View>
