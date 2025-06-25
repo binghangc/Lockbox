@@ -3,7 +3,21 @@ const app = require('../app.js');
 const deleteTestUsers = require('../utils/test/deleteTestUsers.js');
 const createTestUser = require('../utils/test/createTestUser.js');
 
-jest.mock('../utils/r2client');
+jest.mock('../utils/r2client.js', () => {
+  const putObject = jest.fn(() => ({
+    promise: jest.fn().mockResolvedValue({
+      ETag: '"mocked-etag"',
+      Location: 'https://mocked-r2-url.com/file.png',
+      Bucket: 'mocked-bucket',
+      Key: 'mocked-key',
+    }),
+  }));
+
+  return {
+    putObject,
+  };
+});
+
 const r2 = require('../utils/r2client.js');
 
 const EMAIL_PREFIXES = [
