@@ -26,7 +26,7 @@ jest.mock('./utils/r2client.js', () => ({
   }),
 }));
 
-jest.mock('../../utils/geminiclient.js', () => ({
+jest.mock('.utils/geminiclient.js', () => ({
   generateVibeCheck: jest
     .fn()
     .mockImplementation(
