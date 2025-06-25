@@ -5,6 +5,14 @@ const createTestUser = require('../../utils/test/createTestUser.js');
 
 const EMAIL_PREFIXES = ['submit_itinerary'];
 
+jest.mock('../../utils/geminiclient.js', () => ({
+  generateVibeCheck: jest
+    .fn()
+    .mockImplementation(
+      ({ itineraryText }) => `Mocked vibecheck for: ${itineraryText}`,
+    ),
+}));
+
 // Submit Itinerary Flow
 describe('Itinerary + Vibecheck Flow', () => {
   let userA;
@@ -18,11 +26,11 @@ describe('Itinerary + Vibecheck Flow', () => {
 
     const userARes = await createTestUser({
       prefix: 'submit_itinerary_host',
-      username: 'hostuser',
+      username: 'itineraryhost',
     });
     const userBRes = await createTestUser({
       prefix: 'submit_itinerary_other',
-      username: 'otheruser',
+      username: 'itinerarypart',
     });
 
     userA = userARes;
@@ -45,7 +53,7 @@ describe('Itinerary + Vibecheck Flow', () => {
       });
 
     tripId = createRes.body.data[0].id;
-  }, 15000);
+  });
 
   it('should return 401 if no auth token is provided', async () => {
     const res = await request(app).get('/trips');
@@ -125,7 +133,7 @@ describe('Itinerary + Vibecheck Flow', () => {
 
     expect(vibeRes.body.vibecheck).toBeDefined();
     expect(typeof vibeRes.body.vibecheck).toBe('string');
-  }, 15000);
+  });
 
   it('should return itineraries for valid trip and token', async () => {
     const res = await request(app)
@@ -173,8 +181,8 @@ describe('Itinerary + Vibecheck Flow', () => {
     expect(res.statusCode).toBe(500);
     expect(res.body.error).toMatch(/itinerary.*invalid/i);
   });
+});
 
-  afterAll(async () => {
-    await deleteTestUsers(EMAIL_PREFIXES);
-  });
+afterAll(async () => {
+  await deleteTestUsers(EMAIL_PREFIXES);
 });

@@ -3,7 +3,12 @@ const app = require('../app.js');
 const deleteTestUsers = require('../utils/test/deleteTestUsers.js');
 const createTestUser = require('../utils/test/createTestUser.js');
 
-const EMAIL_PREFIXES = ['friend_test', 'send_request_test', 'remove_test'];
+const EMAIL_PREFIXES = [
+  'friend_test',
+  'accept_request_test',
+  'reject_request_test',
+  'remove_test',
+];
 
 // Get Friends Test
 describe('Friends: Get Flow', () => {
@@ -42,12 +47,12 @@ describe('Friends: Accept Request Flow', () => {
 
   beforeAll(async () => {
     userA = await createTestUser({
-      prefix: 'send_request_test_a',
-      username: 'sendrequesta',
+      prefix: 'accept_request_test_a',
+      username: 'sendreqaccepta',
     });
     userB = await createTestUser({
-      prefix: 'send_request_test_b',
-      username: 'sendrequestb',
+      prefix: 'accept_request_test_b',
+      username: 'sendreqacceptb',
     });
   });
 
@@ -73,7 +78,8 @@ describe('Friends: Accept Request Flow', () => {
     expect(pendingRes.statusCode).toBe(200);
 
     const friend = pendingRes.body.find(
-      (req) => req.uid1 === userA.id && req.sender?.username === 'sendrequesta',
+      (req) =>
+        req.uid1 === userA.id && req.sender?.username === 'sendreqaccepta',
     );
 
     expect(friend).toBeDefined();
@@ -110,14 +116,10 @@ describe('Friends: Accept Request Flow', () => {
       .set('Authorization', `Bearer ${userB.token}`);
 
     const newFriend = friendsRes.body.find(
-      (f) => f.username === 'sendrequesta',
+      (f) => f.username === 'sendreqaccepta',
     );
 
     expect(newFriend).toBeDefined();
-  });
-
-  afterAll(async () => {
-    await deleteTestUsers(EMAIL_PREFIXES);
   });
 });
 
@@ -128,12 +130,12 @@ describe('Friends: Reject Request Flow', () => {
 
   beforeAll(async () => {
     userA = await createTestUser({
-      prefix: 'send_request_test_a',
-      username: 'sendrequesta',
+      prefix: 'reject_request_test_a',
+      username: 'sendreqrejecta',
     });
     userB = await createTestUser({
-      prefix: 'send_request_test_b',
-      username: 'sendrequestb',
+      prefix: 'reject_request_test_b',
+      username: 'sendreqrejectb',
     });
   });
 
@@ -159,7 +161,8 @@ describe('Friends: Reject Request Flow', () => {
     expect(pendingRes.statusCode).toBe(200);
 
     const friend = pendingRes.body.find(
-      (req) => req.uid1 === userA.id && req.sender?.username === 'sendrequesta',
+      (req) =>
+        req.uid1 === userA.id && req.sender?.username === 'sendreqrejecta',
     );
 
     expect(friend).toBeDefined();
@@ -190,10 +193,6 @@ describe('Friends: Reject Request Flow', () => {
     expect(rejectedRes.body.message).toBe(
       'Friend request rejected successfully',
     );
-  });
-
-  afterAll(async () => {
-    await deleteTestUsers(EMAIL_PREFIXES);
   });
 });
 
@@ -257,8 +256,8 @@ describe('Friends: Remove Flow', () => {
     const stillFriend = res.body.find((f) => f.id === userB.id);
     expect(stillFriend).toBeUndefined();
   });
+});
 
-  afterAll(async () => {
-    await deleteTestUsers(EMAIL_PREFIXES);
-  });
+afterAll(async () => {
+  await deleteTestUsers(EMAIL_PREFIXES);
 });

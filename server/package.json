@@ -19,7 +19,7 @@
     "supertest": "^7.1.1"
   },
   "jest": {
-    "setupFiles": [
+    "setupFilesAfterEnv": [
       "<rootDir>/jest.setup.js"
     ]
   }

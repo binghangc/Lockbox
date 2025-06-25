@@ -1,6 +1,8 @@
 /* global jest */
 require('dotenv').config({ path: '.env.server' });
 
+jest.setTimeout(30000);
+
 jest.mock('./utils/r2client.js', () => ({
   upload: jest.fn().mockReturnValue({
     promise: jest.fn().mockResolvedValue({
