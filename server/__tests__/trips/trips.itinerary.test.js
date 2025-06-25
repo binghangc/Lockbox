@@ -5,14 +5,6 @@ const createTestUser = require('../../utils/test/createTestUser.js');
 
 const EMAIL_PREFIXES = ['submit_itinerary'];
 
-jest.mock('../../utils/geminiclient.js', () => ({
-  generateVibeCheck: jest
-    .fn()
-    .mockImplementation(
-      ({ itineraryText }) => `Mocked vibecheck for: ${itineraryText}`,
-    ),
-}));
-
 // Submit Itinerary Flow
 describe('Itinerary + Vibecheck Flow', () => {
   let userA;

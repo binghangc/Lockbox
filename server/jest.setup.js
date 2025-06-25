@@ -25,3 +25,11 @@ jest.mock('./utils/r2client.js', () => ({
     promise: jest.fn().mockResolvedValue({}),
   }),
 }));
+
+jest.mock('../../utils/geminiclient.js', () => ({
+  generateVibeCheck: jest
+    .fn()
+    .mockImplementation(
+      ({ itineraryText }) => `Mocked vibecheck for: ${itineraryText}`,
+    ),
+}));
