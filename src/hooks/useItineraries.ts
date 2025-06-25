@@ -49,7 +49,7 @@ export default function useItineraries(tripId: string, tripDays: string[]) {
     };
 
     fetchItineraries();
-  }, [tripId, tripDays]);
+  }, [tripId, tripDays, dailyPlans]);
 
   const submitItinerary = async (
     plans: string[],
