@@ -1,5 +1,4 @@
 import dayjs from 'dayjs';
-import { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -10,31 +9,18 @@ import {
   StyleSheet,
   StatusBar,
 } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import Octicons from '@expo/vector-icons/Octicons';
 import { BlurView } from 'expo-blur';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
-import TripPillbar from '@/components/tripPillbar';
+import useTrips from '@/hooks/useTrips';
+import TripPillbarContainer from '@/containers/tripPillbarContainer';
+import UserProfileModal from '@/components/userProfileModal';
+import ParticipantRowList from '@/components/participants/participantRowList';
+import { useState, useCallback } from 'react';
 import { useUser } from '@/components/UserContext';
-
-interface TripHost {
-  id: string;
-  name: string;
-  avatar_url: string;
-}
-
-interface Trip {
-  id: string;
-  title: string;
-  thumbnail_url: string;
-  start_date: string;
-  end_date: string;
-  host?: TripHost;
-  country?: string;
-  description?: string;
-}
+import { Profile } from '@/types';
 
 export const screenOptions = {
   headerTransparent: true,
@@ -56,48 +42,23 @@ export const screenOptions = {
 
 export default function TripDetailScreen() {
   const { tripId } = useLocalSearchParams();
-  const { user } = useUser();
-  const [trip, setTrip] = useState<Trip | null>(null);
-  const [isHost, setIsHost] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const tripIdStr = Array.isArray(tripId) ? tripId[0] : tripId;
+  const { trip, loading } = useTrips(tripIdStr);
   const insets = useSafeAreaInsets();
+
+  const { user } = useUser();
+  const isHost = user?.id === trip?.host?.id;
+  const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
+  const [participantCount, setParticipantCount] = useState<number>(0);
 
   const HEADER_HEIGHT = insets.top + 60;
 
-  useEffect(() => {
-    const fetchTrip = async () => {
-      try {
-        const token = await AsyncStorage.getItem('access_token');
-        const res = await fetch(
-          `${process.env.EXPO_PUBLIC_API_URL}/trips/${tripId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        );
-
-        const data = await res.json();
-        if (res.ok) {
-          setTrip(data);
-
-          if (data.host?.id === user?.id) {
-            setIsHost(true);
-          } else {
-            setIsHost(false);
-          }
-        } else {
-          console.error(data.error);
-        }
-      } catch (err) {
-        console.error('Fetch error:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (tripId && user) fetchTrip();
-  }, [tripId, user]);
+  const onSelect = (u: Profile) => {
+    setSelectedUser(u);
+  };
+  const onCountUpdate = useCallback((count: number) => {
+    setParticipantCount(count);
+  }, []);
 
   if (loading) {
     return (
@@ -113,6 +74,22 @@ export default function TripDetailScreen() {
         <Text className="text-white">Trip not found</Text>
       </View>
     );
+  }
+
+  let handlePress;
+
+  if (trip.status === 'upcoming' && isHost) {
+    handlePress = () => {
+      router.push(`/trips/${tripId}/itinerary`);
+    };
+  } else if (trip.status === 'upcoming' && !isHost) {
+    handlePress = () => {
+      console.log('Not host - do nothing.');
+    };
+  } else {
+    handlePress = () => {
+      console.log('Not implemented yet.');
+    };
   }
 
   return (
@@ -138,11 +115,13 @@ export default function TripDetailScreen() {
               {trip.title}
             </Text>
           </View>
-          <Image
-            source={{ uri: trip.thumbnail_url }}
-            style={{ width: '100%', aspectRatio: 1, marginBottom: 20 }}
-            resizeMode="cover"
-          />
+          <View className="items-center px-4 mb-5">
+            <Image
+              source={{ uri: trip.thumbnail_url }}
+              style={{ width: '100%', aspectRatio: 1 }}
+              resizeMode="cover"
+            />
+          </View>
           {/* Trip Dates */}
           <View className="flex-row items-center justify-between p-3">
             <Text
@@ -191,10 +170,42 @@ export default function TripDetailScreen() {
                 {trip.description}
               </Text>
             )}
+
+            {/* Participants */}
+            <View className="p-3">
+              <View className="flex-row justify-between items-center mt-4 mb-2 px-4">
+                <Text className="text-white text-2xl font-semibold">
+                  Participants ({participantCount})
+                </Text>
+                <TouchableOpacity
+                  onPress={() => router.push(`/trips/${tripId}/participants`)}
+                >
+                  <Text className="text-sm text-gray-300 font-medium">
+                    SEE ALL
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <ParticipantRowList
+                onSelect={onSelect}
+                onCountUpdate={onCountUpdate}
+              />
+            </View>
           </View>
         </View>
       </ScrollView>
-      <TripPillbar tripId={trip.id} isHost={isHost} />
+      <UserProfileModal
+        isVisible={selectedUser !== null}
+        onClose={() => setSelectedUser(null)}
+        user={selectedUser}
+        currentUserId={user?.id ?? ''}
+        isFriends
+      />
+      <TripPillbarContainer
+        tripId={tripIdStr}
+        isHost={isHost}
+        status={(trip.status as 'upcoming' | 'ongoing' | 'ended') || 'upcoming'}
+        handlePress={handlePress}
+      />
     </View>
   );
 }

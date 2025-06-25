@@ -1,66 +1,130 @@
-import { useState } from 'react';
-import { View, Text, TouchableOpacity, Alert } from 'react-native';
+import React from 'react';
+/* eslint-disable react/jsx-props-no-spreading */
+/* eslint-disable react/jsx-no-bind */
+import { View } from 'react-native';
 import { BlurView } from 'expo-blur';
-import { FontAwesome5 } from '@expo/vector-icons';
-import InviteFriendsModal from '@/components/invites/inviteFriendsModal';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import PILLBAR from '@/constants/pillbarConfig';
+import AnimatedReanimated from 'react-native-reanimated';
+import usePillbarController from '@/hooks/usePillbarController';
+import MainActionBubble from './mainActionBubble';
+
+const { Text: AnimatedText } = AnimatedReanimated;
 
 export default function TripPillbar({
-  tripId,
-  isHost,
+  status,
+  pillText,
+  onPressBubble,
+  onLongPressBubble,
+  onPressOutBubble,
+  onSwipeSend,
+  bottomAccessory,
 }: {
-  tripId: string;
-  isHost: boolean;
+  status: 'upcoming' | 'ongoing' | 'ended';
+  pillText: string;
+  onPressBubble?: () => void;
+  onLongPressBubble?: () => void;
+  onPressOutBubble?: () => void;
+  onSwipeSend?: () => void;
+  bottomAccessory?: React.ReactNode;
 }) {
-  const [inviteModalOpen, setInviteModalOpen] = useState(false);
-
-  const handleInvitePress = () => {
-    if (!isHost) {
-      Alert.alert(
-        'Access Denied',
-        'Only the host can invite people to this trip.',
-      );
-      return;
-    }
-
-    setInviteModalOpen(true);
-  };
+  const insets = useSafeAreaInsets();
+  const {
+    panResponder,
+    setBarWidth,
+    animatedPanStyle,
+    animatedPillTextStyle,
+    animatedAccessoryStyle,
+    handleLongPress,
+    handlePressOut,
+    dragEnabled,
+  } = usePillbarController({
+    status,
+    onSwipeSend,
+    onPressOutBubble,
+    onLongPressBubble,
+  });
 
   return (
     <>
       {/* Pillbar */}
-      <View className="absolute bottom-5 w-[95%] self-center z-50">
-        <BlurView
-          intensity={40}
-          tint="dark"
-          className="rounded-full px-6 py-6 border border-white/10 flex-row justify-between items-center bg-white/5 overflow-hidden"
+      <View
+        onLayout={(e) => setBarWidth(e.nativeEvent.layout.width)}
+        style={{
+          position: PILLBAR.CONTAINER_POSITION,
+          bottom: insets.bottom + PILLBAR.CONTAINER_BOTTOM_OFFSET,
+          left: PILLBAR.CONTAINER_HORIZONTAL_MARGIN,
+          right: PILLBAR.CONTAINER_HORIZONTAL_MARGIN,
+          zIndex: PILLBAR.CONTAINER_Z_INDEX,
+        }}
+      >
+        <LinearGradient
+          start={PILLBAR.GRADIENT_START}
+          end={PILLBAR.GRADIENT_END}
+          locations={PILLBAR.GRADIENT_LOCATIONS}
+          colors={PILLBAR.GRADIENT_COLORS}
+          style={{
+            borderRadius: PILLBAR.BORDER_RADIUS_FULL,
+            padding: PILLBAR.GRADIENT_PADDING,
+          }}
         >
-          {[
-            { name: 'edit', label: 'Edit' },
-            { name: 'bell', label: 'Notify' },
-            { name: 'camera', label: 'Capture' },
-            { name: 'user-plus', label: 'Invite', onPress: handleInvitePress },
-            { name: 'ellipsis-h', label: 'More' },
-          ].map((item, _) => (
-            <TouchableOpacity
-              key={item.name}
-              className="items-center justify-center"
-              onPress={item.onPress ?? (() => {})}
+          <View style={{ overflow: 'hidden', borderRadius: 9999 }}>
+            <BlurView
+              intensity={PILLBAR.BLUR_INTENSITY}
+              tint={PILLBAR.BLUR_TINT}
+              className="rounded-full flex-row justify-center items-center bg-white/5"
+              style={[
+                {
+                  overflow: 'hidden',
+                  borderRadius: PILLBAR.BORDER_RADIUS_FULL,
+                  minHeight: PILLBAR.PILLBAR_HEIGHT,
+                  paddingHorizontal: PILLBAR.PILLBAR_PADDING_HORIZONTAL,
+                  paddingVertical: PILLBAR.PILLBAR_PADDING_VERTICAL,
+                },
+              ]}
             >
-              <FontAwesome5 name={item.name} size={16} color="#fff" />
-              <Text className="text-[11px] text-[#d4d4d4] mt-1">
-                {item.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </BlurView>
-      </View>
+              <View className="flex-row items-center">
+                {status === 'ongoing' ? (
+                  <AnimatedReanimated.View
+                    {...panResponder.panHandlers}
+                    style={[animatedPanStyle]}
+                  >
+                    <MainActionBubble
+                      status={status}
+                      onPress={onPressBubble}
+                      onLongPress={handleLongPress}
+                      onPressOut={handlePressOut}
+                    />
+                  </AnimatedReanimated.View>
+                ) : (
+                  <MainActionBubble
+                    status={status}
+                    onPress={onPressBubble}
+                    onLongPress={onLongPressBubble}
+                    onPressOut={handlePressOut}
+                  />
+                )}
+                {/* Pill text */}
+                <AnimatedText
+                  className="text-gray-100 text-xl font-semibold flex-1"
+                  style={[animatedPillTextStyle]}
+                >
+                  {dragEnabled ? 'Slide to send' : pillText}
+                </AnimatedText>
 
-      {/* Invite Modal */}
-      <InviteFriendsModal
-        tripId={tripId}
-        visible={inviteModalOpen}
-        onClose={() => setInviteModalOpen(false)}
-      />
+                {bottomAccessory && (
+                  <AnimatedReanimated.View
+                    style={[{ marginLeft: 8 }, animatedAccessoryStyle]}
+                  >
+                    {bottomAccessory}
+                  </AnimatedReanimated.View>
+                )}
+              </View>
+            </BlurView>
+          </View>
+        </LinearGradient>
+      </View>
     </>
   );
 }

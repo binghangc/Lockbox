@@ -6,6 +6,7 @@ import {
   ScrollView,
   TextInput,
   Image,
+  Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { BlurView } from 'expo-blur';
@@ -16,15 +17,15 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import { useState, useRef } from 'react';
 import DatePickerModal, {
   DatePickerModalRef,
-} from '@/components/datePickerModal';
+} from '@/components/newTrip/datePickerModal';
 import LocationPickerModal, {
   LocationPickerModalRef,
-} from '@/components/locationPickerModal';
+} from '@/components/newTrip/locationPickerModal';
 import ThumbnailPickerModal, {
   ThumbnailPickerModalRef,
 } from '@/components/thumbnailPickerModal';
 import { useUser } from '@/components/UserContext';
-import CreateTripHeader from '@/components/createTripHeader';
+import CreateTripHeader from '@/components/newTrip/createTripHeader';
 
 export default function NewTrip() {
   const router = useRouter();
@@ -113,8 +114,22 @@ export default function NewTrip() {
         return;
       }
 
-      console.log('Trip saved:', data);
-      router.replace('/(tabs)');
+      const tripId = data.data[0]?.id;
+
+      if (data.needsImmediateItinerary) {
+        Alert.alert(
+          'Start setting your itinerary',
+          'Since your trip starts today, your itinerary must be created now.',
+          [
+            {
+              text: 'OK',
+              onPress: () => router.replace(`/trips/${tripId}/itinerary`),
+            },
+          ],
+        );
+      } else {
+        router.replace('/(tabs)');
+      }
     } catch (err) {
       console.error('Failed to save trip:', err);
     }

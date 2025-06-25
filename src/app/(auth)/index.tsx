@@ -15,7 +15,7 @@ import { useRouter } from 'expo-router';
 import { useUser } from '@/components/UserContext';
 import FloatingOrb from '@/components/floatingOrb';
 
-const ENABLE_FORGOT_PASSWORD = true;
+const ENABLE_FORGOT_PASSWORD = false;
 
 export default function LoginScreen() {
   const [mode, setMode] = useState<'login' | 'signup'>('login');

@@ -28,6 +28,18 @@
     "web": {
       "favicon": "./assets/lockicon.png"
     },
-    "plugins": ["expo-secure-store", "expo-router", "expo-dev-client"]
+    "plugins": [
+      "expo-secure-store",
+      "expo-router",
+      "expo-dev-client",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Lockbox to access your camera",
+          "microphonePermission": "Allow Lockbox to access your microphone",
+          "recordAudioAndroid": true
+        }
+      ]
+    ]
   }
 }

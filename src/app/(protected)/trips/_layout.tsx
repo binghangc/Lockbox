@@ -1,7 +1,15 @@
-import { Stack } from 'expo-router';
+import React, { useRef } from 'react';
+import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
+import useTrips from '@/hooks/useTrips';
 import Octicons from '@expo/vector-icons/Octicons';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { BlurView } from 'expo-blur';
+import InviteFriendsModal from '@/components/invites/inviteFriendsModal';
+
+import TripControllerModal from '@/components/tripControllerModal';
+
+import { Modalize } from 'react-native-modalize';
 
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { ParamListBase } from '@react-navigation/native';
@@ -56,17 +64,89 @@ function headerLeftWithNavigation({
 const headerBackground = () => <HeaderBackground />;
 
 export default function TripsLayout() {
+  const router = useRouter();
+  const modalRef = useRef<Modalize | null>(null);
+  const inviteModalRef = useRef<Modalize | null>(null);
+  const { tripId } = useLocalSearchParams();
+  const { isHost } = useTrips(Array.isArray(tripId) ? tripId[0] : tripId);
+  const onEdit = () => {
+    router.push(`/trips/${tripId}/edit`);
+    modalRef.current?.close();
+  };
+  const onItinerary = () => {
+    router.push(`/trips/${tripId}/itinerary`);
+    modalRef.current?.close();
+  };
+  const onSync = () => {};
+  const onPin = () => {};
+  const onInvite = () => {
+    modalRef.current?.close();
+    router.push(`/trips/${tripId}/sendInvites`);
+  };
+  const onDelete = () => {};
+  const onLeave = () => {};
+
   return (
-    <Stack
-      screenOptions={({ navigation }) => ({
-        headerShown: true,
-        headerTransparent: true,
-        headerTintColor: 'white',
-        headerTitleAlign: 'center',
-        headerLeft: headerLeftWithNavigation.bind(null, { navigation }),
-        headerBackground,
-        title: '',
-      })}
-    />
+    <>
+      <Stack
+        screenOptions={({ navigation }) => ({
+          headerShown: true,
+          headerTransparent: true,
+          headerTintColor: 'white',
+          headerTitleAlign: 'center',
+          headerLeft: headerLeftWithNavigation.bind(null, { navigation }),
+          headerBackground,
+          title: '',
+          headerRight: () => (
+            <TouchableOpacity
+              onPress={() => modalRef.current?.open()}
+              style={{ marginRight: 12 }}
+            >
+              <MaterialCommunityIcons
+                name="dots-horizontal"
+                size={28}
+                color="white"
+              />
+            </TouchableOpacity>
+          ),
+        })}
+      >
+        <Stack.Screen
+          name="[tripId]/itinerary"
+          options={{
+            presentation: 'modal',
+            title: 'Trip Itinerary',
+            animation: 'slide_from_bottom',
+            gestureEnabled: true,
+            headerShown: true,
+            contentStyle: {
+              backgroundColor: 'transparent',
+            },
+          }}
+        />
+        <Stack.Screen
+          name="[tripId]/edit"
+          options={{
+            headerShown: false,
+            animation: 'slide_from_bottom',
+          }}
+        />
+      </Stack>
+      <TripControllerModal
+        triggerRef={modalRef}
+        isHost={isHost}
+        onEdit={onEdit}
+        onItinerary={onItinerary}
+        onSync={onSync}
+        onPin={onPin}
+        onInvite={onInvite}
+        onDelete={onDelete}
+        onLeave={onLeave}
+      />
+      <InviteFriendsModal
+        ref={inviteModalRef}
+        tripId={Array.isArray(tripId) ? tripId[0] : tripId}
+      />
+    </>
   );
 }

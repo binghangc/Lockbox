@@ -1,5 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
-import { View, Text, Pressable, Alert, Dimensions } from 'react-native';
+import {
+  View,
+  Text,
+  Pressable,
+  Alert,
+  Dimensions,
+  ActivityIndicator,
+} from 'react-native';
 import { BlurView } from 'expo-blur';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { Profile } from '@/types';
@@ -117,15 +124,20 @@ export default function UserProfileModal({
             </View>
           )}
 
-          {!isFriends && (
-            <AddFriendRow
-              onAddFriend={handleSendFriendRequest}
-              onMoreOptions={() => {
-                console.log('More options tapped');
-              }}
-              status={status}
-            />
-          )}
+          {!isFriends &&
+            (loading ? (
+              <View className="my-4 items-center">
+                <ActivityIndicator size="small" color="white" />
+              </View>
+            ) : (
+              <AddFriendRow
+                onAddFriend={handleSendFriendRequest}
+                onMoreOptions={() => {
+                  console.log('More options tapped');
+                }}
+                status={status}
+              />
+            ))}
 
           <Pressable
             onPress={() => modalRef.current?.close()}

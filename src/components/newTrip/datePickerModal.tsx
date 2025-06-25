@@ -94,6 +94,9 @@ const DatePickerModal = forwardRef<
       scrollViewProps={{ scrollEnabled: false }}
       modalStyle={{ backgroundColor: 'transparent' }}
       modalTopOffset={45}
+      onClose={() => {
+        if (onConfirm) onConfirm({ startDate, endDate });
+      }}
     >
       <BlurView
         intensity={60}

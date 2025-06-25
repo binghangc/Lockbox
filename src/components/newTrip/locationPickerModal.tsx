@@ -1,5 +1,11 @@
-import { TextInput, View, Text, TouchableOpacity } from 'react-native';
-import { ScrollView } from 'react-native-gesture-handler';
+import {
+  TextInput,
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  StyleSheet,
+} from 'react-native';
 import React, {
   forwardRef,
   useImperativeHandle,
@@ -24,7 +30,6 @@ type LocationPickerModalContentProps = {
   filteredCountries: typeof countries;
   onSelectCountry: (country: { name: string; flag: string }) => void;
   getEmojiFlag: (countryCode: string) => string;
-  closeModal: () => void;
 };
 
 function LocationPickerModalContent({
@@ -34,19 +39,29 @@ function LocationPickerModalContent({
   filteredCountries,
   onSelectCountry,
   getEmojiFlag,
-  closeModal,
 }: LocationPickerModalContentProps) {
   return (
-    <BlurView
-      intensity={60}
-      tint="dark"
-      experimentalBlurMethod="dimezisBlurView"
-      style={{ borderTopLeftRadius: 24, borderTopRightRadius: 24 }}
+    <View
+      style={{
+        flex: 1,
+        minHeight: 810,
+        overflow: 'hidden',
+      }}
     >
+      <BlurView
+        pointerEvents="none"
+        intensity={60}
+        tint="dark"
+        experimentalBlurMethod="dimezisBlurView"
+        style={StyleSheet.absoluteFillObject}
+      />
       <ScrollView
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
+        nestedScrollEnabled
+        style={{ flex: 1 }}
         contentContainerStyle={{
+          flexGrow: 1,
           paddingHorizontal: 20,
           paddingBottom: insets.bottom + 20,
         }}
@@ -59,12 +74,8 @@ function LocationPickerModalContent({
             borderTopRightRadius: 24,
           }}
         >
-          <View className="flex-row items-center justify-between mb-4 mt-3">
-            <TouchableOpacity onPress={closeModal}>
-              <Text className="text-white text-md font-semibold">Cancel</Text>
-            </TouchableOpacity>
+          <View className="flex-row items-center justify-center mb-4 mt-3">
             <Text className="text-white font-bold text-xl">Location</Text>
-            <View style={{ width: 50 }} />
           </View>
 
           <View className="bg-white/10 border border-white/20 rounded-md px-3 py-2 flex-row items-center mb-3">
@@ -96,7 +107,7 @@ function LocationPickerModalContent({
         ))}
         <View style={{ height: insets.bottom }} />
       </ScrollView>
-    </BlurView>
+    </View>
   );
 }
 
@@ -134,25 +145,20 @@ const LocationPickerModal = forwardRef<
   return (
     <Modalize
       ref={modalRef}
-      adjustToContentHeight={false}
       handleStyle={{ backgroundColor: '#ccc' }}
       handlePosition="inside"
       modalStyle={{ backgroundColor: 'transparent' }}
       modalTopOffset={45}
-      customRenderer={
-        <View style={{ flex: 1 }}>
-          <LocationPickerModalContent
-            insets={insets}
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            filteredCountries={filteredCountries}
-            onSelectCountry={onSelectCountry}
-            getEmojiFlag={getEmojiFlag}
-            closeModal={() => modalRef.current?.close()}
-          />
-        </View>
-      }
-    />
+    >
+      <LocationPickerModalContent
+        insets={insets}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        filteredCountries={filteredCountries}
+        onSelectCountry={onSelectCountry}
+        getEmojiFlag={getEmojiFlag}
+      />
+    </Modalize>
   );
 });
 

@@ -1,63 +1,69 @@
-import { useState, useEffect } from 'react';
-import { View, Text, Pressable, Modal, Alert } from 'react-native';
+import React, {
+  useState,
+  useEffect,
+  forwardRef,
+  useImperativeHandle,
+  useRef,
+} from 'react';
+import { View, Text, Pressable, Alert } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Modalize } from 'react-native-modalize';
 import InviteFriendsList from '@/components/invites/inviteFriendsList';
 import { Profile } from '@/types';
 import { useUser } from '@/components/UserContext';
 import { BlurView } from 'expo-blur';
 
-export default function InviteFriendsModal({
-  tripId,
-  visible,
-  onClose,
-}: {
-  tripId: string;
-  visible: boolean;
-  onClose: () => void;
-}) {
-  const { user } = useUser();
-  const [alreadyInvitedIds, setAlreadyInvitedIds] = useState<string[]>([]);
+const InviteFriendsModal = forwardRef<Modalize, { tripId: string }>(
+  ({ tripId }, ref) => {
+    const { user } = useUser();
+    const modalRef = useRef<Modalize>(null);
+    const [alreadyInvitedIds, setAlreadyInvitedIds] = useState<string[]>([]);
 
-  const handleInvite = async (participant: Profile) => {
-    if (!user || !tripId) return;
+    useImperativeHandle(ref, () => ({
+      open: () => modalRef.current?.open(),
+      close: () => modalRef.current?.close(),
+    }));
 
-    try {
-      const token = await AsyncStorage.getItem('access_token');
-      const res = await fetch(
-        `${process.env.EXPO_PUBLIC_API_URL}/invites/send-invite`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
+    const handleInvite = async (participant: Profile) => {
+      if (!user || !tripId) return;
+
+      try {
+        const token = await AsyncStorage.getItem('access_token');
+        const res = await fetch(
+          `${process.env.EXPO_PUBLIC_API_URL}/invites/send-invite`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              user_id: participant.id,
+              host_id: user.id,
+              trip_id: tripId,
+            }),
           },
-          body: JSON.stringify({
-            user_id: participant.id,
-            host_id: user.id,
-            trip_id: tripId,
-          }),
-        },
-      );
+        );
 
-      const data = await res.json();
+        const data = await res.json();
 
-      if (!res.ok) {
-        console.error('Invite failed:', data.error || data);
-        Alert.alert('Invite failed', data.error || 'Something went wrong.');
-        return;
+        if (!res.ok) {
+          console.error('Invite failed:', data.error || data);
+          Alert.alert('Invite failed', data.error || 'Something went wrong.');
+          return;
+        }
+
+        setAlreadyInvitedIds((prev) => [...prev, participant.id]);
+      } catch (error) {
+        console.error('Network error while sending invite:', error);
       }
+    };
 
-      setAlreadyInvitedIds((prev) => [...prev, participant.id]);
-    } catch (error) {
-      console.error('Network error while sending invite:', error);
-    }
-  };
-
-  useEffect(() => {
-    console.log('tripId:', tripId);
-    if (visible) {
+    useEffect(() => {
       const fetchInvited = async () => {
+        if (!tripId) return;
+
         const token = await AsyncStorage.getItem('access_token');
         const res = await fetch(
           `${process.env.EXPO_PUBLIC_API_URL}/invites/invited?trip_id=${tripId}`,
@@ -70,7 +76,6 @@ export default function InviteFriendsModal({
 
         interface Invite {
           user_id: string;
-          // add other properties if needed
         }
 
         if (res.ok) {
@@ -84,39 +89,45 @@ export default function InviteFriendsModal({
       };
 
       fetchInvited();
-    }
-  }, [visible, tripId]);
+    }, [tripId]);
 
-  return (
-    <Modal
-      animationType="slide"
-      transparent
-      visible={visible}
-      onRequestClose={onClose}
-    >
-      <View className="flex-1 justify-end bg-black/50">
+    return (
+      <Modalize
+        ref={modalRef}
+        adjustToContentHeight
+        modalStyle={{ backgroundColor: 'transparent' }}
+        overlayStyle={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+        handlePosition="inside"
+        handleStyle={{ backgroundColor: '#999', width: 40, height: 5 }}
+      >
         <BlurView
           intensity={60}
           tint="light"
-          className="rounded-t-3xl px-6 pt-6 pb-10 max-h-[80%] min-h-[40%] bg-white/60"
+          className="rounded-t-3xl px-6 pt-6 pb-10 bg-white/60"
         >
-          <Pressable onPress={onClose} className="absolute top-4 right-4">
+          <Pressable
+            onPress={() => modalRef.current?.close()}
+            className="absolute top-4 right-4"
+          >
             <FontAwesome5 name="times" size={18} color="white" />
           </Pressable>
 
-          {/* Optional Grab Bar */}
           <View className="w-12 h-1.5 bg-gray-300 rounded-full self-center mb-5" />
 
           <Text className="text-lg font-semibold text-white mb-3">
             Get your friends on board!
           </Text>
+
           <InviteFriendsList
             mode="invite"
             onSelect={handleInvite}
             alreadyInvitedIds={alreadyInvitedIds}
           />
         </BlurView>
-      </View>
-    </Modal>
-  );
-}
+      </Modalize>
+    );
+  },
+);
+InviteFriendsModal.displayName = 'InviteFriendsModal';
+
+export default InviteFriendsModal;

@@ -8,11 +8,15 @@ import InviteCard from '@/components/invites/inviteCard';
 import InviteRow from '@/components/invites/inviteRow';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Invite } from '@/types';
+import { useInvites } from '@/components/InvitesContext';
+import useAllTrips from '@/hooks/useAllTrips';
 
 export default function InvitesScreen() {
   const router = useRouter();
   const [selectedInvite, setSelectedInvite] = useState<Invite | null>(null);
   const modalRef = useRef<Modalize>(null);
+  const { refreshInvites } = useInvites();
+  const { refreshTrips } = useAllTrips();
 
   const handleInviteResponse = async (
     response: string,
@@ -57,12 +61,10 @@ export default function InvitesScreen() {
         Alert.alert('Failed', data.error || 'Something went wrong.');
       }
 
-      Alert.alert(
-        'Error',
-        error instanceof Error ? error.message : 'An unknown error occurred.',
-      );
-      return;
+      console.log('✅ Closing modal by clearing selectedInvite');
       setSelectedInvite(null);
+      refreshInvites();
+      refreshTrips();
     } catch (error) {
       Alert.alert('Error', error);
     }
@@ -98,7 +100,7 @@ export default function InvitesScreen() {
         scrollViewProps={{
           contentContainerStyle: {
             flexGrow: 1,
-            paddingBottom: 100, // Leave space for fixed InviteRow
+            paddingBottom: 100,
           },
           showsVerticalScrollIndicator: false,
         }}
