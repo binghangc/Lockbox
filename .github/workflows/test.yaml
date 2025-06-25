@@ -24,9 +24,9 @@ jobs:
 
       - name: Create .env.server file
         run: |
-          echo "SUPABASE_URL=${{ secrets.EXPO_PUBLIC_SUPABASE_URL }}" >> .env.server
-          echo "SUPABASE_SERVICE_ROLE_KEY=${{ secrets.EXPO_PUBLIC_SUPABASE_SERVICE_ROLE_KEY }}" >> .env.server
-          echo "SUPABASE_ANON_KEY=${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY }}" >> .env.server
+          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> .env.server
+          echo "SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" >> .env.server
+          echo "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> .env.server
 
       - name: Install dependencies
         run: npm install
