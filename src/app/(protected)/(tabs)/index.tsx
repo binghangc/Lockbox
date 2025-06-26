@@ -7,6 +7,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import TripCarousel from '@/components/tripCarousel';
 import useAllTrips from '@/hooks/useAllTrips';
 
@@ -17,7 +18,7 @@ export default function HomeScreen() {
     (typeof FILTERS)[number] | null
   >(null);
 
-  const { trips, loading, refreshTrips } = useAllTrips();
+  const { trips, loading, refreshTrips, setTrips } = useAllTrips();
 
   const insets = useSafeAreaInsets();
   let filteredTrips = trips;
