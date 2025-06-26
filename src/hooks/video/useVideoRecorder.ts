@@ -1,23 +1,19 @@
 import { useRef, useState } from 'react';
 import { CameraView } from 'expo-camera';
+import VIDEO_CONFIG from '@/constants/videoConfig';
 
 type UseVideoRecorderOptions = {
-  maxDurationSec: number;
   onRecordingFinished?: (uri: string | null) => void;
 };
 
-const useVideoRecorder = ({
-  maxDurationSec,
-  onRecordingFinished,
-}: UseVideoRecorderOptions) => {
-  const maxDurationMs = maxDurationSec * 1000;
+const useVideoRecorder = ({ onRecordingFinished }: UseVideoRecorderOptions) => {
+  const maxDurationMs = VIDEO_CONFIG.MAX_DURATION * 1000;
   const cameraRef = useRef<CameraView | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [videoUri, setVideoUri] = useState<string | null>(null);
 
   const startRecording = async () => {
     console.log('[useVideoRecorder] startRecording called');
-    console.log('[useVideoRecorder] Camera ref:', cameraRef.current);
     console.log('[useVideoRecorder] isRecording:', isRecording);
 
     if (isRecording || !cameraRef.current) {
@@ -30,8 +26,8 @@ const useVideoRecorder = ({
     );
     setIsRecording(true);
     const options = {
-      quality: '1080p' as const,
-      maxDuration: maxDurationSec,
+      quality: VIDEO_CONFIG.VIDEO_QUALITY,
+      maxDuration: VIDEO_CONFIG.MAX_DURATION,
       mute: false,
     };
 

@@ -33,7 +33,6 @@ export default async function uploadOrb({
   });
 
   const text = await res.text();
-  console.log('[uploadOrb] Raw response:', text);
   let result;
   try {
     result = JSON.parse(text);

@@ -50,6 +50,27 @@ router.post('/upload', upload.single('video'), async (req, res) => {
       .json({ error: 'Missing required fields or video file' });
   }
 
+  // Check if user already uploaded an orb for this vibecheck
+  if (vibecheckId) {
+    const { data: existingOrb, error: fetchError } = await supabase
+      .from('orbs')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('vibecheck_id', vibecheckId)
+      .maybeSingle();
+
+    if (fetchError) {
+      console.error('[Supabase Fetch Error]', fetchError.message);
+      return res.status(500).json({ error: 'Failed to verify existing orb' });
+    }
+
+    if (existingOrb) {
+      return res.status(409).json({
+        error: 'You have already uploaded an orb for this vibecheck.',
+      });
+    }
+  }
+
   const key = `orbs/${tripId}/${userId}/${orbId}.mp4`;
 
   try {
