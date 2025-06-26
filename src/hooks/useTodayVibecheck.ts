@@ -7,6 +7,7 @@ export default function useTodayVibecheck(
   tripStatus: 'upcoming' | 'ongoing' | 'ended',
 ) {
   const [vibecheck, setVibecheck] = useState<string | null>(null);
+  const [vibecheckId, setVibecheckId] = useState<string | null>(null);
   const [vcloading, setLoading] = useState(true);
 
   const today = dayjs().format('YYYY-MM-DD');
@@ -26,6 +27,7 @@ export default function useTodayVibecheck(
       const result = await res.json();
       if (!res.ok) throw new Error(result.error);
       setVibecheck(result.vibecheck);
+      setVibecheckId(result.vibecheck_id);
     } catch (err) {
       if (err instanceof Error) {
         console.error('Error fetching vibecheck:', err.message);
@@ -53,6 +55,7 @@ export default function useTodayVibecheck(
       const result = await res.json();
       if (!res.ok) throw new Error(result.error);
       setVibecheck(result.vibecheck);
+      setVibecheckId(result.vibecheck_id);
     } catch (err) {
       if (err instanceof Error) {
         console.error('Shuffle failed:', err.message);
@@ -67,6 +70,7 @@ export default function useTodayVibecheck(
   useEffect(() => {
     if (tripStatus !== 'ongoing') {
       setVibecheck(null);
+      setVibecheckId(null);
       setLoading(false);
       return;
     }
@@ -74,5 +78,5 @@ export default function useTodayVibecheck(
     fetchVibecheck();
   }, [tripStatus, fetchVibecheck]);
 
-  return { vibecheck, vcloading, reshuffleVibecheck };
+  return { vibecheck, vibecheckId, vcloading, reshuffleVibecheck };
 }

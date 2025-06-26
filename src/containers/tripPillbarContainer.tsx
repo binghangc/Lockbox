@@ -29,10 +29,8 @@ export default function TripPillbarContainer({
   const insets = useSafeAreaInsets();
   const { tap, hold, send, cancel } = useHaptics();
   const { showHint, show } = useRecordHint();
-  const { vibecheck, reshuffleVibecheck, vcloading } = useTodayVibecheck(
-    tripId,
-    status,
-  );
+  const { vibecheck, vibecheckId, reshuffleVibecheck, vcloading } =
+    useTodayVibecheck(tripId, status);
   const { user } = useUser();
 
   const confettiRef = React.useRef<LottieView>(null);
@@ -94,7 +92,7 @@ export default function TripPillbarContainer({
       <VideoBubbleController
         tripId={tripId}
         userId={user?.id}
-        vibecheckId={vibecheck ?? undefined}
+        vibecheckId={vibecheckId ?? undefined}
       >
         {({ onLongPress, onPressOut, onSend }) => (
           <TripPillbar
