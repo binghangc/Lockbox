@@ -31,24 +31,6 @@ export default function InviteFriendsList({
     );
   }
 
-  if (friends.length === 0) {
-    return (
-      <View className="flex-1 w-full mt-auto mb-auto items-center">
-        <Text className="text-gray-400 text-center text-base mb-3 mt-3">
-          No friends to invite! Find some friends to join you on this trip now.
-        </Text>
-        <Pressable
-          onPress={() => router.push('/friends/search')}
-          className="bg-zinc-800 px-6 py-3 rounded-xl active:bg-white/10"
-        >
-          <Text className="text-white text-center font-semibold">
-            Find Friends
-          </Text>
-        </Pressable>
-      </View>
-    );
-  }
-
   return (
     <>
       <FormInput
@@ -63,19 +45,35 @@ export default function InviteFriendsList({
         icon={<Feather name="search" size={20} color="#888" />}
       />
 
-      <FlatList
-        data={friends}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <InviteFriendRow
-            key={item.id}
-            item={item}
-            alreadyInvitedIds={alreadyInvitedIds}
-            inviteStatus={inviteStatus}
-            onSelect={onSelect}
-          />
-        )}
-      />
+      {friends.length === 0 ? (
+        <View className="flex-1 w-full mt-12 items-center">
+          <Text className="text-gray-400 text-center text-base mb-3">
+            No friends matched your search.
+          </Text>
+          <Pressable
+            onPress={() => router.push('/friends/search')}
+            className="bg-zinc-800 px-6 py-3 rounded-xl active:bg-white/10"
+          >
+            <Text className="text-white text-center font-semibold">
+              Find Friends
+            </Text>
+          </Pressable>
+        </View>
+      ) : (
+        <FlatList
+          data={friends}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <InviteFriendRow
+              key={item.id}
+              item={item}
+              alreadyInvitedIds={alreadyInvitedIds}
+              inviteStatus={inviteStatus}
+              onSelect={onSelect}
+            />
+          )}
+        />
+      )}
     </>
   );
 }
