@@ -22,7 +22,7 @@ async function storeOrbMetadata({
   const { data, error } = await supabase
     .from('orbs')
     .insert({
-      orb_id: orbId,
+      id: orbId,
       trip_id: tripId,
       user_id: userId,
       vibecheck_id: vibecheckId || null,

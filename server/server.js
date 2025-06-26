@@ -12,6 +12,7 @@ app.use(cors());
 // imported routes
 const tripRoutes = require('./routes/trips.js');
 const thumbnailsRoute = require('./routes/thumbnails.js');
+const orbsRoute = require('./routes/orbs.js');
 
 app.use(express.json());
 
@@ -27,6 +28,7 @@ app.use('/profile', require('./routes/profile.js'));
 // API trip endpoints: get and edit trip info, ie name, description, start_date, end_date
 app.use('/trips', tripRoutes);
 app.use('/thumbnails', thumbnailsRoute);
+app.use('/orbs', orbsRoute);
 
 // API invites endpoints: send and respond to invites
 app.use('/invites', require('./routes/invites.js'));

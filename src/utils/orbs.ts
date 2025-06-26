@@ -28,12 +28,19 @@ export default async function uploadOrb({
     method: 'POST',
     headers: {
       Authorization: `Bearer ${token}`,
-      'Content-Type': 'multipart/form-data',
     },
     body: formData,
   });
 
-  const result = await res.json();
+  const text = await res.text();
+  console.log('[uploadOrb] Raw response:', text);
+  let result;
+  try {
+    result = JSON.parse(text);
+  } catch {
+    throw new Error('Server did not return JSON');
+  }
+
   if (!res.ok) {
     throw new Error(result.error || 'Upload failed');
   }

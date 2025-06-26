@@ -10,6 +10,7 @@ import VideoBubbleController from '@/components/video/videoBubbleController';
 import TripPillbar from '@/components/tripPillbar';
 import useTodayVibecheck from '@/hooks/useTodayVibecheck';
 import VibecheckShuffleButton from '@/components/vibecheckShuffleButton';
+import { useUser } from '@/components/UserContext';
 import confettiJson from '../../assets/animations/confetti.json';
 
 type TripPillbarContainerProps = {
@@ -32,6 +33,7 @@ export default function TripPillbarContainer({
     tripId,
     status,
   );
+  const { user } = useUser();
 
   const confettiRef = React.useRef<LottieView>(null);
   const triggerConfetti = () => {
@@ -89,7 +91,11 @@ export default function TripPillbarContainer({
           pointerEvents: 'none',
         }}
       />
-      <VideoBubbleController>
+      <VideoBubbleController
+        tripId={tripId}
+        userId={user?.id}
+        vibecheckId={vibecheck ?? undefined}
+      >
         {({ onLongPress, onPressOut, onSend }) => (
           <TripPillbar
             status={status}
