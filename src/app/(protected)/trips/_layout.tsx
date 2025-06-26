@@ -3,10 +3,11 @@ import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import useTrips from '@/hooks/useTrips';
 import Octicons from '@expo/vector-icons/Octicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { BlurView } from 'expo-blur';
 import InviteFriendsModal from '@/components/invites/inviteFriendsModal';
 import usePinTrip from '@/hooks/usePinTrip';
+import createCalendarEvent from '@/utils/calendarEvent';
 
 import TripControllerModal from '@/components/tripControllerModal';
 
@@ -88,7 +89,21 @@ export default function TripsLayout() {
     router.push(`/trips/${tripId}/itinerary`);
     modalRef.current?.close();
   };
-  const onSync = () => {};
+  const onSync = async () => {
+    try {
+      await createCalendarEvent({
+        title: trip.title,
+        startDate: trip.start_date,
+        endDate: trip.end_date,
+        notes: trip.description ?? 'Synced from Lockbox',
+      });
+      Alert.alert('Success', 'Trip added to your calendar!');
+      console.log('success');
+    } catch (err) {
+      console.error('Calendar sync failed:', err);
+      Alert.alert('Error', 'Unable to add to calendar.');
+    }
+  };
   const onPin = () => {
     pinTrip();
     modalRef.current?.close();
