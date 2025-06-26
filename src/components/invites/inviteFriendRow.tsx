@@ -10,9 +10,6 @@ type Props = {
   alreadyInvitedIds: string[];
   inviteStatus: Record<string, 'idle' | 'loading' | 'sent' | 'failed'>;
   onSelect: (item: FriendRow) => void;
-  setInviteStatus: React.Dispatch<
-    React.SetStateAction<Record<string, 'idle' | 'loading' | 'sent' | 'failed'>>
-  >;
 };
 
 export default function InviteFriendRow({
@@ -20,7 +17,6 @@ export default function InviteFriendRow({
   alreadyInvitedIds,
   inviteStatus,
   onSelect,
-  setInviteStatus,
 }: Props) {
   const status =
     inviteStatus[item.id] ??
@@ -28,15 +24,7 @@ export default function InviteFriendRow({
 
   const handlePress = () => {
     if (status === 'sent') return;
-
-    setInviteStatus((prev) => ({ ...prev, [item.id]: 'loading' }));
-    Promise.resolve(onSelect(item))
-      .then(() => {
-        setInviteStatus((prev) => ({ ...prev, [item.id]: 'sent' }));
-      })
-      .catch(() => {
-        setInviteStatus((prev) => ({ ...prev, [item.id]: 'failed' }));
-      });
+    onSelect(item);
   };
 
   return (

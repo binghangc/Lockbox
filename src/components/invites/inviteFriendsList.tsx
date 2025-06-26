@@ -1,63 +1,27 @@
 import { FlatList, View, Text, Pressable } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
 import InviteFriendRow from '@/components/invites/inviteFriendRow';
-import useFriends from '@/hooks/useFriends';
 import { Feather } from '@expo/vector-icons';
-import { debounce } from 'lodash';
 import FormInput from '@/components/formInput';
 
 type Props = {
+  friends: Profile[];
+  rawQuery: string;
+  onQueryChange: (text: string) => void;
+  inviteStatus: Record<string, 'idle' | 'loading' | 'sent' | 'failed'>;
+  alreadyInvitedIds: string[];
   onSelect: (user: Profile) => void | Promise<void>;
-  alreadyInvitedIds?: string[];
-  onCountUpdate?: (count: number) => void;
+  loading: boolean;
 };
 
 export default function InviteFriendsList({
+  friends,
+  rawQuery,
+  onQueryChange,
+  inviteStatus,
+  alreadyInvitedIds,
   onSelect,
-  alreadyInvitedIds = [],
-  onCountUpdate,
+  loading,
 }: Props) {
-  const { friends, loading } = useFriends(onCountUpdate);
-  const router = useRouter();
-  const [inviteStatus, setInviteStatus] = useState<
-    Record<string, 'idle' | 'loading' | 'sent' | 'failed'>
-  >({});
-  const [query, setQuery] = useState('');
-  const [rawQuery, setRawQuery] = useState('');
-
-  const debouncedUpdate = debounce((text: string) => {
-    setQuery(text);
-  }, 300);
-
-  const handleSearchChange = (text: string) => {
-    setRawQuery(text);
-    debouncedUpdate(text);
-  };
-
-  const filteredFriends = friends.filter(
-    (f) =>
-      f.name.toLowerCase().includes(query.toLowerCase()) ||
-      (f.username?.toLowerCase() ?? '').includes(query.toLowerCase()),
-  );
-
-  useEffect(() => {
-    const updatedStatus = alreadyInvitedIds.reduce(
-      (acc, id) => {
-        acc[id] = 'sent';
-        return acc;
-      },
-      {} as Record<string, 'sent'>,
-    );
-    setInviteStatus(updatedStatus);
-  }, [alreadyInvitedIds]);
-
-  useEffect(() => {
-    if (!loading) {
-      onCountUpdate?.(friends.length);
-    }
-  }, [friends.length, loading, onCountUpdate]);
-
   if (loading) {
     return (
       <View className="flex-1 justify-center items-center">
@@ -91,7 +55,7 @@ export default function InviteFriendsList({
         label="Type away"
         placeholder="Search by username"
         value={rawQuery}
-        onChangeText={handleSearchChange}
+        onChangeText={onQueryChange}
         placeholderTextColor="#888"
         autoCorrect={false}
         autoCapitalize="none"
@@ -100,7 +64,7 @@ export default function InviteFriendsList({
       />
 
       <FlatList
-        data={filteredFriends}
+        data={friends}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <InviteFriendRow
@@ -109,7 +73,6 @@ export default function InviteFriendsList({
             alreadyInvitedIds={alreadyInvitedIds}
             inviteStatus={inviteStatus}
             onSelect={onSelect}
-            setInviteStatus={setInviteStatus}
           />
         )}
       />

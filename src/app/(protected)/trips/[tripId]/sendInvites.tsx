@@ -1,10 +1,12 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { View, Text, Pressable } from 'react-native';
+import useFriends from '@/hooks/useFriends';
+import { debounce } from 'lodash';
 import { FontAwesome5 } from '@expo/vector-icons';
 import InviteFriendsList from '@/components/invites/inviteFriendsList';
 import { useUser } from '@/components/UserContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Profile } from '@/types';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -15,8 +17,44 @@ export default function SendInvitesScreen() {
   const [alreadyInvitedIds, setAlreadyInvitedIds] = useState<string[]>([]);
   const insets = useSafeAreaInsets();
 
+  const { friends, loading } = useFriends();
+  const [query, setQuery] = useState('');
+  const [rawQuery, setRawQuery] = useState('');
+  const [inviteStatus, setInviteStatus] = useState<
+    Record<string, 'idle' | 'loading' | 'sent' | 'failed'>
+  >({});
+
+  const debouncedUpdate = useMemo(
+    () => debounce((text: string) => setQuery(text), 300),
+    [],
+  );
+
+  const handleSearchChange = (text: string) => {
+    setRawQuery(text);
+    debouncedUpdate(text);
+  };
+
+  const filteredFriends = friends.filter(
+    (f) =>
+      f.name.toLowerCase().includes(query.toLowerCase()) ||
+      (f.username?.toLowerCase() ?? '').includes(query.toLowerCase()),
+  );
+
+  useEffect(() => {
+    const updatedStatus = alreadyInvitedIds.reduce(
+      (acc, id) => {
+        acc[id] = 'sent';
+        return acc;
+      },
+      {} as Record<string, 'sent'>,
+    );
+    setInviteStatus(updatedStatus);
+  }, [alreadyInvitedIds]);
+
   const handleInvite = async (participant: Profile) => {
     if (!user || !tripId) return;
+
+    setInviteStatus((prev) => ({ ...prev, [participant.id]: 'loading' }));
 
     try {
       const token = await AsyncStorage.getItem('access_token');
@@ -42,9 +80,11 @@ export default function SendInvitesScreen() {
         return;
       }
 
+      setInviteStatus((prev) => ({ ...prev, [participant.id]: 'sent' }));
       setAlreadyInvitedIds((prev) => [...prev, participant.id]);
     } catch (err) {
       console.error('Error sending invite:', err);
+      setInviteStatus((prev) => ({ ...prev, [participant.id]: 'failed' }));
     }
   };
 
@@ -85,9 +125,13 @@ export default function SendInvitesScreen() {
       </Text>
 
       <InviteFriendsList
-        mode="invite"
-        onSelect={handleInvite}
+        friends={filteredFriends}
+        rawQuery={rawQuery}
+        onQueryChange={handleSearchChange}
+        inviteStatus={inviteStatus}
         alreadyInvitedIds={alreadyInvitedIds}
+        onSelect={handleInvite}
+        loading={loading}
       />
     </View>
   );
