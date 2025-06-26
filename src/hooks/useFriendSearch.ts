@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Profile } from '@/types';
 
 export type SearchResult = Profile & {
-  status: 'accepted' | 'pending' | 'none';
+  status: 'accepted' | 'pending' | 'incoming' | 'none';
 };
 
 export default function useFriendSearch(currentUserId: string) {

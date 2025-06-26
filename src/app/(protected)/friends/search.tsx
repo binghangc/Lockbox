@@ -7,7 +7,9 @@ import AddFriendButton from '@/components/friends/addFriendButton';
 import FriendsSearchList from '@/components/friends/friendsSearchList';
 import useFriendSearch from '@/hooks/useFriendSearch';
 
-type SearchResult = Profile & { status: 'accepted' | 'pending' | 'none' };
+type SearchResult = Profile & {
+  status: 'accepted' | 'pending' | 'incoming' | 'none';
+};
 
 export default function FriendsSearchScreen() {
   const { user } = useUser();
@@ -26,7 +28,7 @@ export default function FriendsSearchScreen() {
         onChangeQuery={handleQueryChange}
         actionComponent={(u) => (
           <AddFriendButton
-            isRequestSent={u.status === 'pending'}
+            status={u.status}
             onPress={() => sendFriendRequest(u.id)}
           />
         )}
