@@ -242,6 +242,42 @@ router.get('/:id/participants', authMiddleware, async (req, res) => {
   }
 });
 
+// API endpoint for users to pin trips
+router.patch('/:trip_id/pin', authMiddleware, async (req, res) => {
+  const { trip_id } = req.params;
+  const user_id = req.user.id;
+
+  try {
+    const { data: participant, error: fetchError } = await supabase
+      .from('participants')
+      .select('is_pinned')
+      .eq('trip_id', trip_id)
+      .eq('user_id', user_id)
+      .single();
+
+    if (fetchError || !participant)
+      return res.status(404).json({ error: 'Participant not found' });
+
+    const newPinState = !participant.is_pinned;
+
+    const { error: updateError } = await supabase
+      .from('participants')
+      .update({ is_pinned: newPinState })
+      .eq('trip_id', trip_id)
+      .eq('user_id', user_id);
+
+    if (updateError)
+      return res.status(500).json({ error: updateError.message });
+
+    return res.json({
+      message: 'Pin state toggled',
+      is_pinned: newPinState,
+    });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
 // API endpoint for users to save their itineraries and generate vibechecks
 router.post('/:id/submit-itinerary', authMiddleware, async (req, res) => {
   const trip_id = req.params.id;

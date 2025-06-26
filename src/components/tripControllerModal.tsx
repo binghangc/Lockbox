@@ -11,6 +11,7 @@ import TripControllerItem from '@/components/tripControllerItem';
 
 type TripControllerModalProps = {
   isHost: boolean;
+  isPinned: boolean;
   onEdit: () => void;
   onSync: () => void;
   onPin: () => void;
@@ -22,6 +23,7 @@ type TripControllerModalProps = {
 
 export default function TripControllerModal({
   isHost,
+  isPinned,
   onEdit,
   onSync,
   onPin,
@@ -77,25 +79,16 @@ export default function TripControllerModal({
             onPress={onEdit}
           />
         )}
-        {isHost && (
-          <TripControllerItem
-            icon={<MaterialIcons name="push-pin" size={20} color="white" />}
-            label="Pin Trip"
-            onPress={onPin}
-          />
-        )}
+        <TripControllerItem
+          icon={<MaterialIcons name="push-pin" size={20} color="white" />}
+          label={isPinned ? 'Unpin Trip' : 'Pin Trip'}
+          onPress={onPin}
+        />
         {isHost && (
           <TripControllerItem
             icon={<FontAwesome5 name="user-plus" size={15} color="white" />}
             label="Send Invites"
             onPress={onInvite}
-          />
-        )}
-        {!isHost && (
-          <TripControllerItem
-            icon={<MaterialIcons name="push-pin" size={20} color="white" />}
-            label="Pin Trip"
-            onPress={onPin}
           />
         )}
         <TripControllerItem

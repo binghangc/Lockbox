@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import useTrips from '@/hooks/useTrips';
 import Octicons from '@expo/vector-icons/Octicons';
@@ -6,6 +6,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { BlurView } from 'expo-blur';
 import InviteFriendsModal from '@/components/invites/inviteFriendsModal';
+import usePinTrip from '@/hooks/usePinTrip';
 
 import TripControllerModal from '@/components/tripControllerModal';
 
@@ -67,8 +68,19 @@ export default function TripsLayout() {
   const router = useRouter();
   const modalRef = useRef<Modalize | null>(null);
   const inviteModalRef = useRef<Modalize | null>(null);
+
   const { tripId } = useLocalSearchParams();
-  const { isHost } = useTrips(Array.isArray(tripId) ? tripId[0] : tripId);
+  const { trip, isHost, loading } = useTrips(
+    Array.isArray(tripId) ? tripId[0] : tripId,
+  );
+
+  const [isPinned, setIsPinned] = useState(false);
+  const pinTrip = usePinTrip(trip?.id ?? '', (newState) => {
+    setIsPinned(newState);
+  });
+
+  if (loading || !trip) return null;
+
   const onEdit = () => {
     router.push(`/trips/${tripId}/edit`);
     modalRef.current?.close();
@@ -78,7 +90,10 @@ export default function TripsLayout() {
     modalRef.current?.close();
   };
   const onSync = () => {};
-  const onPin = () => {};
+  const onPin = () => {
+    pinTrip();
+    modalRef.current?.close();
+  };
   const onInvite = () => {
     modalRef.current?.close();
     router.push(`/trips/${tripId}/sendInvites`);
@@ -135,6 +150,7 @@ export default function TripsLayout() {
       <TripControllerModal
         triggerRef={modalRef}
         isHost={isHost}
+        isPinned={isPinned}
         onEdit={onEdit}
         onItinerary={onItinerary}
         onSync={onSync}
