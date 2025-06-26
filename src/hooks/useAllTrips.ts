@@ -39,12 +39,12 @@ export default function useAllTrips() {
   useFocusEffect(
     useCallback(() => {
       if (user) fetchTrips();
-    }, [user, fetchTrips])
+    }, [user, fetchTrips]),
   );
 
   useEffect(() => {
     if (user) fetchTrips();
-  }, [user]);
+  }, [user, fetchTrips]);
 
   return { trips, loading, refreshTrips: fetchTrips };
 }
