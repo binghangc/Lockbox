@@ -7,7 +7,10 @@ type Props = {
   friends: Profile[];
   rawQuery: string;
   onQueryChange: (text: string) => void;
-  inviteStatus: Record<string, 'idle' | 'loading' | 'sent' | 'failed'>;
+  inviteStatus: Record<
+    string,
+    'idle' | 'loading' | 'pending' | 'accepted' | 'declined' | 'failed'
+  >;
   alreadyInvitedIds: string[];
   onSelect: (user: Profile) => void | Promise<void>;
   loading: boolean;

@@ -8,7 +8,10 @@ type FriendRow = Profile & { friendshipId?: string };
 type Props = {
   item: FriendRow;
   alreadyInvitedIds: string[];
-  inviteStatus: Record<string, 'idle' | 'loading' | 'sent' | 'failed'>;
+  inviteStatus: Record<
+    string,
+    'idle' | 'loading' | 'pending' | 'accepted' | 'declined' | 'failed'
+  >;
   onSelect: (item: FriendRow) => void;
 };
 
@@ -20,21 +23,23 @@ export default function InviteFriendRow({
 }: Props) {
   const status =
     inviteStatus[item.id] ??
-    (alreadyInvitedIds?.includes(item.id) ? 'sent' : undefined);
+    (alreadyInvitedIds?.includes(item.id) ? 'pending' : undefined);
+
+  const isDisabled = ['pending', 'accepted', 'declined'].includes(status ?? '');
 
   const handlePress = () => {
-    if (status === 'sent') return;
+    if (isDisabled) return;
     onSelect(item);
   };
 
   return (
     <FriendRowBase
       item={item}
-      onPress={() => onSelect(item)}
+      onPress={null}
       RightAction={
         <InviteFriendActionButton
           status={status}
-          disabled={status === 'sent' || alreadyInvitedIds.includes(item.id)}
+          disabled={isDisabled}
           onPress={handlePress}
         />
       }

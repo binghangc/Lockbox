@@ -73,7 +73,7 @@ router.get('/invited', async (req, res) => {
 
   const { data, error } = await supabase
     .from('invites')
-    .select('user_id')
+    .select('user_id, status')
     .eq('trip_id', trip_id);
 
   if (error) {

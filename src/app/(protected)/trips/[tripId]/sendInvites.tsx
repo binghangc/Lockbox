@@ -21,7 +21,10 @@ export default function SendInvitesScreen() {
   const [query, setQuery] = useState('');
   const [rawQuery, setRawQuery] = useState('');
   const [inviteStatus, setInviteStatus] = useState<
-    Record<string, 'idle' | 'loading' | 'sent' | 'failed'>
+    Record<
+      string,
+      'idle' | 'loading' | 'pending' | 'accepted' | 'declined' | 'failed'
+    >
   >({});
 
   const debouncedUpdate = useMemo(
@@ -39,17 +42,6 @@ export default function SendInvitesScreen() {
       f.name.toLowerCase().includes(query.toLowerCase()) ||
       (f.username?.toLowerCase() ?? '').includes(query.toLowerCase()),
   );
-
-  useEffect(() => {
-    const updatedStatus = alreadyInvitedIds.reduce(
-      (acc, id) => {
-        acc[id] = 'sent';
-        return acc;
-      },
-      {} as Record<string, 'sent'>,
-    );
-    setInviteStatus(updatedStatus);
-  }, [alreadyInvitedIds]);
 
   const handleInvite = async (participant: Profile) => {
     if (!user || !tripId) return;
@@ -80,7 +72,7 @@ export default function SendInvitesScreen() {
         return;
       }
 
-      setInviteStatus((prev) => ({ ...prev, [participant.id]: 'sent' }));
+      setInviteStatus((prev) => ({ ...prev, [participant.id]: 'pending' }));
       setAlreadyInvitedIds((prev) => [...prev, participant.id]);
     } catch (err) {
       console.error('Error sending invite:', err);
@@ -100,9 +92,16 @@ export default function SendInvitesScreen() {
 
       const data = await res.json();
       if (res.ok) {
-        setAlreadyInvitedIds(
-          data.invites.map((i: { user_id: string }) => i.user_id),
+        const newStatusMap = data.invites.reduce(
+          (acc, { user_id, status }) => {
+            acc[user_id] = status;
+            return acc;
+          },
+          {} as typeof inviteStatus,
         );
+
+        setInviteStatus(newStatusMap);
+        setAlreadyInvitedIds(Object.keys(newStatusMap));
       } else {
         console.error('Failed to fetch invited users:', data.error);
       }
