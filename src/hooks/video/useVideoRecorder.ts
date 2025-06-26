@@ -30,7 +30,7 @@ const useVideoRecorder = ({
     );
     setIsRecording(true);
     const options = {
-      quality: '480p' as const,
+      quality: '1080p' as const,
       maxDuration: maxDurationSec,
       mute: false,
     };

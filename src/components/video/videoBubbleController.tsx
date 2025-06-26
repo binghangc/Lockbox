@@ -3,6 +3,7 @@ import useVideoPermissions from '@/hooks/video/useVideoPermissions';
 import useVideoRecorder from '@/hooks/video/useVideoRecorder';
 import uploadOrb from '@/utils/orbs';
 import { useUser } from '@/components/UserContext';
+import VIDEO_CONFIG from '@/constants/videoConfig';
 import VideoBubblePreview from './videoBubblePreview';
 
 type Props = {
@@ -27,56 +28,45 @@ export default function VideoBubbleController({
   userId,
   vibecheckId,
 }: Props) {
-  // VIDEO-BUBBLE SIZE
-  const bubbleSize = 350;
-  // MAX-VIDEO DURATION (in sec)
-  const maxDuration = 15;
-
   const { granted, requestPermissions } = useVideoPermissions();
   const [showPreview, setShowPreview] = useState(false);
   const [shouldStartRecording, setShouldStartRecording] = useState(false);
   const { token } = useUser();
   const wasCancelled = useRef(false);
 
-  const {
-    cameraRef,
-    isRecording,
-    startRecording,
-    stopRecording,
-    videoUri,
-    maxDurationMs,
-  } = useVideoRecorder({
-    maxDurationSec: maxDuration,
-    onRecordingFinished: async (uri) => {
-      setShowPreview(false);
+  const { cameraRef, isRecording, startRecording, stopRecording, videoUri } =
+    useVideoRecorder({
+      maxDurationSec: VIDEO_CONFIG.MAX_DURATION,
+      onRecordingFinished: async (uri) => {
+        setShowPreview(false);
 
-      if (wasCancelled.current) {
-        console.log(
-          '[videoBubbleController] Recording was cancelled — skipping upload',
-        );
-        return;
-      }
+        if (wasCancelled.current) {
+          console.log(
+            '[videoBubbleController] Recording was cancelled — skipping upload',
+          );
+          return;
+        }
 
-      if (!uri || !tripId || !userId || !token) {
-        console.log(tripId);
-        console.warn('[videoBubbleController] Missing data for uploadOrb');
-        return;
-      }
+        if (!uri || !tripId || !userId || !token) {
+          console.log(userId);
+          console.warn('[videoBubbleController] Missing data for uploadOrb');
+          return;
+        }
 
-      try {
-        const res = await uploadOrb({
-          uri,
-          tripId,
-          userId,
-          vibecheckId,
-          token,
-        });
-        console.log('[uploadOrb] success:', res);
-      } catch (err) {
-        console.error('[uploadOrb] error:', err);
-      }
-    },
-  });
+        try {
+          const res = await uploadOrb({
+            uri,
+            tripId,
+            userId,
+            vibecheckId,
+            token,
+          });
+          console.log('[uploadOrb] success:', res);
+        } catch (err) {
+          console.error('[uploadOrb] error:', err);
+        }
+      },
+    });
 
   const onLongPress = async () => {
     if (!granted) {
@@ -120,8 +110,6 @@ export default function VideoBubbleController({
       {showPreview && (
         <VideoBubblePreview
           cameraRef={cameraRef}
-          size={bubbleSize}
-          maxDurationMs={maxDurationMs}
           onCameraReady={() => {
             console.log('[📷 Camera] onCameraReady fired!');
             if (shouldStartRecording) {

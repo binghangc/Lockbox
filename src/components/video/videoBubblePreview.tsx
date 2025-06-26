@@ -1,22 +1,19 @@
+import { VideoQuality, CameraView, CameraType } from 'expo-camera';
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { CameraView, CameraType } from 'expo-camera';
 import { BlurView } from 'expo-blur';
+import VIDEO_CONFIG from '@/constants/videoConfig';
 import CircularProgressArc from './circularProgressArc';
 
 type Props = {
   cameraRef: React.RefObject<CameraView | null>;
   facing?: CameraType;
-  size: number;
-  maxDurationMs: number;
   onCameraReady?: () => void;
 };
 
 export default function VideoBubblePreview({
   cameraRef,
   facing = 'front',
-  size,
-  maxDurationMs,
   onCameraReady,
 }: Props) {
   return (
@@ -31,17 +28,17 @@ export default function VideoBubblePreview({
 
       <View
         style={{
-          width: size,
-          height: size,
-          borderRadius: size / 2,
+          width: VIDEO_CONFIG.BUBBLE_SIZE,
+          height: VIDEO_CONFIG.BUBBLE_SIZE,
+          borderRadius: VIDEO_CONFIG.BUBBLE_SIZE / 2,
           overflow: 'hidden',
           backgroundColor: 'black',
         }}
       >
         <CircularProgressArc
-          size={size}
+          size={VIDEO_CONFIG.BUBBLE_SIZE}
           thickness={2.5}
-          cycleDuration={maxDurationMs}
+          cycleDuration={VIDEO_CONFIG.MAX_DURATION * 1000}
         >
           <CameraView
             ref={cameraRef}
@@ -49,9 +46,12 @@ export default function VideoBubblePreview({
             facing={facing}
             mirror={facing === 'front'}
             mute={false}
-            videoQuality="480p"
-            videoBitrate={10000000}
-            style={{ width: size, height: size }}
+            videoQuality={VIDEO_CONFIG.VIDEO_QUALITY as VideoQuality}
+            videoBitrate={VIDEO_CONFIG.VIDEO_BITRATE}
+            style={{
+              width: VIDEO_CONFIG.BUBBLE_SIZE,
+              height: VIDEO_CONFIG.BUBBLE_SIZE,
+            }}
             onCameraReady={onCameraReady}
           />
         </CircularProgressArc>
