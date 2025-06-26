@@ -1,10 +1,12 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { View, Text, Pressable } from 'react-native';
+import useFriends from '@/hooks/useFriends';
+import { debounce } from 'lodash';
 import { FontAwesome5 } from '@expo/vector-icons';
 import InviteFriendsList from '@/components/invites/inviteFriendsList';
 import { useUser } from '@/components/UserContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Profile } from '@/types';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -15,8 +17,36 @@ export default function SendInvitesScreen() {
   const [alreadyInvitedIds, setAlreadyInvitedIds] = useState<string[]>([]);
   const insets = useSafeAreaInsets();
 
+  const { friends, loading } = useFriends();
+  const [query, setQuery] = useState('');
+  const [rawQuery, setRawQuery] = useState('');
+  const [inviteStatus, setInviteStatus] = useState<
+    Record<
+      string,
+      'idle' | 'loading' | 'pending' | 'accepted' | 'declined' | 'failed'
+    >
+  >({});
+
+  const debouncedUpdate = useMemo(
+    () => debounce((text: string) => setQuery(text), 300),
+    [],
+  );
+
+  const handleSearchChange = (text: string) => {
+    setRawQuery(text);
+    debouncedUpdate(text);
+  };
+
+  const filteredFriends = friends.filter(
+    (f) =>
+      f.name.toLowerCase().includes(query.toLowerCase()) ||
+      (f.username?.toLowerCase() ?? '').includes(query.toLowerCase()),
+  );
+
   const handleInvite = async (participant: Profile) => {
     if (!user || !tripId) return;
+
+    setInviteStatus((prev) => ({ ...prev, [participant.id]: 'loading' }));
 
     try {
       const token = await AsyncStorage.getItem('access_token');
@@ -42,9 +72,11 @@ export default function SendInvitesScreen() {
         return;
       }
 
+      setInviteStatus((prev) => ({ ...prev, [participant.id]: 'pending' }));
       setAlreadyInvitedIds((prev) => [...prev, participant.id]);
     } catch (err) {
       console.error('Error sending invite:', err);
+      setInviteStatus((prev) => ({ ...prev, [participant.id]: 'failed' }));
     }
   };
 
@@ -60,9 +92,16 @@ export default function SendInvitesScreen() {
 
       const data = await res.json();
       if (res.ok) {
-        setAlreadyInvitedIds(
-          data.invites.map((i: { user_id: string }) => i.user_id),
+        const newStatusMap = data.invites.reduce(
+          (acc, { user_id, status }) => {
+            acc[user_id] = status;
+            return acc;
+          },
+          {} as typeof inviteStatus,
         );
+
+        setInviteStatus(newStatusMap);
+        setAlreadyInvitedIds(Object.keys(newStatusMap));
       } else {
         console.error('Failed to fetch invited users:', data.error);
       }
@@ -85,9 +124,13 @@ export default function SendInvitesScreen() {
       </Text>
 
       <InviteFriendsList
-        mode="invite"
-        onSelect={handleInvite}
+        friends={filteredFriends}
+        rawQuery={rawQuery}
+        onQueryChange={handleSearchChange}
+        inviteStatus={inviteStatus}
         alreadyInvitedIds={alreadyInvitedIds}
+        onSelect={handleInvite}
+        loading={loading}
       />
     </View>
   );

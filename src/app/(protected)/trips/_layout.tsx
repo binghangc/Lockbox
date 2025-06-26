@@ -3,9 +3,11 @@ import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import useTrips from '@/hooks/useTrips';
 import Octicons from '@expo/vector-icons/Octicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { BlurView } from 'expo-blur';
 import InviteFriendsModal from '@/components/invites/inviteFriendsModal';
+import usePinTrip from '@/hooks/usePinTrip';
+import createCalendarEvent from '@/utils/calendarEvent';
 
 import TripControllerModal from '@/components/tripControllerModal';
 
@@ -67,8 +69,18 @@ export default function TripsLayout() {
   const router = useRouter();
   const modalRef = useRef<Modalize | null>(null);
   const inviteModalRef = useRef<Modalize | null>(null);
+
   const { tripId } = useLocalSearchParams();
-  const { isHost } = useTrips(Array.isArray(tripId) ? tripId[0] : tripId);
+  const { trip, isHost, loading, isPinned, refreshTrip } = useTrips(
+    Array.isArray(tripId) ? tripId[0] : tripId,
+  );
+
+  const pinTrip = usePinTrip(trip?.id ?? '', () => {
+    refreshTrip();
+  });
+
+  if (loading || !trip) return null;
+
   const onEdit = () => {
     router.push(`/trips/${tripId}/edit`);
     modalRef.current?.close();
@@ -77,8 +89,25 @@ export default function TripsLayout() {
     router.push(`/trips/${tripId}/itinerary`);
     modalRef.current?.close();
   };
-  const onSync = () => {};
-  const onPin = () => {};
+  const onSync = async () => {
+    try {
+      await createCalendarEvent({
+        title: trip.title,
+        startDate: trip.start_date,
+        endDate: trip.end_date,
+        notes: trip.description ?? 'Synced from Lockbox',
+      });
+      Alert.alert('Success', 'Trip added to your calendar!');
+      console.log('success');
+    } catch (err) {
+      console.error('Calendar sync failed:', err);
+      Alert.alert('Error', 'Unable to add to calendar.');
+    }
+  };
+  const onPin = () => {
+    pinTrip();
+    modalRef.current?.close();
+  };
   const onInvite = () => {
     modalRef.current?.close();
     router.push(`/trips/${tripId}/sendInvites`);
@@ -135,6 +164,7 @@ export default function TripsLayout() {
       <TripControllerModal
         triggerRef={modalRef}
         isHost={isHost}
+        isPinned={isPinned}
         onEdit={onEdit}
         onItinerary={onItinerary}
         onSync={onSync}

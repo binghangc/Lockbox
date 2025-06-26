@@ -28,7 +28,7 @@ export default function UserProfileModal({
   user: Profile | null;
   currentUserId: string;
   isFriends: boolean;
-  status?: 'accepted' | 'pending' | 'none';
+  status?: 'accepted' | 'pending' | 'incoming' | 'none';
 }) {
   const screenHeight = Dimensions.get('window').height;
 

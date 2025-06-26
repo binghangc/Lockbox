@@ -1,6 +1,30 @@
 import { View, Text, Pressable } from 'react-native';
 import { Feather, Entypo } from '@expo/vector-icons';
 
+const getButtonBg = (status: string) => {
+  switch (status) {
+    case 'pending':
+      return 'bg-purple-700';
+    case 'incoming':
+      return 'bg-orange-400';
+    default:
+      return 'bg-white';
+  }
+};
+
+const getButtonTextAndColor = (
+  status: string,
+): { text: string; color: string } => {
+  switch (status) {
+    case 'pending':
+      return { text: 'Request Sent', color: 'text-white' };
+    case 'incoming':
+      return { text: 'Check Requests', color: 'text-white' };
+    default:
+      return { text: 'Add friend', color: 'text-black' };
+  }
+};
+
 export default function AddFriendRow({
   onAddFriend,
   onMoreOptions,
@@ -10,29 +34,22 @@ export default function AddFriendRow({
   onMoreOptions: () => void;
   status?: 'accepted' | 'pending' | 'none';
 }) {
+  const { text, color } = getButtonTextAndColor(status);
   return (
     <View className="flex-row items-center justify-center mt-4">
       {/* Add Friend Button */}
       <Pressable
         onPress={onAddFriend}
-        disabled={status === 'pending'}
-        className={`flex-row items-center justify-center min-w-[200px] rounded-2xl px-6 py-3 ${
-          status === 'pending' ? 'bg-purple-700' : 'bg-white'
-        }`}
+        disabled={status !== 'none'}
+        className={`flex-row items-center justify-center min-w-[200px] rounded-2xl px-6 py-3 ${getButtonBg(status)}`}
       >
         <Feather
           name="user-plus"
           size={18}
-          color={status === 'pending' ? 'white' : 'black'}
+          color={status !== 'none' ? 'white' : 'black'}
           className="mr-2"
         />
-        <Text
-          className={`font-semibold text-base ${
-            status === 'pending' ? 'text-white' : 'text-black'
-          }`}
-        >
-          {status === 'pending' ? 'Request Sent' : 'Add friend'}
-        </Text>
+        <Text className={`font-semibold text-base ${color}`}>{text}</Text>
       </Pressable>
 
       {/* More Options Button */}

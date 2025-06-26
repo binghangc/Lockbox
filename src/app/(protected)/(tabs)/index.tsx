@@ -18,10 +18,15 @@ export default function HomeScreen() {
   >(null);
 
   const { trips, loading, refreshTrips } = useAllTrips();
+
   const insets = useSafeAreaInsets();
-  const filteredTrips = selectedFilter
-    ? trips.filter((trip) => trip.status === selectedFilter)
-    : trips;
+  let filteredTrips = trips;
+
+  if (selectedFilter === 'pinned') {
+    filteredTrips = trips.filter((trip) => trip.is_pinned);
+  } else if (selectedFilter) {
+    filteredTrips = trips.filter((trip) => trip.status === selectedFilter);
+  }
 
   const handleDeleteTrip = async (tripId: string) => {
     try {

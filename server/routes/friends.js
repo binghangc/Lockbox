@@ -83,10 +83,13 @@ router.get('/search', authMiddleware, async (req, res) => {
     return res.status(500).json({ error: pendingError.message });
   }
 
-  const pendingIds = new Set();
+  const pendingMap = new Map();
   pendingRequests?.forEach(({ uid1, uid2 }) => {
-    if (uid1 !== user.id) pendingIds.add(uid1);
-    if (uid2 !== user.id) pendingIds.add(uid2);
+    if (uid1 === user.id) {
+      pendingMap.set(uid2, 'pending');
+    } else if (uid2 === user.id) {
+      pendingMap.set(uid1, 'incoming');
+    }
   });
   // 3. Query for matching profiles
   const { data: allMatches, error: searchError } = await supabase
@@ -97,15 +100,15 @@ router.get('/search', authMiddleware, async (req, res) => {
 
   if (searchError) return res.status(500).json({ error: searchError.message });
 
-  // 4. Attach status: "accepted" | "pending" | "none"
+  // 4. Attach status: "accepted" | "pending" | "incoming" | "none"
   const results = allMatches.map((profile) => ({
     ...profile,
     status: (() => {
       if (acceptedIds.has(profile.id)) {
         return 'accepted';
       }
-      if (pendingIds.has(profile.id)) {
-        return 'pending';
+      if (pendingMap.has(profile.id)) {
+        return pendingMap.get(profile.id);
       }
       return 'none';
     })(),
