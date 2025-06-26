@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import useTrips from '@/hooks/useTrips';
 import Octicons from '@expo/vector-icons/Octicons';
@@ -70,13 +70,12 @@ export default function TripsLayout() {
   const inviteModalRef = useRef<Modalize | null>(null);
 
   const { tripId } = useLocalSearchParams();
-  const { trip, isHost, loading } = useTrips(
+  const { trip, isHost, loading, isPinned, refreshTrip } = useTrips(
     Array.isArray(tripId) ? tripId[0] : tripId,
   );
 
-  const [isPinned, setIsPinned] = useState(false);
-  const pinTrip = usePinTrip(trip?.id ?? '', (newState) => {
-    setIsPinned(newState);
+  const pinTrip = usePinTrip(trip?.id ?? '', () => {
+    refreshTrip();
   });
 
   if (loading || !trip) return null;

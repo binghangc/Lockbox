@@ -56,7 +56,7 @@ router.get('/', authMiddleware, async (req, res) => {
   // Step 1: Get trip IDs where user is a participant
   const { data: participantTrips, error: participantErr } = await supabase
     .from('participants')
-    .select('trip_id')
+    .select('trip_id, is_pinned')
     .eq('user_id', userId);
 
   if (participantErr) {
@@ -84,10 +84,16 @@ router.get('/', authMiddleware, async (req, res) => {
     return res.status(500).json({ error: tripsErr.message });
   }
 
-  const enrichedTrips = trips.map((trip) => ({
-    ...trip,
-    is_host: trip.user_id === userId,
-  }));
+  const enrichedTrips = trips.map((trip) => {
+    const participantEntry = participantTrips.find(
+      (p) => p.trip_id === trip.id,
+    );
+    return {
+      ...trip,
+      is_host: trip.user_id === userId,
+      is_pinned: participantEntry?.is_pinned ?? false,
+    };
+  });
 
   return res.json(enrichedTrips);
 });
@@ -123,8 +129,23 @@ router.get('/:id', async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 
-  const is_host = trip.user_id === userId;
-  return res.json({ ...trip, is_host });
+  const { data: participant, error: participantErr } = await supabase
+    .from('participants')
+    .select('is_pinned')
+    .eq('trip_id', tripId)
+    .eq('user_id', userId)
+    .single();
+
+  if (participantErr && participantErr.code !== 'PGRST116') {
+    // 'PGRST116' = no rows found
+    return res.status(500).json({ error: participantErr.message });
+  }
+
+  return res.json({
+    ...trip,
+    is_host: trip.user_id === userId,
+    is_pinned: participant?.is_pinned ?? false,
+  });
 });
 
 // DELETE /trips/:id - Delete a trip (host only)
