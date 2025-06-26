@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import useVideoPermissions from '@/hooks/video/useVideoPermissions';
 import useVideoRecorder from '@/hooks/video/useVideoRecorder';
+import uploadOrb from '@/utils/orbs';
+import { useUser } from '@/components/UserContext';
 import VideoBubblePreview from './videoBubblePreview';
 
 type Props = {
@@ -10,10 +12,21 @@ type Props = {
     onSend: () => void;
     isRecording: boolean;
     videoUri: string | null;
+    tripId?: string;
+    userId?: string;
+    vibecheckId?: string | null;
   }) => React.ReactNode;
+  tripId?: string;
+  userId?: string;
+  vibecheckId?: string | null;
 };
 
-export default function VideoBubbleController({ children }: Props) {
+export default function VideoBubbleController({
+  children,
+  tripId,
+  userId,
+  vibecheckId,
+}: Props) {
   // VIDEO-BUBBLE SIZE
   const bubbleSize = 350;
   // MAX-VIDEO DURATION (in sec)
@@ -22,6 +35,9 @@ export default function VideoBubbleController({ children }: Props) {
   const { granted, requestPermissions } = useVideoPermissions();
   const [showPreview, setShowPreview] = useState(false);
   const [shouldStartRecording, setShouldStartRecording] = useState(false);
+  const { token } = useUser();
+  const wasCancelled = useRef(false);
+
   const {
     cameraRef,
     isRecording,
@@ -31,7 +47,35 @@ export default function VideoBubbleController({ children }: Props) {
     maxDurationMs,
   } = useVideoRecorder({
     maxDurationSec: maxDuration,
-    onRecordingFinished: () => setShowPreview(false),
+    onRecordingFinished: async (uri) => {
+      setShowPreview(false);
+
+      if (wasCancelled.current) {
+        console.log(
+          '[videoBubbleController] Recording was cancelled — skipping upload',
+        );
+        return;
+      }
+
+      if (!uri || !tripId || !userId || !token) {
+        console.log(tripId);
+        console.warn('[videoBubbleController] Missing data for uploadOrb');
+        return;
+      }
+
+      try {
+        const res = await uploadOrb({
+          uri,
+          tripId,
+          userId,
+          vibecheckId,
+          token,
+        });
+        console.log('[uploadOrb] success:', res);
+      } catch (err) {
+        console.error('[uploadOrb] error:', err);
+      }
+    },
   });
 
   const onLongPress = async () => {
@@ -43,11 +87,11 @@ export default function VideoBubbleController({ children }: Props) {
     );
     setShowPreview(true);
     setShouldStartRecording(true);
-    // Don't call startRecording here - let onCameraReady handle it
   };
 
   const onPressOut = () => {
     console.log('Press out - canceling');
+    wasCancelled.current = true;
     stopRecording();
     setShowPreview(false);
     setShouldStartRecording(false);
@@ -55,6 +99,7 @@ export default function VideoBubbleController({ children }: Props) {
 
   const onSend = () => {
     console.log('Send - stopping recording');
+    wasCancelled.current = false;
     stopRecording();
     setShouldStartRecording(false);
     setShowPreview(false);
@@ -68,6 +113,9 @@ export default function VideoBubbleController({ children }: Props) {
         onSend,
         isRecording,
         videoUri,
+        tripId,
+        userId,
+        vibecheckId,
       })}
       {showPreview && (
         <VideoBubblePreview
@@ -75,7 +123,7 @@ export default function VideoBubbleController({ children }: Props) {
           size={bubbleSize}
           maxDurationMs={maxDurationMs}
           onCameraReady={() => {
-            console.log('[📷 Camera] ✅ onCameraReady fired!');
+            console.log('[📷 Camera] onCameraReady fired!');
             if (shouldStartRecording) {
               console.log('[📹] Starting recording now...');
               setShouldStartRecording(false); // Reset flag
