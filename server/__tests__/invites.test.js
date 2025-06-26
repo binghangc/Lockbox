@@ -9,6 +9,7 @@ describe('Invites Flow', () => {
   let host;
   let invitee;
   let tripId;
+  let newTripId;
 
   beforeAll(async () => {
     await deleteTestUsers(EMAIL_PREFIXES);
@@ -37,6 +38,20 @@ describe('Invites Flow', () => {
       });
 
     tripId = tripRes.body.data[0].id;
+
+    const newTripRes = await request(app)
+      .post('/trips')
+      .set('Authorization', `Bearer ${host.token}`)
+      .send({
+        title: 'Decline Test Trip',
+        description: 'Testing decline',
+        start_date: today,
+        end_date: today,
+        country: 'France',
+        thumbnail_url: '',
+      });
+
+    newTripId = newTripRes.body.data[0].id;
   });
 
   it('should send an invite to another user', async () => {
@@ -107,7 +122,7 @@ describe('Invites Flow', () => {
     await request(app).post('/invites/send-invite').send({
       host_id: host.id,
       user_id: invitee.id,
-      trip_id: tripId,
+      trip_id: newTripId,
     });
 
     const invites = await request(app)
@@ -118,7 +133,7 @@ describe('Invites Flow', () => {
     const res = await request(app).patch('/invites/decline-invite').send({
       id: pending.id,
       user_id: invitee.id,
-      trip_id: tripId,
+      trip_id: newTripId,
     });
 
     expect(res.statusCode).toBe(200);
