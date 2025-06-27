@@ -7,6 +7,7 @@ const { v4: uuidv4 } = require('uuid');
 const r2 = require('../utils/r2client.js');
 const { getDownloadUrl } = require('../utils/r2SignedUrl.js');
 const supabase = require('../utils/supabaseAdminClient.js');
+const encodeToHLS = require('../encoder.js');
 
 const router = express.Router();
 const upload = multer({ dest: path.join(__dirname, '../../temp') });
@@ -18,6 +19,7 @@ async function storeOrbMetadata({
   userId,
   vibecheckId,
   videoKey,
+  hlsKey,
 }) {
   const { data, error } = await supabase
     .from('orbs')
@@ -27,6 +29,7 @@ async function storeOrbMetadata({
       user_id: userId,
       vibecheck_id: vibecheckId || null,
       video_key: videoKey,
+      hls_key: hlsKey || null,
     })
     .select()
     .single();
@@ -83,7 +86,57 @@ router.post('/upload', upload.single('video'), async (req, res) => {
       }),
     );
 
-    fs.unlinkSync(file.path);
+    const hlsOutputDir = path.join(__dirname, `../../temp/hls/${orbId}`);
+    const hlsKeyPrefix = `orbs-hls/${tripId}/${userId}/${orbId}`;
+
+    try {
+      // Step 1: Encode to HLS (480p, 240p)
+      await encodeToHLS(file.path, hlsOutputDir, orbId);
+
+      // Step 2: Upload HLS segments and master playlist to R2
+      const walkDir = (dir) =>
+        fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+          const fullPath = path.join(dir, entry.name);
+          return entry.isDirectory() ? walkDir(fullPath) : [fullPath];
+        });
+
+      const hlsFiles = walkDir(hlsOutputDir);
+
+      await Promise.all(
+        hlsFiles.map((fullPath) => {
+          const relativePath = path.relative(hlsOutputDir, fullPath);
+          const fileStream = fs.createReadStream(fullPath);
+          return r2.send(
+            new PutObjectCommand({
+              Bucket: BUCKET,
+              Key: `${hlsKeyPrefix}/${relativePath}`,
+              Body: fileStream,
+              ContentType: relativePath.endsWith('.m3u8')
+                ? 'application/vnd.apple.mpegurl'
+                : 'video/MP2T',
+            }),
+          );
+        }),
+      );
+
+      // Delete source file after successful encoding and upload
+      fs.unlinkSync(file.path);
+      // Remove the HLS output directory
+      fs.rmSync(hlsOutputDir, { recursive: true, force: true });
+      // Also remove the entire temp/ folder's contents
+      const tempDir = path.join(__dirname, '../../temp');
+      if (fs.existsSync(tempDir)) {
+        fs.readdirSync(tempDir).forEach((entry) => {
+          fs.rmSync(path.join(tempDir, entry), {
+            recursive: true,
+            force: true,
+          });
+        });
+      }
+    } catch (err) {
+      console.error('[HLS Encoding or Upload Error]', err);
+      return res.status(500).json({ error: 'Encoding or upload failed' });
+    }
 
     let data;
     try {
@@ -93,6 +146,7 @@ router.post('/upload', upload.single('video'), async (req, res) => {
         userId,
         vibecheckId,
         videoKey: key,
+        hlsKey: `${hlsKeyPrefix}/master.m3u8`,
       });
     } catch (error) {
       console.error(error.message);
@@ -102,11 +156,11 @@ router.post('/upload', upload.single('video'), async (req, res) => {
     }
 
     return res.status(200).json({ message: 'Upload complete', key, orb: data });
-  } catch (err) {
-    console.error('[R2 Upload Error]', err);
-    return res.status(500).json({ error: 'Upload failed' });
+  } catch (e) {
+    console.warn('[HLS Backup Failed]', e);
+    return res.status(500).json({ error: 'Upload or encoding failed' });
   }
-});
+}); // end router.post
 
 // GET /url - Get a pre-signed download URL for a video
 router.get('/url', async (req, res) => {
