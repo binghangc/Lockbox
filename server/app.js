@@ -27,4 +27,6 @@ app.use('/invites', require('./routes/invites.js'));
 // API friends endpoints: get friends information, search new friends, and respond to requests
 app.use('/friends', require('./routes/friends.js'));
 
+app.use('/vibechecks', require('./routes/vibechecks.js'));
+
 module.exports = app;

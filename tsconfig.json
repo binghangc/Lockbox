@@ -12,6 +12,7 @@
     "src",
     "lib",
     "server",
+    "rag",
     "index.ts",
     "src/global.d.ts",
     "nativewind-env.d.ts"

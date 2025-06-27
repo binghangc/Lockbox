@@ -10,7 +10,8 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "prettier:check": "prettier --check .",
     "prettier:write": "prettier --write .",
-    "test": "cd server && npm test"
+    "test": "cd server && npm test",
+    "build:rag": "tsc -p tsconfig.rag.json"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
@@ -29,6 +30,7 @@
     "dotenv": "^16.5.0",
     "expo": "^53.0.11",
     "expo-blur": "~14.1.4",
+    "expo-calendar": "~14.1.4",
     "expo-camera": "~16.1.8",
     "expo-constants": "~17.1.5",
     "expo-dev-client": "~5.2.0",
@@ -58,8 +60,7 @@
     "tailwindcss": "^3.4.17",
     "uuid": "^11.1.0",
     "world-countries": "^5.1.0",
-    "zod": "^3.25.64",
-    "expo-calendar": "~14.1.4"
+    "zod": "^3.25.64"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
