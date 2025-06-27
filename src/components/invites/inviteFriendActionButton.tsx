@@ -3,7 +3,7 @@ import { Feather } from '@expo/vector-icons';
 
 const ICONS = {
   idle: { name: 'send', color: 'white', bg: 'bg-blue-600' },
-  loading: { name: 'loader', color: 'white', bg: 'bg-blue-400 animate-spin' },
+  loading: { name: 'loader', color: 'white', bg: 'bg-blue-400' },
   pending: { name: 'clock', color: 'white', bg: 'bg-yellow-500' },
   accepted: { name: 'user-check', color: 'white', bg: 'bg-green-600' },
   declined: { name: 'user-x', color: 'white', bg: 'bg-red-500' },

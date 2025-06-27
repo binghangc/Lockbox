@@ -21,9 +21,7 @@ export default function InviteFriendRow({
   inviteStatus,
   onSelect,
 }: Props) {
-  const status =
-    inviteStatus[item.id] ??
-    (alreadyInvitedIds?.includes(item.id) ? 'pending' : undefined);
+  const status = inviteStatus[item.id] ?? 'idle';
 
   const isDisabled = ['pending', 'accepted', 'declined'].includes(status ?? '');
 
