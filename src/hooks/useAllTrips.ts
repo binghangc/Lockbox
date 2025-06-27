@@ -46,5 +46,5 @@ export default function useAllTrips() {
     if (user) fetchTrips();
   }, [user, fetchTrips]);
 
-  return { trips, loading, refreshTrips: fetchTrips };
+  return { trips, loading, refreshTrips: fetchTrips, setTrips };
 }
