@@ -1,4 +1,3 @@
-// const inferTagsFromText = require('./inferTagsFromText.js');
 const extractLocationNames = require('./extractLocationNames.js');
 const classifyActivityTags = require('./classifyActivityTags.js');
 const classifyLocationTags = require('./classifyLocationTags.js');
