@@ -114,66 +114,68 @@ export default function TripsLayout() {
   const onLeave = () => {};
 
   return (
-    <>
-      <Stack
-        screenOptions={({ navigation }) => ({
-          headerShown: true,
-          headerTransparent: true,
-          headerTintColor: 'white',
-          headerTitleAlign: 'center',
-          headerLeft: headerLeftWithNavigation.bind(null, { navigation }),
-          headerBackground,
-          title: '',
-          headerRight: () => (
-            <TouchableOpacity
-              onPress={() => modalRef.current?.open()}
-              style={{ marginRight: 12 }}
-            >
-              <MaterialCommunityIcons
-                name="dots-horizontal"
-                size={28}
-                color="white"
-              />
-            </TouchableOpacity>
-          ),
-        })}
-      >
-        <Stack.Screen
-          name="[tripId]/itinerary"
-          options={{
-            presentation: 'modal',
-            title: 'Trip Itinerary',
-            animation: 'slide_from_bottom',
-            gestureEnabled: true,
+    <ConfettiProvider>
+      <>
+        <Stack
+          screenOptions={({ navigation }) => ({
             headerShown: true,
-            contentStyle: {
-              backgroundColor: 'transparent',
-            },
-          }}
+            headerTransparent: true,
+            headerTintColor: 'white',
+            headerTitleAlign: 'center',
+            headerLeft: headerLeftWithNavigation.bind(null, { navigation }),
+            headerBackground,
+            title: '',
+            headerRight: () => (
+              <TouchableOpacity
+                onPress={() => modalRef.current?.open()}
+                style={{ marginRight: 12 }}
+              >
+                <MaterialCommunityIcons
+                  name="dots-horizontal"
+                  size={28}
+                  color="white"
+                />
+              </TouchableOpacity>
+            ),
+          })}
+        >
+          <Stack.Screen
+            name="[tripId]/itinerary"
+            options={{
+              presentation: 'modal',
+              title: 'Trip Itinerary',
+              animation: 'slide_from_bottom',
+              gestureEnabled: true,
+              headerShown: true,
+              contentStyle: {
+                backgroundColor: 'transparent',
+              },
+            }}
+          />
+          <Stack.Screen
+            name="[tripId]/edit"
+            options={{
+              headerShown: false,
+              animation: 'slide_from_bottom',
+            }}
+          />
+        </Stack>
+        <TripControllerModal
+          triggerRef={modalRef}
+          isHost={isHost}
+          isPinned={isPinned}
+          onEdit={onEdit}
+          onSync={onSync}
+          onPin={onPin}
+          onInvite={onInvite}
+          onDelete={onDelete}
+          onLeave={onLeave}
         />
-        <Stack.Screen
-          name="[tripId]/edit"
-          options={{
-            headerShown: false,
-            animation: 'slide_from_bottom',
-          }}
+        <InviteFriendsModal
+          ref={inviteModalRef}
+          tripId={Array.isArray(tripId) ? tripId[0] : tripId}
         />
-      </Stack>
-      <TripControllerModal
-        triggerRef={modalRef}
-        isHost={isHost}
-        isPinned={isPinned}
-        onEdit={onEdit}
-        onSync={onSync}
-        onPin={onPin}
-        onInvite={onInvite}
-        onDelete={onDelete}
-        onLeave={onLeave}
-      />
-      <InviteFriendsModal
-        ref={inviteModalRef}
-        tripId={Array.isArray(tripId) ? tripId[0] : tripId}
-      />
-    </>
+      </>
+    </ConfettiProvider>
   );
 }

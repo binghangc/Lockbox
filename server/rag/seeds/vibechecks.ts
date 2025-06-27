@@ -1,10 +1,6 @@
-import {
-  THEMES,
-  TAGS,
-  LOCATION_TAGS,
-  ACTIVITY_TAGS,
-  EVENT_TAGS,
-} from '../constants';
+import { LOCATION_TAGS, ACTIVITY_TAGS } from '../constants/itineraries.js';
+
+import { EVENT_TAGS, THEMES } from '../constants/vibechecks.js';
 
 type Theme = (typeof THEMES)[number];
 type Tag = (typeof TAGS)[number];

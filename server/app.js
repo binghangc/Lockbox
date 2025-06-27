@@ -29,4 +29,6 @@ app.use('/friends', require('./routes/friends.js'));
 
 app.use('/vibechecks', require('./routes/vibechecks.js'));
 
+app.use('/orbs', require('./routes/orbs.js'));
+
 module.exports = app;
