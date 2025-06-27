@@ -401,7 +401,7 @@ router.get('/:id/vibecheck/:date', authMiddleware, async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('vibechecks')
-      .select('vibecheck')
+      .select('id, vibecheck')
       .eq('trip_id', trip_id)
       .eq('date', date)
       .single();
@@ -413,11 +413,10 @@ router.get('/:id/vibecheck/:date', authMiddleware, async (req, res) => {
         .json({ error: 'No vibecheck found for this date' });
     }
 
-    if (error) {
-      return res.status(500).json({ error: error.message });
-    }
-
-    return res.json({ vibecheck: data.vibecheck });
+    return res.json({
+      vibecheck: data.vibecheck,
+      vibecheck_id: data.id,
+    });
   } catch (err) {
     console.error('Error fetching vibecheck:', err.message);
     return res.status(500).json({ error: 'Internal server error' });

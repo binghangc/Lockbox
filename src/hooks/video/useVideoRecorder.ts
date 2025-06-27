@@ -1,37 +1,62 @@
 import { useRef, useState } from 'react';
 import { CameraView } from 'expo-camera';
+import VIDEO_CONFIG from '@/constants/videoConfig';
 
 type UseVideoRecorderOptions = {
-  maxDurationSec: number;
+  onRecordingFinished?: (uri: string | null) => void;
 };
 
-const useVideoRecorder = ({ maxDurationSec }: UseVideoRecorderOptions) => {
-  const maxDurationMs = maxDurationSec * 1000;
+const useVideoRecorder = ({ onRecordingFinished }: UseVideoRecorderOptions) => {
+  const maxDurationMs = VIDEO_CONFIG.MAX_DURATION * 1000;
   const cameraRef = useRef<CameraView | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [videoUri, setVideoUri] = useState<string | null>(null);
 
   const startRecording = async () => {
-    if (!cameraRef.current || isRecording) return;
+    console.log('[useVideoRecorder] startRecording called');
+    console.log('[useVideoRecorder] isRecording:', isRecording);
+
+    if (isRecording || !cameraRef.current) {
+      console.warn('Camera is not ready or already recording');
+      return;
+    }
+
+    console.log(
+      '[useVideoRecorder] Setting isRecording to true and starting...',
+    );
     setIsRecording(true);
+    const options = {
+      quality: VIDEO_CONFIG.VIDEO_QUALITY,
+      maxDuration: VIDEO_CONFIG.MAX_DURATION,
+      mute: false,
+    };
+
+    console.log('[useVideoRecorder] Recording options:', options);
+
     try {
-      const video = await cameraRef.current.recordAsync({
-        maxDuration: maxDurationSec,
-      });
-      if (video && video.uri) {
-        setVideoUri(video.uri);
-      }
+      console.log('[useVideoRecorder] Calling recordAsync...');
+      const recordedVideo = await cameraRef.current.recordAsync(options);
+      const uri = recordedVideo?.uri ?? null;
+      console.log('[useVideoRecorder] 📼 Recorded video URI:', uri);
+      setVideoUri(uri);
+      setIsRecording(false);
+      onRecordingFinished?.(uri);
     } catch (error) {
-      console.error('Recording failed:', error);
-    } finally {
+      console.error('[useVideoRecorder] Recording error:', error);
       setIsRecording(false);
     }
   };
 
   const stopRecording = () => {
+    console.log(
+      '[useVideoRecorder] stopRecording called, isRecording:',
+      isRecording,
+    );
     if (cameraRef.current && isRecording) {
+      console.log('[useVideoRecorder] Stopping active recording');
       cameraRef.current.stopRecording();
     }
+    setIsRecording(false);
   };
   return {
     cameraRef,

@@ -16,6 +16,8 @@ import { Modalize } from 'react-native-modalize';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { ParamListBase } from '@react-navigation/native';
 
+import { ConfettiProvider } from '@/components/confetti';
+
 type HeaderLeftProps = {
   navigation: NativeStackNavigationProp<ParamListBase>;
 };
@@ -83,10 +85,6 @@ export default function TripsLayout() {
 
   const onEdit = () => {
     router.push(`/trips/${tripId}/edit`);
-    modalRef.current?.close();
-  };
-  const onItinerary = () => {
-    router.push(`/trips/${tripId}/itinerary`);
     modalRef.current?.close();
   };
   const onSync = async () => {
@@ -166,7 +164,6 @@ export default function TripsLayout() {
         isHost={isHost}
         isPinned={isPinned}
         onEdit={onEdit}
-        onItinerary={onItinerary}
         onSync={onSync}
         onPin={onPin}
         onInvite={onInvite}
