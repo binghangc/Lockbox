@@ -1,31 +1,40 @@
 /**
  * File contains API routes for authentication using Supabase.
  */
-const express = require("express");
+const express = require('express');
+const { createClient } = require('@supabase/supabase-js');
+
+const supabase = require('../utils/supabaseUserClient.js');
 
 const router = express.Router();
-const { createClient } = require("@supabase/supabase-js");
-require("dotenv").config();
 
-const supabase = createClient(
-  process.env.EXPO_PUBLIC_SUPABASE_URL,
-  process.env.EXPO_PUBLIC_SUPABASE_SERVICE_ROLE_KEY,
-);
+// Initialize Supabase admin client for admin-level actions
+const supabaseAdmin = require('../utils/supabaseAdminClient.js');
+
+// DEBUG: List all users to verify Supabase Admin client
+router.get('/debug/list-users', async (req, res) => {
+  const { data, error } = await supabaseAdmin.auth.admin.listUsers();
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+  return res.json({ users: data.users });
+});
+
+const { DEFAULT_AVATAR_URL } = require('../config/constants.js');
 
 // API endpoint for signup
-router.post("/signup", async (req, res) => {
+router.post('/signup', async (req, res) => {
   try {
     const { email, password, username } = req.body;
 
-    const { data, error } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: {
           name: username,
           username,
-          avatar_url:
-            "https://i.pinimg.com/736x/c3/9a/f4/c39af4399a87bc3d7701101b728cddc9.jpg",
+          avatar_url: DEFAULT_AVATAR_URL,
         },
       },
     });
@@ -34,19 +43,19 @@ router.post("/signup", async (req, res) => {
       return res.status(400).json({ error: error.message });
     }
 
-    res.status(200).json({
-      message: "Signup successful! You can log in now.",
-      session: data.session,
-      user: data.user,
+    return res.status(200).json({
+      message: 'Signup successful! Please check your email.',
     });
   } catch (err) {
-    console.error("Unexpected server error during signup:", err);
-    res.status(500).json({ error: "Server error during signup. Try again." });
+    console.error('Unexpected server error during signup:', err);
+    return res
+      .status(500)
+      .json({ error: 'Server error during signup. Try again.' });
   }
 });
 
 // API endpoint for login
-router.post("/login", async (req, res) => {
+router.post('/login', async (req, res) => {
   const { email, password } = req.body;
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
@@ -60,70 +69,52 @@ router.post("/login", async (req, res) => {
   if (!data.session) {
     return res
       .status(500)
-      .json({ error: "Login succeeded but session is missing" });
+      .json({ error: 'Login succeeded but session is missing' });
   }
 
-  res.status(200).json({
-    message: "Login successful!",
+  return res.status(200).json({
+    message: 'Login successful!',
     session: data.session,
     user: data.user,
   });
 });
 
-// API endpoint for logout
-router.post("/logout", async (req, res) => {
-  try {
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({ error: "No or invalid token provided" });
-    }
-
-    const token = authHeader.replace("Bearer ", "");
-
-    return res.status(200).json({ message: "Logged out successfully", token });
-  } catch (err) {
-    console.error("Logout error:", err);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
-
 // API endpoint for forgot password
-router.post("/forgot-password", async (req, res) => {
+/* router.post('/forgot-password', async (req, res) => {
   const { email } = req.body;
-  if (!email) return res.status(400).json({ error: "Missing email" });
+  if (!email) {
+    return res.status(400).json({ error: 'Missing email' });
+  }
 
   try {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${process.env.EXPO_PUBLIC_REDIRECT_URL}/reset-password`,
+      redirectTo: `${process.env.EXPO_PUBLIC_REDIRECT_URL}/auth/reset-password`,
     });
 
-    if (error) throw error;
+    if (error) {
+      return res.status(400).json({ error: error.message });
+    }
 
-    res.json({ success: true });
+    return res.json({ success: true });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: err.message });
   }
-});
+}); */
 
 // API endpoint for reset password
-router.post("/reset-password", async (req, res) => {
+router.post('/reset-password', async (req, res) => {
   const { access_token, new_password } = req.body;
 
   if (!access_token || !new_password) {
-    return res.status(400).json({ error: "Missing token or password" });
+    return res.status(400).json({ error: 'Missing token or password' });
   }
 
   try {
-    const supabaseWithToken = createClient(
-      process.env.EXPO_PUBLIC_SUPABASE_URL,
-      process.env.EXPO_PUBLIC_SUPABASE_SERVICE_ROLE_KEY,
-      {
-        global: {
-          headers: { Authorization: `Bearer ${access_token}` },
-        },
+    const supabaseWithToken = createClient(process.env.SUPABASE_URL, '', {
+      global: {
+        headers: { Authorization: `Bearer ${access_token}` },
       },
-    );
+    });
 
     const { error } = await supabaseWithToken.auth.updateUser({
       password: new_password,
@@ -133,39 +124,132 @@ router.post("/reset-password", async (req, res) => {
       return res.status(400).json({ error: error.message });
     }
 
-    res.json({ message: "Password reset successful" });
+    return res.json({ message: 'Password reset successful' });
   } catch (err) {
-    console.error("Password reset error:", err);
-    res.status(500).json({ error: "Server error" });
+    console.error('Password reset error:', err);
+    return res.status(500).json({ error: 'Server error' });
   }
 });
 
 // API endpoint for token exchange
-router.get("/auth/confirm", async (req, res) => {
-  const { token_hash } = req.query;
-  const { type } = req.query;
-  const next = req.query.next ?? "/";
+router.get('/auth/confirm', async (req, res) => {
+  const { token_hash, type } = req.query;
 
   if (token_hash && type) {
+    /*
     try {
-      const supabase = createClient({ req, res });
+      const supabaseClient = createClient({ req, res });
 
-      const { error } = await supabase.auth.verifyOtp({
+      const { error } = await supabaseClient.auth.verifyOtp({
         type,
         token_hash,
       });
 
       if (!error) {
-        return res.redirect(303, `/${next.replace(/^\//, "")}`);
+        return res.redirect(303, `/${next.replace(/^\//, '')}`);
       }
-      console.error("OTP Verification Error:", error);
+      console.error('OTP Verification Error:', error);
     } catch (err) {
-      console.error("Unexpected Error:", err);
+      console.error('Unexpected Error:', err);
     }
+    */
   }
 
   // On failure, redirect to custom error page
-  return res.redirect(303, "/auth/auth-code-error");
+  return res.redirect(303, '/auth/auth-code-error');
+});
+
+// DELETE /auth/delete - delete user account
+router.delete('/delete', async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  const token = authHeader.split(' ')[1];
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser(token);
+
+  if (userError || !user) {
+    return res
+      .status(400)
+      .json({ error: userError?.message || 'User not found' });
+  }
+
+  const userId = user.id;
+  console.error('[DELETE /auth/delete] User ID:', userId);
+
+  const { data: deleteUserData, error: deleteAuthError } =
+    await supabaseAdmin.auth.admin.deleteUser(userId);
+  console.error('[DELETE /auth/delete] deleteUser response:', {
+    deleteUserData,
+    deleteAuthError,
+  });
+  if (deleteAuthError) {
+    return res.status(500).json({ error: deleteAuthError.message });
+  }
+
+  // 1. Delete all trips the user is hosting
+  const { error: deleteTripsError } = await supabaseAdmin
+    .from('trips')
+    .delete()
+    .eq('user_id', userId);
+  if (deleteTripsError) {
+    console.error(
+      '[DELETE /auth/delete] Failed to delete user trips:',
+      deleteTripsError?.message,
+    );
+    return res.status(500).json({ error: deleteTripsError.message });
+  }
+
+  // 2. Leave all trips the user is a participant of
+  const { error: deleteParticipantsError } = await supabaseAdmin
+    .from('participants')
+    .delete()
+    .eq('user_id', userId);
+  if (deleteParticipantsError) {
+    console.error(
+      '[DELETE /auth/delete] Failed to delete user participants:',
+      deleteParticipantsError?.message,
+    );
+    return res.status(500).json({ error: deleteParticipantsError.message });
+  }
+
+  // 3. Delete user profile
+  const { error: deleteProfileError } = await supabaseAdmin
+    .from('profiles')
+    .delete()
+    .eq('id', userId);
+  if (deleteProfileError) {
+    console.error(
+      '[DELETE /auth/delete] Failed to delete user profile:',
+      deleteProfileError?.message,
+    );
+    return res.status(500).json({ error: deleteProfileError.message });
+  }
+
+  console.log('[DELETE /auth/delete] Success, returning to client');
+  return res.json({ success: true });
+});
+
+// POST /auth/signout - sign out the current session
+router.post('/signout', async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  const token = authHeader.split(' ')[1];
+  const { error } = await supabase.auth.signOut(token);
+
+  if (error) {
+    return res.status(400).json({ error: error.message });
+  }
+
+  return res.json({ success: true });
 });
 
 module.exports = router;

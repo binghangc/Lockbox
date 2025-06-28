@@ -1,32 +1,29 @@
-name: Lint and Prettier Checks
+name: Lint & Prettier Checks
 
 on:
   push:
-    branches:
-      - dev
+    branches: [dev]
   pull_request:
-    branches:
-      - dev
+    branches: [dev]
 
 jobs:
   lint:
-    name: Run ESLint and Prettier
+    name: Lint & Prettier Checks
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
+          cache: npm
 
-      - name: Install dependencies
-        run: npm install
+      - run: npm ci
 
-      - name: Run ESLint
-        run: npx eslint . --ext .js,.ts,.tsx
+      - run: npm ci
+        working-directory: server
 
-      - name: Run Prettier check
-        run: npx prettier . --check
+      - run: npm run lint
+
+      - run: npm run prettier:check

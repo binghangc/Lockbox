@@ -1,217 +1,246 @@
 // API endpoint for getting friends list for current user
 const express = require('express');
+
 const router = express.Router();
 const { createClient } = require('@supabase/supabase-js');
-require('dotenv').config();
 
 const supabase = createClient(
-    process.env.EXPO_PUBLIC_SUPABASE_URL,
-    process.env.EXPO_PUBLIC_SUPABASE_SERVICE_ROLE_KEY
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY,
 );
 
+const authMiddleware = require('../middleware/auth.js');
 
-// API endpoint to retrieve friends
-router.get('/', async (req, res) => {
-    const authHeader = req.headers.authorization;
+router.get('/', authMiddleware, async (req, res) => {
+  const user_id = req.user.id;
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(401).json({ error: 'Missing or malformed Authorization header' });
-    }
-  
-    const token = authHeader.split(' ')[1];
-    const { data: authData, error: authError } = await supabase.auth.getUser(token);
-    const user = authData?.user;
-  
-    if (authError || !user) {
-        return res.status(401).json({ error: 'Invalid or expired token' });
-    }
-  
-    const user_id = user.id;
-  
-    const { data: friendships, error: friendsError } = await supabase
-        .from('friendships')
-        .select(`    
-            id,
-            uid1,
-            uid2,
-            status,
-            profile1:uid1 (id, username, name, bio, avatar_url),
-            profile2:uid2 (id, username, name, bio, avatar_url)
-        `)
-        .or(`uid1.eq.${user_id},uid2.eq.${user_id}`)
-        .eq('status', 'accepted');
+  const { data: friendships, error: friendsError } = await supabase
+    .from('friendships')
+    .select(
+      `    
+        id,
+        uid1,
+        uid2,
+        status,
+        profile1:uid1 (id, username, name, bio, avatar_url),
+        profile2:uid2 (id, username, name, bio, avatar_url)
+    `,
+    )
+    .or(`uid1.eq.${user_id},uid2.eq.${user_id}`)
+    .eq('status', 'accepted');
 
-    if (friendsError) {
-        return res.status(500).json({ error: friendError.message });
-    }
+  if (friendsError) {
+    return res.status(500).json({ error: friendsError.message });
+  }
 
-    const friends = friendships.map((friendship) => {
-        const otherUser = friendship.profile1.id === user_id
-          ? friendship.profile2
-          : friendship.profile1;
-    
-        return {
-          id: friendship.id,
-          ...otherUser,
-        };
-    });
+  const friends = friendships.map((friendship) => {
+    const otherUser =
+      friendship.profile1.id === user_id
+        ? friendship.profile2
+        : friendship.profile1;
 
-    res.status(200).json(friends);
+    return {
+      id: friendship.id,
+      ...otherUser,
+    };
+  });
+
+  return res.status(200).json(friends);
 });
 
-router.get('/search', async (req, res) => {
-    const authHeader = req.headers.authorization;
+// API endpoint for searching users
+router.get('/search', authMiddleware, async (req, res) => {
+  const { username } = req.query;
+  const { user } = req;
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(401).json({ error: 'Missing or malformed Authorization header' });
+  if (!username || !user) {
+    return res.status(400).json({ error: 'Missing username or unauthorized' });
+  }
+
+  // 1. Accepted friendships
+  const { data: friendships, error: friendsError } = await supabase
+    .from('friendships')
+    .select('uid1, uid2')
+    .or(`uid1.eq.${user.id},uid2.eq.${user.id}`)
+    .eq('status', 'accepted');
+
+  if (friendsError) {
+    return res.status(500).json({ error: friendsError.message });
+  }
+
+  const acceptedIds = new Set();
+  friendships?.forEach(({ uid1, uid2 }) => {
+    if (uid1 !== user.id) acceptedIds.add(uid1);
+    if (uid2 !== user.id) acceptedIds.add(uid2);
+  });
+  // 2. Pending friend requests (either direction)
+  const { data: pendingRequests, error: pendingError } = await supabase
+    .from('friendships')
+    .select('uid1, uid2')
+    .or(`uid1.eq.${user.id},uid2.eq.${user.id}`)
+    .eq('status', 'pending');
+  if (pendingError) {
+    return res.status(500).json({ error: pendingError.message });
+  }
+
+  const pendingMap = new Map();
+  pendingRequests?.forEach(({ uid1, uid2 }) => {
+    if (uid1 === user.id) {
+      pendingMap.set(uid2, 'pending');
+    } else if (uid2 === user.id) {
+      pendingMap.set(uid1, 'incoming');
     }
-  
-    const token = authHeader.split(' ')[1];
-    const { data, error } = await supabase.auth.getUser(token);
-    const user = data?.user;
+  });
+  // 3. Query for matching profiles
+  const { data: allMatches, error: searchError } = await supabase
+    .from('profiles')
+    .select('*')
+    .ilike('username', `%${username}%`)
+    .neq('id', user.id);
 
-    const { username } = req.query;
+  if (searchError) return res.status(500).json({ error: searchError.message });
 
-    if (!username) {
-        return res.status(400).json({ error: 'Missing username in query'});
-    }
+  // 4. Attach status: "accepted" | "pending" | "incoming" | "none"
+  const results = allMatches.map((profile) => ({
+    ...profile,
+    status: (() => {
+      if (acceptedIds.has(profile.id)) {
+        return 'accepted';
+      }
+      if (pendingMap.has(profile.id)) {
+        return pendingMap.get(profile.id);
+      }
+      return 'none';
+    })(),
+  }));
 
-    if (!user) {
-        return res.status(401).json({ error: 'Unauthorized' });
-    }
-
-    // Step 1: Get all friend IDs (assuming bidirectional friendship structure)
-    const { data: friendships, error: friendsError } = await supabase
-        .from('friendships')
-        .select('uid1, uid2')
-        .or(`uid1.eq.${user.id},uid2.eq.${user.id}`);
-
-    if (friendsError) {
-        return res.status(500).json({ error: friendsError.message });
-    }
-
-    // Extract all friend IDs
-    const friendIds = new Set();
-    friendships?.forEach((f) => {
-        if (f.uid1 !== user.id) friendIds.add(f.uid1);
-        if (f.uid2 !== user.id) friendIds.add(f.uid2);
-    });
-
-    // Step 2: Query profiles that match the username and are not in the friendIds list or self
-    const { data: results, error: resultError } = await supabase
-        .from('profiles')
-        .select('*')
-        .ilike('username', `%${username}%`)
-        .not('id', 'in', `(${[...friendIds, user.id].join(',')})`);
-
-    if (resultError) {
-        return res.status(500).json({ error: resultError.message });
-    }
-
-    res.status(200).json(results);
-})
+  return res.status(200).json(results);
+});
 
 // API endpoint for sending friend request
 router.post('/send-request', async (req, res) => {
-    const { uid1, uid2 } = req.body;
+  const { uid1, uid2 } = req.body;
 
-    if (!uid1 || !uid2) {
-        return res.status(400).json({ error: 'Missing requester id or receiver id' });
-    }
+  if (!uid1 || !uid2) {
+    return res
+      .status(400)
+      .json({ error: 'Missing requester id or receiver id' });
+  }
 
-    const { error } = await supabase
-        .from('friendships')
-        .insert([{ uid1, uid2, status: 'pending' }]);
+  await supabase
+    .from('friendships')
+    .insert([{ uid1, uid2, status: 'pending' }]);
 
-    if (error) {
-        return res.status(500).json({ error: error.message });
-    }
-
-    res.status(200).json({ message: 'Friend request sent successfully' });
+  return res.status(200).json({ message: 'Friend request sent successfully' });
 });
 
 // API endpoint to get requests
-router.get('/requests', async (req, res) => {
-    const authHeader = req.headers.authorization;
+router.get('/requests', authMiddleware, async (req, res) => {
+  const user_id = req.user.id;
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(401).json({ error: 'Missing or malformed Authorization header' });
-    }
-  
-    const token = authHeader.split(' ')[1];
-    const { data, error } = await supabase.auth.getUser(token);
-    const user = data?.user;
-  
-    if (error || !user) {
-        return res.status(401).json({ error: 'Invalid or expired token' });
-    }
-  
-    const user_id = user.id;
-  
-    const { data: friends, error: friendError } = await supabase
-        .from('friendships')
-        .select(`
-            id,
-            uid1,
-            uid2,
-            status,
-            sender:uid1 (name, username, bio, avatar_url)
-        `)        
-        .eq('uid2', user_id)
-        .eq('status', 'pending');
+  const { data: friends, error: friendError } = await supabase
+    .from('friendships')
+    .select(
+      `
+        id,
+        uid1,
+        uid2,
+        status,
+        sender:uid1 (name, username, bio, avatar_url)
+    `,
+    )
+    .eq('uid2', user_id)
+    .eq('status', 'pending');
 
-    if (friendError) {
-        return res.status(500).json({ error: friendError.message });
-    }
+  if (friendError) {
+    return res.status(500).json({ error: friendError.message });
+  }
 
-    res.status(200).json(friends);
+  return res.status(200).json(friends);
 });
-
 
 // API endpoint for accepting friend request
 router.patch('/accept-request', async (req, res) => {
-    const { id, uid1, uid2 } = req.body;
+  const { id, uid1, uid2 } = req.body;
 
-    if (!uid1 || !uid2) {
-        return res.status(400).json({ error: 'Missing requester id or receiver id' });
-    }
+  if (!uid1 || !uid2) {
+    return res
+      .status(400)
+      .json({ error: 'Missing requester id or receiver id' });
+  }
 
-    const { error } = await supabase
-        .from('friendships')
-        .update({ 
-            status: 'accepted', 
-            accepted_at: new Date().toISOString() })
-        .eq('id', id)
-        .eq('uid1', uid1)
-        .eq('uid2', uid2);
+  const { error } = await supabase
+    .from('friendships')
+    .update({
+      status: 'accepted',
+      accepted_at: new Date().toISOString(),
+    })
+    .eq('id', id)
+    .eq('uid1', uid1)
+    .eq('uid2', uid2);
 
-    if (error) {
-        return res.status(500).json({ error: error.message });
-    }
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
 
-    res.status(200).json({ message: 'Friend request accepted successfully' });
+  return res
+    .status(200)
+    .json({ message: 'Friend request accepted successfully' });
 });
 
 // API endpoint for rejecting friend request
 router.patch('/reject-request', async (req, res) => {
-    const { id, uid1, uid2 } = req.body;
+  const { id, uid1, uid2 } = req.body;
 
-    if (!uid1 || !uid2) {
-        return res.status(400).json({ error: 'Missing requester id or receiver id' });
-    }
+  if (!uid1 || !uid2) {
+    return res
+      .status(400)
+      .json({ error: 'Missing requester id or receiver id' });
+  }
 
+  try {
     const { error } = await supabase
-        .from('friendships')
-        .update({ status: 'rejected' })
-        .eq('id', id)
-        .eq('uid1', uid1)
-        .eq('uid2', uid2);
+      .from('friendships')
+      .update({ status: 'rejected' })
+      .eq('id', id)
+      .eq('uid1', uid1)
+      .eq('uid2', uid2);
 
     if (error) {
-        return res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: error.message });
     }
 
-    res.status(200).json({ message: 'Friend request rejected successfully' });
+    return res
+      .status(200)
+      .json({ message: 'Friend request rejected successfully' });
+  } catch {
+    return res.status(500).json({ error: 'An unexpected error occurred.' });
+  }
+});
+
+// API endpoint to remove friendship
+router.delete('/remove/:targetUserId', authMiddleware, async (req, res) => {
+  const userId = req.user.id;
+  const { targetUserId } = req.params;
+
+  try {
+    const { error } = await supabase
+      .from('friendships')
+      .delete()
+      .or(
+        `and(uid1.eq.${userId},uid2.eq.${targetUserId}),and(uid1.eq.${targetUserId},uid2.eq.${userId})`,
+      );
+
+    if (error) {
+      console.error('Supabase delete error:', error);
+      throw error;
+    }
+
+    return res.status(200).json({ message: 'Friendship removed.' });
+  } catch (err) {
+    console.error('Error removing friend:', err.message ?? err);
+    return res.status(500).json({ error: 'Failed to remove friend.' });
+  }
 });
 
 module.exports = router;

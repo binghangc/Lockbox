@@ -1,119 +1,152 @@
-import { useState, useRef, useEffect } from "react";
-import { View, Text, Pressable, Alert } from "react-native";
+import { useState, useRef, useEffect } from 'react';
+import {
+  View,
+  Text,
+  Pressable,
+  Alert,
+  Dimensions,
+  ActivityIndicator,
+} from 'react-native';
 import { BlurView } from 'expo-blur';
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import type { Profile } from "@/types"; 
-import FloatingAvatar from "./floatingAvatar";
-import { Modalize } from "react-native-modalize";
-import { ScrollView } from "react-native-gesture-handler";
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import type { Profile } from '@/types';
+import { Modalize } from 'react-native-modalize';
+import { ScrollView } from 'react-native-gesture-handler';
+import AddFriendRow from '@/components/friends/addFriendRow';
+import FloatingAvatar from './floatingAvatar';
 
 export default function UserProfileModal({
-    isVisible,
-    onClose,
-    user,
-    currentUserId,
-    isFriends
+  isVisible,
+  onClose,
+  user,
+  currentUserId,
+  isFriends,
+  status,
 }: {
-    isVisible: boolean;
-    onClose: () => void;
-    user: Profile | null;
-    currentUserId: string;
-    isFriends: boolean;
+  isVisible: boolean;
+  onClose: () => void;
+  user: Profile | null;
+  currentUserId: string;
+  isFriends: boolean;
+  status?: 'accepted' | 'pending' | 'incoming' | 'none';
 }) {
-    const [loading, setLoading] = useState(false);
-    const modalRef = useRef<Modalize>(null);
+  const screenHeight = Dimensions.get('window').height;
 
-    const handleSendFriendRequest = async () => {
-        setLoading(true);
-        try {
-            const token = await AsyncStorage.getItem("access_token");
+  const [loading, setLoading] = useState(false);
+  const modalRef = useRef<Modalize>(null);
 
-            const res = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/friends/send-request`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({
-                    uid1: currentUserId,
-                    uid2: user!.id,
-                }),
-            });
+  const handleSendFriendRequest = async () => {
+    setLoading(true);
+    try {
+      const token = await AsyncStorage.getItem('access_token');
 
-            const result = await res.json();
-            if (!res.ok) {
-                throw new Error(result.error || "Something went wrong");
-            }
+      const res = await fetch(
+        `${process.env.EXPO_PUBLIC_API_URL}/friends/send-request`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            uid1: currentUserId,
+            uid2: user!.id,
+          }),
+        },
+      );
 
-            Alert.alert("Request Sent", result.message);
-            onClose();
-        } catch (error: any) {
-            console.error("Friend request error:", error.message);
-            Alert.alert("Error", error.message);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-      if (isVisible) {
-        modalRef.current?.open();
-      } else {
-        modalRef.current?.close();
+      const result = await res.json();
+      if (!res.ok) {
+        throw new Error(result.error || 'Something went wrong');
       }
-    }, [isVisible]);
 
-    if (!user) return null;
+      Alert.alert('Request Sent', result.message);
+      onClose();
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : 'Something went wrong';
+      console.error('Friend request error:', message);
+      Alert.alert('Error', message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    return (
-      <Modalize
-        ref={modalRef}
-        onClosed={onClose}
-        adjustToContentHeight
-        handlePosition="inside"
-        disableScrollIfPossible={true}
-        modalStyle={{ backgroundColor: "transparent" }}
-        handleStyle={{ backgroundColor: "#ccc" }}
+  useEffect(() => {
+    if (isVisible) {
+      modalRef.current?.open();
+    } else {
+      modalRef.current?.close();
+    }
+  }, [isVisible]);
+
+  if (!user) return null;
+
+  return (
+    <Modalize
+      ref={modalRef}
+      onClosed={onClose}
+      modalHeight={screenHeight}
+      handlePosition="inside"
+      modalStyle={{ backgroundColor: 'transparent' }}
+      handleStyle={{ backgroundColor: '#ccc' }}
+    >
+      <BlurView
+        intensity={70}
+        tint="light"
+        className="px-6 pt-10 pb-6 items-center overflow-visible bg-white/60"
+        style={{ minHeight: screenHeight }}
       >
-        <BlurView
-          intensity={70}
-          tint="light"
-          className="rounded-2xl px-6 pt-10 pb-6 items-center overflow-visible bg-white/60"
-        >
-          <ScrollView>
-            <View className="items-center justify-center mt-10 mb-6 relative">
-              {user.avatar_url && <FloatingAvatar uri={user.avatar_url} />}
+        <View className="items-center px-6 pt-12 pb-4">
+          {user.avatar_url && <FloatingAvatar uri={user.avatar_url} />}
+        </View>
+
+        <ScrollView>
+          {/* Username */}
+          <Text className="text-gray-400 text-lg font-semibold text-center">
+            @{user.username || 'Username not set'}
+          </Text>
+
+          {/* Name */}
+          <View className="w-full mb-2">
+            <View className="flex-row items-center justify-center">
+              <Text className="text-white text-2xl font-bold">
+                {user.name || 'Name not set'}
+              </Text>
             </View>
+          </View>
+          {/* Bio */}
+          {user.bio && (
+            <View className="w-full mb-4">
+              <View className="flex-row items-center justify-center space-x-2">
+                <Text className="text-gray-200 text-lg">{user.bio}</Text>
+              </View>
+            </View>
+          )}
 
-            <Text className="text-xl font-bold text-white">{user.name}</Text>
-            {user.username && (
-              <Text className="text-gray-200">@{user.username}</Text>
-            )}
-            {user.bio && (
-              <Text className="text-center text-gray-300 mt-2">{user.bio}</Text>
-            )}
+          {!isFriends &&
+            (loading ? (
+              <View className="my-4 items-center">
+                <ActivityIndicator size="small" color="white" />
+              </View>
+            ) : (
+              <AddFriendRow
+                onAddFriend={handleSendFriendRequest}
+                onMoreOptions={() => {
+                  console.log('More options tapped');
+                }}
+                status={status}
+              />
+            ))}
 
-            {!isFriends && (
-              <Pressable
-                onPress={handleSendFriendRequest}
-                disabled={loading}
-                className="mt-6 bg-blue-600 px-5 py-3 rounded-xl"
-              >
-                <Text className="text-white text-center">
-                  {loading ? "Sending..." : "Add Friend"}
-                </Text>
-              </Pressable>
-            )}
-
-            <Pressable
-              onPress={() => modalRef.current?.close()}
-              className="mt-6 bg-black px-5 py-3 rounded-xl"
-            >
-              <Text className="text-white text-center">Close</Text>
-            </Pressable>
-          </ScrollView>
-        </BlurView>
-      </Modalize>
-    );
+          <Pressable
+            onPress={() => modalRef.current?.close()}
+            className="mt-6 bg-black px-5 py-3 rounded-xl"
+          >
+            <Text className="text-white text-center">Close</Text>
+          </Pressable>
+        </ScrollView>
+      </BlurView>
+    </Modalize>
+  );
 }

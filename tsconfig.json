@@ -5,6 +5,23 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
-    }
-  }
+    },
+    "jsxImportSource": "nativewind"
+  },
+  "include": [
+    "src",
+    "lib",
+    "server",
+    "rag",
+    "index.ts",
+    "src/global.d.ts",
+    "nativewind-env.d.ts"
+  ],
+  "exclude": [
+    "supabase/functions",
+    "babel.config.js",
+    "node_modules",
+    "metro.config.js",
+    "jest.config.js"
+  ]
 }

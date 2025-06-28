@@ -1,23 +1,36 @@
 import dayjs from 'dayjs';
-import { View, Text, TouchableOpacity, ScrollView, TextInput, SafeAreaView, Image } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  TextInput,
+  Image,
+  Alert,
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { Foundation } from '@expo/vector-icons';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { useState, useRef } from 'react';
-import DatePickerModal, { DatePickerModalRef } from '@/components/datePickerModal';
-import LocationPickerModal, { LocationPickerModalRef } from '@/components/locationPickerModal';
-import ThumbnailPickerModal, { ThumbnailPickerModalRef } from '@/components/thumbnailPickerModal';
+import DatePickerModal, {
+  DatePickerModalRef,
+} from '@/components/newTrip/datePickerModal';
+import LocationPickerModal, {
+  LocationPickerModalRef,
+} from '@/components/newTrip/locationPickerModal';
+import ThumbnailPickerModal, {
+  ThumbnailPickerModalRef,
+} from '@/components/thumbnailPickerModal';
 import { useUser } from '@/components/UserContext';
-import CreateTripHeader from '@/components/createTripHeader';
+import CreateTripHeader from '@/components/newTrip/createTripHeader';
 
 export default function NewTrip() {
-  
   const router = useRouter();
-  const { token, user } = useUser();
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const { token } = useUser();
+  // const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const modalRef = useRef<DatePickerModalRef>(null);
   const locationModalRef = useRef<LocationPickerModalRef>(null);
   const thumbnailModalRef = useRef<ThumbnailPickerModalRef>(null);
@@ -28,13 +41,16 @@ export default function NewTrip() {
   const [thumbnailUrl, setThumbnailUrl] = useState('');
   const [startDate, setStartDate] = useState<string | null>(null);
   const [endDate, setEndDate] = useState<string | null>(null);
-  const [selectedCountry, setSelectedCountry] = useState<{ name: string; flag: string } | null>(null);
+  const [selectedCountry, setSelectedCountry] = useState<{
+    name: string;
+    flag: string;
+  } | null>(null);
 
-  const toggleTag = (tag: string) => {
-    setSelectedTags((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
-    );
-  };
+  // const toggleTag = (tag: string) => {
+  //   setSelectedTags((prev) =>
+  //     prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
+  //   );
+  // };
 
   const openDatePicker = () => modalRef.current?.open();
 
@@ -42,7 +58,10 @@ export default function NewTrip() {
 
   const openThumbnailPicker = () => thumbnailModalRef.current?.open();
 
-  const handleDateConfirm = (range: { startDate: string | null; endDate: string | null }) => {
+  const handleDateConfirm = (range: {
+    startDate: string | null;
+    endDate: string | null;
+  }) => {
     setStartDate(range.startDate);
     setEndDate(range.endDate);
   };
@@ -52,9 +71,14 @@ export default function NewTrip() {
     locationModalRef.current?.close();
   };
 
-
   const handleSaveTrip = async () => {
-    if (!tripTitle || !tripDescription || !startDate || !endDate || !selectedCountry) {
+    if (
+      !tripTitle ||
+      !tripDescription ||
+      !startDate ||
+      !endDate ||
+      !selectedCountry
+    ) {
       console.warn('Missing required fields');
       return;
     }
@@ -77,7 +101,9 @@ export default function NewTrip() {
           start_date: startDate,
           end_date: endDate,
           country: selectedCountry.name,
-          thumbnail_url: thumbnailUrl || 'https://pub-8c0b91be3e2945c88ce582ecb937b8b6.r2.dev/wine-hand.avif',
+          thumbnail_url:
+            thumbnailUrl ||
+            'https://pub-8c0b91be3e2945c88ce582ecb937b8b6.r2.dev/wine-hand.avif',
         }),
       });
 
@@ -88,8 +114,22 @@ export default function NewTrip() {
         return;
       }
 
-      console.log('Trip saved:', data);
-      router.replace('/(tabs)');
+      const tripId = data.data[0]?.id;
+
+      if (data.needsImmediateItinerary) {
+        Alert.alert(
+          'Start setting your itinerary',
+          'Since your trip starts today, your itinerary must be created now.',
+          [
+            {
+              text: 'OK',
+              onPress: () => router.replace(`/trips/${tripId}/itinerary`),
+            },
+          ],
+        );
+      } else {
+        router.replace('/(tabs)');
+      }
     } catch (err) {
       console.error('Failed to save trip:', err);
     }
@@ -106,13 +146,21 @@ export default function NewTrip() {
       {/* Content with padding top for header */}
       <ScrollView
         style={{ backgroundColor: 'black' }}
-        contentContainerStyle={{ paddingTop: insets.top + 55, paddingHorizontal: 16, paddingBottom: 100 }}
+        contentContainerStyle={{
+          paddingTop: insets.top + 55,
+          paddingHorizontal: 16,
+          paddingBottom: 100,
+        }}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
-        scrollEnabled={true}
+        scrollEnabled
       >
         {/* Trip Title */}
-        <BlurView intensity={40} tint="light"  className="rounded-md border border-white/20 mb-6 px-4 py-3 overflow-hidden">
+        <BlurView
+          intensity={40}
+          tint="light"
+          className="rounded-md border border-white/20 mb-6 px-4 py-3 overflow-hidden"
+        >
           <TextInput
             value={tripTitle}
             onChangeText={setTripTitle}
@@ -126,21 +174,43 @@ export default function NewTrip() {
 
         <View className="w-full aspect-square overflow-hidden relative mb-6">
           <Image
-            source={thumbnailUrl ? { uri: thumbnailUrl } : { uri: 'https://pub-8c0b91be3e2945c88ce582ecb937b8b6.r2.dev/wine-hand.avif' }}
+            source={
+              thumbnailUrl
+                ? { uri: thumbnailUrl }
+                : {
+                    uri: 'https://pub-8c0b91be3e2945c88ce582ecb937b8b6.r2.dev/wine-hand.avif',
+                  }
+            }
             resizeMode="cover"
             className="w-full h-full"
           />
-          <TouchableOpacity onPress={openThumbnailPicker} className="absolute bottom-3 right-3 bg-black/60 p-2 rounded-full">
-          <MaterialIcons name="mode-edit" size={19} color="white" />
+          <TouchableOpacity
+            onPress={openThumbnailPicker}
+            className="absolute bottom-3 right-3 bg-black/60 rounded-full"
+            style={{
+              width: 36,
+              height: 36,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            <Foundation name="pencil" size={20} color="white" />
           </TouchableOpacity>
         </View>
 
-
         {/* Date Button */}
         <TouchableOpacity activeOpacity={0.8} onPress={openDatePicker}>
-          <BlurView intensity={40} tint="light" className="rounded-md border border-white/20 mb-4 px-4 py-5 overflow-hidden">
+          <BlurView
+            intensity={40}
+            tint="light"
+            className="rounded-md border border-white/20 mb-4 px-4 py-5 overflow-hidden"
+          >
             <View className="flex-row items-center justify-between">
-              <Text className="text-white text-2xl font-semibold" numberOfLines={2} style={{ textAlign: 'left' }}>
+              <Text
+                className="text-white text-2xl font-semibold"
+                numberOfLines={2}
+                style={{ textAlign: 'left' }}
+              >
                 {startDate && endDate
                   ? `${dayjs(startDate).format('ddd, MMM D')} -\n${dayjs(endDate).format('ddd, MMM D')}`
                   : 'Select dates'}
@@ -152,7 +222,11 @@ export default function NewTrip() {
 
         {/* Location Button */}
         <TouchableOpacity activeOpacity={0.8} onPress={openLocationPicker}>
-          <BlurView intensity={40} tint="light" className="rounded-md border border-white/20 mb-4 px-4 py-2 overflow-hidden">
+          <BlurView
+            intensity={40}
+            tint="light"
+            className="rounded-md border border-white/20 mb-4 px-4 py-2 overflow-hidden"
+          >
             <View className="flex-row items-center space-x-2">
               <FontAwesome6 name="location-dot" size={14} color="white" />
               <Text className="text-white text-xl ml-3">
@@ -163,7 +237,7 @@ export default function NewTrip() {
         </TouchableOpacity>
 
         {/* Tags Button */}
-        
+
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -191,9 +265,12 @@ export default function NewTrip() {
           ))}
         </ScrollView>
 
-
         {/* Description Input */}
-        <BlurView intensity={40} tint="light" className="rounded-md border border-white/20 mb-6 px-4 py-4 overflow-hidden">
+        <BlurView
+          intensity={40}
+          tint="light"
+          className="rounded-md border border-white/20 mb-6 px-4 py-4 overflow-hidden"
+        >
           <TextInput
             value={tripDescription}
             onChangeText={setTripDescription}
@@ -206,13 +283,17 @@ export default function NewTrip() {
             className="text-xl text-white text-start"
           />
         </BlurView>
-
       </ScrollView>
 
       <DatePickerModal ref={modalRef} onConfirm={handleDateConfirm} />
-      <LocationPickerModal ref={locationModalRef} onSelectCountry={handleCountrySelect} />
-      <ThumbnailPickerModal ref={thumbnailModalRef} onSelect={(url) => setThumbnailUrl(url)} />
-      
+      <LocationPickerModal
+        ref={locationModalRef}
+        onSelectCountry={handleCountrySelect}
+      />
+      <ThumbnailPickerModal
+        ref={thumbnailModalRef}
+        onSelect={(url) => setThumbnailUrl(url)}
+      />
     </View>
   );
 }
