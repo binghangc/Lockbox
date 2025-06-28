@@ -1,11 +1,10 @@
 {
-    "extends": "./tsconfig.json",
-    "compilerOptions": {
-      "outDir": "./rag/dist",
-      "rootDir": "./rag",
-      "module": "commonjs", 
-      "target": "es2020"
-    },
-    "include": ["rag/**/*"]
-  }
-  
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./rag/dist",
+    "rootDir": "./rag",
+    "module": "commonjs",
+    "target": "es2020"
+  },
+  "include": ["rag/**/*"]
+}
