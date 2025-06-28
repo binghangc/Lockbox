@@ -7,6 +7,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.839.0",
     "@aws-sdk/s3-request-presigner": "^3.837.0",
     "@langchain/core": "^0.3.61",
     "@langchain/google-genai": "^0.2.14",
