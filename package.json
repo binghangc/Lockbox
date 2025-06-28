@@ -10,13 +10,11 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "prettier:check": "prettier --check .",
     "prettier:write": "prettier --write .",
-    "test": "cd server && npm test"
+    "test": "cd server && npm test",
+    "build:rag": "tsc -p tsconfig.rag.json"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
-    "@langchain/core": "^0.3.58",
-    "@langchain/google-genai": "^0.2.12",
-    "@langchain/langgraph": "^0.3.3",
     "@react-native-async-storage/async-storage": "2.1.2",
     "@react-navigation/native": "^7.1.10",
     "@react-navigation/native-stack": "^7.3.14",
@@ -29,6 +27,7 @@
     "dotenv": "^16.5.0",
     "expo": "^53.0.11",
     "expo-blur": "~14.1.4",
+    "expo-calendar": "~14.1.4",
     "expo-camera": "~16.1.8",
     "expo-constants": "~17.1.5",
     "expo-dev-client": "~5.2.0",
@@ -41,6 +40,7 @@
     "expo-status-bar": "~2.2.3",
     "express": "^5.1.0",
     "lodash": "^4.17.21",
+    "lottie-react-native": "7.2.2",
     "multer": "^1.4.5-lts.2",
     "multer-s3": "^3.0.1",
     "nativewind": "^4.1.23",
@@ -58,8 +58,7 @@
     "tailwindcss": "^3.4.17",
     "uuid": "^11.1.0",
     "world-countries": "^5.1.0",
-    "zod": "^3.25.64",
-    "expo-calendar": "~14.1.4"
+    "zod": "^3.25.64"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

@@ -21,6 +21,9 @@ jobs:
 
       - run: npm ci
 
+      - run: npm ci
+        working-directory: server
+
       - run: npm run lint
 
       - run: npm run prettier:check

@@ -7,7 +7,6 @@ type FriendRow = Profile & { friendshipId?: string };
 
 type Props = {
   item: FriendRow;
-  alreadyInvitedIds: string[];
   inviteStatus: Record<
     string,
     'idle' | 'loading' | 'pending' | 'accepted' | 'declined' | 'failed'
@@ -17,13 +16,10 @@ type Props = {
 
 export default function InviteFriendRow({
   item,
-  alreadyInvitedIds,
   inviteStatus,
   onSelect,
 }: Props) {
-  const status =
-    inviteStatus[item.id] ??
-    (alreadyInvitedIds?.includes(item.id) ? 'pending' : undefined);
+  const status = inviteStatus[item.id] ?? 'idle';
 
   const isDisabled = ['pending', 'accepted', 'declined'].includes(status ?? '');
 

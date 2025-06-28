@@ -66,7 +66,7 @@ export default function useItineraries(tripId: string, tripDays: string[]) {
       }));
 
       const res = await fetch(
-        `${process.env.EXPO_PUBLIC_API_URL}/trips/${tripId}/submit-itinerary`,
+        `${process.env.EXPO_PUBLIC_API_URL}/vibechecks/${tripId}/submit-itinerary`,
         {
           method: 'POST',
           headers: {

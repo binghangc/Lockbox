@@ -39,3 +39,6 @@ yarn-error.*
 
 # supabase
 supabase/.temp/
+
+temp/
+src/temp

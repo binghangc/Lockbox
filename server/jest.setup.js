@@ -42,3 +42,18 @@ jest.mock('./utils/geminiclient.js', () => ({
       ({ itineraryText }) => `Mocked vibecheck for: ${itineraryText}`,
     ),
 }));
+
+jest.mock('./encoder.js', () => ({
+  __esModule: true,
+  default: async () => {
+    console.log('[mock encodeToHLS] called');
+  },
+}));
+
+jest.mock('./utils/r2SignedUrl.js', () => ({
+  __esModule: true,
+  getDownloadUrl: jest.fn(async (key) => {
+    console.log(`[mock getDownloadUrl] called with key: ${key}`);
+    return `https://mocked-r2-url.com/${key}`;
+  }),
+}));
