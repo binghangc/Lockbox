@@ -85,7 +85,7 @@ export default function TripPillbarContainer({
           left: 0,
           width,
           height,
-          zIndex: 9999,
+          zIndex: 1,
           pointerEvents: 'none',
         }}
       />
