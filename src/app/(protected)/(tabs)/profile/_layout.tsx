@@ -1,8 +1,9 @@
-import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
 import { Foundation, Octicons, MaterialIcons } from '@expo/vector-icons';
 import { router, Stack } from 'expo-router';
 import { BlurView } from 'expo-blur';
 import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function ProfileLayout() {
   const sharedScreenOptions: NativeStackNavigationOptions = {
@@ -38,22 +39,7 @@ export default function ProfileLayout() {
       <Stack.Screen
         name="index"
         options={{
-          headerRight: () => (
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <TouchableOpacity
-                onPress={() => router.push('profileEdit')}
-                style={{ marginRight: 16 }}
-              >
-                <Foundation name="pencil" size={24} color="white" />
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => router.push('/profile/settings')}
-                style={{ marginRight: 16 }}
-              >
-                <MaterialIcons name="settings" size={24} color="white" />
-              </TouchableOpacity>
-            </View>
-          ),
+          headerShown: false,
         }}
       />
       <Stack.Screen
