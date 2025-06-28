@@ -50,7 +50,7 @@ jest.mock('./encoder.js', () => ({
   },
 }));
 
-jest.mock('../utils/r2SignedUrl.js', () => ({
+jest.mock('./utils/r2SignedUrl.js', () => ({
   __esModule: true,
   getDownloadUrl: jest.fn(async (key) => {
     console.log(`[mock getDownloadUrl] called with key: ${key}`);
