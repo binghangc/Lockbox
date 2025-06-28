@@ -43,7 +43,7 @@ jest.mock('./utils/geminiclient.js', () => ({
     ),
 }));
 
-jest.mock('../encoder.js', () => ({
+jest.mock('./encoder.js', () => ({
   __esModule: true,
   default: async () => {
     console.log('[mock encodeToHLS] called');
