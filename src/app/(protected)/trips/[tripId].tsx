@@ -1,132 +1,211 @@
 import dayjs from 'dayjs';
-import { useEffect, useState } from 'react';
-import { View, Text, Image, ActivityIndicator, ScrollView, TouchableOpacity } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import {
+  View,
+  Text,
+  Image,
+  ActivityIndicator,
+  ScrollView,
+  TouchableOpacity,
+  StyleSheet,
+  StatusBar,
+} from 'react-native';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useUser } from '@/components/UserContext'
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import TripHeader from '@/components/tripHeader';
+import Octicons from '@expo/vector-icons/Octicons';
+import { BlurView } from 'expo-blur';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
-import TripPillbar from '@/components/tripPillbar';
+import useTrips from '@/hooks/useTrips';
+import TripPillbarContainer from '@/containers/tripPillbarContainer';
+import UserProfileModal from '@/components/userProfileModal';
+import ParticipantRowList from '@/components/participants/participantRowList';
+import { useState, useCallback } from 'react';
+import { useUser } from '@/components/UserContext';
+import { Profile } from '@/types';
 
-
+export const screenOptions = {
+  headerTransparent: true,
+  headerTintColor: 'white',
+  headerTitleAlign: 'center',
+  headerLeft: () => (
+    <Octicons
+      name="chevron-left"
+      size={28}
+      color="white"
+      style={{ marginLeft: 12 }}
+    />
+  ),
+  headerBackground: () => (
+    <BlurView intensity={60} tint="dark" style={StyleSheet.absoluteFill} />
+  ),
+  headerTitle: '',
+};
 
 export default function TripDetailScreen() {
-    const { tripId } = useLocalSearchParams();
-    const router = useRouter();
-    const { user } = useUser();
-    const [trip, setTrip] = useState<any>(null);
-    const [isHost, setIsHost] = useState(false);
-    const [loading, setLoading] = useState(true);
-    const insets = useSafeAreaInsets();
+  const { tripId } = useLocalSearchParams();
+  const tripIdStr = Array.isArray(tripId) ? tripId[0] : tripId;
+  const { trip, loading } = useTrips(tripIdStr);
+  const insets = useSafeAreaInsets();
 
-    useEffect(() => {
-        const fetchTrip = async () => {
-            try {
-                const token = await AsyncStorage.getItem('access_token');
-                const res = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/trips/${tripId}`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
+  const { user } = useUser();
+  const isHost = user?.id === trip?.host?.id;
+  const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
+  const [participantCount, setParticipantCount] = useState<number>(0);
 
-                const data = await res.json();
-                if (res.ok) {
-                    setTrip(data);
+  const HEADER_HEIGHT = insets.top + 60;
 
-                    if (data.host?.id === user?.id) {
-                        setIsHost(true);
-                    } else {
-                        setIsHost(false);
-                    }
-                } else {
-                    console.error(data.error);
-                }
-            } catch (err) {
-                console.error('Fetch error:', err);
-            } finally {
-                setLoading(false);
-            }
-        };
+  const onSelect = (u: Profile) => {
+    setSelectedUser(u);
+  };
+  const onCountUpdate = useCallback((count: number) => {
+    setParticipantCount(count);
+  }, []);
 
-        if (tripId && user) fetchTrip();
-    }, [tripId]);
-
-    if (loading) {
-        return (
-            <View className="flex-1 justify-center items-center bg-black">
-                <ActivityIndicator color="white" />
-            </View>
-        );
-    }
-
-    if (!trip) {
-        return (
-            <View className="flex-1 justify-center items-center bg-black">
-                <Text className="text-white">Trip not found</Text>
-            </View>
-        );
-    }
-
+  if (loading) {
     return (
-        <>
-            <TripHeader onBack={() => router.back()} />
-            <ScrollView
-                className="flex-1 bg-black"
-                contentContainerStyle={{ paddingTop: insets.top, paddingBottom: insets.bottom + 100 }}
-                showsVerticalScrollIndicator={false}
-            >
-                {/* Trip Title */}
-                <View className="px-3 mb-6">
-                    <Text className="text-4xl font-extrabold text-center text-white">{trip.title}</Text>
-                </View>
-                {/* Trip Thumbnail */}
-                <View className="w-full px-4 mb-3">
-                    <View className="aspect-square w-full">
-                        <Image
-                            source={{ uri: trip.thumbnail_url }}
-                            className="w-full h-full"
-                            resizeMode="cover"
-                        />
-                    </View>
-                </View>
-                {/* Trip Dates */}
-                <View className="flex-row items-center justify-between p-3">
-                    <Text className="text-white text-2xl font-semibold" numberOfLines={2} style={{ textAlign: 'left' }}>
-                        {trip.start_date && trip.end_date
-                            ? `${dayjs(trip.start_date).format('dddd, MMM D')} -\n${dayjs(trip.end_date).format('dddd, MMM D')}`
-                            : 'Dates unavailable'}
-                    </Text>
-                </View>
-                {/* Host row */}
-                <View className="p-3">
-                    <View className="flex-row items-center">
-                        <FontAwesome6 name="crown" size={15} color="#a3a3a3" />
-                        <Text className="text-neutral-400 text-xl ml-2">Hosted by</Text>
-                    </View>
-                    {trip.host && (
-                        <TouchableOpacity className="flex-row items-center gap-3 mt-2 ml-4" onPress={() => { }}>
-                            <Image source={{ uri: trip.host.avatar_url }} className="w-10 h-10 rounded-full" />
-                            <Text className="text-white text-xl font-bold">{trip.host.name}</Text>
-                        </TouchableOpacity>
-                    )}
-
-                    {/* Country */}
-                    {trip.country && (
-                        <View className="flex-row items-center mt-4 ml-[2px]">
-                            <FontAwesome6 name="location-dot" size={15} color="#a3a3a3" />
-                            <Text className="text-neutral-400 text-xl ml-2">{trip.country}</Text>
-                        </View>
-                    )}
-                    {/* Description */}
-                    {trip.description && (
-                        <Text className="text-neutral-400 text-lg mt-4">{trip.description}</Text>
-                    )}
-
-                </View>
-
-            </ScrollView>
-            <TripPillbar tripId={trip.id} isHost={isHost} />
-        </>
+      <View className="flex-1 justify-center items-center bg-black">
+        <ActivityIndicator color="white" />
+      </View>
     );
+  }
+
+  if (!trip) {
+    return (
+      <View className="flex-1 justify-center items-center bg-black">
+        <Text className="text-white">Trip not found</Text>
+      </View>
+    );
+  }
+
+  let handlePress;
+
+  if (trip.status === 'upcoming' && isHost) {
+    handlePress = () => {
+      router.push(`/trips/${tripId}/itinerary`);
+    };
+  } else if (trip.status === 'upcoming' && !isHost) {
+    handlePress = () => {
+      console.log('Not host - do nothing.');
+    };
+  } else {
+    handlePress = () => {
+      console.log('Not implemented yet.');
+    };
+  }
+
+  return (
+    <View style={{ flex: 1, backgroundColor: 'transparent' }}>
+      <StatusBar
+        barStyle="light-content"
+        translucent
+        backgroundColor="transparent"
+      />
+      {/* ScrollView starts below the image */}
+      <ScrollView
+        style={{ flex: 1, backgroundColor: 'transparent' }}
+        contentContainerStyle={{
+          paddingTop: HEADER_HEIGHT,
+          paddingBottom: insets.bottom + 100,
+        }}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={{ backgroundColor: 'black', flex: 1 }}>
+          {/* Trip Title */}
+          <View className="px-3 mb-6">
+            <Text className="text-4xl font-extrabold text-center text-white">
+              {trip.title}
+            </Text>
+          </View>
+          <View className="items-center px-4 mb-5">
+            <Image
+              source={{ uri: trip.thumbnail_url }}
+              style={{ width: '100%', aspectRatio: 1 }}
+              resizeMode="cover"
+            />
+          </View>
+          {/* Trip Dates */}
+          <View className="flex-row items-center justify-between p-3">
+            <Text
+              className="text-white text-2xl font-semibold"
+              numberOfLines={2}
+              style={{ textAlign: 'left' }}
+            >
+              {trip.start_date && trip.end_date
+                ? `${dayjs(trip.start_date).format('dddd, MMM D')} -\n${dayjs(trip.end_date).format('dddd, MMM D')}`
+                : 'Dates unavailable'}
+            </Text>
+          </View>
+          {/* Host row */}
+          <View className="p-3">
+            <View className="flex-row items-center">
+              <FontAwesome6 name="crown" size={15} color="#a3a3a3" />
+              <Text className="text-neutral-400 text-xl ml-2">Hosted by</Text>
+            </View>
+            {trip.host && (
+              <TouchableOpacity
+                className="flex-row items-center gap-3 mt-2 ml-4"
+                onPress={() => {}}
+              >
+                <Image
+                  source={{ uri: trip.host.avatar_url }}
+                  className="w-10 h-10 rounded-full"
+                />
+                <Text className="text-white text-xl font-bold">
+                  {trip.host.name}
+                </Text>
+              </TouchableOpacity>
+            )}
+
+            {/* Country */}
+            {trip.country && (
+              <View className="flex-row items-center mt-4 ml-[2px]">
+                <FontAwesome6 name="location-dot" size={15} color="#a3a3a3" />
+                <Text className="text-neutral-400 text-xl ml-2">
+                  {trip.country}
+                </Text>
+              </View>
+            )}
+            {/* Description */}
+            {trip.description && (
+              <Text className="text-neutral-400 text-lg mt-4">
+                {trip.description}
+              </Text>
+            )}
+
+            {/* Participants */}
+            <View className="p-3">
+              <View className="flex-row justify-between items-center mt-4 mb-2 px-4">
+                <Text className="text-white text-2xl font-semibold">
+                  Participants ({participantCount})
+                </Text>
+                <TouchableOpacity
+                  onPress={() => router.push(`/trips/${tripId}/participants`)}
+                >
+                  <Text className="text-sm text-gray-300 font-medium">
+                    SEE ALL
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <ParticipantRowList
+                onSelect={onSelect}
+                onCountUpdate={onCountUpdate}
+              />
+            </View>
+          </View>
+        </View>
+      </ScrollView>
+      <UserProfileModal
+        isVisible={selectedUser !== null}
+        onClose={() => setSelectedUser(null)}
+        user={selectedUser}
+        currentUserId={user?.id ?? ''}
+        isFriends
+      />
+      <TripPillbarContainer
+        tripId={tripIdStr}
+        isHost={isHost}
+        status={(trip.status as 'upcoming' | 'ongoing' | 'ended') || 'upcoming'}
+        handlePress={handlePress}
+      />
+    </View>
+  );
 }

@@ -1,0 +1,4 @@
+supabase/functions/**
+metro.config.js
+scripts/**
+rag/scripts/*.cjs

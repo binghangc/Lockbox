@@ -1,10 +1,12 @@
-import { router } from 'expo-router';
-import { Tabs } from 'expo-router';
+import { router, Tabs } from 'expo-router';
 import { Octicons, FontAwesome5 } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { View, TouchableOpacity } from 'react-native';
+import { useInvites } from '@/components/InvitesContext';
 
 export default function TabsLayout() {
+  const { invites } = useInvites();
+
   return (
     <View style={{ flex: 1, backgroundColor: '#111' }}>
       <LinearGradient
@@ -34,27 +36,43 @@ export default function TabsLayout() {
           },
         }}
       >
-        <Tabs.Screen name='index'
+        <Tabs.Screen
+          name="index"
           options={{
-            headerShown: true, 
+            headerShown: true,
             headerTransparent: true,
             title: '',
             headerRight: () => (
               <>
-                  <TouchableOpacity
-                    onPress={() => router.push('/invites')}
-                    style={{ marginRight: 16 }}
-                  >
+                <TouchableOpacity
+                  onPress={() => router.push('/invites')}
+                  style={{ marginRight: 16 }}
+                >
+                  <View>
                     <FontAwesome5 name="ticket-alt" size={24} color="white" />
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => router.push('/friends')}
-                    style={{ marginRight: 16 }}
-                  >
-                    <Octicons name="people" size={24} color="white" />
-                  </TouchableOpacity>
+                    {invites.length > 0 && (
+                      <View
+                        style={{
+                          position: 'absolute',
+                          top: -4,
+                          right: -4,
+                          width: 10,
+                          height: 10,
+                          borderRadius: 5,
+                          backgroundColor: '#3B82F6',
+                          borderWidth: 1,
+                        }}
+                      />
+                    )}
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => router.push('/friends')}
+                  style={{ marginRight: 16 }}
+                >
+                  <Octicons name="people" size={24} color="white" />
+                </TouchableOpacity>
               </>
-
             ),
             tabBarIcon: ({ color, size }) => (
               <Octicons name="home" size={size} color={color} />
@@ -62,7 +80,8 @@ export default function TabsLayout() {
           }}
         />
 
-        <Tabs.Screen name='plus'
+        <Tabs.Screen
+          name="plus"
           options={{
             title: 'Plus',
             tabBarIcon: ({ color, size }) => (
@@ -77,9 +96,13 @@ export default function TabsLayout() {
           }}
         />
 
-        <Tabs.Screen name='profile'
+        <Tabs.Screen
+          name="profile"
           options={{
             title: 'Profile',
+            headerShown: true,
+            headerTransparent: true,
+            headerTitle: '',
             tabBarIcon: ({ color, size }) => (
               <Octicons name="person" size={size} color={color} />
             ),

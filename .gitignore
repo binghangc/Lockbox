@@ -1,6 +1,6 @@
 # Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
 .env
-server/.env
+server/.env.server
 # dependencies
 node_modules/
 server/node_modules/
@@ -37,3 +37,9 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+
+# supabase
+supabase/.temp/
+
+temp/
+src/temp

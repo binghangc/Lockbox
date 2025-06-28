@@ -1,5 +1,5 @@
-import { Redirect } from "expo-router";
+import { Redirect } from 'expo-router';
 
 export default function PlusScreen() {
-    return <Redirect href='/newTrip' />;
+  return <Redirect href="/newTrip" />;
 }
