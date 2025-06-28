@@ -8,6 +8,8 @@
   },
   "dependencies": {
     "@aws-sdk/s3-request-presigner": "^3.837.0",
+    "@langchain/core": "^0.3.61",
+    "@langchain/google-genai": "^0.2.14",
     "@supabase/supabase-js": "^2.39.3",
     "aws-sdk": "^2.1692.0",
     "cors": "^2.8.5",
