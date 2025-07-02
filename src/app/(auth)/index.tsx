@@ -14,6 +14,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { useUser } from '@/components/UserContext';
 import FloatingOrb from '@/components/floatingOrb';
+import { Ionicons } from '@expo/vector-icons';
 
 const ENABLE_FORGOT_PASSWORD = false;
 
@@ -26,6 +27,8 @@ export default function LoginScreen() {
 
   const router = useRouter();
   const { setUser, setToken } = useUser();
+
+  const [showPasswordTooltip, setPasswordShowTooltip] = useState(false);
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -162,14 +165,44 @@ export default function LoginScreen() {
           />
         )}
 
-        <TextInput
-          placeholder="Password"
-          placeholderTextColor="#aaa"
-          value={password}
-          secureTextEntry
-          onChangeText={setPassword}
-          className="bg-white/10 text-white px-4 py-3 rounded-md mb-6"
-        />
+        <View className="relative mb-6">
+          <TextInput
+            placeholder="Password"
+            placeholderTextColor="#aaa"
+            value={password}
+            secureTextEntry
+            onChangeText={setPassword}
+            className="bg-white/10 text-white px-4 py-3 rounded-md pr-10"
+          />
+          {mode === 'signup' && (
+            <>
+              <TouchableOpacity
+                onPress={() => setPasswordShowTooltip(true)}
+                className="absolute right-3 top-1/2 -translate-y-1/2"
+              >
+                <Ionicons
+                  name="information-circle-outline"
+                  size={18}
+                  color="#aaa"
+                />
+              </TouchableOpacity>
+
+              {showPasswordTooltip && (
+                <TouchableOpacity
+                  onPressOut={() => setPasswordShowTooltip(false)}
+                  className="absolute bottom-full right-3 mb-2 z-10"
+                >
+                  <View className="bg-neutral-800 px-3 py-2 rounded-md max-w-xs">
+                    <Text className="text-white text-xs">
+                      Must be 8+ characters with uppercase, lowercase, number &
+                      symbol.
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              )}
+            </>
+          )}
+        </View>
 
         {/* Forgot Password */}
         {/** TO DO: reset link not working */}
