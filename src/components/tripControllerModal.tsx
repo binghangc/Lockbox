@@ -10,6 +10,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import TripControllerItem from '@/components/tripControllerItem';
 
 type TripControllerModalProps = {
+  status: 'upcoming' | 'ongoing' | 'ended';
   isHost: boolean;
   isPinned: boolean;
   onEdit: () => void;
@@ -22,6 +23,7 @@ type TripControllerModalProps = {
 };
 
 export default function TripControllerModal({
+  status,
   isHost,
   isPinned,
   onEdit,
@@ -72,7 +74,7 @@ export default function TripControllerModal({
             onPress={onSync}
           />
         </View>
-        {isHost && (
+        {isHost && status === 'upcoming' && (
           <TripControllerItem
             icon={<Foundation name="pencil" size={20} color="white" />}
             label="Edit Trip"
@@ -84,7 +86,7 @@ export default function TripControllerModal({
           label={isPinned ? 'Unpin Trip' : 'Pin Trip'}
           onPress={onPin}
         />
-        {isHost && (
+        {isHost && status === 'upcoming' && (
           <TripControllerItem
             icon={<FontAwesome5 name="user-plus" size={15} color="white" />}
             label="Send Invites"

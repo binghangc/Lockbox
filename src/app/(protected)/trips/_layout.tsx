@@ -162,6 +162,7 @@ export default function TripsLayout() {
         </Stack>
         <TripControllerModal
           triggerRef={modalRef}
+          status={trip.status}
           isHost={isHost}
           isPinned={isPinned}
           onEdit={onEdit}

@@ -6,6 +6,7 @@ import {
   ScrollView,
   TextInput,
   Image,
+  Alert,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { BlurView } from 'expo-blur';
@@ -124,8 +125,21 @@ export default function EditTrip() {
         return;
       }
 
+      if (data.needsImmediateItinerary) {
+        Alert.alert(
+          'Start setting your itinerary',
+          'Since your trip starts today, your itinerary must be created now.',
+          [
+            {
+              text: 'OK',
+              onPress: () => router.replace(`/trips/${tripId}/itinerary`),
+            },
+          ],
+        );
+      } else {
+        router.replace('/(tabs)');
+      }
       console.log('Trip saved:', data);
-      router.replace('/(tabs)');
     } catch (err) {
       console.error('Failed to save trip:', err);
     }

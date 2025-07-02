@@ -215,6 +215,11 @@ router.patch('/:id/edit', authMiddleware, async (req, res) => {
   const trip_id = req.params.id;
   const { title, description, thumbnail_url, start_date, end_date, country } =
     req.body;
+
+  const today = dayjs().format('YYYY-MM-DD');
+  const start = dayjs(start_date).format('YYYY-MM-DD');
+
+  const status = start === today ? 'ongoing' : 'upcoming';
   const user_id = req.user.id;
 
   if (!trip_id) {
@@ -230,6 +235,7 @@ router.patch('/:id/edit', authMiddleware, async (req, res) => {
       end_date,
       country,
       thumbnail_url,
+      status,
     })
     .eq('id', trip_id)
     .select()
@@ -243,7 +249,11 @@ router.patch('/:id/edit', authMiddleware, async (req, res) => {
     return res.status(400).json({ error: 'Only hosts can edit trip.' });
   }
 
-  return res.status(200).json({ trip, message: 'Trip updated successfully' });
+  return res.status(200).json({
+    trip,
+    message: 'Trip updated successfully',
+    needsImmediateItinerary: status === 'ongoing',
+  });
 });
 
 // API endpoint for retrieving the participants in a trip
