@@ -91,6 +91,17 @@ router.post('/:id/submit-itinerary', authMiddleware, async (req, res) => {
         .save();
     });
 
+    insertedVibechecks.forEach((vc) => {
+      queue
+        .create('embed-vibecheck', {
+          vibecheck_id: vc.id,
+          text: vc.vibecheck,
+          user_id: trip.user_id,
+        })
+        .removeOnComplete(true)
+        .save();
+    });
+
     return res.status(200).json({
       success: true,
       insertedItineraries: inserted.length,
