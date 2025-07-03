@@ -78,18 +78,13 @@ router.post('/:id/submit-itinerary', authMiddleware, async (req, res) => {
 
     if (vibeInsertError) throw vibeInsertError;
 
-    const vibecheckMap = {};
-    insertedVibechecks.forEach((v) => {
-      vibecheckMap[v.itinerary_id] = v.id;
-    });
-
     // Step 3: Dispatch chunking + embedding jobs to Redis queue
     inserted.forEach((entry) => {
-      const vibecheck_id = vibecheckMap[entry.id];
       queue
         .create('embed-itinerary', {
           itinerary: entry.itinerary,
-          vibecheck_id,
+          itinerary_id: entry.id,
+          trip_id: trip.id,
           country: trip.country,
         })
         .removeOnComplete(true)

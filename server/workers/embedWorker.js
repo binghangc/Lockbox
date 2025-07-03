@@ -11,7 +11,7 @@ const supabase = createClient(
 );
 
 queue.process('embed-itinerary', async (job, done) => {
-  const { itinerary, vibecheck_id, country } = job.data;
+  const { itinerary, itinerary_id, trip_id, country } = job.data;
 
   try {
     const chunks = await enrichChunks(itinerary);
@@ -20,7 +20,8 @@ queue.process('embed-itinerary', async (job, done) => {
       chunks.map(async (chunk) => {
         const embedding = await embedText(chunk.chunk_text);
         return {
-          vibecheck_id,
+          itinerary_id,
+          trip_id,
           chunk_text: chunk.chunk_text,
           embedding,
           country: country || null,
