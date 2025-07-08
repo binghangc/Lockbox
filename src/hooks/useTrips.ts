@@ -13,6 +13,7 @@ export interface Trip {
   description?: string;
   status?: string;
   is_pinned?: boolean;
+  video_background?: string;
   // Add other trip fields as needed
 }
 
