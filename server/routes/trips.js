@@ -17,8 +17,15 @@ const { generateVibeCheck } = require('../utils/geminiclient.js');
 // POST /trips - Create a new trip
 router.post('/', authMiddleware, async (req, res) => {
   const user_id = req.user.id;
-  const { title, description, start_date, end_date, country, thumbnail_url } =
-    req.body;
+  const {
+    title,
+    description,
+    start_date,
+    end_date,
+    country,
+    thumbnail_url,
+    tags,
+  } = req.body;
 
   const today = dayjs().format('YYYY-MM-DD');
   const start = dayjs(start_date).format('YYYY-MM-DD');
@@ -37,6 +44,7 @@ router.post('/', authMiddleware, async (req, res) => {
         country,
         thumbnail_url,
         status,
+        tags,
       },
     ])
     .select();

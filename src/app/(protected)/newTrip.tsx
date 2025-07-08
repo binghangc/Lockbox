@@ -30,7 +30,7 @@ import CreateTripHeader from '@/components/newTrip/createTripHeader';
 export default function NewTrip() {
   const router = useRouter();
   const { token } = useUser();
-  // const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const modalRef = useRef<DatePickerModalRef>(null);
   const locationModalRef = useRef<LocationPickerModalRef>(null);
   const thumbnailModalRef = useRef<ThumbnailPickerModalRef>(null);
@@ -46,11 +46,11 @@ export default function NewTrip() {
     flag: string;
   } | null>(null);
 
-  // const toggleTag = (tag: string) => {
-  //   setSelectedTags((prev) =>
-  //     prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
-  //   );
-  // };
+  const toggleTag = (tag: string) => {
+    setSelectedTags((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
+    );
+  };
 
   const openDatePicker = () => modalRef.current?.open();
 
@@ -104,6 +104,7 @@ export default function NewTrip() {
           thumbnail_url:
             thumbnailUrl ||
             'https://pub-8c0b91be3e2945c88ce582ecb937b8b6.r2.dev/wine-hand.avif',
+          tags: selectedTags,
         }),
       });
 
@@ -237,33 +238,48 @@ export default function NewTrip() {
         </TouchableOpacity>
 
         {/* Tags Button */}
-
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          className="mb-6"
-          contentContainerStyle={{ gap: 8, paddingHorizontal: 4 }}
-        >
-          {[
-            'Honeymoon',
-            'Road Trip',
-            'Grad',
-            'Day Trip',
-            'Nature',
-            'City',
-            'Bachelorette',
-            'Friends',
-            'Family',
-            'Camping',
-          ].map((tag) => (
-            <TouchableOpacity
-              key={tag}
-              className="px-4 py-2 rounded-full border border-white/30 bg-white/10"
-            >
-              <Text className="text-white text-sm font-medium">{tag}</Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
+        <View className="-mx-4 mb-6">
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ gap: 8, paddingHorizontal: 16 }}
+          >
+            {[
+              'Friends',
+              'Family',
+              'Grad',
+              'Day Trip',
+              'Nature',
+              'City',
+              'Bachelorette',
+              'Honeymoon',
+              'Road Trip',
+              'Camping',
+              'Solo',
+            ].map((tag) => {
+              const isSelected = selectedTags.includes(tag);
+              return (
+                <TouchableOpacity
+                  key={tag}
+                  onPress={() => toggleTag(tag)}
+                  className={`px-4 py-2 rounded-full border ${
+                    isSelected
+                      ? 'border-white/100 bg-white/20'
+                      : 'border-white/30 bg-white/10'
+                  }`}
+                >
+                  <Text
+                    className={`text-sm font-medium ${
+                      isSelected ? 'text-white' : 'text-white/70'
+                    }`}
+                  >
+                    {tag}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+        </View>
 
         {/* Description Input */}
         <BlurView
