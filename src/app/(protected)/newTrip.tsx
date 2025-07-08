@@ -23,7 +23,7 @@ import LocationPickerModal, {
 } from '@/components/newTrip/locationPickerModal';
 import ThumbnailPickerModal, {
   ThumbnailPickerModalRef,
-} from '@/components/thumbnailPickerModal';
+} from '@/components/newTrip/thumbnailPickerModal';
 import { useUser } from '@/components/UserContext';
 import CreateTripHeader from '@/components/newTrip/createTripHeader';
 
