@@ -1,4 +1,4 @@
 declare module '*.mp4' {
-  const src: number;
+  const src: string;
   export default src;
 }
