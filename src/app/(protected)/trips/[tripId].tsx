@@ -22,7 +22,7 @@ import ParticipantRowList from '@/components/participants/participantRowList';
 import { useState, useCallback } from 'react';
 import { useUser } from '@/components/UserContext';
 import { Profile } from '@/types';
-import poolMobileVideo from '../../../../assets/moonlightMobile.mp4';
+import videoBackgrounds from '@/constants/videoBackgrounds';
 
 export const screenOptions = {
   headerTransparent: true,
@@ -94,18 +94,27 @@ export default function TripDetailScreen() {
     };
   }
 
+  const selectedVideo =
+    trip.video_background && videoBackgrounds[trip.video_background]
+      ? videoBackgrounds[trip.video_background]
+      : null;
+
   return (
     <View style={{ flex: 1, backgroundColor: 'transparent' }}>
-      <Video
-        source={poolMobileVideo}
-        rate={1.0}
-        volume={1.0}
-        isMuted
-        resizeMode={ResizeMode.COVER}
-        shouldPlay
-        isLooping
-        style={StyleSheet.absoluteFill}
-      />
+      {selectedVideo ? (
+        <Video
+          source={selectedVideo}
+          rate={1.0}
+          volume={1.0}
+          isMuted
+          resizeMode={ResizeMode.COVER}
+          shouldPlay
+          isLooping
+          style={StyleSheet.absoluteFill}
+        />
+      ) : (
+        <View style={[StyleSheet.absoluteFill, { backgroundColor: 'black' }]} />
+      )}
       <StatusBar
         barStyle="light-content"
         translucent
