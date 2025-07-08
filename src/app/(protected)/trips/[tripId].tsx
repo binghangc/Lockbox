@@ -14,6 +14,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Octicons from '@expo/vector-icons/Octicons';
 import { BlurView } from 'expo-blur';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
+import { ResizeMode, Video } from 'expo-av';
 import useTrips from '@/hooks/useTrips';
 import TripPillbarContainer from '@/containers/tripPillbarContainer';
 import UserProfileModal from '@/components/userProfileModal';
@@ -21,6 +22,7 @@ import ParticipantRowList from '@/components/participants/participantRowList';
 import { useState, useCallback } from 'react';
 import { useUser } from '@/components/UserContext';
 import { Profile } from '@/types';
+import poolMobileVideo from '../../../../assets/moonlightMobile.mp4';
 
 export const screenOptions = {
   headerTransparent: true,
@@ -62,7 +64,7 @@ export default function TripDetailScreen() {
 
   if (loading) {
     return (
-      <View className="flex-1 justify-center items-center bg-black">
+      <View className="flex-1 justify-center items-center bg-transparent">
         <ActivityIndicator color="white" />
       </View>
     );
@@ -70,7 +72,7 @@ export default function TripDetailScreen() {
 
   if (!trip) {
     return (
-      <View className="flex-1 justify-center items-center bg-black">
+      <View className="flex-1 justify-center items-center bg-transparent">
         <Text className="text-white">Trip not found</Text>
       </View>
     );
@@ -94,6 +96,16 @@ export default function TripDetailScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: 'transparent' }}>
+      <Video
+        source={poolMobileVideo}
+        rate={1.0}
+        volume={1.0}
+        isMuted
+        resizeMode={ResizeMode.COVER}
+        shouldPlay
+        isLooping
+        style={StyleSheet.absoluteFill}
+      />
       <StatusBar
         barStyle="light-content"
         translucent
@@ -108,7 +120,7 @@ export default function TripDetailScreen() {
         }}
         showsVerticalScrollIndicator={false}
       >
-        <View style={{ backgroundColor: 'black', flex: 1 }}>
+        <View style={{ backgroundColor: 'transparent', flex: 1 }}>
           {/* Trip Title */}
           <View className="px-3 mb-6">
             <Text className="text-4xl font-extrabold text-center text-white">
