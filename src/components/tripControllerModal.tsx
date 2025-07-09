@@ -8,6 +8,7 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import TripControllerItem from '@/components/tripControllerItem';
+import { useTripTheme } from '@/context/TripThemeProvider';
 
 type TripControllerModalProps = {
   isHost: boolean;
@@ -33,6 +34,7 @@ export default function TripControllerModal({
   triggerRef,
 }: TripControllerModalProps) {
   const modalRef = useRef<Modalize>(null);
+  const theme = useTripTheme();
 
   // Expose open method on triggerRef
   React.useImperativeHandle(triggerRef, () => ({
@@ -55,7 +57,7 @@ export default function TripControllerModal({
     >
       <BlurView
         intensity={60}
-        tint="dark"
+        tint={theme.blurTint as 'light' | 'dark' | 'default'}
         style={{
           borderTopLeftRadius: 12,
           borderTopRightRadius: 12,
@@ -67,26 +69,46 @@ export default function TripControllerModal({
       >
         <View className="mt-3">
           <TripControllerItem
-            icon={<Ionicons name="calendar-clear" size={20} color="white" />}
+            icon={
+              <Ionicons
+                name="calendar-clear"
+                size={20}
+                color={theme.primaryIcon}
+              />
+            }
             label="Sync to Calendar"
             onPress={onSync}
           />
         </View>
         {isHost && (
           <TripControllerItem
-            icon={<Foundation name="pencil" size={20} color="white" />}
+            icon={
+              <Foundation name="pencil" size={20} color={theme.primaryIcon} />
+            }
             label="Edit Trip"
             onPress={onEdit}
           />
         )}
         <TripControllerItem
-          icon={<MaterialIcons name="push-pin" size={20} color="white" />}
+          icon={
+            <MaterialIcons
+              name="push-pin"
+              size={20}
+              color={theme.primaryIcon}
+            />
+          }
           label={isPinned ? 'Unpin Trip' : 'Pin Trip'}
           onPress={onPin}
         />
         {isHost && (
           <TripControllerItem
-            icon={<FontAwesome5 name="user-plus" size={15} color="white" />}
+            icon={
+              <FontAwesome5
+                name="user-plus"
+                size={15}
+                color={theme.primaryIcon}
+              />
+            }
             label="Send Invites"
             onPress={onInvite}
           />

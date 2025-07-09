@@ -8,11 +8,11 @@ const videoBackgrounds: Record<
   string,
   { uri: string; mode: 'light' | 'dark' }
 > = {
-  'moonlightMobile.mp4': { uri: moonlightMobile, mode: 'dark' },
-  'grassMobile.mp4': { uri: grassMobile, mode: 'light' },
-  'poolMobile.mp4': { uri: poolMobile, mode: 'light' },
-  'rainbowMobile.mp4': { uri: rainbowMobile, mode: 'light' },
-  'skiMobile.mp4': { uri: skiMobile, mode: 'light' },
+  moonlight: { uri: moonlightMobile, mode: 'dark' },
+  grass: { uri: grassMobile, mode: 'light' },
+  pool: { uri: poolMobile, mode: 'light' },
+  rainbow: { uri: rainbowMobile, mode: 'light' },
+  ski: { uri: skiMobile, mode: 'light' },
 };
 
 export default videoBackgrounds;
