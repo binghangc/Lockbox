@@ -1,92 +1,46 @@
 import React, { useRef } from 'react';
+import { StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
-import useTrips from '@/hooks/useTrips';
+
+import { BlurView } from 'expo-blur';
 import Octicons from '@expo/vector-icons/Octicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { StyleSheet, TouchableOpacity, Alert } from 'react-native';
-import { BlurView } from 'expo-blur';
-import InviteFriendsModal from '@/components/invites/inviteFriendsModal';
-import usePinTrip from '@/hooks/usePinTrip';
-import createCalendarEvent from '@/utils/calendarEvent';
-
-import TripControllerModal from '@/components/tripControllerModal';
-
 import { Modalize } from 'react-native-modalize';
 
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { ParamListBase } from '@react-navigation/native';
-
 import { ConfettiProvider } from '@/components/confetti';
+import InviteFriendsModal from '@/components/invites/inviteFriendsModal';
+import TripControllerModal from '@/components/tripControllerModal';
 
-type HeaderLeftProps = {
-  navigation: NativeStackNavigationProp<ParamListBase>;
-};
-
-function HeaderLeft({ navigation }: HeaderLeftProps) {
-  return (
-    <TouchableOpacity onPress={() => navigation.goBack()}>
-      <Octicons
-        name="chevron-left"
-        size={28}
-        color="white"
-        style={{ marginLeft: 12 }}
-      />
-    </TouchableOpacity>
-  );
-}
-
-function HeaderLeftWrapper({
-  navigation,
-}: {
-  navigation: NativeStackNavigationProp<ParamListBase>;
-}) {
-  return <HeaderLeft navigation={navigation} />;
-}
-
-function HeaderLeftWithNavigation({
-  navigation,
-}: {
-  navigation: NativeStackNavigationProp<ParamListBase>;
-}) {
-  return <HeaderLeftWrapper navigation={navigation} />;
-}
+import useTrips from '@/hooks/useTrips';
+import usePinTrip from '@/hooks/usePinTrip';
+import createCalendarEvent from '@/utils/calendarEvent';
 
 function HeaderBackground() {
   return (
     <BlurView intensity={60} tint="dark" style={StyleSheet.absoluteFill} />
   );
 }
-
-function headerLeftWithNavigation({
-  navigation,
-}: {
-  navigation: NativeStackNavigationProp<ParamListBase>;
-}) {
-  return <HeaderLeftWithNavigation navigation={navigation} />;
-}
-
-const headerBackground = () => <HeaderBackground />;
+const headerBackground = HeaderBackground;
 
 export default function TripsLayout() {
   const router = useRouter();
   const modalRef = useRef<Modalize | null>(null);
   const inviteModalRef = useRef<Modalize | null>(null);
-
   const { tripId } = useLocalSearchParams();
   const { trip, isHost, loading, isPinned, refreshTrip } = useTrips(
     Array.isArray(tripId) ? tripId[0] : tripId,
   );
 
-  const pinTrip = usePinTrip(trip?.id ?? '', () => {
-    refreshTrip();
-  });
+  const pinTrip = usePinTrip(trip?.id ?? '', refreshTrip);
 
   if (loading || !trip) return null;
 
+  // --- Handlers ---
   const onEdit = () => {
     router.push(`/trips/${tripId}/edit`);
     modalRef.current?.close();
   };
+
   const onSync = async () => {
     try {
       await createCalendarEvent({
@@ -96,35 +50,45 @@ export default function TripsLayout() {
         notes: trip.description ?? 'Synced from Lockbox',
       });
       Alert.alert('Success', 'Trip added to your calendar!');
-      console.log('success');
     } catch (err) {
       console.error('Calendar sync failed:', err);
       Alert.alert('Error', 'Unable to add to calendar.');
     }
   };
+
   const onPin = () => {
     pinTrip();
     modalRef.current?.close();
   };
+
   const onInvite = () => {
     modalRef.current?.close();
     router.push(`/trips/${tripId}/sendInvites`);
   };
+
   const onDelete = () => {};
   const onLeave = () => {};
 
   return (
     <ConfettiProvider>
       <>
+        {/* Stack Navigation */}
         <Stack
           screenOptions={({ navigation }) => ({
             headerShown: true,
             headerTransparent: true,
             headerTintColor: 'white',
             headerTitleAlign: 'center',
-            headerLeft: headerLeftWithNavigation.bind(null, { navigation }),
-            headerBackground,
             title: '',
+            headerBackground,
+            headerLeft: () => (
+              <TouchableOpacity
+                onPress={() => navigation.goBack()}
+                style={{ marginLeft: 12 }}
+              >
+                <Octicons name="chevron-left" size={28} color="white" />
+              </TouchableOpacity>
+            ),
             headerRight: () => (
               <TouchableOpacity
                 onPress={() => modalRef.current?.open()}
@@ -160,6 +124,8 @@ export default function TripsLayout() {
             }}
           />
         </Stack>
+
+        {/* Modals */}
         <TripControllerModal
           triggerRef={modalRef}
           isHost={isHost}
@@ -171,6 +137,7 @@ export default function TripsLayout() {
           onDelete={onDelete}
           onLeave={onLeave}
         />
+
         <InviteFriendsModal
           ref={inviteModalRef}
           tripId={Array.isArray(tripId) ? tripId[0] : tripId}
