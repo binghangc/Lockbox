@@ -18,6 +18,8 @@ export const THEME = {
       'rgba(0, 0, 0, 0.05)',
       'rgba(0, 0, 0, 0)',
     ],
+    secondaryIcon: '#484745',
+    primaryIcon: '#000000',
   },
   dark: {
     mode: 'dark',
@@ -36,5 +38,7 @@ export const THEME = {
       'rgba(255, 255, 255, 0.05)',
       'rgba(255, 255, 255, 0)',
     ],
+    secondaryIcon: '#d6d6d6',
+    primaryIcon: '#ffffff',
   },
 };

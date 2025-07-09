@@ -14,18 +14,29 @@ import TripControllerModal from '@/components/tripControllerModal';
 import useTrips from '@/hooks/useTrips';
 import usePinTrip from '@/hooks/usePinTrip';
 import createCalendarEvent from '@/utils/calendarEvent';
+import { useTripTheme } from '@/context/TripThemeProvider';
 
-function HeaderBackground() {
+function HeaderBackground({
+  theme,
+}: {
+  theme: ReturnType<typeof useTripTheme>;
+}) {
   return (
-    <BlurView intensity={60} tint="dark" style={StyleSheet.absoluteFill} />
+    <BlurView
+      intensity={60}
+      tint={theme.blurTint as 'light' | 'dark' | 'default'}
+      style={StyleSheet.absoluteFill}
+    />
   );
 }
-const headerBackground = HeaderBackground;
+
+// headerBackground now uses theme from component scope
 
 export default function TripsLayout() {
   const router = useRouter();
   const modalRef = useRef<Modalize | null>(null);
   const inviteModalRef = useRef<Modalize | null>(null);
+  const theme = useTripTheme();
   const { tripId } = useLocalSearchParams();
   const { trip, isHost, loading, isPinned, refreshTrip } = useTrips(
     Array.isArray(tripId) ? tripId[0] : tripId,
@@ -69,6 +80,8 @@ export default function TripsLayout() {
   const onDelete = () => {};
   const onLeave = () => {};
 
+  const headerBackground = () => <HeaderBackground theme={theme} />;
+
   return (
     <ConfettiProvider>
       <>
@@ -77,7 +90,7 @@ export default function TripsLayout() {
           screenOptions={({ navigation }) => ({
             headerShown: true,
             headerTransparent: true,
-            headerTintColor: 'white',
+            headerTintColor: theme.text,
             headerTitleAlign: 'center',
             title: '',
             headerBackground,
@@ -86,7 +99,11 @@ export default function TripsLayout() {
                 onPress={() => navigation.goBack()}
                 style={{ marginLeft: 12 }}
               >
-                <Octicons name="chevron-left" size={28} color="white" />
+                <Octicons
+                  name="chevron-left"
+                  size={28}
+                  color={theme.primaryIcon}
+                />
               </TouchableOpacity>
             ),
             headerRight: () => (
@@ -97,7 +114,7 @@ export default function TripsLayout() {
                 <MaterialCommunityIcons
                   name="dots-horizontal"
                   size={28}
-                  color="white"
+                  color={theme.primaryIcon}
                 />
               </TouchableOpacity>
             ),

@@ -4,7 +4,7 @@ import { THEME, ThemeMode } from '@/constants/themeConfig';
 
 type Theme = typeof THEME.light;
 
-const TripThemeContext = createContext<Theme>(THEME.light);
+const TripThemeContext = createContext<Theme>(THEME.dark);
 
 export const useTripTheme = () => useContext(TripThemeContext);
 
