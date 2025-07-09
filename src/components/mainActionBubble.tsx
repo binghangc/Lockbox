@@ -1,35 +1,8 @@
 import { Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import PILLBAR from '@/constants/pillbarConfig';
-
-const styles = StyleSheet.create({
-  bubbleContainer: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 4,
-    width: PILLBAR.BUBBLE_WIDTH,
-    height: PILLBAR.BUBBLE_HEIGHT,
-    borderRadius: PILLBAR.BUBBLE_RADIUS,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: PILLBAR.BUBBLE_MARGIN_RIGHT,
-    marginLeft: PILLBAR.BUBBLE_MARGIN_LEFT,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.3)',
-  },
-  bubbleGradient: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    borderRadius: PILLBAR.BUBBLE_RADIUS,
-    overflow: 'hidden',
-  },
-});
+import usePillbarConfig from '@/constants/pillbarConfig';
+import { useTripTheme } from '@/context/TripThemeProvider';
 
 export default function MainActionBubble({
   status,
@@ -42,6 +15,37 @@ export default function MainActionBubble({
   onLongPress?: () => void;
   onPressOut?: () => void;
 }) {
+  const PILLBAR = usePillbarConfig();
+  const theme = useTripTheme();
+
+  const styles = StyleSheet.create({
+    bubbleContainer: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.05,
+      shadowRadius: 8,
+      elevation: 4,
+      width: PILLBAR.BUBBLE_WIDTH,
+      height: PILLBAR.BUBBLE_HEIGHT,
+      borderRadius: PILLBAR.BUBBLE_RADIUS,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: PILLBAR.BUBBLE_MARGIN_RIGHT,
+      marginLeft: PILLBAR.BUBBLE_MARGIN_LEFT,
+      borderWidth: 1,
+      borderColor: 'rgba(255,255,255,0.3)',
+    },
+    bubbleGradient: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      borderRadius: PILLBAR.BUBBLE_RADIUS,
+      overflow: 'hidden',
+    },
+  });
+
   let mainActionIcon;
   if (status === 'upcoming') {
     mainActionIcon = <Text className="text-3xl">✨</Text>;
@@ -68,13 +72,9 @@ export default function MainActionBubble({
       delayLongPress={350}
     >
       <LinearGradient
-        start={[0.2, 0.2]}
-        end={[0.8, 0.8]}
-        colors={[
-          'rgba(255,255,255,0.25)',
-          'rgba(255,255,255,0.05)',
-          'rgba(255,255,255,0)',
-        ]}
+        start={PILLBAR.BUBBLE_GRADIENT_START}
+        end={PILLBAR.BUBBLE_GRADIENT_END}
+        colors={theme.mainBubbleGradient as [string, string, string]}
         style={styles.bubbleGradient}
       />
       {mainActionIcon}

@@ -13,6 +13,11 @@ export const THEME = {
       'rgba(0, 0, 0, 0.05)',
     ],
     highlight: 'rgba(0, 0, 0, 0.05)',
+    mainBubbleGradient: [
+      'rgba(0, 0, 0, 0.25)',
+      'rgba(0, 0, 0, 0.05)',
+      'rgba(0, 0, 0, 0)',
+    ],
   },
   dark: {
     mode: 'dark',
@@ -26,5 +31,10 @@ export const THEME = {
       'rgba(255, 255, 255, 0.1)',
     ],
     highlight: 'rgba(255, 255, 255, 0.2)',
+    mainBubbleGradient: [
+      'rgba(255, 255, 255, 0.25)',
+      'rgba(255, 255, 255, 0.05)',
+      'rgba(255, 255, 255, 0)',
+    ],
   },
 };

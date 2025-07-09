@@ -24,7 +24,6 @@ export default function usePillbarController({
   onPressOutBubble,
   onLongPressBubble,
 }: ControllerProps) {
-
   const [dragEnabled, setDragEnabled] = useState(false);
   const [barWidth, setBarWidth] = useState(0);
   const [hasSent, setHasSent] = useState(false);
@@ -83,8 +82,6 @@ export default function usePillbarController({
       isSliding,
       panX,
       showAccessory,
-      PILLBAR.BUBBLE_WIDTH,
-      PILLBAR.PILLBAR_PADDING_HORIZONTAL,
     ],
   );
 
