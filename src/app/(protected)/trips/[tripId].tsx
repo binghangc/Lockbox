@@ -14,6 +14,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Octicons from '@expo/vector-icons/Octicons';
 import { BlurView } from 'expo-blur';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { ResizeMode, Video } from 'expo-av';
 import useTrips from '@/hooks/useTrips';
 import TripPillbarContainer from '@/containers/tripPillbarContainer';
@@ -23,6 +24,7 @@ import { useState, useCallback } from 'react';
 import { useUser } from '@/context/UserContext';
 import { Profile } from '@/types';
 import videoBackgrounds from '@/constants/videoBackgrounds';
+import { useTripTheme } from '@/context/TripThemeProvider';
 
 export const screenOptions = {
   headerTransparent: true,
@@ -48,6 +50,8 @@ export default function TripDetailScreen() {
   const { trip, loading } = useTrips(tripIdStr);
   const insets = useSafeAreaInsets();
 
+  const theme = useTripTheme();
+
   const { user } = useUser();
   const isHost = user?.id === trip?.host?.id;
   const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
@@ -65,7 +69,7 @@ export default function TripDetailScreen() {
   if (loading) {
     return (
       <View className="flex-1 justify-center items-center bg-transparent">
-        <ActivityIndicator color="white" />
+        <ActivityIndicator color={theme.primaryText} />
       </View>
     );
   }
@@ -73,7 +77,7 @@ export default function TripDetailScreen() {
   if (!trip) {
     return (
       <View className="flex-1 justify-center items-center bg-transparent">
-        <Text className="text-white">Trip not found</Text>
+        <Text style={{ color: theme.primaryText }}>Trip not found</Text>
       </View>
     );
   }
@@ -132,7 +136,14 @@ export default function TripDetailScreen() {
         <View style={{ backgroundColor: 'transparent', flex: 1 }}>
           {/* Trip Title */}
           <View className="px-3 mb-6">
-            <Text className="text-4xl font-extrabold text-center text-white">
+            <Text
+              style={{
+                color: theme.primaryText,
+                fontSize: 36,
+                fontWeight: '800',
+                textAlign: 'center',
+              }}
+            >
               {trip.title}
             </Text>
           </View>
@@ -146,9 +157,13 @@ export default function TripDetailScreen() {
           {/* Trip Dates */}
           <View className="flex-row items-center justify-between p-3">
             <Text
-              className="text-white text-2xl font-semibold"
+              style={{
+                color: theme.primaryText,
+                fontSize: 24,
+                fontWeight: '600',
+                textAlign: 'left',
+              }}
               numberOfLines={2}
-              style={{ textAlign: 'left' }}
             >
               {trip.start_date && trip.end_date
                 ? `${dayjs(trip.start_date).format('dddd, MMM D')} -\n${dayjs(trip.end_date).format('dddd, MMM D')}`
@@ -156,21 +171,40 @@ export default function TripDetailScreen() {
             </Text>
           </View>
           {/* Host row */}
-          <View className="p-3">
-            <View className="flex-row items-center">
-              <FontAwesome6 name="crown" size={15} color="#a3a3a3" />
-              <Text className="text-neutral-400 text-xl ml-2">Hosted by</Text>
+          <View className="px-3 py-2">
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <MaterialCommunityIcons
+                name="crown"
+                size={20}
+                color={theme.secondaryIcon}
+                style={{ marginRight: 5, marginLeft: 5 }}
+              />
+              <Text
+                style={{
+                  color: theme.secondaryText,
+                  fontSize: 17,
+                  marginLeft: 3,
+                }}
+              >
+                Hosted by
+              </Text>
             </View>
             {trip.host && (
               <TouchableOpacity
-                className="flex-row items-center gap-3 mt-2 ml-4"
+                className="flex-row items-center gap-3 mt-2"
                 onPress={() => {}}
               >
                 <Image
                   source={{ uri: trip.host.avatar_url }}
                   className="w-10 h-10 rounded-full"
                 />
-                <Text className="text-white text-xl font-bold">
+                <Text
+                  style={{
+                    color: theme.primaryText,
+                    fontSize: 20,
+                    fontWeight: '700',
+                  }}
+                >
                   {trip.host.name}
                 </Text>
               </TouchableOpacity>
@@ -178,33 +212,70 @@ export default function TripDetailScreen() {
 
             {/* Country */}
             {trip.country && (
-              <View className="flex-row items-center mt-4 ml-[2px]">
-                <FontAwesome6 name="location-dot" size={15} color="#a3a3a3" />
-                <Text className="text-neutral-400 text-xl ml-2">
+              <View className="flex-row items-center mt-4 px-3">
+                <FontAwesome6
+                  name="location-dot"
+                  size={17}
+                  color={theme.secondaryIcon}
+                  style={{ marginRight: 10 }}
+                />
+                <Text
+                  style={{
+                    color: theme.secondaryText,
+                    fontSize: 17,
+                  }}
+                >
                   {trip.country}
                 </Text>
               </View>
             )}
             {/* Description */}
             {trip.description && (
-              <Text className="text-neutral-400 text-lg mt-4">
+              <Text
+                style={{
+                  color: theme.secondaryText,
+                  fontSize: 18,
+                  marginTop: 16,
+                }}
+              >
                 {trip.description}
               </Text>
             )}
 
             {/* Participants */}
             <View className="p-3">
-              <View className="flex-row justify-between items-center mt-4 mb-2 px-4">
-                <Text className="text-white text-2xl font-semibold">
+              <View className="flex-row justify-between items-center mt-4 mb-2 px-3">
+                <Text
+                  style={{
+                    color: theme.primaryText,
+                    fontSize: 20,
+                    fontWeight: '700',
+                    textAlign: 'left',
+                    marginLeft: -15,
+                  }}
+                >
                   Participants ({participantCount})
                 </Text>
-                <TouchableOpacity
-                  onPress={() => router.push(`/trips/${tripId}/participants`)}
+                <BlurView
+                  intensity={40}
+                  tint="dark"
+                  className="rounded-full overflow-hidden border border-white/20"
                 >
-                  <Text className="text-sm text-gray-300 font-medium">
-                    SEE ALL
-                  </Text>
-                </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => router.push(`/trips/${tripId}/participants`)}
+                    className="px-4 py-1"
+                  >
+                    <Text
+                      style={{
+                        color: theme.primaryText,
+                        fontSize: 16,
+                        fontWeight: '500',
+                      }}
+                    >
+                      View All
+                    </Text>
+                  </TouchableOpacity>
+                </BlurView>
               </View>
               <ParticipantRowList
                 onSelect={onSelect}

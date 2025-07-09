@@ -14,7 +14,7 @@ import TripControllerModal from '@/components/tripControllerModal';
 import useTrips from '@/hooks/useTrips';
 import usePinTrip from '@/hooks/usePinTrip';
 import createCalendarEvent from '@/utils/calendarEvent';
-import { useTripTheme } from '@/context/TripThemeProvider';
+import { useTripTheme, TripThemeProvider } from '@/context/TripThemeProvider';
 
 function HeaderBackground({
   theme,
@@ -83,83 +83,85 @@ export default function TripsLayout() {
   const headerBackground = () => <HeaderBackground theme={theme} />;
 
   return (
-    <ConfettiProvider>
-      <>
-        {/* Stack Navigation */}
-        <Stack
-          screenOptions={({ navigation }) => ({
-            headerShown: true,
-            headerTransparent: true,
-            headerTintColor: theme.text,
-            headerTitleAlign: 'center',
-            title: '',
-            headerBackground,
-            headerLeft: () => (
-              <TouchableOpacity
-                onPress={() => navigation.goBack()}
-                style={{ marginLeft: 12 }}
-              >
-                <Octicons
-                  name="chevron-left"
-                  size={28}
-                  color={theme.primaryIcon}
-                />
-              </TouchableOpacity>
-            ),
-            headerRight: () => (
-              <TouchableOpacity
-                onPress={() => modalRef.current?.open()}
-                style={{ marginRight: 12 }}
-              >
-                <MaterialCommunityIcons
-                  name="dots-horizontal"
-                  size={28}
-                  color={theme.primaryIcon}
-                />
-              </TouchableOpacity>
-            ),
-          })}
-        >
-          <Stack.Screen
-            name="[tripId]/itinerary"
-            options={{
-              presentation: 'modal',
-              title: 'Trip Itinerary',
-              animation: 'slide_from_bottom',
-              gestureEnabled: true,
+    <TripThemeProvider videoKey={trip.video_background ?? 'default'}>
+      <ConfettiProvider>
+        <>
+          {/* Stack Navigation */}
+          <Stack
+            screenOptions={({ navigation }) => ({
               headerShown: true,
-              contentStyle: {
-                backgroundColor: 'transparent',
-              },
-            }}
-          />
-          <Stack.Screen
-            name="[tripId]/edit"
-            options={{
-              headerShown: false,
-              animation: 'slide_from_bottom',
-            }}
-          />
-        </Stack>
+              headerTransparent: true,
+              headerTintColor: theme.primaryText,
+              headerTitleAlign: 'center',
+              title: '',
+              headerBackground,
+              headerLeft: () => (
+                <TouchableOpacity
+                  onPress={() => navigation.goBack()}
+                  style={{ marginLeft: 12 }}
+                >
+                  <Octicons
+                    name="chevron-left"
+                    size={28}
+                    color={theme.primaryIcon}
+                  />
+                </TouchableOpacity>
+              ),
+              headerRight: () => (
+                <TouchableOpacity
+                  onPress={() => modalRef.current?.open()}
+                  style={{ marginRight: 12 }}
+                >
+                  <MaterialCommunityIcons
+                    name="dots-horizontal"
+                    size={28}
+                    color={theme.primaryIcon}
+                  />
+                </TouchableOpacity>
+              ),
+            })}
+          >
+            <Stack.Screen
+              name="[tripId]/itinerary"
+              options={{
+                presentation: 'modal',
+                title: 'Trip Itinerary',
+                animation: 'slide_from_bottom',
+                gestureEnabled: true,
+                headerShown: true,
+                contentStyle: {
+                  backgroundColor: 'transparent',
+                },
+              }}
+            />
+            <Stack.Screen
+              name="[tripId]/edit"
+              options={{
+                headerShown: false,
+                animation: 'slide_from_bottom',
+              }}
+            />
+          </Stack>
 
-        {/* Modals */}
-        <TripControllerModal
-          triggerRef={modalRef}
-          isHost={isHost}
-          isPinned={isPinned}
-          onEdit={onEdit}
-          onSync={onSync}
-          onPin={onPin}
-          onInvite={onInvite}
-          onDelete={onDelete}
-          onLeave={onLeave}
-        />
+          {/* Modals */}
+          <TripControllerModal
+            triggerRef={modalRef}
+            isHost={isHost}
+            isPinned={isPinned}
+            onEdit={onEdit}
+            onSync={onSync}
+            onPin={onPin}
+            onInvite={onInvite}
+            onDelete={onDelete}
+            onLeave={onLeave}
+          />
 
-        <InviteFriendsModal
-          ref={inviteModalRef}
-          tripId={Array.isArray(tripId) ? tripId[0] : tripId}
-        />
-      </>
-    </ConfettiProvider>
+          <InviteFriendsModal
+            ref={inviteModalRef}
+            tripId={Array.isArray(tripId) ? tripId[0] : tripId}
+          />
+        </>
+      </ConfettiProvider>
+    </TripThemeProvider>
   );
 }

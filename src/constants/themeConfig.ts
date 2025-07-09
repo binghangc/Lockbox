@@ -4,7 +4,9 @@ export const THEME = {
   light: {
     mode: 'light',
     background: '#ffffff',
-    text: '#000000',
+    optionalText: '#a3a4a4',
+    secondaryText: '#484745',
+    primaryText: '#000000',
     mutedText: '#6B7280',
     blurTint: 'light',
     gradientColors: [
@@ -24,7 +26,9 @@ export const THEME = {
   dark: {
     mode: 'dark',
     background: '#000000',
-    text: '#ffffff',
+    optionalText: '#818181',
+    secondaryText: '#d6d6d6',
+    primaryText: '#ffffff',
     mutedText: '#9CA3AF',
     blurTint: 'dark',
     gradientColors: [
