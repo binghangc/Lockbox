@@ -1,3 +1,4 @@
+import { useTripTheme } from '@/context/TripThemeProvider';
 import React from 'react';
 import { TouchableOpacity, Text, View } from 'react-native';
 import { BlurView } from 'expo-blur';
@@ -16,12 +17,13 @@ export default function TripControllerItem({
   onPress,
   hasChevron = false,
 }: ItemProps) {
+  const theme = useTripTheme();
   return (
     <TouchableOpacity onPress={onPress} className="px-3 mb-3">
       <View style={{ borderRadius: 4, overflow: 'hidden' }}>
         <BlurView
           intensity={60}
-          tint="dark"
+          tint={theme.blurTint as 'light' | 'dark' | 'default'}
           style={{
             borderRadius: 30,
             paddingVertical: 16,
@@ -36,11 +38,14 @@ export default function TripControllerItem({
               {icon}
             </View>
             <Text
-              className={`text-lg font-semibold ${
-                label === 'Delete Trip' || label === 'Leave Trip'
-                  ? 'text-[#FF3B30]'
-                  : 'text-white'
-              }`}
+              style={{
+                fontSize: 18,
+                fontWeight: '600',
+                color:
+                  label === 'Delete Trip' || label === 'Leave Trip'
+                    ? '#FF3B30'
+                    : theme.primaryText,
+              }}
             >
               {label}
             </Text>
@@ -49,7 +54,7 @@ export default function TripControllerItem({
             <MaterialCommunityIcons
               name="chevron-right"
               size={24}
-              color="white"
+              color={theme.secondaryIcon}
               style={{ opacity: 0.6 }}
             />
           )}

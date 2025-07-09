@@ -76,6 +76,8 @@ export default function TripDetailScreen() {
   }, []);
 
   const player = useVideoPlayer(testVideo, (videoPlayer) => {
+    // eslint-disable-next-line no-param-reassign
+    videoPlayer.loop = true;
     videoPlayer.play();
   });
 
@@ -273,7 +275,7 @@ export default function TripDetailScreen() {
                   </Text>
                   <BlurView
                     intensity={40}
-                    tint="dark"
+                    tint={theme.blurTint as 'light' | 'dark' | 'default'}
                     className="rounded-full overflow-hidden border border-white/20"
                   >
                     <TouchableOpacity

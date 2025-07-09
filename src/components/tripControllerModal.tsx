@@ -56,7 +56,7 @@ export default function TripControllerModal({
       adjustToContentHeight
     >
       <BlurView
-        intensity={60}
+        intensity={200}
         tint={theme.blurTint as 'light' | 'dark' | 'default'}
         style={{
           borderTopLeftRadius: 12,
