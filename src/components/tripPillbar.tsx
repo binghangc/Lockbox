@@ -5,7 +5,7 @@ import { View } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import PILLBAR from '@/constants/pillbarConfig';
+import usePillbarConfig from '@/constants/pillbarConfig';
 import AnimatedReanimated from 'react-native-reanimated';
 import usePillbarController from '@/hooks/usePillbarController';
 import MainActionBubble from './mainActionBubble';
@@ -30,6 +30,7 @@ export default function TripPillbar({
   bottomAccessory?: React.ReactNode;
 }) {
   const insets = useSafeAreaInsets();
+  const PILLBAR = usePillbarConfig();
   const {
     panResponder,
     setBarWidth,
@@ -63,7 +64,7 @@ export default function TripPillbar({
           start={PILLBAR.GRADIENT_START}
           end={PILLBAR.GRADIENT_END}
           locations={PILLBAR.GRADIENT_LOCATIONS}
-          colors={PILLBAR.GRADIENT_COLORS}
+          colors={PILLBAR.GRADIENT_COLORS as [string, string, string]}
           style={{
             borderRadius: PILLBAR.BORDER_RADIUS_FULL,
             padding: PILLBAR.GRADIENT_PADDING,

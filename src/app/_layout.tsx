@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import * as Linking from 'expo-linking';
 import { ThemeProvider, DarkTheme } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { UserProvider } from '@/components/UserContext';
+import { UserProvider } from '@/context/UserContext';
 import { InvitesProvider } from '@/components/InvitesContext';
 import supabase from '../../lib/supabase';
 

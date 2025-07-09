@@ -12,7 +12,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FloatingAvatar from '@/components/floatingAvatar';
 
 // Components
-import { useUser } from '@/components/UserContext';
+import { useUser } from '@/context/UserContext';
 
 export default function ProfileScreen() {
   const { user, loading } = useUser();

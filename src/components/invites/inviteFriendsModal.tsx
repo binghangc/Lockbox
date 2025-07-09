@@ -11,7 +11,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Modalize } from 'react-native-modalize';
 import InviteFriendsList from '@/components/invites/inviteFriendsList';
 import { Profile } from '@/types';
-import { useUser } from '@/components/UserContext';
+import { useUser } from '@/context/UserContext';
 import { BlurView } from 'expo-blur';
 
 const InviteFriendsModal = forwardRef<Modalize, { tripId: string }>(

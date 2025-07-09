@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useUser } from '@/components/UserContext';
+import { useUser } from '@/context/UserContext';
 
 export interface Trip {
   id: string;

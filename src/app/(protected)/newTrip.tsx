@@ -24,7 +24,7 @@ import LocationPickerModal, {
 import ThumbnailPickerModal, {
   ThumbnailPickerModalRef,
 } from '@/components/newTrip/thumbnailPickerModal';
-import { useUser } from '@/components/UserContext';
+import { useUser } from '@/context/UserContext';
 import CreateTripHeader from '@/components/newTrip/createTripHeader';
 
 export default function NewTrip() {

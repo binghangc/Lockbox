@@ -12,7 +12,7 @@ import {
 import { BlurView } from 'expo-blur';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
-import { useUser } from '@/components/UserContext';
+import { useUser } from '@/context/UserContext';
 import FloatingOrb from '@/components/floatingOrb';
 
 const ENABLE_FORGOT_PASSWORD = false;

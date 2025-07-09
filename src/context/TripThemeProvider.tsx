@@ -17,7 +17,7 @@ export function TripThemeProvider({
   videoKey,
   children,
 }: TripThemeProviderProps) {
-  const mode: ThemeMode = videoBackgrounds[videoKey]?.mode ?? 'light';
+  const mode: ThemeMode = videoBackgrounds[videoKey]?.mode ?? 'dark';
   const theme = THEME[mode];
 
   return (

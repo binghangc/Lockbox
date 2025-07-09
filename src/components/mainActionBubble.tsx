@@ -74,7 +74,11 @@ export default function MainActionBubble({
       <LinearGradient
         start={PILLBAR.BUBBLE_GRADIENT_START}
         end={PILLBAR.BUBBLE_GRADIENT_END}
-        colors={theme.mainBubbleGradient as [string, string, string]}
+        colors={[
+          'rgba(255,255,255,0.25)',
+          'rgba(255,255,255,0.05)',
+          'rgba(255,255,255,0)',
+        ]}
         style={styles.bubbleGradient}
       />
       {mainActionIcon}

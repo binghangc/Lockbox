@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View } from 'react-native';
 import { Profile } from '@/types';
 import UserProfileModal from '@/components/userProfileModal';
-import { useUser } from '@/components/UserContext';
+import { useUser } from '@/context/UserContext';
 import AddFriendButton from '@/components/friends/addFriendButton';
 import FriendsSearchList from '@/components/friends/friendsSearchList';
 import useFriendSearch from '@/hooks/useFriendSearch';

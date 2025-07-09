@@ -20,7 +20,7 @@ import TripPillbarContainer from '@/containers/tripPillbarContainer';
 import UserProfileModal from '@/components/userProfileModal';
 import ParticipantRowList from '@/components/participants/participantRowList';
 import { useState, useCallback } from 'react';
-import { useUser } from '@/components/UserContext';
+import { useUser } from '@/context/UserContext';
 import { Profile } from '@/types';
 import videoBackgrounds from '@/constants/videoBackgrounds';
 

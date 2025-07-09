@@ -1,7 +1,7 @@
 import { View, Dimensions } from 'react-native';
 import LottieView from 'lottie-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import PILLBAR from '@/constants/pillbarConfig';
+import usePillbarConfig from '@/constants/pillbarConfig';
 import useHaptics from '@/hooks/useHaptics';
 import useRecordHint from '@/hooks/video/useRecordHint';
 import RecordHintBar from '@/components/video/recordHintBar';
@@ -10,7 +10,7 @@ import VideoBubbleController from '@/components/video/videoBubbleController';
 import TripPillbar from '@/components/tripPillbar';
 import useTodayVibecheck from '@/hooks/useTodayVibecheck';
 import VibecheckShuffleButton from '@/components/vibecheckShuffleButton';
-import { useUser } from '@/components/UserContext';
+import { useUser } from '@/context/UserContext';
 import confettiJson from '../../assets/animations/confetti.json';
 
 type TripPillbarContainerProps = {
@@ -32,6 +32,8 @@ export default function TripPillbarContainer({
   const { vibecheck, vibecheckId, reshuffleVibecheck, vcloading } =
     useTodayVibecheck(tripId, status);
   const { user } = useUser();
+
+  const PILLBAR = usePillbarConfig();
 
   const confettiRef = React.useRef<LottieView>(null);
   const triggerConfetti = () => {

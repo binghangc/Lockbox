@@ -15,7 +15,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Feather } from '@expo/vector-icons';
 
 // Components
-import { useUser } from '@/components/UserContext';
+import { useUser } from '@/context/UserContext';
 import FormInput from '@/components/formInput';
 import EditActionRow from '@/components/editActionRow';
 import supabase from '../../../lib/supabase';

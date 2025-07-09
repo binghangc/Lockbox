@@ -1,5 +1,5 @@
 import React from 'react';
-import { useUser } from '@/components/UserContext'; // Adjust path if needed
+import { useUser } from '@/context/UserContext'; // Adjust path if needed
 import AuthLayout from './(auth)';
 import ProtectedLayout from './(protected)/(tabs)';
 

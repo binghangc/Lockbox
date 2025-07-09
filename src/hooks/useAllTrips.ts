@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { Trip } from '@/types';
-import { useUser } from '@/components/UserContext';
+import { useUser } from '@/context/UserContext';
 import { useFocusEffect } from '@react-navigation/native';
 
 type TripWithPin = Trip & {

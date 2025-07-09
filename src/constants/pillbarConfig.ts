@@ -17,6 +17,8 @@ const usePillbarConfig = () => {
     GRADIENT_LOCATIONS: [0, 0.5, 1] as [number, number, number],
     GRADIENT_START: [0, 0.5] as [number, number],
     GRADIENT_END: [1, 0.5] as [number, number],
+    BUBBLE_GRADIENT_START: [0.2, 0.2] as [number, number],
+    BUBBLE_GRADIENT_END: [0.8, 0.8] as [number, number],
     BLUR_INTENSITY: 50,
     BLUR_TINT: theme.blurTint,
     CONTAINER_POSITION: 'absolute' as const,
