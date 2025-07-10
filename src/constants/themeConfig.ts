@@ -6,7 +6,7 @@ export const THEME = {
     background: '#ffffff',
     optionalText: '#a3a4a4',
     secondaryText: '#484745',
-    primaryText: '#000000',
+    primaryText: '#222222',
     mutedText: '#6B7280',
     blurTint: 'light',
     gradientColors: [
@@ -21,7 +21,7 @@ export const THEME = {
       'rgba(0, 0, 0, 0)',
     ],
     secondaryIcon: '#484745',
-    primaryIcon: '#000000',
+    primaryIcon: '#222222',
   },
   dark: {
     mode: 'dark',

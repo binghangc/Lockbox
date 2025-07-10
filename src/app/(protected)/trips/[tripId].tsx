@@ -26,7 +26,7 @@ import { Profile } from '@/types';
 import videoBackgrounds from '@/constants/videoBackgrounds';
 import { useTripTheme } from '@/context/TripThemeProvider';
 
-const testVideo = require('../../../../assets/videos/poolMobile.mp4');
+const testVideo = require('../../../../assets/videos/moonlightMobile.mp4');
 
 export const screenOptions = {
   headerTransparent: true,

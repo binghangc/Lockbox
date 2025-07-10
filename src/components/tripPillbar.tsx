@@ -6,6 +6,7 @@ import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import usePillbarConfig from '@/constants/pillbarConfig';
+import { useTripTheme } from '@/context/TripThemeProvider';
 import AnimatedReanimated from 'react-native-reanimated';
 import usePillbarController from '@/hooks/usePillbarController';
 import MainActionBubble from './mainActionBubble';
@@ -30,6 +31,7 @@ export default function TripPillbar({
   bottomAccessory?: React.ReactNode;
 }) {
   const insets = useSafeAreaInsets();
+  const theme = useTripTheme();
   const PILLBAR = usePillbarConfig();
   const {
     panResponder,
@@ -108,8 +110,8 @@ export default function TripPillbar({
                 )}
                 {/* Pill text */}
                 <AnimatedText
-                  className="text-gray-100 text-xl font-semibold flex-1"
-                  style={[animatedPillTextStyle]}
+                  className="text-xl font-semibold flex-1"
+                  style={[{ color: theme.primaryText }, animatedPillTextStyle]}
                 >
                   {dragEnabled ? 'Slide to send' : pillText}
                 </AnimatedText>
