@@ -27,6 +27,8 @@ import ThumbnailPickerModal, {
 import { useUser } from '@/context/UserContext';
 import CreateTripHeader from '@/components/newTrip/createTripHeader';
 
+import TripStylePillbar from '@/components/newTrip/tripStylePillbar';
+
 export default function NewTrip() {
   const router = useRouter();
   const { token } = useUser();
@@ -46,6 +48,9 @@ export default function NewTrip() {
     flag: string;
   } | null>(null);
 
+  const [isBackgroundModalVisible, setBackgroundModalVisible] = useState(false);
+  const [isEffectModalVisible, setEffectModalVisible] = useState(false);
+
   const toggleTag = (tag: string) => {
     setSelectedTags((prev) =>
       prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
@@ -57,6 +62,9 @@ export default function NewTrip() {
   const openLocationPicker = () => locationModalRef.current?.open();
 
   const openThumbnailPicker = () => thumbnailModalRef.current?.open();
+
+  const openBackgroundPicker = () => setBackgroundModalVisible(true);
+  const openEffectPicker = () => setEffectModalVisible(true);
 
   const handleDateConfirm = (range: {
     startDate: string | null;
@@ -309,6 +317,10 @@ export default function NewTrip() {
       <ThumbnailPickerModal
         ref={thumbnailModalRef}
         onSelect={(url) => setThumbnailUrl(url)}
+      />
+      <TripStylePillbar
+        onPressTheme={openBackgroundPicker}
+        onPressEffect={openEffectPicker}
       />
     </View>
   );
