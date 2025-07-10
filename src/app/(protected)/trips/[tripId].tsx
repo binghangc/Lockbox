@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 import dayjs from 'dayjs';
 import { VideoView, useVideoPlayer } from 'expo-video';
 import {
@@ -25,8 +26,6 @@ import { useUser } from '@/context/UserContext';
 import { Profile } from '@/types';
 import videoBackgrounds from '@/constants/videoBackgrounds';
 import { useTripTheme } from '@/context/TripThemeProvider';
-
-const testVideo = require('../../../../assets/videos/moonlightMobile.mp4');
 
 export const screenOptions = {
   headerTransparent: true,
@@ -75,11 +74,15 @@ export default function TripDetailScreen() {
     setParticipantCount(count);
   }, []);
 
-  const player = useVideoPlayer(testVideo, (videoPlayer) => {
-    // eslint-disable-next-line no-param-reassign
-    videoPlayer.loop = true;
-    videoPlayer.play();
-  });
+  const videoSource = selectedVideo?.uri;
+
+  const player = useVideoPlayer(
+    videoSource ?? '', // fallback to empty string or a default VideoSource
+    (videoPlayer) => {
+      videoPlayer.loop = true;
+      videoPlayer.play();
+    },
+  );
 
   if (loading) {
     return (
