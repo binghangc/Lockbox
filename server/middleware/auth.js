@@ -10,16 +10,23 @@ const authMiddleware = async (req, res, next) => {
   }
 
   const token = authHeader.split(' ')[1];
-  const { data: authData, error: authError } =
-    await supabase.auth.getUser(token);
-  const user = authData?.user;
+  
+  try {
+    const { data: authData, error: authError } =
+      await supabase.auth.getUser(token);
+    const user = authData?.user;
 
-  if (authError || !user) {
-    return res.status(401).json({ error: 'Invalid or expired token' });
+    if (authError || !user) {
+      console.log('Auth middleware: Invalid token', authError?.message);
+      return res.status(401).json({ error: 'Invalid or expired token' });
+    }
+
+    req.user = user;
+    return next();
+  } catch (err) {
+    console.error('Auth middleware error:', err);
+    return res.status(401).json({ error: 'Authentication failed' });
   }
-
-  req.user = user;
-  return next();
 };
 
 module.exports = authMiddleware;

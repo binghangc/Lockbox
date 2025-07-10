@@ -23,58 +23,147 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      const storedToken = await AsyncStorage.getItem('access_token');
-      setToken(storedToken);
-      if (!storedToken) {
+  const refreshToken = async () => {
+    try {
+      const storedRefreshToken = await AsyncStorage.getItem('refresh_token');
+      if (!storedRefreshToken) return null;
+
+      const res = await fetch(
+        `${process.env.EXPO_PUBLIC_API_URL}/auth/refresh`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ refresh_token: storedRefreshToken }),
+        },
+      );
+
+      const result = await res.json();
+      if (res.ok && result.session) {
+        await AsyncStorage.setItem('access_token', result.session.access_token);
+        await AsyncStorage.setItem(
+          'refresh_token',
+          result.session.refresh_token,
+        );
+        setToken(result.session.access_token);
+        return result.session.access_token;
+      }
+
+      // Refresh failed, clear tokens
+      await AsyncStorage.multiRemove(['access_token', 'refresh_token']);
+      setToken(null);
+      setUser(null);
+      return null;
+    } catch (err) {
+      console.error('Token refresh error:', err);
+      await AsyncStorage.multiRemove(['access_token', 'refresh_token']);
+      setToken(null);
+      setUser(null);
+      return null;
+    }
+  };
+
+  const fetchUserWithToken = async (accessToken: string) => {
+    try {
+      const res = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/profile`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+
+      // If token is expired (401), try to refresh
+      if (res.status === 401) {
+        console.log('Token expired, attempting refresh...');
+        const newToken = await refreshToken();
+        if (newToken) {
+          // Retry with new token
+          const retryRes = await fetch(
+            `${process.env.EXPO_PUBLIC_API_URL}/profile`,
+            {
+              headers: { Authorization: `Bearer ${newToken}` },
+            },
+          );
+          const retryResult = await retryRes.json();
+          if (retryRes.ok && retryResult.profile) {
+            console.log('Successfully refreshed token and fetched profile');
+            setUser(retryResult.profile);
+            return;
+          }
+        }
+        // If refresh failed, clear everything but don't call logout (prevents recursion)
+        console.log('Token refresh failed, clearing auth state');
+        await AsyncStorage.multiRemove(['access_token', 'refresh_token']);
+        setToken(null);
         setUser(null);
-        setLoading(false);
         return;
       }
 
-      try {
-        const res = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/profile`, {
-          headers: {
-            Authorization: `Bearer ${storedToken}`,
-          },
-        });
-
-        const result = await res.json();
-
-        if (res.ok && result.profile) {
-          setUser(result.profile);
-        } else {
-          console.warn(
-            '[UserContext] Invalid token or no profile:',
-            result.error,
-          );
-          await AsyncStorage.removeItem('access_token');
-          setUser(null);
-        }
-      } catch (err) {
-        console.error('Error fetching profile:', err);
-        await AsyncStorage.removeItem('access_token');
+      const result = await res.json();
+      if (res.ok && result.profile) {
+        console.log(
+          'Successfully fetched user profile:',
+          result.profile.username,
+        );
+        setUser(result.profile);
+        // Make sure token state is set correctly
+        setToken(accessToken);
+      } else {
+        console.warn(
+          '[UserContext] Invalid token or no profile:',
+          result.error,
+        );
+        await AsyncStorage.multiRemove(['access_token', 'refresh_token']);
+        setToken(null);
         setUser(null);
+      }
+    } catch (err) {
+      console.error('Error fetching profile:', err);
+      await AsyncStorage.multiRemove(['access_token', 'refresh_token']);
+      setToken(null);
+      setUser(null);
+    }
+  };
+
+  useEffect(() => {
+    const initializeAuth = async () => {
+      try {
+        console.log('Initializing auth...');
+        const storedToken = await AsyncStorage.getItem('access_token');
+        const storedRefreshToken = await AsyncStorage.getItem('refresh_token');
+
+        if (!storedToken) {
+          console.log('No stored token found');
+          setUser(null);
+          setToken(null);
+          setLoading(false);
+          return;
+        }
+
+        console.log('Found stored token, fetching user profile...');
+        console.log('Access token exists:', !!storedToken);
+        console.log('Refresh token exists:', !!storedRefreshToken);
+
+        await fetchUserWithToken(storedToken);
+      } catch (err) {
+        console.error('Error initializing auth:', err);
+        setUser(null);
+        setToken(null);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchUser();
-  }, [token]);
+    initializeAuth();
+  }, []);
 
   const logout = React.useCallback(async () => {
     try {
-      await AsyncStorage.removeItem('access_token');
+      await AsyncStorage.multiRemove(['access_token', 'refresh_token']);
     } catch (e) {
-      console.error('Error clearing token:', e);
+      console.error('Error clearing tokens:', e);
     } finally {
       setUser(null);
       setToken(null);
       router.replace('/(auth)');
     }
-  }, [setUser, setToken]);
+  }, []);
 
   const deleteAccount = React.useCallback(async () => {
     setDeleting(true);
