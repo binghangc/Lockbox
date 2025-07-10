@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -12,17 +12,19 @@ import BackgroundPickerModal, {
 export default function TripStylePillbar({
   onPressTheme,
   onPressEffect,
+  selectedBackgroundKey,
+  onSelectBackground,
 }: {
   onPressTheme: (key: string) => void;
   onPressEffect: () => void;
+  selectedBackgroundKey: string | null;
+  onSelectBackground: (key: string) => void;
 }) {
   const insets = useSafeAreaInsets();
   const theme = useTripTheme();
   const PILLBAR = usePillbarConfig();
 
   const backgroundModalRef = useRef<BackgroundPickerModalRef>(null);
-
-  const [selectedBackgroundKey, setSelectedBackgroundKey] = useState<string | null>(null);
 
   const openBackgroundPicker = () => {
     backgroundModalRef.current?.open();
@@ -84,7 +86,7 @@ export default function TripStylePillbar({
         ref={backgroundModalRef}
         selectedKey={selectedBackgroundKey}
         onSelect={(key) => {
-          setSelectedBackgroundKey(key);
+          onSelectBackground(key);
           onPressTheme?.(key);
         }}
       />

@@ -92,7 +92,12 @@ const DatePickerModal = forwardRef<
       handlePosition="inside"
       disableScrollIfPossible
       scrollViewProps={{ scrollEnabled: false }}
-      modalStyle={{ backgroundColor: 'transparent' }}
+      modalStyle={{
+        backgroundColor: 'transparent',
+        borderTopLeftRadius: 15,
+        borderTopRightRadius: 15,
+        overflow: 'hidden',
+      }}
       modalTopOffset={45}
       onClose={() => {
         if (onConfirm) onConfirm({ startDate, endDate });
@@ -104,9 +109,10 @@ const DatePickerModal = forwardRef<
         experimentalBlurMethod="dimezisBlurView"
         style={{
           padding: 20,
-          borderTopLeftRadius: 24,
-          borderTopRightRadius: 24,
+          borderTopLeftRadius: 15,
+          borderTopRightRadius: 15,
           minHeight: 810,
+          overflow: 'hidden',
         }}
       >
         <TouchableOpacity

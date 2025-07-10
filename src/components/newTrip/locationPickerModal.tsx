@@ -53,7 +53,14 @@ function LocationPickerModalContent({
         intensity={60}
         tint="dark"
         experimentalBlurMethod="dimezisBlurView"
-        style={StyleSheet.absoluteFillObject}
+        style={[
+          StyleSheet.absoluteFillObject,
+          {
+            borderTopLeftRadius: 15,
+            borderTopRightRadius: 15,
+            overflow: 'hidden',
+          },
+        ]}
       />
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -147,7 +154,12 @@ const LocationPickerModal = forwardRef<
       ref={modalRef}
       handleStyle={{ backgroundColor: '#ccc' }}
       handlePosition="inside"
-      modalStyle={{ backgroundColor: 'transparent' }}
+      modalStyle={{
+        backgroundColor: 'transparent',
+        borderTopLeftRadius: 15,
+        borderTopRightRadius: 15,
+        overflow: 'hidden',
+      }}
       modalTopOffset={45}
     >
       <LocationPickerModalContent

@@ -1,4 +1,12 @@
+/* eslint-disable no-param-reassign */
 import dayjs from 'dayjs';
+import { VideoView, useVideoPlayer } from 'expo-video';
+import videoBackgrounds from '@/constants/videoBackgrounds';
+import {
+  useTripTheme,
+  useSetTripTheme,
+  TripThemeProvider,
+} from '@/context/TripThemeProvider';
 import {
   View,
   Text,
@@ -7,6 +15,7 @@ import {
   TextInput,
   Image,
   Alert,
+  StyleSheet,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { BlurView } from 'expo-blur';
@@ -29,7 +38,13 @@ import CreateTripHeader from '@/components/newTrip/createTripHeader';
 
 import TripStylePillbar from '@/components/newTrip/tripStylePillbar';
 
-export default function NewTrip() {
+function NewTrip({
+  selectedVideoKey,
+  setSelectedVideoKey,
+}: {
+  selectedVideoKey: string | null;
+  setSelectedVideoKey: (key: string) => void;
+}) {
   const router = useRouter();
   const { token } = useUser();
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -50,6 +65,24 @@ export default function NewTrip() {
 
   const [isBackgroundModalVisible, setBackgroundModalVisible] = useState(false);
   const [isEffectModalVisible, setEffectModalVisible] = useState(false);
+
+  // Video background logic
+  const selectedVideo = selectedVideoKey
+    ? videoBackgrounds[selectedVideoKey]
+    : null;
+  const videoSource = selectedVideo?.uri;
+
+  const player = useVideoPlayer(videoSource ?? '', (videoPlayer) => {
+    videoPlayer.loop = true;
+    videoPlayer.play();
+  });
+
+  const theme = useTripTheme();
+  const setThemeByVideoKey = useSetTripTheme();
+  const handleSelectBackground = (key: string) => {
+    setSelectedVideoKey(key);
+    setThemeByVideoKey(key);
+  };
 
   const toggleTag = (tag: string) => {
     setSelectedTags((prev) =>
@@ -145,183 +178,243 @@ export default function NewTrip() {
   };
 
   return (
-    <View className="flex-1 bg-gray-50">
-      <CreateTripHeader
-        onCancel={() => router.back()}
-        onSave={handleSaveTrip}
-        title="New Trip"
+    <>
+      <VideoView
+        player={player}
+        style={StyleSheet.absoluteFill}
+        contentFit="cover"
+        allowsFullscreen={false}
+        allowsPictureInPicture={false}
       />
+      <View style={{ flex: 1, backgroundColor: 'transparent' }}>
+        <CreateTripHeader
+          onCancel={() => router.back()}
+          onSave={handleSaveTrip}
+          title="New Trip"
+        />
 
-      {/* Content with padding top for header */}
-      <ScrollView
-        style={{ backgroundColor: 'black' }}
-        contentContainerStyle={{
-          paddingTop: insets.top + 55,
-          paddingHorizontal: 16,
-          paddingBottom: 100,
-        }}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-        scrollEnabled
-      >
-        {/* Trip Title */}
-        <BlurView
-          intensity={40}
-          tint="light"
-          className="rounded-md border border-white/20 mb-6 px-4 py-3 overflow-hidden"
+        {/* Content with padding top for header */}
+        <ScrollView
+          contentContainerStyle={{
+            paddingTop: insets.top + 55,
+            paddingHorizontal: 16,
+            paddingBottom: 100,
+          }}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          scrollEnabled
         >
-          <TextInput
-            value={tripTitle}
-            onChangeText={setTripTitle}
-            placeholder="Untitled Trip"
-            placeholderTextColor="white"
-            autoCapitalize="none"
-            autoCorrect={false}
-            className="text-4xl font-extrabold text-center text-white"
-          />
-        </BlurView>
-
-        <View className="w-full aspect-square overflow-hidden relative mb-6">
-          <Image
-            source={
-              thumbnailUrl
-                ? { uri: thumbnailUrl }
-                : {
-                    uri: 'https://pub-8c0b91be3e2945c88ce582ecb937b8b6.r2.dev/wine-hand.avif',
-                  }
-            }
-            resizeMode="cover"
-            className="w-full h-full"
-          />
-          <TouchableOpacity
-            onPress={openThumbnailPicker}
-            className="absolute bottom-3 right-3 bg-black/60 rounded-full"
-            style={{
-              width: 36,
-              height: 36,
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
-          >
-            <Foundation name="pencil" size={20} color="white" />
-          </TouchableOpacity>
-        </View>
-
-        {/* Date Button */}
-        <TouchableOpacity activeOpacity={0.8} onPress={openDatePicker}>
+          {/* Trip Title */}
           <BlurView
             intensity={40}
-            tint="light"
-            className="rounded-md border border-white/20 mb-4 px-4 py-5 overflow-hidden"
+            tint={theme.blurTint as 'light' | 'dark' | 'default'}
+            className="rounded-md border border-white/20 mb-6 px-4 py-3 overflow-hidden"
+            style={{ borderColor: theme.highlight }}
           >
-            <View className="flex-row items-center justify-between">
-              <Text
-                className="text-white text-2xl font-semibold"
-                numberOfLines={2}
-                style={{ textAlign: 'left' }}
-              >
-                {startDate && endDate
-                  ? `${dayjs(startDate).format('ddd, MMM D')} -\n${dayjs(endDate).format('ddd, MMM D')}`
-                  : 'Select dates'}
-              </Text>
-              <AntDesign name="caretdown" size={14} color="white" />
-            </View>
+            <TextInput
+              value={tripTitle}
+              onChangeText={setTripTitle}
+              placeholder="Untitled Trip"
+              placeholderTextColor={theme.optionalText}
+              autoCapitalize="none"
+              autoCorrect={false}
+              style={{
+                color: theme.primaryText,
+                fontSize: 32,
+                fontWeight: '800',
+                textAlign: 'center',
+              }}
+            />
           </BlurView>
-        </TouchableOpacity>
 
-        {/* Location Button */}
-        <TouchableOpacity activeOpacity={0.8} onPress={openLocationPicker}>
-          <BlurView
-            intensity={40}
-            tint="light"
-            className="rounded-md border border-white/20 mb-4 px-4 py-2 overflow-hidden"
-          >
-            <View className="flex-row items-center space-x-2">
-              <FontAwesome6 name="location-dot" size={14} color="white" />
-              <Text className="text-white text-xl ml-3">
-                {selectedCountry ? `${selectedCountry.name}` : 'Location'}
-              </Text>
-            </View>
-          </BlurView>
-        </TouchableOpacity>
+          <View className="w-full aspect-square overflow-hidden relative mb-6">
+            <Image
+              source={
+                thumbnailUrl
+                  ? { uri: thumbnailUrl }
+                  : {
+                      uri: 'https://pub-8c0b91be3e2945c88ce582ecb937b8b6.r2.dev/wine-hand.avif',
+                    }
+              }
+              resizeMode="cover"
+              className="w-full h-full"
+            />
+            <TouchableOpacity
+              onPress={openThumbnailPicker}
+              className="absolute bottom-3 right-3 bg-black/60 rounded-full"
+              style={{
+                width: 36,
+                height: 36,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <Foundation name="pencil" size={20} color="white" />
+            </TouchableOpacity>
+          </View>
 
-        {/* Tags Button */}
-        <View className="-mx-4 mb-6">
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ gap: 8, paddingHorizontal: 16 }}
-          >
-            {[
-              'Friends',
-              'Family',
-              'Grad',
-              'Day Trip',
-              'Nature',
-              'City',
-              'Bachelorette',
-              'Honeymoon',
-              'Road Trip',
-              'Camping',
-              'Solo',
-            ].map((tag) => {
-              const isSelected = selectedTags.includes(tag);
-              return (
-                <TouchableOpacity
-                  key={tag}
-                  onPress={() => toggleTag(tag)}
-                  className={`px-4 py-2 rounded-full border ${
-                    isSelected
-                      ? 'border-white/100 bg-white/20'
-                      : 'border-white/30 bg-white/10'
-                  }`}
+          {/* Date Button */}
+          <TouchableOpacity activeOpacity={0.8} onPress={openDatePicker}>
+            <BlurView
+              intensity={40}
+              tint={theme.blurTint as 'light' | 'dark' | 'default'}
+              className="rounded-md border border-white/20 mb-4 px-4 py-5 overflow-hidden"
+              style={{ borderColor: theme.highlight }}
+            >
+              <View className="flex-row items-center justify-between">
+                <Text
+                  numberOfLines={2}
+                  style={{
+                    textAlign: 'left',
+                    color: theme.primaryText,
+                    fontSize: 20,
+                    fontWeight: '600',
+                  }}
                 >
-                  <Text
-                    className={`text-sm font-medium ${
-                      isSelected ? 'text-white' : 'text-white/70'
-                    }`}
+                  {startDate && endDate
+                    ? `${dayjs(startDate).format('ddd, MMM D')} -\n${dayjs(endDate).format('ddd, MMM D')}`
+                    : 'Select dates'}
+                </Text>
+                <AntDesign
+                  name="caretdown"
+                  size={14}
+                  color={theme.primaryText}
+                />
+              </View>
+            </BlurView>
+          </TouchableOpacity>
+
+          {/* Location Button */}
+          <TouchableOpacity activeOpacity={0.8} onPress={openLocationPicker}>
+            <BlurView
+              intensity={40}
+              tint={theme.blurTint as 'light' | 'dark' | 'default'}
+              className="rounded-md border border-white/20 mb-4 px-4 py-2 overflow-hidden"
+              style={{ borderColor: theme.highlight }}
+            >
+              <View className="flex-row items-center space-x-2">
+                <FontAwesome6
+                  name="location-dot"
+                  size={14}
+                  color={theme.primaryText}
+                />
+                <Text
+                  style={{
+                    color: theme.primaryText,
+                    fontSize: 18,
+                    marginLeft: 12,
+                  }}
+                >
+                  {selectedCountry ? `${selectedCountry.name}` : 'Location'}
+                </Text>
+              </View>
+            </BlurView>
+          </TouchableOpacity>
+
+          {/* Tags Button */}
+          <View className="-mx-4 mb-6">
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ gap: 8, paddingHorizontal: 16 }}
+            >
+              {[
+                'Friends',
+                'Family',
+                'Grad',
+                'Day Trip',
+                'Nature',
+                'City',
+                'Bachelorette',
+                'Honeymoon',
+                'Road Trip',
+                'Camping',
+                'Solo',
+              ].map((tag) => {
+                const isSelected = selectedTags.includes(tag);
+                return (
+                  <BlurView
+                    key={tag}
+                    intensity={40}
+                    tint={theme.blurTint as 'light' | 'dark' | 'default'}
+                    className="rounded-full overflow-hidden border border-white/20"
                   >
-                    {tag}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
-        </View>
+                    <TouchableOpacity
+                      onPress={() => toggleTag(tag)}
+                      className="px-4 py-1"
+                    >
+                      <Text
+                        style={{
+                          color: isSelected
+                            ? theme.primaryText
+                            : theme.secondaryText,
+                          fontSize: 16,
+                          fontWeight: '500',
+                        }}
+                      >
+                        {tag}
+                      </Text>
+                    </TouchableOpacity>
+                  </BlurView>
+                );
+              })}
+            </ScrollView>
+          </View>
 
-        {/* Description Input */}
-        <BlurView
-          intensity={40}
-          tint="light"
-          className="rounded-md border border-white/20 mb-6 px-4 py-4 overflow-hidden"
-        >
-          <TextInput
-            value={tripDescription}
-            onChangeText={setTripDescription}
-            placeholder="Drop the deets on your trip"
-            placeholderTextColor="rgba(255, 255, 255, 0.5)"
-            multiline
-            autoCapitalize="none"
-            autoCorrect={false}
-            style={{ minHeight: 100, textAlignVertical: 'top' }}
-            className="text-xl text-white text-start"
-          />
-        </BlurView>
-      </ScrollView>
+          {/* Description Input */}
+          <BlurView
+            intensity={40}
+            tint={theme.blurTint as 'light' | 'dark' | 'default'}
+            className="rounded-md border border-white/20 mb-6 px-4 py-4 overflow-hidden"
+            style={{ borderColor: theme.highlight }}
+          >
+            <TextInput
+              value={tripDescription}
+              onChangeText={setTripDescription}
+              placeholder="Drop the deets on your trip"
+              placeholderTextColor={theme.mutedText}
+              multiline
+              autoCapitalize="none"
+              autoCorrect={false}
+              style={{
+                minHeight: 100,
+                textAlignVertical: 'top',
+                color: theme.primaryText,
+                fontSize: 18,
+              }}
+            />
+          </BlurView>
+        </ScrollView>
 
-      <DatePickerModal ref={modalRef} onConfirm={handleDateConfirm} />
-      <LocationPickerModal
-        ref={locationModalRef}
-        onSelectCountry={handleCountrySelect}
+        <DatePickerModal ref={modalRef} onConfirm={handleDateConfirm} />
+        <LocationPickerModal
+          ref={locationModalRef}
+          onSelectCountry={handleCountrySelect}
+        />
+        <ThumbnailPickerModal
+          ref={thumbnailModalRef}
+          onSelect={(url) => setThumbnailUrl(url)}
+        />
+        <TripStylePillbar
+          onPressTheme={openBackgroundPicker}
+          onPressEffect={openEffectPicker}
+          selectedBackgroundKey={selectedVideoKey}
+          onSelectBackground={handleSelectBackground}
+        />
+      </View>
+    </>
+  );
+}
+
+export default function NewTripWrapper() {
+  const [selectedVideoKey, setSelectedVideoKey] = useState<string>('grass');
+
+  return (
+    <TripThemeProvider videoKey={selectedVideoKey}>
+      <NewTrip
+        selectedVideoKey={selectedVideoKey}
+        setSelectedVideoKey={setSelectedVideoKey}
       />
-      <ThumbnailPickerModal
-        ref={thumbnailModalRef}
-        onSelect={(url) => setThumbnailUrl(url)}
-      />
-      <TripStylePillbar
-        onPressTheme={openBackgroundPicker}
-        onPressEffect={openEffectPicker}
-      />
-    </View>
+    </TripThemeProvider>
   );
 }

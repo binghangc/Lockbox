@@ -8,7 +8,7 @@ export const THEME = {
     secondaryText: '#484745',
     primaryText: '#222222',
     mutedText: '#6B7280',
-    blurTint: 'light',
+    blurTint: 'systemUltraThinMaterialLight',
     gradientColors: [
       'rgba(0, 0, 0, 0.05)',
       'rgba(0, 0, 0, 0)',
@@ -22,6 +22,14 @@ export const THEME = {
     ],
     secondaryIcon: '#484745',
     primaryIcon: '#222222',
+    tagBackground: {
+      selected: 'rgba(0, 0, 0, 0.08)',
+      unselected: 'rgba(0, 0, 0, 0.04)',
+    },
+    tagBorder: {
+      selected: 'rgba(0, 0, 0, 0.2)',
+      unselected: 'rgba(0, 0, 0, 0.1)',
+    },
   },
   dark: {
     mode: 'dark',
@@ -44,5 +52,13 @@ export const THEME = {
     ],
     secondaryIcon: '#d6d6d6',
     primaryIcon: '#ffffff',
+    tagBackground: {
+      selected: 'rgba(255, 255, 255, 0.2)',
+      unselected: 'rgba(255, 255, 255, 0.1)',
+    },
+    tagBorder: {
+      selected: 'rgba(255, 255, 255, 0.4)',
+      unselected: 'rgba(255, 255, 255, 0.2)',
+    },
   },
 };

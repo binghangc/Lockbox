@@ -64,10 +64,6 @@ const BackgroundPickerModal = forwardRef<BackgroundPickerModalRef, Props>(
               <TouchableOpacity
                 key={key}
                 onPress={() => {
-                  console.log(
-                    '[backgroundPickerModal: Selected background video:',
-                    key,
-                  );
                   onSelect(key);
                 }}
                 style={[
