@@ -286,6 +286,7 @@ export default function TripDetailScreen() {
                         router.push(`/trips/${tripId}/participants`)
                       }
                       className="px-4 py-1"
+                      style={{ zIndex: 1 }}
                     >
                       <Text
                         style={{

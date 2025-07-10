@@ -45,13 +45,16 @@ function LocationPickerModalHeader({
       <View className="flex-row items-center justify-center mb-4 relative">
         <TouchableOpacity
           onPress={onClose}
-          style={{ position: 'absolute', left: -20 }}
+          className="absolute top-5 left-5 z-10"
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
           <Text
             style={{
-              color: theme.secondaryText,
+              color: theme.primaryText,
               fontWeight: '600',
-              fontSize: 14,
+              fontSize: 15,
+              marginTop: -2,
+              marginLeft: -40,
             }}
           >
             Cancel
@@ -60,8 +63,11 @@ function LocationPickerModalHeader({
         <Text
           style={{
             color: theme.primaryText,
-            fontWeight: '700',
             fontSize: 20,
+            fontWeight: '700',
+            textAlign: 'center',
+            marginBottom: 16,
+            marginTop: 12,
           }}
         >
           Location
@@ -71,7 +77,7 @@ function LocationPickerModalHeader({
         style={{
           borderColor: theme.secondaryOutline,
           borderWidth: 1,
-          borderRadius: 10,
+          borderRadius: 5,
           paddingHorizontal: 14,
           paddingVertical: 8,
           flexDirection: 'row',
@@ -113,12 +119,14 @@ type LocationPickerModalContentProps = {
   filteredCountries: typeof countries;
   onSelectCountry: (country: { name: string; flag: string }) => void;
   getEmojiFlag: (countryCode: string) => string;
-  contentRef: React.RefObject<ScrollView>;
+  contentRef: React.RefObject<ScrollView | null>;
 };
 
 function LocationPickerModalContent({
   insets,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   searchQuery,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setSearchQuery,
   filteredCountries,
   onSelectCountry,
@@ -226,6 +234,7 @@ const LocationPickerModal = forwardRef<
       ref={modalRef}
       handleStyle={{ backgroundColor: '#ccc' }}
       handlePosition="inside"
+      withHandle={false}
       modalStyle={{
         backgroundColor: 'transparent',
         borderTopLeftRadius: 15,
@@ -243,7 +252,6 @@ const LocationPickerModal = forwardRef<
           style={{
             borderTopLeftRadius: 0,
             borderTopRightRadius: 0,
-            paddingTop: 20,
             paddingHorizontal: 20,
             overflow: 'hidden',
           }}

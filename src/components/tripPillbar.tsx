@@ -75,6 +75,7 @@ export default function TripPillbar({
           <View style={{ overflow: 'hidden', borderRadius: 9999 }}>
             <BlurView
               intensity={PILLBAR.BLUR_INTENSITY}
+              experimentalBlurMethod="dimezisBlurView"
               tint={PILLBAR.BLUR_TINT as 'light' | 'dark' | 'default'}
               className="rounded-full flex-row justify-center items-center bg-white/5"
               style={[

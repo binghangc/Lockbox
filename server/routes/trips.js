@@ -25,6 +25,7 @@ router.post('/', authMiddleware, async (req, res) => {
     country,
     thumbnail_url,
     tags,
+    video_background,
   } = req.body;
 
   const today = dayjs().format('YYYY-MM-DD');
@@ -45,6 +46,7 @@ router.post('/', authMiddleware, async (req, res) => {
         thumbnail_url,
         status,
         tags,
+        video_background,
       },
     ])
     .select();

@@ -100,7 +100,15 @@ function TripLayoutInner({
             headerLeft: () => (
               <TouchableOpacity
                 onPress={() => navigation.goBack()}
-                style={{ marginLeft: 12 }}
+                style={{
+                  marginLeft: 12,
+                  width: 44,
+                  height: 44,
+                  borderRadius: 22,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+                hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
               >
                 <Octicons
                   name="chevron-left"
@@ -112,7 +120,15 @@ function TripLayoutInner({
             headerRight: () => (
               <TouchableOpacity
                 onPress={() => modalRef.current?.open()}
-                style={{ marginRight: 12 }}
+                style={{
+                  marginRight: 12,
+                  width: 44,
+                  height: 44,
+                  borderRadius: 22,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+                hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
               >
                 <MaterialCommunityIcons
                   name="dots-horizontal"

@@ -27,14 +27,35 @@ export default function CreateTripHeader({
     >
       <SafeAreaView style={{ paddingTop: insets.top + 20 }}>
         <View className="flex-row justify-between items-center px-4 py-2 mb-2">
-          <TouchableOpacity onPress={onCancel}>
-            <Text style={{ color: theme.primaryText }} className="text-base font-semibold">Cancel</Text>
+          <TouchableOpacity
+            onPress={onCancel}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <Text
+              style={{ color: theme.primaryText }}
+              className="text-base font-semibold"
+            >
+              Cancel
+            </Text>
           </TouchableOpacity>
 
-          <Text style={{ color: theme.primaryText }} className="text-xl font-bold">{title}</Text>
+          <Text
+            style={{ color: theme.primaryText }}
+            className="text-xl font-bold"
+          >
+            {title}
+          </Text>
 
-          <TouchableOpacity onPress={onSave}>
-            <Text style={{ color: theme.primaryText }} className="text-base font-semibold">Save</Text>
+          <TouchableOpacity
+            onPress={onSave}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <Text
+              style={{ color: theme.primaryText }}
+              className="text-base font-semibold"
+            >
+              Save
+            </Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>

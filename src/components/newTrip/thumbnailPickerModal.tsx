@@ -25,6 +25,61 @@ type BlurModalContentProps = {
   modalRef: React.RefObject<Modalize | null>;
 };
 
+function ThumbnailPickerModalHeader({
+  modalRef,
+}: {
+  modalRef: React.RefObject<Modalize | null>;
+}) {
+  const theme = useTripTheme();
+
+  return (
+    <BlurView
+      intensity={60}
+      tint={theme.blurrierTint as 'light' | 'dark' | 'default'}
+      experimentalBlurMethod="dimezisBlurView"
+      style={{
+        borderTopLeftRadius: 0,
+        borderTopRightRadius: 0,
+        paddingHorizontal: 20,
+        paddingTop: 20,
+        overflow: 'hidden',
+      }}
+    >
+      <View className="flex-row items-center justify-center mb-4 relative">
+        <TouchableOpacity
+          onPress={() => modalRef.current?.close()}
+          className="absolute top-5 left-5 z-10"
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
+          <Text
+            style={{
+              color: theme.primaryText,
+              fontWeight: '600',
+              fontSize: 15,
+              marginTop: -2,
+              marginLeft: -20,
+            }}
+          >
+            Cancel
+          </Text>
+        </TouchableOpacity>
+        <Text
+          style={{
+            color: theme.primaryText,
+            fontSize: 20,
+            fontWeight: '700',
+            textAlign: 'center',
+            marginBottom: 16,
+            marginTop: 12,
+          }}
+        >
+          Thumbnails
+        </Text>
+      </View>
+    </BlurView>
+  );
+}
+
 function BlurModalContent({
   thumbnails,
   onSelect,
@@ -33,28 +88,33 @@ function BlurModalContent({
   const theme = useTripTheme();
 
   return (
-    <BlurView
-      intensity={60}
-      tint={theme.blurrierTint as 'light' | 'dark' | 'default'}
-      experimentalBlurMethod="dimezisBlurView"
-      style={{ borderTopLeftRadius: 24, borderTopRightRadius: 24 }}
-    >
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={{ paddingVertical: 16, paddingHorizontal: 8 }}>
-          <Text
-            style={{
-              color: theme.primaryText,
-              fontSize: 20,
-              fontWeight: '600',
-              textAlign: 'center',
-              marginBottom: 12,
-              marginTop: 16,
-            }}
-          >
-            Thumbnails
-          </Text>
-        </View>
-
+    <View style={{ flex: 1, minHeight: 600, overflow: 'hidden' }}>
+      <BlurView
+        pointerEvents="none"
+        intensity={60}
+        tint={theme.blurrierTint as 'light' | 'dark' | 'default'}
+        experimentalBlurMethod="dimezisBlurView"
+        style={[
+          { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
+          {
+            borderTopLeftRadius: 0,
+            borderTopRightRadius: 0,
+            overflow: 'hidden',
+          },
+        ]}
+      />
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        nestedScrollEnabled
+        keyboardShouldPersistTaps="handled"
+        style={{ flex: 1 }}
+        contentContainerStyle={{
+          flexGrow: 1,
+          paddingHorizontal: 4,
+          paddingTop: 0,
+          paddingBottom: 20,
+        }}
+      >
         <View
           style={{
             flexDirection: 'row',
@@ -107,7 +167,7 @@ function BlurModalContent({
           </TouchableOpacity>
         </View>
       </ScrollView>
-    </BlurView>
+    </View>
   );
 }
 
@@ -118,6 +178,7 @@ BlurModalContent.defaultProps = {
 const ThumbnailPickerModal = forwardRef<Modalize, ThumbnailPickerModalProps>(
   ({ onSelect = () => {} }, ref) => {
     const modalRef = useRef<Modalize>(null);
+    const theme = useTripTheme();
 
     useImperativeHandle(ref, () => modalRef.current!);
 
@@ -145,15 +206,19 @@ const ThumbnailPickerModal = forwardRef<Modalize, ThumbnailPickerModalProps>(
     return (
       <Modalize
         ref={modalRef}
-        adjustToContentHeight
         handleStyle={{ backgroundColor: '#ccc' }}
         handlePosition="inside"
+        withHandle={false}
         modalStyle={{
           backgroundColor: 'transparent',
           borderTopLeftRadius: 24,
           borderTopRightRadius: 24,
+          overflow: 'hidden',
         }}
         modalTopOffset={45}
+        panGestureEnabled={false}
+        panGestureComponentEnabled
+        HeaderComponent={<ThumbnailPickerModalHeader modalRef={modalRef} />}
       >
         <BlurModalContent
           thumbnails={thumbnails}

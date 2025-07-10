@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
   StyleSheet,
+  Platform,
 } from 'react-native';
 import { Modalize } from 'react-native-modalize';
 import { BlurView } from 'expo-blur';
@@ -36,7 +37,7 @@ const BackgroundPickerModal = forwardRef<BackgroundPickerModalRef, Props>(
           },
         ]}
         adjustToContentHeight
-        handleStyle={{ backgroundColor: theme.primaryText }}
+        handleStyle={{ backgroundColor: theme.optionalText }}
         handlePosition="inside"
         panGestureComponentEnabled
         panGestureEnabled
@@ -47,8 +48,22 @@ const BackgroundPickerModal = forwardRef<BackgroundPickerModalRef, Props>(
       >
         <BlurView
           intensity={60}
-          tint={theme.blurrierTint as 'light' | 'dark' | 'default'}
-          style={{ borderTopLeftRadius: 12, borderTopRightRadius: 12 }}
+          tint={theme.blurrierTint as 'light' | 'dark'}
+          style={{
+            borderTopLeftRadius: 12,
+            borderTopRightRadius: 12,
+            backgroundColor: (() => {
+              if (Platform.OS === 'ios') {
+                return 'transparent';
+              }
+
+              if (theme.blurrierTint === 'light') {
+                return 'rgba(255, 255, 255, 0.85)';
+              }
+
+              return 'rgba(0, 0, 0, 0.8)';
+            })(),
+          }}
         >
           <View style={styles.header}>
             <Text style={[styles.title, { color: theme.primaryText }]}>

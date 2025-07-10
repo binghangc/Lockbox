@@ -142,6 +142,7 @@ function NewTrip({
             thumbnailUrl ||
             'https://pub-8c0b91be3e2945c88ce582ecb937b8b6.r2.dev/wine-hand.avif',
           tags: selectedTags,
+          video_background: selectedVideoKey,
         }),
       });
 
@@ -192,9 +193,9 @@ function NewTrip({
         {/* Content with padding top for header */}
         <ScrollView
           contentContainerStyle={{
-            paddingTop: insets.top + 55,
+            paddingTop: insets.top + 75,
             paddingHorizontal: 16,
-            paddingBottom: 100,
+            paddingBottom: insets.bottom + 90,
           }}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
@@ -351,7 +352,11 @@ function NewTrip({
                     intensity={40}
                     tint={theme.blurTint as 'light' | 'dark' | 'default'}
                     className="rounded-full overflow-hidden border"
-                    style={{ borderColor: theme.secondaryOutline }}
+                    style={{
+                      borderColor: isSelected
+                        ? theme.primaryOutline
+                        : theme.secondaryOutline,
+                    }}
                   >
                     <TouchableOpacity
                       onPress={() => toggleTag(tag)}
@@ -363,7 +368,7 @@ function NewTrip({
                             ? theme.primaryText
                             : theme.secondaryText,
                           fontSize: 16,
-                          fontWeight: '500',
+                          fontWeight: '400',
                         }}
                       >
                         {tag}
