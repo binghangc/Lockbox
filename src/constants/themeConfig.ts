@@ -4,11 +4,12 @@ export const THEME = {
   light: {
     mode: 'light',
     background: '#ffffff',
-    optionalText: '#a3a4a4',
+    optionalText: '#c6c5c6',
     secondaryText: '#484745',
     primaryText: '#222222',
     mutedText: '#6B7280',
     blurTint: 'systemUltraThinMaterialLight',
+    blurrierTint: 'systemThickMaterialLight',
     gradientColors: [
       'rgba(0, 0, 0, 0.05)',
       'rgba(0, 0, 0, 0)',
@@ -22,14 +23,8 @@ export const THEME = {
     ],
     secondaryIcon: '#484745',
     primaryIcon: '#222222',
-    tagBackground: {
-      selected: 'rgba(0, 0, 0, 0.08)',
-      unselected: 'rgba(0, 0, 0, 0.04)',
-    },
-    tagBorder: {
-      selected: 'rgba(0, 0, 0, 0.2)',
-      unselected: 'rgba(0, 0, 0, 0.1)',
-    },
+    primaryOutline: '#484745', // same as secondaryText
+    secondaryOutline: 'rgba(72, 71, 69, 0.2)',
   },
   dark: {
     mode: 'dark',
@@ -39,6 +34,7 @@ export const THEME = {
     primaryText: '#ffffff',
     mutedText: '#9CA3AF',
     blurTint: 'dark',
+    blurrierTint: 'systemThickMaterialDark',
     gradientColors: [
       'rgba(255, 255, 255, 0.1)',
       'rgba(255, 255, 255, 0)',
@@ -52,13 +48,8 @@ export const THEME = {
     ],
     secondaryIcon: '#d6d6d6',
     primaryIcon: '#ffffff',
-    tagBackground: {
-      selected: 'rgba(255, 255, 255, 0.2)',
-      unselected: 'rgba(255, 255, 255, 0.1)',
-    },
-    tagBorder: {
-      selected: 'rgba(255, 255, 255, 0.4)',
-      unselected: 'rgba(255, 255, 255, 0.2)',
-    },
+
+    primaryOutline: '#d6d6d6', // same as secondaryText
+    secondaryOutline: 'rgba(214, 214, 214, 0.2)',
   },
 };

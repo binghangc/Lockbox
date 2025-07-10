@@ -1,8 +1,6 @@
 import { Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import React from 'react';
 import usePillbarConfig from '@/constants/pillbarConfig';
-import { useTripTheme } from '@/context/TripThemeProvider';
 
 export default function MainActionBubble({
   status,
@@ -16,7 +14,6 @@ export default function MainActionBubble({
   onPressOut?: () => void;
 }) {
   const PILLBAR = usePillbarConfig();
-  const theme = useTripTheme();
 
   const styles = StyleSheet.create({
     bubbleContainer: {

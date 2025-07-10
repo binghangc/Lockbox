@@ -11,6 +11,7 @@ import { Text, TouchableOpacity, Image, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Modalize } from 'react-native-modalize';
 import { BlurView } from 'expo-blur';
+import { useTripTheme } from '@/context/TripThemeProvider';
 
 export type ThumbnailPickerModalRef = Modalize;
 
@@ -29,16 +30,27 @@ function BlurModalContent({
   onSelect,
   modalRef,
 }: BlurModalContentProps) {
+  const theme = useTripTheme();
+
   return (
     <BlurView
       intensity={60}
-      tint="dark"
+      tint={theme.blurrierTint as 'light' | 'dark' | 'default'}
       experimentalBlurMethod="dimezisBlurView"
       style={{ borderTopLeftRadius: 24, borderTopRightRadius: 24 }}
     >
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={{ paddingVertical: 16, paddingHorizontal: 8 }}>
-          <Text className="text-white text-xl font-bold text-center mb-3 mt-4">
+          <Text
+            style={{
+              color: theme.primaryText,
+              fontSize: 20,
+              fontWeight: '600',
+              textAlign: 'center',
+              marginBottom: 12,
+              marginTop: 16,
+            }}
+          >
             Thumbnails
           </Text>
         </View>

@@ -63,8 +63,7 @@ function NewTrip({
     flag: string;
   } | null>(null);
 
-  const [isBackgroundModalVisible, setBackgroundModalVisible] = useState(false);
-  const [isEffectModalVisible, setEffectModalVisible] = useState(false);
+  const [isDescriptionFocused, setDescriptionFocused] = useState(false);
 
   // Video background logic
   const selectedVideo = selectedVideoKey
@@ -95,9 +94,6 @@ function NewTrip({
   const openLocationPicker = () => locationModalRef.current?.open();
 
   const openThumbnailPicker = () => thumbnailModalRef.current?.open();
-
-  const openBackgroundPicker = () => setBackgroundModalVisible(true);
-  const openEffectPicker = () => setEffectModalVisible(true);
 
   const handleDateConfirm = (range: {
     startDate: string | null;
@@ -208,14 +204,14 @@ function NewTrip({
           <BlurView
             intensity={40}
             tint={theme.blurTint as 'light' | 'dark' | 'default'}
-            className="rounded-md border border-white/20 mb-6 px-4 py-3 overflow-hidden"
-            style={{ borderColor: theme.highlight }}
+            className="rounded-md border mb-6 px-4 py-3 overflow-hidden"
+            style={{ borderColor: theme.secondaryOutline }}
           >
             <TextInput
               value={tripTitle}
               onChangeText={setTripTitle}
               placeholder="Untitled Trip"
-              placeholderTextColor={theme.optionalText}
+              placeholderTextColor={theme.secondaryText}
               autoCapitalize="none"
               autoCorrect={false}
               style={{
@@ -239,18 +235,35 @@ function NewTrip({
               resizeMode="cover"
               className="w-full h-full"
             />
-            <TouchableOpacity
-              onPress={openThumbnailPicker}
-              className="absolute bottom-3 right-3 bg-black/60 rounded-full"
+            <BlurView
+              intensity={50}
+              tint={theme.blurTint as 'light' | 'dark' | 'default'}
               style={{
+                position: 'absolute',
+                bottom: 12,
+                right: 12,
+                borderRadius: 100,
                 width: 36,
                 height: 36,
                 justifyContent: 'center',
                 alignItems: 'center',
+                borderWidth: 1,
+                borderColor: theme.secondaryOutline,
+                overflow: 'hidden',
               }}
             >
-              <Foundation name="pencil" size={20} color="white" />
-            </TouchableOpacity>
+              <TouchableOpacity
+                onPress={openThumbnailPicker}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+              >
+                <Foundation name="pencil" size={20} color={theme.primaryText} />
+              </TouchableOpacity>
+            </BlurView>
           </View>
 
           {/* Date Button */}
@@ -258,8 +271,8 @@ function NewTrip({
             <BlurView
               intensity={40}
               tint={theme.blurTint as 'light' | 'dark' | 'default'}
-              className="rounded-md border border-white/20 mb-4 px-4 py-5 overflow-hidden"
-              style={{ borderColor: theme.highlight }}
+              className="rounded-md border mb-4 px-4 py-5 overflow-hidden"
+              style={{ borderColor: theme.secondaryOutline }}
             >
               <View className="flex-row items-center justify-between">
                 <Text
@@ -289,8 +302,8 @@ function NewTrip({
             <BlurView
               intensity={40}
               tint={theme.blurTint as 'light' | 'dark' | 'default'}
-              className="rounded-md border border-white/20 mb-4 px-4 py-2 overflow-hidden"
-              style={{ borderColor: theme.highlight }}
+              className="rounded-md border mb-4 px-4 py-2 overflow-hidden"
+              style={{ borderColor: theme.secondaryOutline }}
             >
               <View className="flex-row items-center space-x-2">
                 <FontAwesome6
@@ -337,7 +350,8 @@ function NewTrip({
                     key={tag}
                     intensity={40}
                     tint={theme.blurTint as 'light' | 'dark' | 'default'}
-                    className="rounded-full overflow-hidden border border-white/20"
+                    className="rounded-full overflow-hidden border"
+                    style={{ borderColor: theme.secondaryOutline }}
                   >
                     <TouchableOpacity
                       onPress={() => toggleTag(tag)}
@@ -364,13 +378,19 @@ function NewTrip({
           {/* Description Input */}
           <BlurView
             intensity={40}
-            tint={theme.blurTint as 'light' | 'dark' | 'default'}
-            className="rounded-md border border-white/20 mb-6 px-4 py-4 overflow-hidden"
-            style={{ borderColor: theme.highlight }}
+            tint={
+              isDescriptionFocused
+                ? (theme.blurrierTint as 'light' | 'dark' | 'default')
+                : (theme.blurTint as 'light' | 'dark' | 'default')
+            }
+            className="rounded-md border mb-6 px-4 py-4 overflow-hidden"
+            style={{ borderColor: theme.secondaryOutline }}
           >
             <TextInput
               value={tripDescription}
               onChangeText={setTripDescription}
+              onFocus={() => setDescriptionFocused(true)}
+              onBlur={() => setDescriptionFocused(false)}
               placeholder="Drop the deets on your trip"
               placeholderTextColor={theme.mutedText}
               multiline
@@ -396,10 +416,10 @@ function NewTrip({
           onSelect={(url) => setThumbnailUrl(url)}
         />
         <TripStylePillbar
-          onPressTheme={openBackgroundPicker}
-          onPressEffect={openEffectPicker}
           selectedBackgroundKey={selectedVideoKey}
           onSelectBackground={handleSelectBackground}
+          onPressTheme={() => {}}
+          onPressEffect={() => {}}
         />
       </View>
     </>
@@ -407,7 +427,7 @@ function NewTrip({
 }
 
 export default function NewTripWrapper() {
-  const [selectedVideoKey, setSelectedVideoKey] = useState<string>('grass');
+  const [selectedVideoKey, setSelectedVideoKey] = useState<string>('moonlight');
 
   return (
     <TripThemeProvider videoKey={selectedVideoKey}>

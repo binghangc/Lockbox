@@ -2,7 +2,6 @@ import { Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useRouter, Stack } from 'expo-router';
-import { TripThemeProvider } from '@/context/TripThemeProvider';
 
 function HeaderLeft({ onPress }: { onPress: () => void }) {
   return (

@@ -47,7 +47,7 @@ const BackgroundPickerModal = forwardRef<BackgroundPickerModalRef, Props>(
       >
         <BlurView
           intensity={60}
-          tint={theme.blurTint as 'light' | 'dark' | 'default'}
+          tint={theme.blurrierTint as 'light' | 'dark' | 'default'}
           style={{ borderTopLeftRadius: 12, borderTopRightRadius: 12 }}
         >
           <View style={styles.header}>
@@ -70,7 +70,7 @@ const BackgroundPickerModal = forwardRef<BackgroundPickerModalRef, Props>(
                   styles.item,
                   selectedKey === key && {
                     ...styles.selected,
-                    borderColor: theme.primaryText,
+                    borderColor: theme.primaryOutline,
                   },
                 ]}
               >

@@ -1,9 +1,10 @@
 import React, { useRef } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, Image } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import usePillbarConfig from '@/constants/pillbarConfig';
+import videoBackgrounds from '@/constants/videoBackgrounds';
 import { useTripTheme } from '@/context/TripThemeProvider';
 import BackgroundPickerModal, {
   BackgroundPickerModalRef,
@@ -40,6 +41,7 @@ export default function TripStylePillbar({
           right: PILLBAR.CONTAINER_HORIZONTAL_MARGIN,
           zIndex: PILLBAR.CONTAINER_Z_INDEX,
         }}
+        className=""
       >
         <LinearGradient
           start={PILLBAR.GRADIENT_START}
@@ -51,7 +53,7 @@ export default function TripStylePillbar({
             padding: PILLBAR.GRADIENT_PADDING,
           }}
         >
-          <View style={{ overflow: 'hidden', borderRadius: 9999 }}>
+          <View className="overflow-hidden rounded-full">
             <BlurView
               intensity={PILLBAR.BLUR_INTENSITY}
               tint={PILLBAR.BLUR_TINT as 'light' | 'dark' | 'default'}
@@ -59,22 +61,49 @@ export default function TripStylePillbar({
               style={{
                 minHeight: PILLBAR.PILLBAR_HEIGHT,
                 paddingHorizontal: PILLBAR.PILLBAR_PADDING_HORIZONTAL,
-                paddingVertical: PILLBAR.PILLBAR_PADDING_VERTICAL,
+                paddingVertical: PILLBAR.PILLBAR_PADDING_VERTICAL - 5,
               }}
             >
               <TouchableOpacity
                 onPress={openBackgroundPicker}
-                style={styles.pillButton}
+                className="py-1.5 px-3 rounded-full items-center"
               >
-                <Text style={[styles.pillText, { color: theme.primaryText }]}>
+                <View
+                  style={{
+                    borderRadius: 9999,
+                    borderWidth: 1,
+                    borderColor: theme.primaryOutline,
+                    padding: 3,
+                  }}
+                >
+                  <Image
+                    source={
+                      selectedBackgroundKey
+                        ? videoBackgrounds[selectedBackgroundKey]?.thumbnail
+                        : undefined
+                    }
+                    style={{
+                      width: 25,
+                      height: 25,
+                      borderRadius: 9999,
+                    }}
+                  />
+                </View>
+                <Text
+                  className="text-sm mt-1"
+                  style={{ color: theme.primaryText }}
+                >
                   Theme
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={onPressEffect}
-                style={styles.pillButton}
+                className="py-1.5 px-3 rounded-full"
               >
-                <Text style={[styles.pillText, { color: theme.primaryText }]}>
+                <Text
+                  className="text-[12px] font-light"
+                  style={{ color: theme.primaryText }}
+                >
                   Effect
                 </Text>
               </TouchableOpacity>
@@ -93,15 +122,3 @@ export default function TripStylePillbar({
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  pillButton: {
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 9999,
-  },
-  pillText: {
-    fontSize: 12,
-    fontWeight: '300',
-  },
-});
