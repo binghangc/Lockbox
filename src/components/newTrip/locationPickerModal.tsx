@@ -106,6 +106,8 @@ function LocationPickerModalHeader({
           }}
           value={searchQuery}
           onChangeText={setSearchQuery}
+          autoCorrect={false}
+          autoCapitalize="none"
         />
       </View>
     </View>
@@ -244,6 +246,9 @@ const LocationPickerModal = forwardRef<
       modalTopOffset={45}
       panGestureEnabled={false}
       panGestureComponentEnabled
+      openAnimationConfig={{
+        timing: { duration: 450 },
+      }}
       HeaderComponent={
         <BlurView
           intensity={60}

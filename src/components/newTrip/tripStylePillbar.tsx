@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { View, Text, TouchableOpacity, Image } from 'react-native';
+import { View, Text, TouchableOpacity, Image, Platform } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -62,6 +62,10 @@ export default function TripStylePillbar({
                 minHeight: PILLBAR.PILLBAR_HEIGHT,
                 paddingHorizontal: PILLBAR.PILLBAR_PADDING_HORIZONTAL,
                 paddingVertical: PILLBAR.PILLBAR_PADDING_VERTICAL - 5,
+                backgroundColor:
+                  Platform.OS === 'android'
+                    ? `${theme.secondaryBackground}DD`
+                    : 'transparent',
               }}
             >
               <TouchableOpacity

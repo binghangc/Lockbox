@@ -16,6 +16,7 @@ import {
   Image,
   Alert,
   StyleSheet,
+  Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { BlurView } from 'expo-blur';
@@ -64,6 +65,7 @@ function NewTrip({
   } | null>(null);
 
   const [isDescriptionFocused, setDescriptionFocused] = useState(false);
+  const [isTitleFocused, setTitleFocused] = useState(false);
 
   // Video background logic
   const selectedVideo = selectedVideoKey
@@ -174,6 +176,16 @@ function NewTrip({
     }
   };
 
+  // Description BlurView tint logic
+  let descriptionTint: 'light' | 'dark' | 'default';
+  if (Platform.OS === 'android' && isDescriptionFocused) {
+    descriptionTint = 'default';
+  } else if (isDescriptionFocused) {
+    descriptionTint = theme.blurrierTint as 'light' | 'dark' | 'default';
+  } else {
+    descriptionTint = theme.blurTint as 'light' | 'dark' | 'default';
+  }
+
   return (
     <>
       <VideoView
@@ -204,9 +216,23 @@ function NewTrip({
           {/* Trip Title */}
           <BlurView
             intensity={40}
-            tint={theme.blurTint as 'light' | 'dark' | 'default'}
+            tint={(() => {
+              if (Platform.OS === 'android' && isTitleFocused) {
+                return 'default';
+              }
+              if (isTitleFocused) {
+                return theme.blurrierTint as 'light' | 'dark' | 'default';
+              }
+              return theme.blurTint as 'light' | 'dark' | 'default';
+            })()}
             className="rounded-md border mb-6 px-4 py-3 overflow-hidden"
-            style={{ borderColor: theme.secondaryOutline }}
+            style={{
+              borderColor: theme.secondaryOutline,
+              backgroundColor:
+                Platform.OS === 'android' && isTitleFocused
+                  ? `${theme.background}88`
+                  : undefined,
+            }}
           >
             <TextInput
               value={tripTitle}
@@ -215,6 +241,8 @@ function NewTrip({
               placeholderTextColor={theme.secondaryText}
               autoCapitalize="none"
               autoCorrect={false}
+              onFocus={() => setTitleFocused(true)}
+              onBlur={() => setTitleFocused(false)}
               style={{
                 color: theme.primaryText,
                 fontSize: 32,
@@ -352,16 +380,27 @@ function NewTrip({
                   <BlurView
                     key={tag}
                     intensity={40}
-                    tint={
-                      isSelected
-                        ? (theme.blurrierTint as 'light' | 'dark' | 'default')
-                        : (theme.blurTint as 'light' | 'dark' | 'default')
-                    }
+                    tint={(() => {
+                      if (Platform.OS === 'android' && isSelected) {
+                        return 'default';
+                      }
+                      if (isSelected) {
+                        return theme.blurrierTint as
+                          | 'light'
+                          | 'dark'
+                          | 'default';
+                      }
+                      return theme.blurTint as 'light' | 'dark' | 'default';
+                    })()}
                     className="rounded-full overflow-hidden border"
                     style={{
                       borderColor: isSelected
                         ? theme.primaryOutline
                         : theme.secondaryOutline,
+                      backgroundColor:
+                        Platform.OS === 'android' && isSelected
+                          ? `${theme.background}66`
+                          : undefined,
                     }}
                   >
                     <TouchableOpacity
@@ -389,13 +428,15 @@ function NewTrip({
           {/* Description Input */}
           <BlurView
             intensity={40}
-            tint={
-              isDescriptionFocused
-                ? (theme.blurrierTint as 'light' | 'dark' | 'default')
-                : (theme.blurTint as 'light' | 'dark' | 'default')
-            }
+            tint={descriptionTint}
             className="rounded-md border mb-6 px-4 py-4 overflow-hidden"
-            style={{ borderColor: theme.secondaryOutline }}
+            style={{
+              borderColor: theme.secondaryOutline,
+              backgroundColor:
+                Platform.OS === 'android' && isDescriptionFocused
+                  ? `${theme.background}88`
+                  : undefined,
+            }}
           >
             <TextInput
               value={tripDescription}
@@ -412,6 +453,7 @@ function NewTrip({
                 textAlignVertical: 'top',
                 color: theme.primaryText,
                 fontSize: 18,
+                textAlign: 'left',
               }}
             />
           </BlurView>

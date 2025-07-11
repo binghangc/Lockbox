@@ -30,7 +30,10 @@ const BackgroundPickerModal = forwardRef<BackgroundPickerModalRef, Props>(
         modalStyle={[
           styles.modal,
           {
-            backgroundColor: 'transparent',
+            backgroundColor:
+              Platform.OS === 'android'
+                ? theme.secondaryBackground
+                : 'transparent',
             borderTopLeftRadius: 12,
             borderTopRightRadius: 12,
             overflow: 'hidden',
@@ -46,53 +49,81 @@ const BackgroundPickerModal = forwardRef<BackgroundPickerModalRef, Props>(
         velocity={100}
         overlayStyle={{ backgroundColor: 'transparent' }}
       >
-        <BlurView
-          intensity={60}
-          tint={theme.blurrierTint as 'light' | 'dark'}
-          style={{
-            borderTopLeftRadius: 12,
-            borderTopRightRadius: 12,
-            backgroundColor: (() => {
-              if (Platform.OS === 'ios') {
-                return 'transparent';
-              }
-
-              if (theme.blurrierTint === 'light') {
-                return 'rgba(255, 255, 255, 0.85)';
-              }
-
-              return 'rgba(0, 0, 0, 0.8)';
-            })(),
-          }}
-        >
-          <View style={styles.header}>
-            <Text style={[styles.title, { color: theme.primaryText }]}>
-              Theme
-            </Text>
-          </View>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.scroll}
+        {Platform.OS === 'ios' ? (
+          <BlurView
+            intensity={60}
+            tint={theme.blurrierTint as 'light' | 'dark'}
+            style={{
+              borderTopLeftRadius: 12,
+              borderTopRightRadius: 12,
+              backgroundColor: 'transparent',
+            }}
           >
-            {Object.entries(videoBackgrounds).map(([key, { thumbnail }]) => (
-              <TouchableOpacity
-                key={key}
-                onPress={() => {
-                  onSelect(key);
-                }}
-                style={[
-                  styles.item,
-                  selectedKey === key && {
-                    borderColor: theme.primaryOutline,
-                  },
-                ]}
-              >
-                <Image source={thumbnail} style={styles.image} />
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </BlurView>
+            <View style={styles.header}>
+              <Text style={[styles.title, { color: theme.primaryText }]}>
+                Theme
+              </Text>
+            </View>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.scroll}
+            >
+              {Object.entries(videoBackgrounds).map(([key, { thumbnail }]) => (
+                <TouchableOpacity
+                  key={key}
+                  onPress={() => {
+                    onSelect(key);
+                  }}
+                  style={[
+                    styles.item,
+                    selectedKey === key && {
+                      borderColor: theme.primaryOutline,
+                    },
+                  ]}
+                >
+                  <Image source={thumbnail} style={styles.image} />
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </BlurView>
+        ) : (
+          <View
+            style={{
+              borderTopLeftRadius: 12,
+              borderTopRightRadius: 12,
+              backgroundColor: `${theme.secondaryBackground}55`,
+            }}
+          >
+            <View style={styles.header}>
+              <Text style={[styles.title, { color: theme.primaryText }]}>
+                Theme
+              </Text>
+            </View>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.scroll}
+            >
+              {Object.entries(videoBackgrounds).map(([key, { thumbnail }]) => (
+                <TouchableOpacity
+                  key={key}
+                  onPress={() => {
+                    onSelect(key);
+                  }}
+                  style={[
+                    styles.item,
+                    selectedKey === key && {
+                      borderColor: theme.primaryOutline,
+                    },
+                  ]}
+                >
+                  <Image source={thumbnail} style={styles.image} />
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        )}
       </Modalize>
     );
   },

@@ -4,6 +4,7 @@ export const THEME = {
   light: {
     mode: 'light',
     background: '#ffffff',
+    secondaryBackground: '#F0F0F0',
     optionalText: '#c6c5c6',
     secondaryText: '#484745',
     primaryText: '#222222',
@@ -29,6 +30,7 @@ export const THEME = {
   dark: {
     mode: 'dark',
     background: '#000000',
+    secondaryBackground: '#1E1E1E',
     optionalText: '#818181',
     secondaryText: '#d6d6d6',
     primaryText: '#ffffff',

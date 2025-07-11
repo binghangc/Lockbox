@@ -113,6 +113,7 @@ const DatePickerModal = forwardRef<
       <BlurView
         intensity={60}
         tint={theme.blurrierTint as 'light' | 'dark' | 'default'}
+        blurReductionFactor={5}
         experimentalBlurMethod="dimezisBlurView"
         style={{
           padding: 20,
