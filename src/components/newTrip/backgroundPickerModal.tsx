@@ -84,7 +84,6 @@ const BackgroundPickerModal = forwardRef<BackgroundPickerModalRef, Props>(
                 style={[
                   styles.item,
                   selectedKey === key && {
-                    ...styles.selected,
                     borderColor: theme.primaryOutline,
                   },
                 ]}
@@ -125,11 +124,11 @@ const styles = StyleSheet.create({
   item: {
     marginRight: 15,
     alignItems: 'center',
-  },
-  selected: {
     borderWidth: 2,
     borderRadius: 35,
+    borderColor: 'transparent',
   },
+  selected: {},
   image: {
     width: 64,
     height: 64,

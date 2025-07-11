@@ -7,6 +7,7 @@ import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTripTheme } from '@/context/TripThemeProvider';
 import { LinearGradient } from 'expo-linear-gradient';
+import videoBackgrounds from '@/constants/videoBackgrounds';
 
 export type DatePickerModalRef = Modalize;
 
@@ -34,6 +35,9 @@ const DatePickerModal = forwardRef<
     }
   };
 
+  const theme = useTripTheme();
+  const bgTheme = videoBackgrounds[theme.video_background];
+
   const getMarkedDates = () => {
     const marked: Record<
       string,
@@ -54,7 +58,7 @@ const DatePickerModal = forwardRef<
         marked[date] = {
           customStyles: {
             container: {
-              backgroundColor: 'rgba(175, 252, 237, 0.2)',
+              backgroundColor: `${bgTheme.secondaryColor}33`,
               borderTopLeftRadius: isStart ? 20 : 0,
               borderBottomLeftRadius: isStart ? 20 : 0,
               borderTopRightRadius: isEnd ? 20 : 0,
@@ -62,8 +66,9 @@ const DatePickerModal = forwardRef<
               width: '100%',
             },
             text: {
-              color: isStart || isEnd ? '#b1ffef' : theme.primaryText,
-              fontWeight: isStart || isEnd ? '700' : '500',
+              color:
+                isStart || isEnd ? bgTheme.primaryColor : theme.primaryText,
+              fontWeight: isStart || isEnd ? '700' : '400',
             },
           },
         };
@@ -72,11 +77,11 @@ const DatePickerModal = forwardRef<
       marked[startDate] = {
         customStyles: {
           container: {
-            backgroundColor: 'rgba(175, 252, 237, 0.2)',
+            backgroundColor: `${bgTheme.secondaryColor}33`,
             borderRadius: 20,
           },
           text: {
-            color: '#b1ffef',
+            color: bgTheme.primaryColor,
             fontWeight: '700',
           },
         },
@@ -85,8 +90,6 @@ const DatePickerModal = forwardRef<
 
     return marked;
   };
-
-  const theme = useTripTheme();
 
   return (
     <Modalize
@@ -213,9 +216,9 @@ const DatePickerModal = forwardRef<
           theme={{
             calendarBackground: 'transparent',
             dayTextColor: theme.primaryText,
-            todayTextColor: '#affced',
+            todayTextColor: bgTheme.primaryColor,
             selectedDayBackgroundColor: '#99CCCC',
-            selectedDayTextColor: '#affced',
+            selectedDayTextColor: bgTheme.primaryColor,
             textDisabledColor: theme.optionalText,
             monthTextColor: theme.primaryText,
             arrowColor: theme.primaryText,

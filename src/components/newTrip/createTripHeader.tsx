@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, SafeAreaView } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTripTheme } from '@/context/TripThemeProvider';
+import videoBackgrounds from '@/constants/videoBackgrounds';
 
 interface CreateTripHeaderProps {
   onCancel: () => void;
@@ -17,6 +18,7 @@ export default function CreateTripHeader({
 }: CreateTripHeaderProps) {
   const insets = useSafeAreaInsets();
   const theme = useTripTheme();
+  const bgTheme = videoBackgrounds[theme.video_background];
 
   return (
     <BlurView
@@ -51,7 +53,7 @@ export default function CreateTripHeader({
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
             <Text
-              style={{ color: theme.primaryText }}
+              style={{ color: bgTheme.primaryColor }}
               className="text-base font-semibold"
             >
               Save

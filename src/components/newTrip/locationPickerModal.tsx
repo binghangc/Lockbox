@@ -54,7 +54,7 @@ function LocationPickerModalHeader({
               fontWeight: '600',
               fontSize: 15,
               marginTop: -2,
-              marginLeft: -40,
+              marginLeft: -20,
             }}
           >
             Cancel
@@ -252,7 +252,6 @@ const LocationPickerModal = forwardRef<
           style={{
             borderTopLeftRadius: 0,
             borderTopRightRadius: 0,
-            paddingHorizontal: 20,
             overflow: 'hidden',
           }}
         >
@@ -261,6 +260,14 @@ const LocationPickerModal = forwardRef<
             setSearchQuery={setSearchQuery}
             onClose={() => modalRef.current?.close()}
           />
+          <View style={{ width: '100%' }}>
+            <View
+              style={{
+                height: 1,
+                backgroundColor: theme.secondaryOutline,
+              }}
+            />
+          </View>
         </BlurView>
       }
     >
