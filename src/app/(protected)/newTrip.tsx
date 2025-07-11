@@ -167,7 +167,7 @@ function NewTrip({
           ],
         );
       } else {
-        router.replace('/(tabs)');
+        router.replace(`/trips/${tripId}`);
       }
     } catch (err) {
       console.error('Failed to save trip:', err);
@@ -344,13 +344,19 @@ function NewTrip({
                 'Road Trip',
                 'Camping',
                 'Solo',
+                'Backpacking',
+                'Adventure',
               ].map((tag) => {
                 const isSelected = selectedTags.includes(tag);
                 return (
                   <BlurView
                     key={tag}
                     intensity={40}
-                    tint={theme.blurTint as 'light' | 'dark' | 'default'}
+                    tint={
+                      isSelected
+                        ? (theme.blurrierTint as 'light' | 'dark' | 'default')
+                        : (theme.blurTint as 'light' | 'dark' | 'default')
+                    }
                     className="rounded-full overflow-hidden border"
                     style={{
                       borderColor: isSelected

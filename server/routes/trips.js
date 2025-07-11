@@ -109,16 +109,9 @@ router.get('/', authMiddleware, async (req, res) => {
 });
 
 // GET /trips/:id - Get a single trip by ID
-router.get('/:id', async (req, res) => {
-  const token = req.headers.authorization?.split(' ')[1];
+router.get('/:id', authMiddleware, async (req, res) => {
   const tripId = req.params.id;
-
-  const { data: userData, error: userError } =
-    await supabase.auth.getUser(token);
-  if (userError || !userData?.user) {
-    return res.status(401).json({ error: 'Invalid token' });
-  }
-  const userId = userData.user.id;
+  const userId = req.user.id;
 
   const { data: trip, error } = await supabase
     .from('trips')

@@ -1,6 +1,12 @@
 import { router } from 'expo-router';
 import type { Profile } from '@/types';
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, {
+  createContext,
+  useState,
+  useContext,
+  useEffect,
+  useCallback,
+} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type UserContextType = {
@@ -13,6 +19,7 @@ type UserContextType = {
   deleteAccount: () => void;
   deleting: boolean;
   setDeleting: React.Dispatch<React.SetStateAction<boolean>>;
+  authenticatedFetch: (url: string, options?: RequestInit) => Promise<Response>;
 };
 
 export const UserContext = createContext<UserContextType | null>(null);
@@ -23,7 +30,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
 
-  const refreshToken = async () => {
+  const refreshToken = useCallback(async () => {
     try {
       const storedRefreshToken = await AsyncStorage.getItem('refresh_token');
       if (!storedRefreshToken) return null;
@@ -60,7 +67,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       setUser(null);
       return null;
     }
-  };
+  }, []);
 
   const fetchUserWithToken = async (accessToken: string) => {
     try {
@@ -151,6 +158,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     };
 
     initializeAuth();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const logout = React.useCallback(async () => {
@@ -196,6 +204,44 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     }
   }, [token, logout]);
 
+  const authenticatedFetch = useCallback(
+    async (url: string, options: RequestInit = {}) => {
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+
+      const headers = {
+        ...options.headers,
+        Authorization: `Bearer ${token}`,
+      };
+
+      let response = await fetch(url, { ...options, headers });
+
+      // If token expired, try to refresh and retry
+      if (response.status === 401) {
+        console.log(
+          'Token expired in authenticatedFetch, attempting refresh...',
+        );
+        const newToken = await refreshToken();
+        if (newToken) {
+          // Retry with new token
+          const newHeaders = {
+            ...options.headers,
+            Authorization: `Bearer ${newToken}`,
+          };
+          response = await fetch(url, { ...options, headers: newHeaders });
+        } else {
+          // Refresh failed, clear auth state
+          await logout();
+          throw new Error('Authentication failed');
+        }
+      }
+
+      return response;
+    },
+    [token, refreshToken, logout],
+  );
+
   const contextValue = React.useMemo(
     () => ({
       user,
@@ -207,6 +253,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       deleteAccount,
       deleting,
       setDeleting,
+      authenticatedFetch,
     }),
     [
       user,
@@ -218,6 +265,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       deleteAccount,
       deleting,
       setDeleting,
+      authenticatedFetch,
     ],
   );
 

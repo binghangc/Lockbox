@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useUser } from '@/context/UserContext';
 
 export interface Trip {
@@ -18,35 +17,40 @@ export interface Trip {
 }
 
 export default function useTrips(tripId?: string) {
-  const { user } = useUser();
+  const { user, authenticatedFetch } = useUser();
   const [trip, setTrip] = useState<Trip | null>(null);
   const [isHost, setIsHost] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const fetchTrip = useCallback(async () => {
-    if (!tripId || !user) return;
+    if (!tripId || !user) {
+      setLoading(false);
+      return;
+    }
 
     try {
-      const token = await AsyncStorage.getItem('access_token');
-      const res = await fetch(
+      const res = await authenticatedFetch(
         `${process.env.EXPO_PUBLIC_API_URL}/trips/${tripId}`,
-        { headers: { Authorization: `Bearer ${token}` } },
       );
       const data = await res.json();
       if (res.ok) {
         setTrip(data);
         setIsHost(data.is_host ?? false);
+      } else {
+        console.error('Fetch trip error:', data.error);
       }
     } catch (err) {
       console.error('Fetch trip error:', err);
     } finally {
       setLoading(false);
     }
-  }, [tripId, user]);
+  }, [tripId, user, authenticatedFetch]);
 
   useEffect(() => {
-    fetchTrip();
-  }, [fetchTrip]);
+    if (user && tripId) {
+      fetchTrip();
+    }
+  }, [user, tripId, fetchTrip]);
 
   const isPinned = trip?.is_pinned ?? false;
 
