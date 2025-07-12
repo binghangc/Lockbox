@@ -26,6 +26,7 @@ export const THEME = {
     primaryIcon: '#222222',
     primaryOutline: '#484745', // same as secondaryText
     secondaryOutline: 'rgba(72, 71, 69, 0.2)',
+    iconBackground: '#d9d9d9',
   },
   dark: {
     mode: 'dark',
@@ -53,5 +54,6 @@ export const THEME = {
 
     primaryOutline: '#d6d6d6', // same as secondaryText
     secondaryOutline: 'rgba(214, 214, 214, 0.2)',
+    iconBackground: '#262626',
   },
 };

@@ -9,11 +9,16 @@ import festivelightsThumbnail from '../../assets/animations/thumbnails/festive.p
 const effects: Record<
   string,
   {
-    file: object;
-    thumbnail: ImageSourcePropType;
+    file: object | null;
+    thumbnail: ImageSourcePropType | null;
     name: string;
   }
 > = {
+  none: {
+    file: null,
+    thumbnail: null,
+    name: 'None',
+  },
   bats: {
     file: bats,
     thumbnail: batsThumbnail,

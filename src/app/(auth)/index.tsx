@@ -63,8 +63,9 @@ export default function LoginScreen() {
 
       const token = result.session?.access_token;
       const refreshToken = result.session?.refresh_token;
-      if (!token || !refreshToken) throw new Error('Missing tokens from response');
-      
+      if (!token || !refreshToken)
+        throw new Error('Missing tokens from response');
+
       await AsyncStorage.setItem('access_token', token);
       await AsyncStorage.setItem('refresh_token', refreshToken);
       setToken(token);

@@ -151,6 +151,7 @@ function NewTrip({
             'https://pub-8c0b91be3e2945c88ce582ecb937b8b6.r2.dev/wine-hand.avif',
           tags: selectedTags,
           video_background: selectedVideoKey,
+          effects: selectedEffectKey,
         }),
       });
 
@@ -204,11 +205,15 @@ function NewTrip({
       {/* Move absolutely positioned LottieView wrapper here, after VideoView but outside main content */}
       {selectedEffectKey && effects[selectedEffectKey]?.file && (
         <View
-          style={{
-            zIndex: 999,
-            ...StyleSheet.absoluteFillObject,
-          }}
           pointerEvents="none"
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 999,
+          }}
         >
           <LottieView
             source={
@@ -217,7 +222,8 @@ function NewTrip({
             }
             autoPlay
             loop
-            style={StyleSheet.absoluteFill}
+            resizeMode="cover"
+            style={{ width: '100%', height: '100%' }}
           />
         </View>
       )}

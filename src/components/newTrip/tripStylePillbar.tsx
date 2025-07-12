@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 import { View, Text, TouchableOpacity, Image, Platform } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -10,9 +11,7 @@ import { useTripTheme } from '@/context/TripThemeProvider';
 import BackgroundPickerModal, {
   BackgroundPickerModalRef,
 } from './backgroundPickerModal';
-import EffectPickerModal, {
-  EffectPickerModalRef,
-} from './effectPickerModal';
+import EffectPickerModal, { EffectPickerModalRef } from './effectPickerModal';
 
 export default function TripStylePillbar({
   onPressTheme,
@@ -74,77 +73,96 @@ export default function TripStylePillbar({
               style={{
                 minHeight: PILLBAR.PILLBAR_HEIGHT,
                 paddingHorizontal: PILLBAR.PILLBAR_PADDING_HORIZONTAL,
-                paddingVertical: PILLBAR.PILLBAR_PADDING_VERTICAL - 5,
+                paddingVertical: PILLBAR.PILLBAR_PADDING_VERTICAL - 10,
                 backgroundColor:
                   Platform.OS === 'android'
                     ? `${theme.secondaryBackground}DD`
                     : 'transparent',
               }}
             >
-              <TouchableOpacity
-                onPress={openBackgroundPicker}
-                className="py-1.5 px-3 rounded-full items-center"
-              >
-                <View
-                  style={{
-                    borderRadius: 9999,
-                    borderWidth: 1,
-                    borderColor: theme.primaryOutline,
-                    padding: 3,
-                  }}
+              <View style={{ flexDirection: 'row', gap: 85 }}>
+                <TouchableOpacity
+                  onPress={openBackgroundPicker}
+                  className="py-1.5 px-0.5 rounded-full items-center"
                 >
-                  <Image
-                    source={
-                      selectedBackgroundKey
-                        ? videoBackgrounds[selectedBackgroundKey]?.thumbnail
-                        : undefined
-                    }
+                  <View
                     style={{
-                      width: 25,
-                      height: 25,
-                      borderRadius: 9999,
+                      borderRadius: 99999,
+                      borderWidth: 1,
+                      borderColor: theme.primaryOutline,
+                      padding: 3,
                     }}
-                  />
-                </View>
-                <Text
-                  className="text-sm mt-1"
-                  style={{ color: theme.primaryText }}
+                  >
+                    <Image
+                      source={
+                        selectedBackgroundKey &&
+                        videoBackgrounds[selectedBackgroundKey]?.thumbnail
+                          ? videoBackgrounds[selectedBackgroundKey]?.thumbnail
+                          : undefined
+                      }
+                      style={{
+                        width: 36,
+                        height: 36,
+                        borderRadius: 18,
+                      }}
+                    />
+                  </View>
+                  <Text
+                    className="text-sm mt-1"
+                    style={{ color: theme.primaryText }}
+                  >
+                    Theme
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={openEffectPicker}
+                  className="py-1.5 px-0.5 rounded-full items-center"
                 >
-                  Theme
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={openEffectPicker}
-                className="py-1.5 px-3 rounded-full items-center"
-              >
-                <View
-                  style={{
-                    borderRadius: 9999,
-                    borderWidth: 1,
-                    borderColor: theme.primaryOutline,
-                    padding: 3,
-                  }}
-                >
-                  <Image
-                    source={
-                      selectedEffectKey
-                        ? effects[selectedEffectKey]?.thumbnail
-                        : undefined
-                    }
+                  <View
                     style={{
-                      width: 25,
-                      height: 25,
-                      borderRadius: 9999,
+                      borderRadius: 99999,
+                      borderWidth: 1,
+                      borderColor: theme.primaryOutline,
+                      padding: 3,
                     }}
-                  />
-                </View>
-                <Text
-                  className="text-sm mt-1"
-                  style={{ color: theme.primaryText }}
-                >
-                  Effect
-                </Text>
-              </TouchableOpacity>
+                  >
+                    {selectedEffectKey &&
+                    effects[selectedEffectKey]?.thumbnail ? (
+                      <Image
+                        source={effects[selectedEffectKey].thumbnail}
+                        style={{
+                          width: 36,
+                          height: 36,
+                          borderRadius: 18,
+                        }}
+                      />
+                    ) : (
+                      <View
+                        style={{
+                          width: 36,
+                          height: 36,
+                          borderRadius: 18,
+                          backgroundColor: theme.iconBackground,
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        <Feather
+                          name="slash"
+                          size={14}
+                          color={theme.primaryText}
+                        />
+                      </View>
+                    )}
+                  </View>
+                  <Text
+                    className="text-sm mt-1"
+                    style={{ color: theme.primaryText }}
+                  >
+                    Effect
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </BlurView>
           </View>
         </LinearGradient>
