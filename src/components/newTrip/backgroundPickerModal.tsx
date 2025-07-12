@@ -97,7 +97,7 @@ const BackgroundPickerModal = forwardRef<BackgroundPickerModalRef, Props>(
           >
             <View style={styles.header}>
               <Text style={[styles.title, { color: theme.primaryText }]}>
-                Theme
+                Themes
               </Text>
             </View>
             <ScrollView

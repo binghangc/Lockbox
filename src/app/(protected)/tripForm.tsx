@@ -15,13 +15,14 @@ import {
   Alert,
   Platform,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Foundation } from '@expo/vector-icons';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import AntDesign from '@expo/vector-icons/AntDesign';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import useTrips, { markTripDirty } from '@/hooks/useTrips';
 import DatePickerModal, {
   DatePickerModalRef,
 } from '@/components/newTrip/datePickerModal';
@@ -32,19 +33,23 @@ import ThumbnailPickerModal, {
   ThumbnailPickerModalRef,
 } from '@/components/newTrip/thumbnailPickerModal';
 import { useUser } from '@/context/UserContext';
-import CreateTripHeader from '@/components/newTrip/createTripHeader';
+import CreateTripHeader from '@/components/shared/tripActionHeader';
 
 import TripStylePillbar from '@/components/newTrip/tripStylePillbar';
 
-function NewTrip({
+function TripForm({
   selectedVideoKey,
   setSelectedVideoKey,
+  mode,
+  tripId,
 }: {
   selectedVideoKey: string | null;
   setSelectedVideoKey: (key: string) => void;
+  mode: 'create' | 'edit';
+  tripId?: string;
 }) {
   const router = useRouter();
-  const { token } = useUser();
+  const { user, authenticatedFetch } = useUser();
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const modalRef = useRef<DatePickerModalRef>(null);
   const locationModalRef = useRef<LocationPickerModalRef>(null);
@@ -70,6 +75,30 @@ function NewTrip({
 
   const theme = useTripTheme();
   const setThemeByVideoKey = useSetTripTheme();
+
+  // Prefill fields in edit mode
+  const { trip } = useTrips(tripId);
+  useEffect(() => {
+    if (mode === 'edit' && tripId && trip && trip.id === tripId) {
+      setTripTitle(trip.title || '');
+      setTripDescription(trip.description || '');
+      setStartDate(trip.start_date || null);
+      setEndDate(trip.end_date || null);
+      setSelectedCountry(
+        trip.country ? { name: trip.country, flag: '' } : null,
+      );
+      setThumbnailUrl(trip.thumbnail_url || '');
+      setSelectedTags(trip.tags || []);
+
+      // Update both video key and theme when trip loads
+      const videoKey = trip.video_background || 'moonlight';
+      setSelectedVideoKey(videoKey);
+      setThemeByVideoKey(videoKey); // This was missing!
+
+      setSelectedEffectKey(trip.effects || null);
+    }
+  }, [mode, tripId, trip, setSelectedVideoKey, setThemeByVideoKey]);
+
   const handleSelectBackground = (key: string) => {
     setSelectedVideoKey(key);
     setThemeByVideoKey(key);
@@ -112,17 +141,21 @@ function NewTrip({
       return;
     }
 
-    if (!token) {
-      console.error('No token in context');
+    if (!user || !authenticatedFetch) {
+      console.error('Authentication required');
       return;
     }
 
     try {
-      const res = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/trips`, {
-        method: 'POST',
+      const endpoint =
+        mode === 'edit' && tripId
+          ? `${process.env.EXPO_PUBLIC_API_URL}/trips/${tripId}/edit`
+          : `${process.env.EXPO_PUBLIC_API_URL}/trips`;
+
+      const res = await authenticatedFetch(endpoint, {
+        method: mode === 'edit' ? 'PATCH' : 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           title: tripTitle,
@@ -146,21 +179,33 @@ function NewTrip({
         return;
       }
 
-      const tripId = data.data[0]?.id;
-
-      if (data.needsImmediateItinerary) {
-        Alert.alert(
-          'Start setting your itinerary',
-          'Since your trip starts today, your itinerary must be created now.',
-          [
-            {
-              text: 'OK',
-              onPress: () => router.replace(`/trips/${tripId}/itinerary`),
-            },
-          ],
-        );
+      if (mode === 'edit' && tripId) {
+        markTripDirty(tripId);
+        router.back();
+        setTimeout(() => {
+          router.setParams({ refresh: Date.now().toString() });
+        }, 100);
       } else {
-        router.replace(`/trips/${tripId}`);
+        // For create mode, get the new trip ID and navigate
+        const tripIdResult = data.data[0]?.id;
+
+        if (data.needsImmediateItinerary) {
+          Alert.alert(
+            'Start setting your itinerary',
+            'Since your trip starts today, your itinerary must be created now.',
+            [
+              {
+                text: 'OK',
+                onPress: () =>
+                  router.replace(
+                    `/(protected)/trips/${tripIdResult}/itinerary`,
+                  ),
+              },
+            ],
+          );
+        } else {
+          router.replace(`/(protected)/trips/${tripIdResult}`);
+        }
       }
     } catch (err) {
       console.error('Failed to save trip:', err);
@@ -187,7 +232,7 @@ function NewTrip({
         <CreateTripHeader
           onCancel={() => router.back()}
           onSave={handleSaveTrip}
-          title="New Trip"
+          title={mode === 'edit' ? 'Edit Trip' : 'New Trip'}
         />
 
         {/* Content with padding top for header */}
@@ -469,14 +514,26 @@ function NewTrip({
   );
 }
 
-export default function NewTripWrapper() {
+export default function TripFormWrapper() {
+  const { mode, tripId } = useLocalSearchParams();
   const [selectedVideoKey, setSelectedVideoKey] = useState<string>('moonlight');
 
+  // In edit mode, we need to wait for the trip data to load before setting the theme
+  const { trip } = useTrips(typeof tripId === 'string' ? tripId : undefined);
+
+  // Initialize with the trip's video background if in edit mode
+  const initialVideoKey =
+    mode === 'edit' && trip?.video_background
+      ? trip.video_background
+      : selectedVideoKey;
+
   return (
-    <TripThemeProvider videoKey={selectedVideoKey}>
-      <NewTrip
+    <TripThemeProvider videoKey={initialVideoKey}>
+      <TripForm
         selectedVideoKey={selectedVideoKey}
         setSelectedVideoKey={setSelectedVideoKey}
+        mode={mode === 'edit' ? 'edit' : 'create'}
+        tripId={typeof tripId === 'string' ? tripId : undefined}
       />
     </TripThemeProvider>
   );

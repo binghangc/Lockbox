@@ -1,5 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useUser } from '@/context/UserContext';
+import { useLocalSearchParams } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
+
+const tripDirtyMap = new Map<string, boolean>();
+
+export const markTripDirty = (id: string) => tripDirtyMap.set(id, true);
+export const isTripDirty = (id: string) => tripDirtyMap.get(id) === true;
+export const clearTripDirty = (id: string) => tripDirtyMap.set(id, false);
 
 export interface Trip {
   id: string;
@@ -14,6 +22,7 @@ export interface Trip {
   is_pinned?: boolean;
   video_background?: string;
   effects?: string;
+  tags?: string[];
   // Add other trip fields as needed
 }
 
@@ -22,9 +31,10 @@ export default function useTrips(tripId?: string) {
   const [trip, setTrip] = useState<Trip | null>(null);
   const [isHost, setIsHost] = useState(false);
   const [loading, setLoading] = useState(true);
+  const params = useLocalSearchParams();
 
   const fetchTrip = useCallback(async () => {
-    if (!tripId || !user) {
+    if (!tripId || !user || !authenticatedFetch) {
       setLoading(false);
       return;
     }
@@ -51,7 +61,17 @@ export default function useTrips(tripId?: string) {
     if (user && tripId) {
       fetchTrip();
     }
-  }, [user, tripId, fetchTrip]);
+  }, [user, tripId, fetchTrip, params.refresh]); // Add params.refresh to dependencies
+
+  // Also refetch when the screen comes into focus (for navigation back)
+  useFocusEffect(
+    useCallback(() => {
+      if (user && tripId && isTripDirty(tripId)) {
+        fetchTrip();
+        clearTripDirty(tripId);
+      }
+    }, [user, tripId, fetchTrip]),
+  );
 
   const isPinned = trip?.is_pinned ?? false;
 

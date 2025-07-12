@@ -23,7 +23,7 @@ export default function CreateTripCard() {
 
   return (
     <Pressable
-      onPress={() => router.push('/(protected)/newTrip')}
+      onPress={() => router.push('/(protected)/tripForm?mode=create')}
       className="w-72 items-center"
     >
       <View className="w-72 aspect-square border-2 border-dashed border-neutral-500 justify-center items-center bg-transparent">

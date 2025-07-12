@@ -218,8 +218,17 @@ router.post('/:id/leave', authMiddleware, async (req, res) => {
 // API endpoint for users to edit their trips.
 router.patch('/:id/edit', authMiddleware, async (req, res) => {
   const trip_id = req.params.id;
-  const { title, description, thumbnail_url, start_date, end_date, country } =
-    req.body;
+  const {
+    title,
+    description,
+    thumbnail_url,
+    start_date,
+    end_date,
+    country,
+    tags,
+    video_background,
+    effects,
+  } = req.body;
   const user_id = req.user.id;
 
   if (!trip_id) {
@@ -235,6 +244,9 @@ router.patch('/:id/edit', authMiddleware, async (req, res) => {
       end_date,
       country,
       thumbnail_url,
+      tags,
+      video_background,
+      effects,
     })
     .eq('id', trip_id)
     .select()

@@ -45,7 +45,7 @@ function TripLayoutInner({
   const router = useRouter();
 
   const onEdit = () => {
-    router.push(`/trips/${tripId}/edit`);
+    router.push(`/tripForm?mode=edit&tripId=${tripId}`);
     modalRef.current?.close();
   };
 
@@ -148,13 +148,6 @@ function TripLayoutInner({
             contentStyle: {
               backgroundColor: 'transparent',
             },
-          }}
-        />
-        <Stack.Screen
-          name="[tripId]/edit"
-          options={{
-            headerShown: false,
-            animation: 'slide_from_bottom',
           }}
         />
       </Stack>

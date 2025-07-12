@@ -49,7 +49,7 @@ function ThumbnailPickerModalHeader({
         <TouchableOpacity
           onPress={() => modalRef.current?.close()}
           className="absolute top-5 left-5 z-10"
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
         >
           <Text
             style={{
