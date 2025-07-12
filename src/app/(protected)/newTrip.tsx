@@ -2,6 +2,8 @@
 import dayjs from 'dayjs';
 import { VideoView, useVideoPlayer } from 'expo-video';
 import videoBackgrounds from '@/constants/videoBackgrounds';
+import effects from '@/constants/effects';
+import LottieView from 'lottie-react-native';
 import {
   useTripTheme,
   useSetTripTheme,
@@ -66,6 +68,10 @@ function NewTrip({
 
   const [isDescriptionFocused, setDescriptionFocused] = useState(false);
   const [isTitleFocused, setTitleFocused] = useState(false);
+
+  const [selectedEffectKey, setSelectedEffectKey] = useState<string | null>(
+    null,
+  );
 
   // Video background logic
   const selectedVideo = selectedVideoKey
@@ -195,6 +201,26 @@ function NewTrip({
         allowsFullscreen={false}
         allowsPictureInPicture={false}
       />
+      {/* Move absolutely positioned LottieView wrapper here, after VideoView but outside main content */}
+      {selectedEffectKey && effects[selectedEffectKey]?.file && (
+        <View
+          style={{
+            zIndex: 999,
+            ...StyleSheet.absoluteFillObject,
+          }}
+          pointerEvents="none"
+        >
+          <LottieView
+            source={
+              effects[selectedEffectKey]
+                .file as import('lottie-react-native').AnimationObject
+            }
+            autoPlay
+            loop
+            style={StyleSheet.absoluteFill}
+          />
+        </View>
+      )}
       <View style={{ flex: 1, backgroundColor: 'transparent' }}>
         <CreateTripHeader
           onCancel={() => router.back()}
@@ -471,6 +497,8 @@ function NewTrip({
         <TripStylePillbar
           selectedBackgroundKey={selectedVideoKey}
           onSelectBackground={handleSelectBackground}
+          selectedEffectKey={selectedEffectKey}
+          onSelectEffect={setSelectedEffectKey}
           onPressTheme={() => {}}
           onPressEffect={() => {}}
         />

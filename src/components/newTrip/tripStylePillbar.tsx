@@ -5,30 +5,43 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import usePillbarConfig from '@/constants/pillbarConfig';
 import videoBackgrounds from '@/constants/videoBackgrounds';
+import effects from '@/constants/effects';
 import { useTripTheme } from '@/context/TripThemeProvider';
 import BackgroundPickerModal, {
   BackgroundPickerModalRef,
 } from './backgroundPickerModal';
+import EffectPickerModal, {
+  EffectPickerModalRef,
+} from './effectPickerModal';
 
 export default function TripStylePillbar({
   onPressTheme,
   onPressEffect,
   selectedBackgroundKey,
+  selectedEffectKey,
   onSelectBackground,
+  onSelectEffect,
 }: {
   onPressTheme: (key: string) => void;
-  onPressEffect: () => void;
+  onPressEffect: (key: string) => void;
   selectedBackgroundKey: string | null;
+  selectedEffectKey: string | null;
   onSelectBackground: (key: string) => void;
+  onSelectEffect: (key: string) => void;
 }) {
   const insets = useSafeAreaInsets();
   const theme = useTripTheme();
   const PILLBAR = usePillbarConfig();
 
   const backgroundModalRef = useRef<BackgroundPickerModalRef>(null);
+  const effectModalRef = useRef<EffectPickerModalRef>(null);
 
   const openBackgroundPicker = () => {
     backgroundModalRef.current?.open();
+  };
+
+  const openEffectPicker = () => {
+    effectModalRef.current?.open();
   };
 
   return (
@@ -101,11 +114,32 @@ export default function TripStylePillbar({
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={onPressEffect}
-                className="py-1.5 px-3 rounded-full"
+                onPress={openEffectPicker}
+                className="py-1.5 px-3 rounded-full items-center"
               >
+                <View
+                  style={{
+                    borderRadius: 9999,
+                    borderWidth: 1,
+                    borderColor: theme.primaryOutline,
+                    padding: 3,
+                  }}
+                >
+                  <Image
+                    source={
+                      selectedEffectKey
+                        ? effects[selectedEffectKey]?.thumbnail
+                        : undefined
+                    }
+                    style={{
+                      width: 25,
+                      height: 25,
+                      borderRadius: 9999,
+                    }}
+                  />
+                </View>
                 <Text
-                  className="text-[12px] font-light"
+                  className="text-sm mt-1"
                   style={{ color: theme.primaryText }}
                 >
                   Effect
@@ -121,6 +155,14 @@ export default function TripStylePillbar({
         onSelect={(key) => {
           onSelectBackground(key);
           onPressTheme?.(key);
+        }}
+      />
+      <EffectPickerModal
+        ref={effectModalRef}
+        selectedKey={selectedEffectKey}
+        onSelect={(key) => {
+          onSelectEffect(key);
+          onPressEffect?.(key);
         }}
       />
     </>
