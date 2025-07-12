@@ -112,7 +112,12 @@ export default function TripPillbar({
                 {/* Pill text */}
                 <AnimatedText
                   className="text-xl font-semibold flex-1"
-                  style={[{ color: theme.primaryText }, animatedPillTextStyle]}
+                  numberOfLines={2}
+                  ellipsizeMode="tail"
+                  style={[
+                    { color: theme.primaryText, flexShrink: 1 },
+                    animatedPillTextStyle,
+                  ]}
                 >
                   {dragEnabled ? 'Slide to send' : pillText}
                 </AnimatedText>

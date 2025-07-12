@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
 import dayjs from 'dayjs';
-import { VideoView, useVideoPlayer } from 'expo-video';
+import TripVisualBackground from '@/components/shared/tripVisualBackground';
 import {
   View,
   Text,
@@ -24,7 +24,6 @@ import ParticipantRowList from '@/components/participants/participantRowList';
 import { useState, useCallback } from 'react';
 import { useUser } from '@/context/UserContext';
 import { Profile } from '@/types';
-import videoBackgrounds from '@/constants/videoBackgrounds';
 import { useTripTheme } from '@/context/TripThemeProvider';
 
 export const screenOptions = {
@@ -50,12 +49,6 @@ export default function TripDetailScreen() {
   const tripIdStr = Array.isArray(tripId) ? tripId[0] : tripId;
   const { trip, loading } = useTrips(tripIdStr);
 
-  const selectedVideoKey = trip?.video_background;
-  const selectedVideo =
-    selectedVideoKey && videoBackgrounds[selectedVideoKey]
-      ? videoBackgrounds[selectedVideoKey]
-      : null;
-
   const insets = useSafeAreaInsets();
 
   const theme = useTripTheme();
@@ -73,16 +66,6 @@ export default function TripDetailScreen() {
   const onCountUpdate = useCallback((count: number) => {
     setParticipantCount(count);
   }, []);
-
-  const videoSource = selectedVideo?.uri;
-
-  const player = useVideoPlayer(
-    videoSource ?? '', // fallback to empty string or a default VideoSource
-    (videoPlayer) => {
-      videoPlayer.loop = true;
-      videoPlayer.play();
-    },
-  );
 
   if (loading) {
     return (
@@ -118,24 +101,10 @@ export default function TripDetailScreen() {
 
   return (
     <>
-      <VideoView
-        player={player}
-        style={[
-          StyleSheet.absoluteFill,
-          {
-            zIndex: -1,
-            width: '100%',
-            height: '100%',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-          },
-        ]}
-        contentFit="cover"
-        allowsFullscreen={false}
-        allowsPictureInPicture={false}
+      <TripVisualBackground
+        videoKey={trip?.video_background ?? null}
+        effectKey={trip?.effects ?? null}
       />
-
       <View
         style={[StyleSheet.absoluteFill, { backgroundColor: 'transparent' }]}
       >

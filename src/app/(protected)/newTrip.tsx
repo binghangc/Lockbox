@@ -1,9 +1,5 @@
-/* eslint-disable no-param-reassign */
 import dayjs from 'dayjs';
-import { VideoView, useVideoPlayer } from 'expo-video';
-import videoBackgrounds from '@/constants/videoBackgrounds';
-import effects from '@/constants/effects';
-import LottieView from 'lottie-react-native';
+import TripVisualBackground from '@/components/shared/tripVisualBackground';
 import {
   useTripTheme,
   useSetTripTheme,
@@ -17,7 +13,6 @@ import {
   TextInput,
   Image,
   Alert,
-  StyleSheet,
   Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -72,17 +67,6 @@ function NewTrip({
   const [selectedEffectKey, setSelectedEffectKey] = useState<string | null>(
     null,
   );
-
-  // Video background logic
-  const selectedVideo = selectedVideoKey
-    ? videoBackgrounds[selectedVideoKey]
-    : null;
-  const videoSource = selectedVideo?.uri;
-
-  const player = useVideoPlayer(videoSource ?? '', (videoPlayer) => {
-    videoPlayer.loop = true;
-    videoPlayer.play();
-  });
 
   const theme = useTripTheme();
   const setThemeByVideoKey = useSetTripTheme();
@@ -195,38 +179,10 @@ function NewTrip({
 
   return (
     <>
-      <VideoView
-        player={player}
-        style={StyleSheet.absoluteFill}
-        contentFit="cover"
-        allowsFullscreen={false}
-        allowsPictureInPicture={false}
+      <TripVisualBackground
+        videoKey={selectedVideoKey}
+        effectKey={selectedEffectKey}
       />
-      {/* Move absolutely positioned LottieView wrapper here, after VideoView but outside main content */}
-      {selectedEffectKey && effects[selectedEffectKey]?.file && (
-        <View
-          pointerEvents="none"
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            zIndex: 999,
-          }}
-        >
-          <LottieView
-            source={
-              effects[selectedEffectKey]
-                .file as import('lottie-react-native').AnimationObject
-            }
-            autoPlay
-            loop
-            resizeMode="cover"
-            style={{ width: '100%', height: '100%' }}
-          />
-        </View>
-      )}
       <View style={{ flex: 1, backgroundColor: 'transparent' }}>
         <CreateTripHeader
           onCancel={() => router.back()}
