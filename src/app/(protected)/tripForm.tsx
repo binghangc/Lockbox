@@ -290,12 +290,15 @@ function TripForm({
                   onBlur={() => setTitleFocused(false)}
                   selectTextOnFocus
                   selectionColor={theme.highlight}
+                  maxLength={40}
                   style={{
                     color: theme.primaryText,
                     fontSize: 32,
                     fontWeight: '800',
                     textAlign: 'center',
+                    fontFamily: 'RocGroteskWideMedium',
                   }}
+                  // Ensures placeholder font style (for iOS/Android visual parity)
                 />
               </BlurView>
 
