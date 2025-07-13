@@ -69,7 +69,9 @@
     "node/no-unpublished-require": "off",
     "react/no-unstable-nested-components": "off",
     "react/require-default-props": "off",
-    "node/no-extraneous-require": "off"
+    "node/no-extraneous-require": "off",
+    "no-use-before-define": "off",
+    "@typescript-eslint/no-use-before-define": "off"
   },
   "overrides": [
     {

@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import ParticipantAvatar from '@/components/participants/participantAvatar';
 import useParticipants from '@/hooks/useParticipants';
+import { Profile } from '@/types';
 
 type Props = {
   onSelect: (user: Profile) => void | Promise<void>;
@@ -12,7 +13,7 @@ export default function ParticipantRowList({ onSelect, onCountUpdate }: Props) {
   const { participants, loading } = useParticipants(onCountUpdate);
 
   const unique = Array.from(
-    new Map(participants.map((p) => [p.user_id, p])).values(),
+    new Map(participants.map((p) => [p.profile.id, p])).values(),
   );
   const visible = unique.slice(0, 4);
 
@@ -32,7 +33,7 @@ export default function ParticipantRowList({ onSelect, onCountUpdate }: Props) {
           key={p.user_id || idx}
           name={p.profile?.name}
           avatarUrl={p.profile?.avatar_url}
-          size={80}
+          size={48}
           isHost={p.role === 'host'}
           onPress={() => onSelect?.(p.profile)}
         />

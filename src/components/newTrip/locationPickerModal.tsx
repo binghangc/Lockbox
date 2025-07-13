@@ -17,11 +17,102 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Octicons from '@expo/vector-icons/Octicons';
 import countries from 'world-countries';
 import { BlurView } from 'expo-blur';
+import { useTripTheme } from '@/context/TripThemeProvider';
 
 export type LocationPickerModalRef = {
   open: () => void;
   close: () => void;
 };
+
+function LocationPickerModalHeader({
+  searchQuery,
+  setSearchQuery,
+  onClose,
+}: {
+  searchQuery: string;
+  setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
+  onClose: () => void;
+}) {
+  const theme = useTripTheme();
+  return (
+    <View
+      style={{
+        paddingHorizontal: 20,
+        paddingTop: 20,
+        backgroundColor: 'transparent',
+      }}
+    >
+      <View className="flex-row items-center justify-center mb-4 relative">
+        <TouchableOpacity
+          onPress={onClose}
+          className="absolute top-5 left-5 z-10"
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
+          <Text
+            style={{
+              color: theme.primaryText,
+              fontWeight: '600',
+              fontSize: 15,
+              marginTop: -2,
+              marginLeft: -20,
+            }}
+          >
+            Cancel
+          </Text>
+        </TouchableOpacity>
+        <Text
+          style={{
+            color: theme.primaryText,
+            fontSize: 20,
+            fontWeight: '700',
+            textAlign: 'center',
+            marginBottom: 16,
+            marginTop: 12,
+          }}
+        >
+          Location
+        </Text>
+      </View>
+      <View
+        style={{
+          borderColor: theme.secondaryOutline,
+          borderWidth: 1,
+          borderRadius: 5,
+          paddingHorizontal: 14,
+          paddingVertical: 8,
+          flexDirection: 'row',
+          alignItems: 'center',
+          marginBottom: 16,
+          width: '100%',
+          overflow: 'hidden',
+        }}
+      >
+        <Octicons
+          name="search"
+          size={18}
+          color={theme.secondaryIcon}
+          style={{ marginTop: 1 }}
+        />
+        <TextInput
+          placeholder="Search countries"
+          placeholderTextColor={theme.secondaryText}
+          style={{
+            color: theme.primaryText,
+            flex: 1,
+            marginLeft: 8,
+            fontSize: 16,
+            fontWeight: '400',
+            minHeight: 20,
+          }}
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          autoCorrect={false}
+          autoCapitalize="none"
+        />
+      </View>
+    </View>
+  );
+}
 
 type LocationPickerModalContentProps = {
   insets: { bottom: number };
@@ -30,16 +121,21 @@ type LocationPickerModalContentProps = {
   filteredCountries: typeof countries;
   onSelectCountry: (country: { name: string; flag: string }) => void;
   getEmojiFlag: (countryCode: string) => string;
+  contentRef: React.RefObject<ScrollView | null>;
 };
 
 function LocationPickerModalContent({
   insets,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   searchQuery,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setSearchQuery,
   filteredCountries,
   onSelectCountry,
   getEmojiFlag,
+  contentRef,
 }: LocationPickerModalContentProps) {
+  const theme = useTripTheme();
   return (
     <View
       style={{
@@ -51,11 +147,19 @@ function LocationPickerModalContent({
       <BlurView
         pointerEvents="none"
         intensity={60}
-        tint="dark"
+        tint={theme.blurrierTint as 'light' | 'dark' | 'default'}
         experimentalBlurMethod="dimezisBlurView"
-        style={StyleSheet.absoluteFillObject}
+        style={[
+          StyleSheet.absoluteFillObject,
+          {
+            borderTopLeftRadius: 0,
+            borderTopRightRadius: 0,
+            overflow: 'hidden',
+          },
+        ]}
       />
       <ScrollView
+        ref={contentRef}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
         nestedScrollEnabled
@@ -63,36 +167,19 @@ function LocationPickerModalContent({
         contentContainerStyle={{
           flexGrow: 1,
           paddingHorizontal: 20,
+          paddingTop: 0,
           paddingBottom: insets.bottom + 20,
         }}
       >
-        <View
-          style={{
-            paddingHorizontal: 20,
-            paddingTop: 20,
-            borderTopLeftRadius: 24,
-            borderTopRightRadius: 24,
-          }}
-        >
-          <View className="flex-row items-center justify-center mb-4 mt-3">
-            <Text className="text-white font-bold text-xl">Location</Text>
-          </View>
-
-          <View className="bg-white/10 border border-white/20 rounded-md px-3 py-2 flex-row items-center mb-3">
-            <Octicons name="search" size={19} color="#aaa" />
-            <TextInput
-              placeholder="Search countries"
-              placeholderTextColor="#aaa"
-              className="text-white flex-1 ml-2"
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-            />
-          </View>
-        </View>
         {filteredCountries.map((item) => (
           <TouchableOpacity
             key={item.cca2}
-            className="py-3 px-2 border-b border-white/10"
+            style={{
+              paddingVertical: 12,
+              paddingHorizontal: 8,
+              borderBottomWidth: 1,
+              borderBottomColor: theme.secondaryOutline,
+            }}
             onPress={() => {
               onSelectCountry({
                 name: item.name.common,
@@ -100,7 +187,7 @@ function LocationPickerModalContent({
               });
             }}
           >
-            <Text className="text-white text-xl">
+            <Text style={{ color: theme.primaryText, fontSize: 20 }}>
               {getEmojiFlag(item.cca2)} {item.name.common}
             </Text>
           </TouchableOpacity>
@@ -119,8 +206,10 @@ const LocationPickerModal = forwardRef<
 >(({ onSelectCountry }, ref) => {
   const modalRef = useRef<Modalize>(null);
   const insets = useSafeAreaInsets();
+  const theme = useTripTheme();
 
   const [searchQuery, setSearchQuery] = useState('');
+  const contentRef = useRef<ScrollView>(null);
 
   const filteredCountries = countries.filter((country) =>
     country.name.common.toLowerCase().includes(searchQuery.toLowerCase()),
@@ -147,8 +236,45 @@ const LocationPickerModal = forwardRef<
       ref={modalRef}
       handleStyle={{ backgroundColor: '#ccc' }}
       handlePosition="inside"
-      modalStyle={{ backgroundColor: 'transparent' }}
+      withHandle={false}
+      modalStyle={{
+        backgroundColor: 'transparent',
+        borderTopLeftRadius: 15,
+        borderTopRightRadius: 15,
+        overflow: 'hidden',
+      }}
       modalTopOffset={45}
+      panGestureEnabled={false}
+      panGestureComponentEnabled
+      openAnimationConfig={{
+        timing: { duration: 450 },
+      }}
+      HeaderComponent={
+        <BlurView
+          intensity={60}
+          tint={theme.blurrierTint as 'light' | 'dark' | 'default'}
+          experimentalBlurMethod="dimezisBlurView"
+          style={{
+            borderTopLeftRadius: 0,
+            borderTopRightRadius: 0,
+            overflow: 'hidden',
+          }}
+        >
+          <LocationPickerModalHeader
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            onClose={() => modalRef.current?.close()}
+          />
+          <View style={{ width: '100%' }}>
+            <View
+              style={{
+                height: 1,
+                backgroundColor: theme.secondaryOutline,
+              }}
+            />
+          </View>
+        </BlurView>
+      }
     >
       <LocationPickerModalContent
         insets={insets}
@@ -157,6 +283,7 @@ const LocationPickerModal = forwardRef<
         filteredCountries={filteredCountries}
         onSelectCountry={onSelectCountry}
         getEmojiFlag={getEmojiFlag}
+        contentRef={contentRef}
       />
     </Modalize>
   );

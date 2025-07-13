@@ -5,6 +5,9 @@ import React, { forwardRef } from 'react';
 import { Modalize } from 'react-native-modalize';
 import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTripTheme } from '@/context/TripThemeProvider';
+import { LinearGradient } from 'expo-linear-gradient';
+import videoBackgrounds from '@/constants/videoBackgrounds';
 
 export type DatePickerModalRef = Modalize;
 
@@ -32,6 +35,9 @@ const DatePickerModal = forwardRef<
     }
   };
 
+  const theme = useTripTheme();
+  const bgTheme = videoBackgrounds[theme.video_background];
+
   const getMarkedDates = () => {
     const marked: Record<
       string,
@@ -52,7 +58,7 @@ const DatePickerModal = forwardRef<
         marked[date] = {
           customStyles: {
             container: {
-              backgroundColor: 'rgba(175, 252, 237, 0.2)',
+              backgroundColor: `${bgTheme.secondaryColor}33`,
               borderTopLeftRadius: isStart ? 20 : 0,
               borderBottomLeftRadius: isStart ? 20 : 0,
               borderTopRightRadius: isEnd ? 20 : 0,
@@ -60,8 +66,9 @@ const DatePickerModal = forwardRef<
               width: '100%',
             },
             text: {
-              color: isStart || isEnd ? '#b1ffef' : 'white',
-              fontWeight: isStart || isEnd ? '700' : '500',
+              color:
+                isStart || isEnd ? bgTheme.primaryColor : theme.primaryText,
+              fontWeight: isStart || isEnd ? '700' : '400',
             },
           },
         };
@@ -70,11 +77,11 @@ const DatePickerModal = forwardRef<
       marked[startDate] = {
         customStyles: {
           container: {
-            backgroundColor: 'rgba(175, 252, 237, 0.2)',
+            backgroundColor: `${bgTheme.secondaryColor}33`,
             borderRadius: 20,
           },
           text: {
-            color: '#b1ffef',
+            color: bgTheme.primaryColor,
             fontWeight: '700',
           },
         },
@@ -92,7 +99,12 @@ const DatePickerModal = forwardRef<
       handlePosition="inside"
       disableScrollIfPossible
       scrollViewProps={{ scrollEnabled: false }}
-      modalStyle={{ backgroundColor: 'transparent' }}
+      modalStyle={{
+        backgroundColor: 'transparent',
+        borderTopLeftRadius: 15,
+        borderTopRightRadius: 15,
+        overflow: 'hidden',
+      }}
       modalTopOffset={45}
       onClose={() => {
         if (onConfirm) onConfirm({ startDate, endDate });
@@ -100,13 +112,15 @@ const DatePickerModal = forwardRef<
     >
       <BlurView
         intensity={60}
-        tint="dark"
+        tint={theme.blurrierTint as 'light' | 'dark' | 'default'}
+        blurReductionFactor={5}
         experimentalBlurMethod="dimezisBlurView"
         style={{
           padding: 20,
-          borderTopLeftRadius: 24,
-          borderTopRightRadius: 24,
+          borderTopLeftRadius: 15,
+          borderTopRightRadius: 15,
           minHeight: 810,
+          overflow: 'hidden',
         }}
       >
         <TouchableOpacity
@@ -115,23 +129,72 @@ const DatePickerModal = forwardRef<
             setEndDate(null);
           }}
           className="absolute top-5 left-5 z-10"
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
-          <Text className="text-white font-semibold text-base mt-4">Clear</Text>
+          <Text
+            style={{
+              color: theme.primaryText,
+              fontWeight: '600',
+              fontSize: 16,
+              marginTop: 16,
+            }}
+          >
+            Clear
+          </Text>
         </TouchableOpacity>
-        <Text className="text-white text-xl font-bold text-center mb-4 mt-3">
+        <Text
+          style={{
+            color: theme.primaryText,
+            fontSize: 20,
+            fontWeight: '700',
+            textAlign: 'center',
+            marginBottom: 16,
+            marginTop: 12,
+          }}
+        >
           Select Dates
         </Text>
         {/* Date tab bar */}
         <View className="flex-row justify-between items-center mb-4 mt-3">
           <View className="flex-1 bg-white/10 px-5 py-4 rounded-lg mr-2 min-h-[70px] justify-center">
-            <Text className="text-white text-lg font-semibold mb-1">Start</Text>
-            <Text className="text-white text-xl font-bold">
+            <Text
+              style={{
+                color: theme.primaryText,
+                fontSize: 18,
+                fontWeight: '600',
+                marginBottom: 4,
+              }}
+            >
+              Start
+            </Text>
+            <Text
+              style={{
+                color: theme.primaryText,
+                fontSize: 20,
+                fontWeight: '700',
+              }}
+            >
               {startDate ? dayjs(startDate).format('ddd, MMM D') : 'Select'}
             </Text>
           </View>
           <View className="flex-1 bg-white/10 px-5 py-4 rounded-lg ml-2 min-h-[70px] justify-center">
-            <Text className="text-white text-lg font-semibold mb-1">End</Text>
-            <Text className="text-white text-xl font-bold">
+            <Text
+              style={{
+                color: theme.primaryText,
+                fontSize: 18,
+                fontWeight: '600',
+                marginBottom: 4,
+              }}
+            >
+              End
+            </Text>
+            <Text
+              style={{
+                color: theme.primaryText,
+                fontSize: 20,
+                fontWeight: '700',
+              }}
+            >
               {(() => {
                 if (startDate && !endDate) {
                   return dayjs(startDate).format('ddd, MMM D');
@@ -153,55 +216,67 @@ const DatePickerModal = forwardRef<
           hideExtraDays
           theme={{
             calendarBackground: 'transparent',
-            dayTextColor: '#fff',
-            todayTextColor: '#affced',
+            dayTextColor: theme.primaryText,
+            todayTextColor: bgTheme.primaryColor,
             selectedDayBackgroundColor: '#99CCCC',
-            selectedDayTextColor: '#affced',
-            textDisabledColor: '#666',
-            monthTextColor: '#fff',
-            arrowColor: '#fff',
+            selectedDayTextColor: bgTheme.primaryColor,
+            textDisabledColor: theme.optionalText,
+            monthTextColor: theme.primaryText,
+            arrowColor: theme.primaryText,
             textDayFontWeight: '400',
             textMonthFontWeight: '400',
             textDayHeaderFontWeight: '400',
           }}
         />
-        <View
+        <LinearGradient
+          colors={[`${theme.background}00`, `${theme.background}FF`]}
           style={{
             position: 'absolute',
             bottom: 0,
             left: 0,
             right: 0,
-            paddingTop: 12,
-            paddingBottom: 12,
-            paddingHorizontal: 24,
-            backgroundColor: 'black',
-            borderTopWidth: 1,
-            borderTopColor: '#444',
+            paddingTop: 150,
           }}
         >
-          <TouchableOpacity
-            onPress={() => {
-              if (onConfirm) onConfirm({ startDate, endDate });
-              if (ref && 'current' in ref && ref.current) {
-                ref.current.close();
-              }
-            }}
+          <View
             style={{
-              backgroundColor: 'white',
-              borderRadius: 5,
-              paddingVertical: 12,
+              paddingTop: 12,
+              paddingBottom: 12,
               paddingHorizontal: 24,
-              alignItems: 'center',
-              justifyContent: 'center',
-              alignSelf: 'flex-end',
-              marginBottom: inset.bottom + 5, // adds space above iPhone home bar
+              borderTopWidth: 1,
+              borderTopColor: theme.secondaryOutline,
             }}
           >
-            <Text style={{ color: 'black', fontWeight: '600', fontSize: 16 }}>
-              Done
-            </Text>
-          </TouchableOpacity>
-        </View>
+            <TouchableOpacity
+              onPress={() => {
+                if (onConfirm) onConfirm({ startDate, endDate });
+                if (ref && 'current' in ref && ref.current) {
+                  ref.current.close();
+                }
+              }}
+              style={{
+                backgroundColor: theme.primaryText,
+                borderRadius: 5,
+                paddingVertical: 12,
+                paddingHorizontal: 24,
+                alignItems: 'center',
+                justifyContent: 'center',
+                alignSelf: 'flex-end',
+                marginBottom: inset.bottom + 5,
+              }}
+            >
+              <Text
+                style={{
+                  color: theme.background,
+                  fontWeight: '600',
+                  fontSize: 16,
+                }}
+              >
+                Done
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </LinearGradient>
       </BlurView>
     </Modalize>
   );

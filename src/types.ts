@@ -26,6 +26,10 @@ export type Trip = {
   participants: { profile: Profile; role: Role }[];
 
   is_host: boolean;
+
+  tags?: string[];
+  video_background?: string;
+  animation_effect?: string;
 };
 
 export type Invite = {

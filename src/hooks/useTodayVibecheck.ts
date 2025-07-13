@@ -1,11 +1,12 @@
 import { useEffect, useState, useCallback } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useUser } from '@/context/UserContext';
 import dayjs from 'dayjs';
 
 export default function useTodayVibecheck(
   tripId: string,
   tripStatus: 'upcoming' | 'ongoing' | 'ended',
 ) {
+  const { user, authenticatedFetch } = useUser();
   const [vibecheck, setVibecheck] = useState<string | null>(null);
   const [vibecheckId, setVibecheckId] = useState<string | null>(null);
   const [vcloading, setLoading] = useState(true);
@@ -13,16 +14,15 @@ export default function useTodayVibecheck(
   const today = dayjs().format('YYYY-MM-DD');
 
   const fetchVibecheck = useCallback(async () => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
-    const token = await AsyncStorage.getItem('access_token');
     try {
-      const res = await fetch(
+      const res = await authenticatedFetch(
         `${process.env.EXPO_PUBLIC_API_URL}/trips/${tripId}/vibecheck/${today}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
       );
       const result = await res.json();
       if (!res.ok) throw new Error(result.error);
@@ -37,19 +37,17 @@ export default function useTodayVibecheck(
     } finally {
       setLoading(false);
     }
-  }, [tripId, today]);
+  }, [tripId, today, user, authenticatedFetch]);
 
   const reshuffleVibecheck = async () => {
+    if (!user) return;
+
     setLoading(true);
-    const token = await AsyncStorage.getItem('access_token');
     try {
-      const res = await fetch(
+      const res = await authenticatedFetch(
         `${process.env.EXPO_PUBLIC_API_URL}/trips/${tripId}/vibecheck/${today}`,
         {
           method: 'PATCH',
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
         },
       );
       const result = await res.json();
@@ -75,8 +73,10 @@ export default function useTodayVibecheck(
       return;
     }
 
-    fetchVibecheck();
-  }, [tripStatus, fetchVibecheck]);
+    if (user) {
+      fetchVibecheck();
+    }
+  }, [tripStatus, user, fetchVibecheck]);
 
   return { vibecheck, vibecheckId, vcloading, reshuffleVibecheck };
 }

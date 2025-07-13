@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, TouchableOpacity, Text, Image } from 'react-native';
-import { FontAwesome6 } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useTripTheme } from '@/context/TripThemeProvider';
 import defaultAvatar from '../../../assets/defaultavatar.jpg';
 
 type ParticipantAvatarProps = {
@@ -18,6 +19,7 @@ export default function ParticipantAvatar({
   isHost = false,
   onPress,
 }: ParticipantAvatarProps) {
+  const theme = useTripTheme();
   return (
     <TouchableOpacity
       className="items-center justify-center mx-2 my-1"
@@ -33,8 +35,19 @@ export default function ParticipantAvatar({
         className="bg-neutral-700"
       />
       {isHost && (
-        <View className="absolute -top-2 -left-2">
-          <FontAwesome6 name="crown" size={24} color="#a3a3a3" />
+        <View
+          style={{
+            position: 'absolute',
+            bottom: 0,
+            right: 0,
+            transform: [{ translateX: 6 }, { translateY: -15 }],
+          }}
+        >
+          <MaterialCommunityIcons
+            name="crown-circle"
+            size={24}
+            color={theme.secondaryIcon}
+          />
         </View>
       )}
       <Text

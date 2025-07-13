@@ -1,26 +1,30 @@
 import { useState, useEffect, useCallback } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useUser } from '@/context/UserContext';
 import type { Profile } from '@/types';
 import { useLocalSearchParams } from 'expo-router';
 
 type ParticipantRow = Profile & { role: string };
 
 export default function useParticipants(onCountUpdate?: (n: number) => void) {
+  const { user, authenticatedFetch } = useUser();
   const [participants, setParticipants] = useState<ParticipantRow[]>([]);
   const [loading, setLoading] = useState(true);
   const { tripId } = useLocalSearchParams();
 
   const listParticipants = useCallback(async () => {
+    if (!user || !tripId) {
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
-      const token = await AsyncStorage.getItem('access_token');
-      const res = await fetch(
+      const res = await authenticatedFetch(
         `${process.env.EXPO_PUBLIC_API_URL}/trips/${tripId}/participants`,
         {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
           },
         },
       );
@@ -34,16 +38,18 @@ export default function useParticipants(onCountUpdate?: (n: number) => void) {
       const data = await res.json();
       setParticipants(data);
       onCountUpdate?.(data.length);
-    } catch {
-      console.error('Participants error:', 'failed to retrieve participants');
+    } catch (err) {
+      console.error('Participants error:', err);
     } finally {
       setLoading(false);
     }
-  }, [onCountUpdate, tripId]);
+  }, [user, authenticatedFetch, onCountUpdate, tripId]);
 
   useEffect(() => {
-    listParticipants();
-  }, [listParticipants]);
+    if (user && tripId) {
+      listParticipants();
+    }
+  }, [user, tripId, listParticipants]);
 
   return { participants, loading, listParticipants };
 }

@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useUser } from '@/context/UserContext';
 
 export default function useItineraries(tripId: string, tripDays: string[]) {
+  const { user, authenticatedFetch } = useUser();
   const [dailyPlans, setDailyPlans] = useState<string[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -10,18 +11,19 @@ export default function useItineraries(tripId: string, tripDays: string[]) {
   const hasFetched = useRef(false);
 
   useEffect(() => {
-    if (!tripId || tripDays.length === 0 || dailyPlans.length > 0) return;
+    if (
+      !tripId ||
+      tripDays.length === 0 ||
+      dailyPlans.length > 0 ||
+      !user ||
+      !authenticatedFetch
+    )
+      return;
 
     const fetchItineraries = async () => {
       try {
-        const token = await AsyncStorage.getItem('access_token');
-        const res = await fetch(
+        const res = await authenticatedFetch(
           `${process.env.EXPO_PUBLIC_API_URL}/trips/${tripId}/itinerary`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
         );
 
         const result = await res.json();
@@ -29,8 +31,13 @@ export default function useItineraries(tripId: string, tripDays: string[]) {
           throw new Error(result.error || 'Failed to fetch itinerary');
         }
 
+        interface ItineraryEntry {
+          date: string;
+          itinerary: string;
+        }
+
         const itineraryMap = result.reduce(
-          (acc, entry) => {
+          (acc: Record<string, string>, entry: ItineraryEntry) => {
             acc[entry.date] = entry.itinerary;
             return acc;
           },
@@ -42,36 +49,42 @@ export default function useItineraries(tripId: string, tripDays: string[]) {
         setIsEditing(filledPlans.some((plan) => plan.trim().length > 0));
         hasFetched.current = true;
       } catch (err) {
-        console.error('Failed to preload itinerary:', err.message);
+        console.error(
+          'Failed to preload itinerary:',
+          err instanceof Error ? err.message : String(err),
+        );
       } finally {
         setLoading(false);
       }
     };
 
     fetchItineraries();
-  }, [tripId, tripDays, dailyPlans]);
+  }, [tripId, tripDays, dailyPlans, user, authenticatedFetch]);
 
   const submitItinerary = async (
     plans: string[],
     onSuccess: () => void,
     onError?: (message: string) => void,
   ) => {
+    if (!user || !authenticatedFetch) {
+      onError?.('Authentication required');
+      return;
+    }
+
     try {
       setIsSubmitting(true);
-      const token = await AsyncStorage.getItem('access_token');
       const payload = plans.map((plan, index) => ({
         trip_id: tripId,
         itinerary: plan,
         date: tripDays[index],
       }));
 
-      const res = await fetch(
-        `${process.env.EXPO_PUBLIC_API_URL}/vibechecks/${tripId}/submit-itinerary`,
+      const res = await authenticatedFetch(
+        `${process.env.EXPO_PUBLIC_API_URL}/trips/${tripId}/submit-itinerary`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(payload),
         },
@@ -86,8 +99,10 @@ export default function useItineraries(tripId: string, tripDays: string[]) {
 
       onSuccess?.();
     } catch (err) {
-      console.error('Itinerary submit error:', err.message);
-      onError?.(err.message);
+      const errorMessage =
+        err instanceof Error ? err.message : 'Unknown error occurred';
+      console.error('Itinerary submit error:', errorMessage);
+      onError?.(errorMessage);
     } finally {
       setIsSubmitting(false);
     }

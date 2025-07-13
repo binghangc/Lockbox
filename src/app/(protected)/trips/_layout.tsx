@@ -1,92 +1,54 @@
 import React, { useRef } from 'react';
+import { StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
-import useTrips from '@/hooks/useTrips';
+
+import { BlurView } from 'expo-blur';
 import Octicons from '@expo/vector-icons/Octicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { StyleSheet, TouchableOpacity, Alert } from 'react-native';
-import { BlurView } from 'expo-blur';
-import InviteFriendsModal from '@/components/invites/inviteFriendsModal';
-import usePinTrip from '@/hooks/usePinTrip';
-import createCalendarEvent from '@/utils/calendarEvent';
-
-import TripControllerModal from '@/components/tripControllerModal';
-
 import { Modalize } from 'react-native-modalize';
 
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { ParamListBase } from '@react-navigation/native';
+import InviteFriendsModal from '@/components/invites/inviteFriendsModal';
+import TripControllerModal from '@/components/tripControllerModal';
 
-import { ConfettiProvider } from '@/components/confetti';
+import useTrips from '@/hooks/useTrips';
+import usePinTrip from '@/hooks/usePinTrip';
+import createCalendarEvent from '@/utils/calendarEvent';
+import { useTripTheme, TripThemeProvider } from '@/context/TripThemeProvider';
 
-type HeaderLeftProps = {
-  navigation: NativeStackNavigationProp<ParamListBase>;
+type TripLayoutInnerProps = {
+  tripId: string;
+  isHost: boolean;
+  isPinned: boolean;
+  trip: {
+    id: string;
+    title: string;
+    start_date: string;
+    end_date: string;
+    description?: string | null;
+    video_background?: string | null;
+  };
+  pinTrip: () => void;
+  modalRef: React.RefObject<Modalize>;
+  inviteModalRef: React.RefObject<Modalize>;
 };
 
-function HeaderLeft({ navigation }: HeaderLeftProps) {
-  return (
-    <TouchableOpacity onPress={() => navigation.goBack()}>
-      <Octicons
-        name="chevron-left"
-        size={28}
-        color="white"
-        style={{ marginLeft: 12 }}
-      />
-    </TouchableOpacity>
-  );
-}
-
-function HeaderLeftWrapper({
-  navigation,
-}: {
-  navigation: NativeStackNavigationProp<ParamListBase>;
-}) {
-  return <HeaderLeft navigation={navigation} />;
-}
-
-function HeaderLeftWithNavigation({
-  navigation,
-}: {
-  navigation: NativeStackNavigationProp<ParamListBase>;
-}) {
-  return <HeaderLeftWrapper navigation={navigation} />;
-}
-
-function HeaderBackground() {
-  return (
-    <BlurView intensity={60} tint="dark" style={StyleSheet.absoluteFill} />
-  );
-}
-
-function headerLeftWithNavigation({
-  navigation,
-}: {
-  navigation: NativeStackNavigationProp<ParamListBase>;
-}) {
-  return <HeaderLeftWithNavigation navigation={navigation} />;
-}
-
-const headerBackground = () => <HeaderBackground />;
-
-export default function TripsLayout() {
+function TripLayoutInner({
+  tripId,
+  isHost,
+  isPinned,
+  trip,
+  pinTrip,
+  modalRef,
+  inviteModalRef,
+}: TripLayoutInnerProps) {
+  const theme = useTripTheme();
   const router = useRouter();
-  const modalRef = useRef<Modalize | null>(null);
-  const inviteModalRef = useRef<Modalize | null>(null);
-
-  const { tripId } = useLocalSearchParams();
-  const { trip, isHost, loading, isPinned, refreshTrip } = useTrips(
-    Array.isArray(tripId) ? tripId[0] : tripId,
-  );
-
-  const pinTrip = usePinTrip(trip?.id ?? '', () => {
-    refreshTrip();
-  });
-
-  if (loading || !trip) return null;
 
   const onEdit = () => {
-    router.push(`/trips/${tripId}/edit`);
+    router.push(`/tripForm?mode=edit&tripId=${tripId}`);
     modalRef.current?.close();
   };
+
   const onSync = async () => {
     try {
       await createCalendarEvent({
@@ -96,86 +58,140 @@ export default function TripsLayout() {
         notes: trip.description ?? 'Synced from Lockbox',
       });
       Alert.alert('Success', 'Trip added to your calendar!');
-      console.log('success');
     } catch (err) {
       console.error('Calendar sync failed:', err);
       Alert.alert('Error', 'Unable to add to calendar.');
     }
   };
+
   const onPin = () => {
     pinTrip();
     modalRef.current?.close();
   };
+
   const onInvite = () => {
     modalRef.current?.close();
     router.push(`/trips/${tripId}/sendInvites`);
   };
+
   const onDelete = () => {};
   const onLeave = () => {};
 
+  const headerBackground = () => (
+    <BlurView
+      intensity={60}
+      tint={theme.blurTint as 'light' | 'dark' | 'default'}
+      style={StyleSheet.absoluteFill}
+    />
+  );
+
   return (
-    <ConfettiProvider>
-      <>
-        <Stack
-          screenOptions={({ navigation }) => ({
+    <>
+      <Stack
+        screenOptions={({ navigation }) => ({
+          headerShown: true,
+          headerTransparent: true,
+          headerTintColor: theme.primaryText,
+          headerTitleAlign: 'center',
+          title: '',
+          headerBackground,
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              style={{
+                marginLeft: 12,
+                width: 44,
+                height: 44,
+                borderRadius: 22,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+              hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
+            >
+              <Octicons
+                name="chevron-left"
+                size={28}
+                color={theme.primaryIcon}
+              />
+            </TouchableOpacity>
+          ),
+          headerRight: () => (
+            <TouchableOpacity
+              onPress={() => modalRef.current?.open()}
+              style={{
+                marginRight: 12,
+                width: 44,
+                height: 44,
+                borderRadius: 22,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+              hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
+            >
+              <MaterialCommunityIcons
+                name="dots-horizontal"
+                size={28}
+                color={theme.primaryIcon}
+              />
+            </TouchableOpacity>
+          ),
+        })}
+      >
+        <Stack.Screen
+          name="[tripId]/itinerary"
+          options={{
+            presentation: 'modal',
+            title: 'Trip Itinerary',
+            animation: 'slide_from_bottom',
+            gestureEnabled: true,
             headerShown: true,
-            headerTransparent: true,
-            headerTintColor: 'white',
-            headerTitleAlign: 'center',
-            headerLeft: headerLeftWithNavigation.bind(null, { navigation }),
-            headerBackground,
-            title: '',
-            headerRight: () => (
-              <TouchableOpacity
-                onPress={() => modalRef.current?.open()}
-                style={{ marginRight: 12 }}
-              >
-                <MaterialCommunityIcons
-                  name="dots-horizontal"
-                  size={28}
-                  color="white"
-                />
-              </TouchableOpacity>
-            ),
-          })}
-        >
-          <Stack.Screen
-            name="[tripId]/itinerary"
-            options={{
-              presentation: 'modal',
-              title: 'Trip Itinerary',
-              animation: 'slide_from_bottom',
-              gestureEnabled: true,
-              headerShown: true,
-              contentStyle: {
-                backgroundColor: 'transparent',
-              },
-            }}
-          />
-          <Stack.Screen
-            name="[tripId]/edit"
-            options={{
-              headerShown: false,
-              animation: 'slide_from_bottom',
-            }}
-          />
-        </Stack>
-        <TripControllerModal
-          triggerRef={modalRef}
-          isHost={isHost}
-          isPinned={isPinned}
-          onEdit={onEdit}
-          onSync={onSync}
-          onPin={onPin}
-          onInvite={onInvite}
-          onDelete={onDelete}
-          onLeave={onLeave}
+            contentStyle: {
+              backgroundColor: 'transparent',
+            },
+          }}
         />
-        <InviteFriendsModal
-          ref={inviteModalRef}
-          tripId={Array.isArray(tripId) ? tripId[0] : tripId}
-        />
-      </>
-    </ConfettiProvider>
+      </Stack>
+
+      <TripControllerModal
+        triggerRef={modalRef}
+        isHost={isHost}
+        isPinned={isPinned}
+        onEdit={onEdit}
+        onSync={onSync}
+        onPin={onPin}
+        onInvite={onInvite}
+        onDelete={onDelete}
+        onLeave={onLeave}
+      />
+
+      <InviteFriendsModal ref={inviteModalRef} tripId={tripId} />
+    </>
+  );
+}
+
+export default function TripsLayout() {
+  const modalRef = useRef<Modalize>(null!);
+  const inviteModalRef = useRef<Modalize>(null!);
+  const { tripId } = useLocalSearchParams();
+  const { trip, isHost, loading, isPinned, refreshTrip } = useTrips(
+    Array.isArray(tripId) ? tripId[0] : tripId,
+  );
+
+  const pinTrip = usePinTrip(trip?.id ?? '', refreshTrip);
+
+  if (loading || !trip) return null;
+
+  return (
+    <TripThemeProvider videoKey={trip.video_background ?? 'default'}>
+      <TripLayoutInner
+        tripId={Array.isArray(tripId) ? tripId[0] : tripId}
+        isHost={isHost}
+        isPinned={isPinned}
+        trip={trip}
+        pinTrip={pinTrip}
+        modalRef={modalRef}
+        inviteModalRef={inviteModalRef}
+      />
+    </TripThemeProvider>
   );
 }
