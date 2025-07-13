@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { View, Text } from 'react-native';
-import { useUser } from '@/components/UserContext';
+import { useUser } from '@/context/UserContext';
 import { Profile } from '@/types';
 import DefaultFriendsList from '@/components/friends/defaultFriendsList';
 import UserProfileModal from '@/components/userProfileModal';

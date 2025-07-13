@@ -39,7 +39,8 @@
           "microphonePermission": "Allow Lockbox to access your microphone",
           "recordAudioAndroid": true
         }
-      ]
+      ],
+      "expo-video"
     ]
   }
 }

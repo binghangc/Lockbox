@@ -91,7 +91,7 @@ export default function TabsLayout() {
           listeners={{
             tabPress: (e) => {
               e.preventDefault();
-              router.push('/newTrip');
+              router.push('/tripForm?mode=create');
             },
           }}
         />

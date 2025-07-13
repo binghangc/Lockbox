@@ -15,7 +15,8 @@
     "rag",
     "index.ts",
     "src/global.d.ts",
-    "nativewind-env.d.ts"
+    "nativewind-env.d.ts",
+    "custom.d.ts"
   ],
   "exclude": [
     "supabase/functions",

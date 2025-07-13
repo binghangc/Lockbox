@@ -1,6 +1,6 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { debounce } from 'lodash';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useUser } from '@/context/UserContext';
 import { Profile } from '@/types';
 
 export type SearchResult = Profile & {
@@ -8,38 +8,43 @@ export type SearchResult = Profile & {
 };
 
 export default function useFriendSearch(currentUserId: string) {
+  const { user, authenticatedFetch } = useUser();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const handleSearchUsers = async (username: string) => {
-    if (!username || username.length < 2) {
-      setResults([]);
-      return;
-    }
-    setLoading(true);
-    try {
-      const token = await AsyncStorage.getItem('access_token');
-      const res = await fetch(
-        `${process.env.EXPO_PUBLIC_API_URL}/friends/search?username=${username}`,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
+  const handleSearchUsers = useCallback(
+    async (username: string) => {
+      if (!username || username.length < 2 || !user) {
+        setResults([]);
+        return;
+      }
+      setLoading(true);
+      try {
+        const res = await authenticatedFetch(
+          `${process.env.EXPO_PUBLIC_API_URL}/friends/search?username=${username}`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+            },
           },
-        },
-      );
+        );
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      setResults(data ?? []);
-    } catch (err) {
-      console.error('Search error:', err);
-    }
-    setLoading(false);
-  };
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+        setResults(data ?? []);
+      } catch (err) {
+        console.error('Search error:', err);
+      }
+      setLoading(false);
+    },
+    [user, authenticatedFetch],
+  );
 
-  const debouncedSearch = useMemo(() => debounce(handleSearchUsers, 300), []);
+  const debouncedSearch = useMemo(
+    () => debounce(handleSearchUsers, 300),
+    [handleSearchUsers],
+  );
 
   const handleQueryChange = (text: string) => {
     setQuery(text);
@@ -47,15 +52,15 @@ export default function useFriendSearch(currentUserId: string) {
   };
 
   const sendFriendRequest = async (targetUserId: string) => {
+    if (!user) return;
+
     try {
-      const token = await AsyncStorage.getItem('access_token');
-      const res = await fetch(
+      const res = await authenticatedFetch(
         `${process.env.EXPO_PUBLIC_API_URL}/friends/send-request`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
             uid1: currentUserId,

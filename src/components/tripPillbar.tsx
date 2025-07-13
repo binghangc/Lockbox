@@ -5,7 +5,8 @@ import { View } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import PILLBAR from '@/constants/pillbarConfig';
+import usePillbarConfig from '@/constants/pillbarConfig';
+import { useTripTheme } from '@/context/TripThemeProvider';
 import AnimatedReanimated from 'react-native-reanimated';
 import usePillbarController from '@/hooks/usePillbarController';
 import MainActionBubble from './mainActionBubble';
@@ -30,6 +31,8 @@ export default function TripPillbar({
   bottomAccessory?: React.ReactNode;
 }) {
   const insets = useSafeAreaInsets();
+  const theme = useTripTheme();
+  const PILLBAR = usePillbarConfig();
   const {
     panResponder,
     setBarWidth,
@@ -63,7 +66,7 @@ export default function TripPillbar({
           start={PILLBAR.GRADIENT_START}
           end={PILLBAR.GRADIENT_END}
           locations={PILLBAR.GRADIENT_LOCATIONS}
-          colors={PILLBAR.GRADIENT_COLORS}
+          colors={PILLBAR.GRADIENT_COLORS as [string, string, string]}
           style={{
             borderRadius: PILLBAR.BORDER_RADIUS_FULL,
             padding: PILLBAR.GRADIENT_PADDING,
@@ -72,7 +75,8 @@ export default function TripPillbar({
           <View style={{ overflow: 'hidden', borderRadius: 9999 }}>
             <BlurView
               intensity={PILLBAR.BLUR_INTENSITY}
-              tint={PILLBAR.BLUR_TINT}
+              experimentalBlurMethod="dimezisBlurView"
+              tint={PILLBAR.BLUR_TINT as 'light' | 'dark' | 'default'}
               className="rounded-full flex-row justify-center items-center bg-white/5"
               style={[
                 {
@@ -107,8 +111,13 @@ export default function TripPillbar({
                 )}
                 {/* Pill text */}
                 <AnimatedText
-                  className="text-gray-100 text-xl font-semibold flex-1"
-                  style={[animatedPillTextStyle]}
+                  className="text-xl font-semibold flex-1"
+                  numberOfLines={2}
+                  ellipsizeMode="tail"
+                  style={[
+                    { color: theme.primaryText, flexShrink: 1 },
+                    animatedPillTextStyle,
+                  ]}
                 >
                   {dragEnabled ? 'Slide to send' : pillText}
                 </AnimatedText>

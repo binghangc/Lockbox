@@ -10,7 +10,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import DeleteAccountModal, {
   DeleteAccountModalRef,
 } from '@/components/deleteAccountModal';
-import { useUser } from '@/components/UserContext';
+import { useUser } from '@/context/UserContext';
 
 export default function AccountSettingsScreen() {
   const insets = useSafeAreaInsets();

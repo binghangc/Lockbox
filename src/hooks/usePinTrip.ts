@@ -24,7 +24,11 @@ export default function usePinTrip(
 
       onSuccess?.(data.is_pinned); // optional: let caller know new state
     } catch (err) {
-      console.error('Failed to toggle pin:', err.message);
+      if (err instanceof Error) {
+        console.error('Failed to toggle pin:', err.message);
+      } else {
+        console.error('Failed to toggle pin:', err);
+      }
     }
   };
 
