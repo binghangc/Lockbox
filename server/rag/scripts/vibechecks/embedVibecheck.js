@@ -1,23 +1,25 @@
-const { createClient } = require('@supabase/supabase-js');
 const { embedText } = require('../../utils/embeddingClient.js');
 const classifyTheme = require('./classifyTheme.js');
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY,
-);
+const supabase = require('../../../utils/supabaseAdminClient.js');
 
-async function embedVibecheck({ vibecheck_id, text, user_id }) {
-  const theme = await classifyTheme(text);
-  const embedding = await embedText(text);
+async function embedVibecheck({
+  vibecheck_id,
+  vibecheck_text,
+  user_id,
+  trip_id,
+}) {
+  const theme = await classifyTheme(vibecheck_text);
+  const embedding = await embedText(vibecheck_text);
 
   const { error } = await supabase.from('vibecheck_embeddings').insert({
     vibecheck_id,
     user_id,
+    trip_id,
     theme,
     embedding,
-    text,
-    created_at: new Date().toISOString(),
+    vibecheck_text,
+    created_at: new Date().toISOString,
   });
 
   if (error) {
