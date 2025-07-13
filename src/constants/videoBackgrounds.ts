@@ -52,8 +52,8 @@ const videoBackgrounds: Record<
     uri: skiMobile,
     mode: 'light',
     thumbnail: skiThumbnail,
-    primaryColor: '#C47AF3',
-    secondaryColor: '#6B2F7A',
+    primaryColor: '#CC3300',
+    secondaryColor: '#FF6633',
   },
 };
 
