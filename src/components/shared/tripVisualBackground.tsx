@@ -17,6 +17,8 @@ export default function TripVisualBackground({ videoKey, effectKey }: Props) {
   const player = useVideoPlayer(videoSource ?? '', (videoPlayer) => {
     // eslint-disable-next-line no-param-reassign
     videoPlayer.loop = true;
+    // eslint-disable-next-line no-param-reassign
+    videoPlayer.muted = true;
     videoPlayer.play();
   });
 
@@ -28,6 +30,9 @@ export default function TripVisualBackground({ videoKey, effectKey }: Props) {
         contentFit="cover"
         allowsFullscreen={false}
         allowsPictureInPicture={false}
+        nativeControls={false}
+        allowsVideoFrameAnalysis={false}
+        showsTimecodes={false}
       />
       {effectKey && effects[effectKey]?.file && (
         <View
