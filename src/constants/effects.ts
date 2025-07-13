@@ -2,9 +2,11 @@ import { ImageSourcePropType } from 'react-native';
 import bats from '../../assets/animations/bats.json';
 import dazzle from '../../assets/animations/dazzle.json';
 import festivelights from '../../assets/animations/festivelights.json';
+import sakura from '../../assets/animations/sakura.json';
 import batsThumbnail from '../../assets/animations/thumbnails/bats.png';
 import dazzleThumbnail from '../../assets/animations/thumbnails/dazzle.png';
 import festivelightsThumbnail from '../../assets/animations/thumbnails/festive.png';
+import sakuraThumbnail from '../../assets/animations/thumbnails/sakura.png';
 
 const effects: Record<
   string,
@@ -33,6 +35,11 @@ const effects: Record<
     file: festivelights,
     thumbnail: festivelightsThumbnail,
     name: 'Festive Lights',
+  },
+  sakura: {
+    file: sakura,
+    thumbnail: sakuraThumbnail,
+    name: 'Sakura',
   },
 };
 
