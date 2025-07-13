@@ -256,7 +256,7 @@ router.post('/signout', async (req, res) => {
 router.post('/refresh', async (req, res) => {
   try {
     const { refresh_token } = req.body;
-    
+
     if (!refresh_token) {
       return res.status(400).json({ error: 'Refresh token required' });
     }
@@ -270,7 +270,9 @@ router.post('/refresh', async (req, res) => {
     }
 
     if (!data.session) {
-      return res.status(500).json({ error: 'Token refresh succeeded but session is missing' });
+      return res
+        .status(500)
+        .json({ error: 'Token refresh succeeded but session is missing' });
     }
 
     return res.status(200).json({
