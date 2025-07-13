@@ -258,7 +258,12 @@ function TripDetailContent() {
                     <BlurView
                       intensity={40}
                       tint={theme.blurTint as 'light' | 'dark' | 'default'}
-                      className="rounded-full overflow-hidden border border-white/20"
+                      style={{
+                        borderColor: theme.secondaryOutline,
+                        borderWidth: 1,
+                        borderRadius: 9999,
+                        overflow: 'hidden',
+                      }}
                     >
                       <TouchableOpacity
                         onPress={() =>

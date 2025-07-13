@@ -302,7 +302,11 @@ function TripForm({
                 />
               </BlurView>
 
-              <View className="w-full aspect-square overflow-hidden relative mb-6">
+              <TouchableOpacity
+                onPress={openThumbnailPicker}
+                activeOpacity={0.9}
+                className="w-full aspect-square overflow-hidden relative mb-6"
+              >
                 <Image
                   source={
                     thumbnailUrl
@@ -314,9 +318,9 @@ function TripForm({
                   resizeMode="cover"
                   className="w-full h-full"
                 />
-                <BlurView
-                  intensity={50}
-                  tint={theme.blurTint as 'light' | 'dark' | 'default'}
+                <TouchableOpacity
+                  onPress={openThumbnailPicker}
+                  activeOpacity={0.9}
                   style={{
                     position: 'absolute',
                     bottom: 12,
@@ -326,18 +330,21 @@ function TripForm({
                     height: 36,
                     justifyContent: 'center',
                     alignItems: 'center',
-                    borderWidth: 1,
-                    borderColor: theme.secondaryOutline,
                     overflow: 'hidden',
                   }}
                 >
-                  <TouchableOpacity
-                    onPress={openThumbnailPicker}
+                  <BlurView
+                    intensity={50}
+                    tint={theme.blurTint as 'light' | 'dark' | 'default'}
                     style={{
-                      width: '100%',
-                      height: '100%',
+                      borderRadius: 100,
+                      width: 36,
+                      height: 36,
                       justifyContent: 'center',
                       alignItems: 'center',
+                      borderWidth: 1,
+                      borderColor: theme.secondaryOutline,
+                      overflow: 'hidden',
                     }}
                   >
                     <Foundation
@@ -345,9 +352,9 @@ function TripForm({
                       size={20}
                       color={theme.primaryText}
                     />
-                  </TouchableOpacity>
-                </BlurView>
-              </View>
+                  </BlurView>
+                </TouchableOpacity>
+              </TouchableOpacity>
 
               {/* Date Button */}
               <TouchableOpacity activeOpacity={0.8} onPress={openDatePicker}>
