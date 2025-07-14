@@ -75,7 +75,8 @@ const ChangeEmailModal = forwardRef<Modalize, ChangeEmailModalProps>(
               color="rgba(255, 255, 255, 0.7)"
             />
             <Text className="text-white text-sm opacity-70">
-              A confirmation email will be sent to your new email address.
+              A confirmation email will be sent to both your new and current
+              email addresses - please accept both links accordingly.
             </Text>
           </View>
 
