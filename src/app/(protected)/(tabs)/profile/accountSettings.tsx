@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import {
   Entypo,
@@ -10,12 +10,26 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import DeleteAccountModal, {
   DeleteAccountModalRef,
 } from '@/components/deleteAccountModal';
+import ChangeSettingsModal, {
+  ChangeSettingsModalRef,
+} from '@/components/changeSettingsModal';
 import { useUser } from '@/context/UserContext';
 
 export default function AccountSettingsScreen() {
   const insets = useSafeAreaInsets();
+
+  const changeSettingsRef = useRef<ChangeSettingsModalRef>(null);
+  const [settingType, setSettingType] = useState<'email' | 'password' | null>(
+    null,
+  );
+
   const deleteModalRef = useRef<DeleteAccountModalRef>(null);
-  const { deleteAccount } = useUser();
+  const { updateEmail, updatePassword, deleteAccount } = useUser();
+
+  function handleConfirmChange(value: string) {
+    if (settingType === 'email') updateEmail(value);
+    else if (settingType === 'password') updatePassword(value);
+  }
 
   function SettingItem({
     icon,
@@ -65,7 +79,10 @@ export default function AccountSettingsScreen() {
         <SettingItem
           icon={<Entypo name="email" size={24} color="white" />}
           label="Change email"
-          onPress={() => {}}
+          onPress={() => {
+            setSettingType('email');
+            changeSettingsRef.current?.open();
+          }}
         />
         <View
           style={{ height: 1, backgroundColor: '#2a2a2a', marginHorizontal: 4 }}
@@ -73,7 +90,10 @@ export default function AccountSettingsScreen() {
         <SettingItem
           icon={<MaterialIcons name="password" size={24} color="white" />}
           label="Change password"
-          onPress={() => {}}
+          onPress={() => {
+            setSettingType('password');
+            changeSettingsRef.current?.open();
+          }}
         />
       </BlurView>
       <BlurView
@@ -103,6 +123,14 @@ export default function AccountSettingsScreen() {
         </TouchableOpacity>
       </BlurView>
       <DeleteAccountModal ref={deleteModalRef} onConfirm={deleteAccount} />
+      <ChangeSettingsModal
+        ref={changeSettingsRef}
+        title={settingType === 'email' ? 'Change Email' : 'Change Password'}
+        label={settingType === 'email' ? 'New email address' : 'New password'}
+        placeholder={settingType === 'email' ? 'you@example.com' : '••••••••'}
+        submitButtonText="Confirm"
+        onConfirm={() => handleConfirmChange}
+      />
     </View>
   );
 }

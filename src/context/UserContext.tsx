@@ -20,6 +20,8 @@ type UserContextType = {
   deleting: boolean;
   setDeleting: React.Dispatch<React.SetStateAction<boolean>>;
   authenticatedFetch: (url: string, options?: RequestInit) => Promise<Response>;
+  updateEmail: (newEmail: string) => Promise<void>;
+  updatePassword: (newPassword: string) => Promise<void>;
 };
 
 export const UserContext = createContext<UserContextType | null>(null);
@@ -242,6 +244,72 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     [token, refreshToken, logout],
   );
 
+  const updateEmail = useCallback(
+    async (newEmail: string) => {
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+
+      try {
+        const res = await fetch(
+          `${process.env.EXPO_PUBLIC_API_URL}/auth/update-email`,
+          {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ email: newEmail }),
+          },
+        );
+
+        const result = await res.json();
+        if (!res.ok) {
+          throw new Error(result.message || 'Failed to update email');
+        }
+
+        // Optionally update user state
+        setUser((prev) => (prev ? { ...prev, email: newEmail } : prev));
+        console.log('Email updated successfully');
+      } catch (err) {
+        console.error('Error updating email:', err);
+      }
+    },
+    [token],
+  );
+
+  const updatePassword = useCallback(
+    async (newPassword: string) => {
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+
+      try {
+        const res = await fetch(
+          `${process.env.EXPO_PUBLIC_API_URL}/auth/update-password`,
+          {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ password: newPassword }),
+          },
+        );
+
+        const result = await res.json();
+        if (!res.ok) {
+          throw new Error(result.message || 'Failed to update password');
+        }
+
+        console.log('Password updated successfully');
+      } catch (err) {
+        console.error('Error updating password:', err);
+      }
+    },
+    [token],
+  );
+
   const contextValue = React.useMemo(
     () => ({
       user,
@@ -254,6 +322,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       deleting,
       setDeleting,
       authenticatedFetch,
+      updateEmail,
+      updatePassword,
     }),
     [
       user,
@@ -266,6 +336,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       deleting,
       setDeleting,
       authenticatedFetch,
+      updateEmail,
+      updatePassword,
     ],
   );
 
