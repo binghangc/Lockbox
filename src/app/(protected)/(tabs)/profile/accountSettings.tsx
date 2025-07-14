@@ -1,5 +1,5 @@
-import { useRef, useState } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { useRef } from 'react';
+import { View, Text, TouchableOpacity, Alert } from 'react-native';
 import {
   Entypo,
   MaterialIcons,
@@ -10,26 +10,45 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import DeleteAccountModal, {
   DeleteAccountModalRef,
 } from '@/components/deleteAccountModal';
-import ChangeSettingsModal, {
-  ChangeSettingsModalRef,
-} from '@/components/changeSettingsModal';
+import ChangeEmailModal, {
+  ChangeEmailModalRef,
+} from '@/components/changeEmailModal';
+import ChangePasswordModal, {
+  ChangePasswordModalRef,
+} from '@/components/changePasswordModal';
 import { useUser } from '@/context/UserContext';
 
 export default function AccountSettingsScreen() {
   const insets = useSafeAreaInsets();
 
-  const changeSettingsRef = useRef<ChangeSettingsModalRef>(null);
-  const [settingType, setSettingType] = useState<'email' | 'password' | null>(
-    null,
-  );
+  const emailModalRef = useRef<ChangeEmailModalRef>(null);
+  const passwordModalRef = useRef<ChangePasswordModalRef>(null);
 
   const deleteModalRef = useRef<DeleteAccountModalRef>(null);
   const { updateEmail, updatePassword, deleteAccount } = useUser();
 
-  function handleConfirmChange(value: string) {
-    if (settingType === 'email') updateEmail(value);
-    else if (settingType === 'password') updatePassword(value);
-  }
+  const handleEmailChange = async (newEmail: string) => {
+    const result = await updateEmail(newEmail);
+
+    if (!result.success) {
+      Alert.alert('Error', result.message);
+    } else {
+      Alert.alert('Success', result.message);
+    }
+  };
+
+  const handlePasswordChange = async (
+    current: string,
+    next: string,
+    confirm: string,
+  ) => {
+    try {
+      await updatePassword(current, next, confirm);
+      Alert.alert('Success', 'Your password has been updated.');
+    } catch (err) {
+      Alert.alert('Error', err.message || 'Something went wrong.');
+    }
+  };
 
   function SettingItem({
     icon,
@@ -79,10 +98,7 @@ export default function AccountSettingsScreen() {
         <SettingItem
           icon={<Entypo name="email" size={24} color="white" />}
           label="Change email"
-          onPress={() => {
-            setSettingType('email');
-            changeSettingsRef.current?.open();
-          }}
+          onPress={() => emailModalRef.current?.open()}
         />
         <View
           style={{ height: 1, backgroundColor: '#2a2a2a', marginHorizontal: 4 }}
@@ -90,10 +106,7 @@ export default function AccountSettingsScreen() {
         <SettingItem
           icon={<MaterialIcons name="password" size={24} color="white" />}
           label="Change password"
-          onPress={() => {
-            setSettingType('password');
-            changeSettingsRef.current?.open();
-          }}
+          onPress={() => passwordModalRef.current?.open()}
         />
       </BlurView>
       <BlurView
@@ -123,13 +136,10 @@ export default function AccountSettingsScreen() {
         </TouchableOpacity>
       </BlurView>
       <DeleteAccountModal ref={deleteModalRef} onConfirm={deleteAccount} />
-      <ChangeSettingsModal
-        ref={changeSettingsRef}
-        title={settingType === 'email' ? 'Change Email' : 'Change Password'}
-        label={settingType === 'email' ? 'New email address' : 'New password'}
-        placeholder={settingType === 'email' ? 'you@example.com' : '••••••••'}
-        submitButtonText="Confirm"
-        onConfirm={() => handleConfirmChange}
+      <ChangeEmailModal ref={emailModalRef} onConfirm={handleEmailChange} />
+      <ChangePasswordModal
+        ref={passwordModalRef}
+        onConfirm={handlePasswordChange}
       />
     </View>
   );

@@ -265,23 +265,39 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
         const result = await res.json();
         if (!res.ok) {
-          throw new Error(result.message || 'Failed to update email');
+          return { success: false, message: result.message };
         }
-
         // Optionally update user state
         setUser((prev) => (prev ? { ...prev, email: newEmail } : prev));
-        console.log('Email updated successfully');
+
+        return {
+          success: true,
+          message: result.message,
+          email_change: result.email_change || null,
+        };
       } catch (err) {
         console.error('Error updating email:', err);
+        return {
+          success: false,
+          message: 'Unexpected error occurred while updating email.',
+        };
       }
     },
     [token],
   );
 
   const updatePassword = useCallback(
-    async (newPassword: string) => {
+    async (
+      currentPassword: string,
+      newPassword: string,
+      confirmPassword: string,
+    ) => {
       if (!token) {
         throw new Error('No authentication token available');
+      }
+
+      if (newPassword !== confirmPassword) {
+        throw new Error('New password and confirm password do not match');
       }
 
       try {
@@ -293,11 +309,15 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
               'Content-Type': 'application/json',
               Authorization: `Bearer ${token}`,
             },
-            body: JSON.stringify({ password: newPassword }),
+            body: JSON.stringify({
+              currentPassword,
+              newPassword,
+            }),
           },
         );
 
         const result = await res.json();
+
         if (!res.ok) {
           throw new Error(result.message || 'Failed to update password');
         }

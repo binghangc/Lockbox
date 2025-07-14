@@ -4,38 +4,19 @@ import { Foundation } from '@expo/vector-icons';
 import { Modalize } from 'react-native-modalize';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-export type ChangeSettingsModalRef = Modalize;
+export type ChangeEmailModalRef = Modalize;
 
-type ChangeSettingsModalProps = {
-  title: string;
-  label: string;
-  placeholder?: string;
-  confirmText?: string; // optional enforced confirmation word like "DELETE"
-  submitButtonText?: string;
-  infoNote?: string;
-  onConfirm: (value: string) => void;
+type ChangeEmailModalProps = {
+  onConfirm: (email: string) => void;
 };
 
-const ChangeSettingsModal = forwardRef<Modalize, ChangeSettingsModalProps>(
-  (
-    {
-      title,
-      label,
-      placeholder,
-      confirmText,
-      submitButtonText = 'Confirm',
-      infoNote,
-      onConfirm,
-    },
-    ref,
-  ) => {
+const ChangeEmailModal = forwardRef<Modalize, ChangeEmailModalProps>(
+  ({ onConfirm }, ref) => {
     const insets = useSafeAreaInsets();
     const modalRef = ref as React.RefObject<Modalize>;
-    const [inputText, setInputText] = useState('');
+    const [email, setEmail] = useState('');
 
-    const isConfirmed = confirmText
-      ? inputText === confirmText
-      : inputText.length > 0;
+    const isValid = email.includes('@') && email.length >= 5;
 
     return (
       <Modalize
@@ -47,29 +28,30 @@ const ChangeSettingsModal = forwardRef<Modalize, ChangeSettingsModalProps>(
         modalTopOffset={45}
         scrollViewProps={{ scrollEnabled: false }}
         withReactModal
-        onClose={() => setInputText('')}
+        onClose={() => setEmail('')}
       >
         <View
           style={{
             padding: 20,
-            minHeight: 400,
+            minHeight: 300,
             backgroundColor: 'rgb(18, 18, 18)',
             paddingBottom: 12,
           }}
         >
           <Text className="text-white text-xl font-bold text-center mb-4 mt-3">
-            {title}
+            Change Email
           </Text>
-          <Text className="text-white text-sm mb-2">{label}</Text>
+
+          <Text className="text-white text-sm mb-2">New email address</Text>
           <TextInput
             className="text-white text-md border border-white/20 rounded-md mb-4"
-            placeholder={placeholder || ''}
+            placeholder="you@example.com"
             placeholderTextColor="#888"
-            value={inputText}
-            onChangeText={setInputText}
+            value={email}
+            onChangeText={setEmail}
             autoCapitalize="none"
             autoCorrect={false}
-            spellCheck={false}
+            keyboardType="email-address"
             style={{
               height: 48,
               paddingHorizontal: 16,
@@ -79,25 +61,24 @@ const ChangeSettingsModal = forwardRef<Modalize, ChangeSettingsModalProps>(
             }}
           />
 
-          {!!infoNote && (
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: 6,
-                marginBottom: 20,
-              }}
-            >
-              <Foundation
-                name="info"
-                size={14}
-                color="rgba(255, 255, 255, 0.7)"
-              />
-              <Text className="text-white text-sm opacity-70">{infoNote}</Text>
-            </View>
-          )}
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 6,
+              marginBottom: 20,
+            }}
+          >
+            <Foundation
+              name="info"
+              size={14}
+              color="rgba(255, 255, 255, 0.7)"
+            />
+            <Text className="text-white text-sm opacity-70">
+              A confirmation email will be sent to your new email address.
+            </Text>
+          </View>
 
-          {/* Footer-style action bar pinned to bottom */}
           <View
             style={{
               position: 'absolute',
@@ -120,21 +101,21 @@ const ChangeSettingsModal = forwardRef<Modalize, ChangeSettingsModalProps>(
             </TouchableOpacity>
 
             <TouchableOpacity
-              disabled={!isConfirmed}
+              disabled={!isValid}
               style={{
                 backgroundColor: '#FF4C4C',
-                opacity: isConfirmed ? 1 : 0.4,
+                opacity: isValid ? 1 : 0.4,
                 borderRadius: 5,
                 paddingVertical: 12,
                 paddingHorizontal: 20,
               }}
               onPress={() => {
-                onConfirm(inputText);
+                onConfirm(email);
                 modalRef.current?.close();
               }}
             >
               <Text className="text-white font-semibold text-base">
-                {submitButtonText}
+                Confirm
               </Text>
             </TouchableOpacity>
           </View>
@@ -144,6 +125,6 @@ const ChangeSettingsModal = forwardRef<Modalize, ChangeSettingsModalProps>(
   },
 );
 
-ChangeSettingsModal.displayName = 'ChangeSettingsModal';
+ChangeEmailModal.displayName = 'ChangeEmailModal';
 
-export default ChangeSettingsModal;
+export default ChangeEmailModal;
