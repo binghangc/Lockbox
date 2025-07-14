@@ -14,7 +14,7 @@ async function embedText(text) {
   if (!text || typeof text !== 'string') {
     throw new Error(`Invalid text for embedding: ${text}`);
   }
-  
+
   const client = createEmbeddingsClient();
   return client.embedQuery(text);
 }

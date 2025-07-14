@@ -1,11 +1,7 @@
-const { createClient } = require('@supabase/supabase-js');
 const enrichChunks = require('./entityAwareChunker.js');
 const { embedText } = require('../utils/embeddingClient.js');
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY,
-);
+const supabase = require('../../utils/supabaseAdminClient.js');
 
 async function embedItinerary({
   itinerary,
