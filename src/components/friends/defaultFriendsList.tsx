@@ -2,6 +2,7 @@ import { FlatList, View, Text, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import DefaultFriendRow from '@/components/friends/defaultFriendRow';
 import useFriends from '@/hooks/useFriends';
+import { useFriendsContext } from '@/context/FriendsContext';
 
 type Props = {
   onSelect: (user: Profile) => void | Promise<void>;
@@ -9,7 +10,7 @@ type Props = {
 };
 
 export default function DefaultFriendsList({ onSelect, onCountUpdate }: Props) {
-  const { friends, loading } = useFriends(onCountUpdate);
+  const { friends, loading, refreshFriends } = useFriendsContext();
   const router = useRouter();
 
   if (loading) {
@@ -47,8 +48,8 @@ export default function DefaultFriendsList({ onSelect, onCountUpdate }: Props) {
         <DefaultFriendRow
           key={item.id}
           item={item}
-          mode="default"
           onSelect={onSelect}
+          onRemoved={refreshFriends}
         />
       )}
     />

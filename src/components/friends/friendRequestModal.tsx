@@ -6,6 +6,7 @@ import { FriendRequest } from '@/types';
 import FloatingAvatar from '@/components/floatingAvatar';
 import { BlurView } from 'expo-blur';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFriendsContext } from '@/context/FriendsContext';
 
 type Props = {
   visible: boolean;
@@ -22,6 +23,7 @@ export default function FriendRequestModal({
 }: Props) {
   const modalRef = useRef<Modalize>(null);
   const screenHeight = Dimensions.get('window').height;
+  const { refreshFriends } = useFriendsContext();
 
   useEffect(() => {
     if (visible) {
@@ -62,6 +64,7 @@ export default function FriendRequestModal({
         return;
       }
 
+      refreshFriends();
       onClose();
       onHandled();
     } catch (error) {

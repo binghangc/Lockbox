@@ -7,6 +7,7 @@ import { ThemeProvider, DarkTheme } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { UserProvider } from '@/context/UserContext';
 import { InvitesProvider } from '@/components/InvitesContext';
+import { FriendsProvider } from '@/context/FriendsContext';
 import { useFonts } from 'expo-font';
 import supabase from '../../lib/supabase';
 import RocGroteskWideMedium from '../../assets/fonts/rocGroteskWideMedium.otf';
@@ -87,9 +88,11 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <UserProvider>
         <InvitesProvider>
-          <ThemeProvider value={myTheme}>
-            <Stack screenOptions={{ headerShown: false }} />
-          </ThemeProvider>
+          <FriendsProvider>
+            <ThemeProvider value={myTheme}>
+              <Stack screenOptions={{ headerShown: false }} />
+            </ThemeProvider>
+          </FriendsProvider>
         </InvitesProvider>
       </UserProvider>
     </GestureHandlerRootView>

@@ -10,14 +10,10 @@ type FriendRow = Profile & { friendshipId?: string };
 type Props = {
   item: FriendRow;
   onSelect: (item: FriendRow) => void;
-  refreshList?: () => void;
+  onRemoved?: () => void;
 };
 
-export default function DefaultFriendRow({
-  item,
-  onSelect,
-  refreshList,
-}: Props) {
+export default function DefaultFriendRow({ item, onSelect, onRemoved }: Props) {
   const handleRemoveFriend = async () => {
     Alert.alert(
       'Remove Friendship',
@@ -47,12 +43,10 @@ export default function DefaultFriendRow({
               [
                 {
                   text: 'OK',
-                  onPress: () => {
-                    refreshList?.();
-                  },
                 },
               ],
             );
+            onRemoved?.();
           },
         },
       ],
