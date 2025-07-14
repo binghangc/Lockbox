@@ -252,4 +252,37 @@ router.post('/signout', async (req, res) => {
   return res.json({ success: true });
 });
 
+// API endpoint for token refresh
+router.post('/refresh', async (req, res) => {
+  try {
+    const { refresh_token } = req.body;
+
+    if (!refresh_token) {
+      return res.status(400).json({ error: 'Refresh token required' });
+    }
+
+    const { data, error } = await supabase.auth.refreshSession({
+      refresh_token,
+    });
+
+    if (error) {
+      return res.status(401).json({ error: error.message });
+    }
+
+    if (!data.session) {
+      return res
+        .status(500)
+        .json({ error: 'Token refresh succeeded but session is missing' });
+    }
+
+    return res.status(200).json({
+      message: 'Token refreshed successfully',
+      session: data.session,
+    });
+  } catch (err) {
+    console.error('Unexpected server error during token refresh:', err);
+    return res.status(500).json({ error: 'Server error during token refresh' });
+  }
+});
+
 module.exports = router;

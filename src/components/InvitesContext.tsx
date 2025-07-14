@@ -6,7 +6,7 @@ import React, {
   useMemo,
 } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useUser } from '@/components/UserContext';
+import { useUser } from '@/context/UserContext';
 import { Invite } from '@/types';
 
 const InvitesContext = createContext<{

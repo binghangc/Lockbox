@@ -12,7 +12,7 @@ import {
 import { BlurView } from 'expo-blur';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
-import { useUser } from '@/components/UserContext';
+import { useUser } from '@/context/UserContext';
 import FloatingOrb from '@/components/floatingOrb';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -65,8 +65,12 @@ export default function LoginScreen() {
       }
 
       const token = result.session?.access_token;
-      if (!token) throw new Error('Missing access token from response');
+      const refreshToken = result.session?.refresh_token;
+      if (!token || !refreshToken)
+        throw new Error('Missing tokens from response');
+
       await AsyncStorage.setItem('access_token', token);
+      await AsyncStorage.setItem('refresh_token', refreshToken);
       setToken(token);
 
       const profileRes = await fetch(

@@ -17,8 +17,17 @@ const { generateVibeCheck } = require('../utils/geminiclient.js');
 // POST /trips - Create a new trip
 router.post('/', authMiddleware, async (req, res) => {
   const user_id = req.user.id;
-  const { title, description, start_date, end_date, country, thumbnail_url } =
-    req.body;
+  const {
+    title,
+    description,
+    start_date,
+    end_date,
+    country,
+    thumbnail_url,
+    tags,
+    video_background,
+    effects,
+  } = req.body;
 
   const today = dayjs().format('YYYY-MM-DD');
   const start = dayjs(start_date).format('YYYY-MM-DD');
@@ -37,6 +46,9 @@ router.post('/', authMiddleware, async (req, res) => {
         country,
         thumbnail_url,
         status,
+        tags,
+        video_background,
+        effects,
       },
     ])
     .select();
@@ -99,16 +111,9 @@ router.get('/', authMiddleware, async (req, res) => {
 });
 
 // GET /trips/:id - Get a single trip by ID
-router.get('/:id', async (req, res) => {
-  const token = req.headers.authorization?.split(' ')[1];
+router.get('/:id', authMiddleware, async (req, res) => {
   const tripId = req.params.id;
-
-  const { data: userData, error: userError } =
-    await supabase.auth.getUser(token);
-  if (userError || !userData?.user) {
-    return res.status(401).json({ error: 'Invalid token' });
-  }
-  const userId = userData.user.id;
+  const userId = req.user.id;
 
   const { data: trip, error } = await supabase
     .from('trips')
@@ -213,13 +218,17 @@ router.post('/:id/leave', authMiddleware, async (req, res) => {
 // API endpoint for users to edit their trips.
 router.patch('/:id/edit', authMiddleware, async (req, res) => {
   const trip_id = req.params.id;
-  const { title, description, thumbnail_url, start_date, end_date, country } =
-    req.body;
-
-  const today = dayjs().format('YYYY-MM-DD');
-  const start = dayjs(start_date).format('YYYY-MM-DD');
-
-  const status = start === today ? 'ongoing' : 'upcoming';
+  const {
+    title,
+    description,
+    thumbnail_url,
+    start_date,
+    end_date,
+    country,
+    tags,
+    video_background,
+    effects,
+  } = req.body;
   const user_id = req.user.id;
 
   if (!trip_id) {
@@ -235,7 +244,9 @@ router.patch('/:id/edit', authMiddleware, async (req, res) => {
       end_date,
       country,
       thumbnail_url,
-      status,
+      tags,
+      video_background,
+      effects,
     })
     .eq('id', trip_id)
     .select()
@@ -249,11 +260,7 @@ router.patch('/:id/edit', authMiddleware, async (req, res) => {
     return res.status(400).json({ error: 'Only hosts can edit trip.' });
   }
 
-  return res.status(200).json({
-    trip,
-    message: 'Trip updated successfully',
-    needsImmediateItinerary: status === 'ongoing',
-  });
+  return res.status(200).json({ trip, message: 'Trip updated successfully' });
 });
 
 // API endpoint for retrieving the participants in a trip

@@ -2,7 +2,7 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import { useRouter, Stack } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import ParticipantsList from '@/components/participants/participantsList';
-import { useUser } from '@/components/UserContext';
+import { useUser } from '@/context/UserContext';
 import { Profile } from '@/types';
 import { useState } from 'react';
 import UserProfileModal from '@/components/userProfileModal';

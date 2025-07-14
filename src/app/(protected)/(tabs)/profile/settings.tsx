@@ -5,7 +5,7 @@ import { BlurView } from 'expo-blur';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useContext } from 'react';
-import { UserContext } from '@/components/UserContext';
+import { UserContext } from '@/context/UserContext';
 
 type SettingItemProps = {
   icon: React.ReactNode;

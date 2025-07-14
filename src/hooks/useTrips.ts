@@ -1,6 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useUser } from '@/components/UserContext';
+import { useUser } from '@/context/UserContext';
+import { useLocalSearchParams } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
+
+const tripDirtyMap = new Map<string, boolean>();
+
+export const markTripDirty = (id: string) => tripDirtyMap.set(id, true);
+export const isTripDirty = (id: string) => tripDirtyMap.get(id) === true;
+export const clearTripDirty = (id: string) => tripDirtyMap.set(id, false);
 
 export interface Trip {
   id: string;
@@ -13,39 +20,58 @@ export interface Trip {
   description?: string;
   status?: string;
   is_pinned?: boolean;
+  video_background?: string;
+  effects?: string;
+  tags?: string[];
   // Add other trip fields as needed
 }
 
 export default function useTrips(tripId?: string) {
-  const { user } = useUser();
+  const { user, authenticatedFetch } = useUser();
   const [trip, setTrip] = useState<Trip | null>(null);
   const [isHost, setIsHost] = useState(false);
   const [loading, setLoading] = useState(true);
+  const params = useLocalSearchParams();
 
   const fetchTrip = useCallback(async () => {
-    if (!tripId || !user) return;
+    if (!tripId || !user || !authenticatedFetch) {
+      setLoading(false);
+      return;
+    }
 
     try {
-      const token = await AsyncStorage.getItem('access_token');
-      const res = await fetch(
+      const res = await authenticatedFetch(
         `${process.env.EXPO_PUBLIC_API_URL}/trips/${tripId}`,
-        { headers: { Authorization: `Bearer ${token}` } },
       );
       const data = await res.json();
       if (res.ok) {
         setTrip(data);
         setIsHost(data.is_host ?? false);
+      } else {
+        console.error('Fetch trip error:', data.error);
       }
     } catch (err) {
       console.error('Fetch trip error:', err);
     } finally {
       setLoading(false);
     }
-  }, [tripId, user]);
+  }, [tripId, user, authenticatedFetch]);
 
   useEffect(() => {
-    fetchTrip();
-  }, [fetchTrip]);
+    if (user && tripId) {
+      fetchTrip();
+    }
+  }, [user, tripId, fetchTrip, params.refresh]); // Add params.refresh to dependencies
+
+  // Also refetch when the screen comes into focus (for navigation back)
+  useFocusEffect(
+    useCallback(() => {
+      if (user && tripId && isTripDirty(tripId)) {
+        fetchTrip();
+        clearTripDirty(tripId);
+      }
+    }, [user, tripId, fetchTrip]),
+  );
 
   const isPinned = trip?.is_pinned ?? false;
 

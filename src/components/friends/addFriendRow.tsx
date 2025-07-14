@@ -32,7 +32,7 @@ export default function AddFriendRow({
 }: {
   onAddFriend: () => void;
   onMoreOptions: () => void;
-  status?: 'accepted' | 'pending' | 'none';
+  status?: 'accepted' | 'pending' | 'incoming' | 'none';
 }) {
   const { text, color } = getButtonTextAndColor(status);
   return (

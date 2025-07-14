@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import useVideoPermissions from '@/hooks/video/useVideoPermissions';
 import useVideoRecorder from '@/hooks/video/useVideoRecorder';
 import uploadOrb from '@/utils/orbs';
-import { useUser } from '@/components/UserContext';
+import { useUser } from '@/context/UserContext';
 import VIDEO_CONFIG from '@/constants/videoConfig';
 import VideoBubblePreview from './videoBubblePreview';
 

@@ -4,8 +4,8 @@
   "main": "expo-router/entry",
   "scripts": {
     "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "prettier:check": "prettier --check .",
@@ -26,11 +26,13 @@
     "dayjs": "^1.11.13",
     "dotenv": "^16.5.0",
     "expo": "^53.0.11",
+    "expo-av": "~15.1.7",
     "expo-blur": "~14.1.4",
     "expo-calendar": "~14.1.4",
     "expo-camera": "~16.1.8",
     "expo-constants": "~17.1.5",
     "expo-dev-client": "~5.2.0",
+    "expo-font": "^13.3.2",
     "expo-haptics": "~14.1.4",
     "expo-image-picker": "~16.1.4",
     "expo-linear-gradient": "~14.1.4",
@@ -38,6 +40,7 @@
     "expo-router": "~5.0.5",
     "expo-secure-store": "~14.2.3",
     "expo-status-bar": "~2.2.3",
+    "expo-video": "~2.2.2",
     "express": "^5.1.0",
     "kue": "^0.11.6",
     "lodash": "^4.17.21",
@@ -98,5 +101,6 @@
     "url": "https://github.com/binghangc/Lockbox/issues"
   },
   "homepage": "https://github.com/binghangc/Lockbox#readme",
-  "description": ""
+  "description": "This repository contains our team's technical **Proof of Concept (PoC)** for **Lockbox** - our time capsule vlogging app which records your memories and locks them away for later. It demonstrates core features across the React Native frontend, Node.js backend, and Supabase database, laying the groundwork for a scalable and secure architecture.",
+  "type": "commonjs"
 }

@@ -4,7 +4,7 @@ import useFriends from '@/hooks/useFriends';
 import { debounce } from 'lodash';
 import { FontAwesome5 } from '@expo/vector-icons';
 import InviteFriendsList from '@/components/invites/inviteFriendsList';
-import { useUser } from '@/components/UserContext';
+import { useUser } from '@/context/UserContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState, useMemo } from 'react';
 import { Profile } from '@/types';

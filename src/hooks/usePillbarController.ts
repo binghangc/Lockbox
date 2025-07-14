@@ -7,7 +7,7 @@ import {
   Extrapolation,
   withSpring,
 } from 'react-native-reanimated';
-import PILLBAR from '@/constants/pillbarConfig';
+import usePillbarConfig from '@/constants/pillbarConfig';
 
 type Status = 'upcoming' | 'ongoing' | 'ended';
 
@@ -24,6 +24,7 @@ export default function usePillbarController({
   onPressOutBubble,
   onLongPressBubble,
 }: ControllerProps) {
+  const PILLBAR = usePillbarConfig();
   const [dragEnabled, setDragEnabled] = useState(false);
   const [barWidth, setBarWidth] = useState(0);
   const [hasSent, setHasSent] = useState(false);
@@ -82,6 +83,7 @@ export default function usePillbarController({
       isSliding,
       panX,
       showAccessory,
+      PILLBAR,
     ],
   );
 

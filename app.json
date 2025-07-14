@@ -23,7 +23,11 @@
         "foregroundImage": "./assets/lockicon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.lockedin.lockbox"
+      "package": "com.lockedin.lockbox",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "favicon": "./assets/lockicon.png"
@@ -39,7 +43,15 @@
           "microphonePermission": "Allow Lockbox to access your microphone",
           "recordAudioAndroid": true
         }
-      ]
-    ]
+      ],
+      "expo-video"
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "a6964f74-b71d-4ce7-8919-a7162991b136"
+      }
+    },
+    "owner": "locked-in"
   }
 }

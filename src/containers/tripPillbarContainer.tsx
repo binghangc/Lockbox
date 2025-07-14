@@ -1,17 +1,14 @@
-import { View, Dimensions } from 'react-native';
-import LottieView from 'lottie-react-native';
+import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import PILLBAR from '@/constants/pillbarConfig';
+import usePillbarConfig from '@/constants/pillbarConfig';
 import useHaptics from '@/hooks/useHaptics';
 import useRecordHint from '@/hooks/video/useRecordHint';
 import RecordHintBar from '@/components/video/recordHintBar';
-import React from 'react';
 import VideoBubbleController from '@/components/video/videoBubbleController';
 import TripPillbar from '@/components/tripPillbar';
 import useTodayVibecheck from '@/hooks/useTodayVibecheck';
 import VibecheckShuffleButton from '@/components/vibecheckShuffleButton';
-import { useUser } from '@/components/UserContext';
-import confettiJson from '../../assets/animations/confetti.json';
+import { useUser } from '@/context/UserContext';
 
 type TripPillbarContainerProps = {
   tripId: string;
@@ -33,15 +30,11 @@ export default function TripPillbarContainer({
     useTodayVibecheck(tripId, status);
   const { user } = useUser();
 
-  const confettiRef = React.useRef<LottieView>(null);
-  const triggerConfetti = () => {
-    confettiRef.current?.play();
-  };
-  const { width, height } = Dimensions.get('window');
+  const PILLBAR = usePillbarConfig();
 
   let pillText = '';
   if (status === 'upcoming') {
-    pillText = 'Superpower your vibechecks with our vibe genie';
+    pillText = 'Superpower your vibechecks\nwith our vibe genie';
   } else if (status === 'ongoing') {
     pillText = vcloading
       ? 'Loading vibecheck...'
@@ -73,22 +66,6 @@ export default function TripPillbarContainer({
           <RecordHintBar />
         </View>
       )}
-      <LottieView
-        ref={confettiRef}
-        source={confettiJson}
-        autoPlay={false}
-        loop={false}
-        resizeMode="cover"
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width,
-          height,
-          zIndex: 1,
-          pointerEvents: 'none',
-        }}
-      />
       <VideoBubbleController
         tripId={tripId}
         userId={user?.id}
@@ -131,7 +108,6 @@ export default function TripPillbarContainer({
                     console.log('send');
                     onSend();
                     send(); // haptics
-                    triggerConfetti(); // 🎉
                   }
                 : undefined
             }
