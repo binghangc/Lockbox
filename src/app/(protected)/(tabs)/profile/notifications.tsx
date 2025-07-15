@@ -3,7 +3,10 @@ import { View, Text, Switch, Alert } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { Ionicons, Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { registerForPushNotificationsAsync } from '@/utils/registerForPushNotifications';
+
+const STORAGE_KEY = 'notifications_settings';
 
 export default function NotificationSettings() {
   const insets = useSafeAreaInsets();
@@ -15,8 +18,29 @@ export default function NotificationSettings() {
     orbReminders: true,
     itineraryNudges: false,
   });
+  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
+    const loadSettings = async () => {
+      const stored = await AsyncStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          if (typeof parsed.enabled === 'boolean') setEnabled(parsed.enabled);
+          if (parsed.subSettings) setSubSettings(parsed.subSettings);
+        } catch (err) {
+          console.error('Failed to parse settings:', err);
+        }
+      }
+      setIsReady(true);
+    };
+
+    loadSettings();
+  }, []);
+
+  useEffect(() => {
+    if (!isReady) return; // wait for settings to load
+
     if (enabled) {
       (async () => {
         const token = await registerForPushNotificationsAsync();
@@ -32,7 +56,20 @@ export default function NotificationSettings() {
         }
       })();
     }
-  }, [enabled]);
+  }, [enabled, isReady]);
+
+  const saveAllSettings = React.useCallback(async () => {
+    if (isReady) {
+      await AsyncStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({ enabled, subSettings }),
+      );
+    }
+  }, [enabled, subSettings, isReady]);
+
+  useEffect(() => {
+    saveAllSettings();
+  }, [saveAllSettings]);
 
   const updateSubSetting = (key: keyof typeof subSettings) => {
     setSubSettings((prev) => ({ ...prev, [key]: !prev[key] }));

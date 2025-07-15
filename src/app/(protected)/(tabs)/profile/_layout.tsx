@@ -66,6 +66,13 @@ export default function ProfileLayout() {
           headerTitle: 'Account Settings',
         }}
       />
+      <Stack.Screen
+        name="notifications"
+        options={{
+          ...sharedScreenOptions,
+          headerTitle: 'Notification Settings',
+        }}
+      />
     </Stack>
   );
 }
