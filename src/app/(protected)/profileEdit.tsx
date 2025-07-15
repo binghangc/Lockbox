@@ -6,6 +6,7 @@ import {
   ActivityIndicator,
   Image,
   TouchableOpacity,
+  Platform,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
@@ -122,7 +123,11 @@ export default function EditProfileScreen() {
       };
 
       const formData = new FormData();
-      formData.append('avatar', file);
+      formData.append('avatar', {
+        uri: Platform.OS === 'ios' ? uri.replace('file://', '') : uri,
+        type: 'image/jpeg',
+        name: name,
+      });
       formData.append('user_id', currentUser.id); // remove if switching to token-based auth
 
       setUploading(true);
@@ -131,9 +136,6 @@ export default function EditProfileScreen() {
         `${process.env.EXPO_PUBLIC_API_URL}/profile/upload-avatar`,
         {
           method: 'POST',
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
           body: formData,
         },
       );
