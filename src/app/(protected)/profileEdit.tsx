@@ -6,9 +6,9 @@ import {
   ActivityIndicator,
   Image,
   TouchableOpacity,
-  Platform,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import * as ImageManipulator from 'expo-image-manipulator';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 
@@ -113,22 +113,27 @@ export default function EditProfileScreen() {
 
       if (result.canceled) return;
 
-      const { uri } = result.assets[0];
-      const name = uri.split('/').pop() || 'avatar.jpg';
+      const original = result.assets[0];
+
+      // Compress and resize image
+      const manipulated = await ImageManipulator.manipulateAsync(
+        original.uri,
+        [{ resize: { width: 600 } }],
+        {
+          compress: 0.6,
+          format: ImageManipulator.SaveFormat.JPEG,
+        },
+      );
 
       const file = {
-        uri,
+        uri: manipulated.uri,
+        name: original.fileName || 'avatar.jpg',
         type: 'image/jpeg',
-        name,
       };
 
       const formData = new FormData();
-      formData.append('avatar', {
-        uri: Platform.OS === 'ios' ? uri.replace('file://', '') : uri,
-        type: 'image/jpeg',
-        name: name,
-      });
-      formData.append('user_id', currentUser.id); // remove if switching to token-based auth
+      formData.append('avatar', file);
+      formData.append('user_id', currentUser.id);
 
       setUploading(true);
 
