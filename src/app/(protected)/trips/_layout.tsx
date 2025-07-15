@@ -2,7 +2,6 @@ import React, { useRef } from 'react';
 import { StyleSheet, TouchableOpacity, Alert, View } from 'react-native';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 
-import { LinearGradient } from 'expo-linear-gradient';
 import Octicons from '@expo/vector-icons/Octicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { Modalize } from 'react-native-modalize';
