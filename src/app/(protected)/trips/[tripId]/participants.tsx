@@ -1,55 +1,104 @@
-import { View, Text, TouchableOpacity } from 'react-native';
-import { useRouter, Stack } from 'expo-router';
-import { Feather } from '@expo/vector-icons';
+import { View, Text } from 'react-native';
+import { BlurView } from 'expo-blur';
+import { Stack, useLocalSearchParams } from 'expo-router';
 import ParticipantsList from '@/components/participants/participantsList';
 import { useUser } from '@/context/UserContext';
-import { Profile } from '@/types';
+import { Profile, Trip } from '@/types';
 import { useState } from 'react';
 import UserProfileModal from '@/components/userProfileModal';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { TripThemeProvider, useTripTheme } from '@/context/TripThemeProvider';
+import TripVisualBackground from '@/components/shared/tripVisualBackground';
+import useTrips from '@/hooks/useTrips';
 
-export default function ParticipantsScreen() {
-  const router = useRouter();
+function ParticipantsContent({ trip }: { trip: Trip }) {
   const { user } = useUser();
   const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
   const [participantCount, setParticipantCount] = useState(0);
-
   const insets = useSafeAreaInsets();
+  const theme = useTripTheme();
+
+  const bgKey = trip?.video_background ?? null;
 
   return (
     <>
-      <Stack.Screen
-        options={{
-          headerLeft: () => (
-            <TouchableOpacity onPress={() => router.back()} className="pl-3">
-              <Feather name="arrow-left" size={24} color="white" />
-            </TouchableOpacity>
-          ),
+      <BlurView
+        intensity={60}
+        tint={theme.blurTint as 'light' | 'dark' | 'default'}
+        experimentalBlurMethod="dimezisBlurView"
+        style={{
+          flex: 1,
+          position: 'absolute',
+          width: '100%',
+          height: '100%',
+          zIndex: 1,
         }}
-      />
-      <View
-        className="flex-1 bg-black px-4 pt-6"
-        style={{ flex: 1, paddingTop: insets.top + 60 }}
       >
-        <View className="mb-6 flex-1">
-          <Text className="text-s text-gray-400 font-semibold mb-2">
-            PARTICIPANTS ({participantCount})
-          </Text>
-          <ParticipantsList
-            onSelect={(selectedParticipant) => {
-              setSelectedUser(selectedParticipant);
-            }}
-            onCountUpdate={setParticipantCount}
-          />
+        <Stack.Screen
+          options={{
+            headerTransparent: true,
+            title: 'Participants',
+            headerBackground: () => (
+              <BlurView
+                intensity={60}
+                tint={theme.blurrierTint as 'light' | 'dark' | 'default'}
+                style={{
+                  flex: 1,
+                  backgroundColor: 'transparent',
+                }}
+              />
+            ),
+          }}
+        />
+        <View
+          className="flex-1 px-4 pt-6"
+          style={{
+            paddingTop: insets.top + 60,
+            backgroundColor: 'transparent',
+          }}
+        >
+          <View className="mb-6 flex-1">
+            <Text
+              style={{
+                color: theme.secondaryText,
+                fontSize: 14,
+                fontWeight: '600',
+                marginBottom: 8,
+              }}
+            >
+              Participants ({participantCount})
+            </Text>
+            <ParticipantsList
+              onSelect={(selectedParticipant) => {
+                setSelectedUser(selectedParticipant);
+              }}
+              onCountUpdate={setParticipantCount}
+            />
+          </View>
         </View>
-      </View>
-      <UserProfileModal
-        isVisible={selectedUser !== null}
-        onClose={() => setSelectedUser(null)}
-        user={selectedUser}
-        currentUserId={user?.id}
-        isFriends
-      />
+        <UserProfileModal
+          isVisible={selectedUser !== null}
+          onClose={() => setSelectedUser(null)}
+          user={selectedUser}
+          currentUserId={user?.id ?? ''}
+          isFriends
+        />
+      </BlurView>
+      <TripVisualBackground videoKey={bgKey} effectKey={null} />
     </>
+  );
+}
+
+export default function ParticipantsScreen() {
+  const { tripId } = useLocalSearchParams();
+  const tripIdStr = Array.isArray(tripId) ? tripId[0] : tripId;
+  const { trip } = useTrips(tripIdStr);
+
+  const videoKey = trip?.video_background || 'moonlight';
+
+  return (
+    <TripThemeProvider videoKey={videoKey}>
+      {trip && <ParticipantsContent trip={trip} />}
+    </TripThemeProvider>
   );
 }

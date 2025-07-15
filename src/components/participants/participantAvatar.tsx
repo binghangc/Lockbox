@@ -35,23 +35,21 @@ export default function ParticipantAvatar({
         className="bg-neutral-700"
       />
       {isHost && (
-        <View
+        <MaterialCommunityIcons
+          name="crown-circle"
+          size={20}
+          color={theme.secondaryIcon}
           style={{
             position: 'absolute',
             bottom: 0,
             right: 0,
             transform: [{ translateX: 6 }, { translateY: -15 }],
           }}
-        >
-          <MaterialCommunityIcons
-            name="crown-circle"
-            size={24}
-            color={theme.secondaryIcon}
-          />
-        </View>
+        />
       )}
       <Text
-        className="text-white text-sm mt-1 text-center"
+        className="text-sm mt-1 text-center"
+        style={{ color: theme.secondaryText }}
         numberOfLines={1}
         ellipsizeMode="tail"
       >
