@@ -30,12 +30,12 @@ export default function CreateTripHeader({
     <BlurView
       intensity={60}
       tint={theme.blurTint as 'light' | 'dark'}
-      experimentalBlurMethod="dimezisBlurView"
+      experimentalBlurMethod="none"
       className="absolute top-0 left-0 right-0 z-10"
       style={{
         backgroundColor:
           Platform.OS === 'android'
-            ? `${theme.secondaryBackground}AA`
+            ? `${theme.secondaryBackground}EE`
             : undefined,
       }}
     >

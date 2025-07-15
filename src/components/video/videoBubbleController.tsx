@@ -3,7 +3,6 @@ import useVideoPermissions from '@/hooks/video/useVideoPermissions';
 import useVideoRecorder from '@/hooks/video/useVideoRecorder';
 import uploadOrb from '@/utils/orbs';
 import { useUser } from '@/context/UserContext';
-import VIDEO_CONFIG from '@/constants/videoConfig';
 import VideoBubblePreview from './videoBubblePreview';
 
 type Props = {
@@ -36,7 +35,6 @@ export default function VideoBubbleController({
 
   const { cameraRef, isRecording, startRecording, stopRecording, videoUri } =
     useVideoRecorder({
-      maxDurationSec: VIDEO_CONFIG.MAX_DURATION,
       onRecordingFinished: async (uri) => {
         setShowPreview(false);
 

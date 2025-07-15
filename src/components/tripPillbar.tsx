@@ -1,7 +1,7 @@
 import React from 'react';
 /* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable react/jsx-no-bind */
-import { View } from 'react-native';
+import { View, Platform } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -75,7 +75,7 @@ export default function TripPillbar({
           <View style={{ overflow: 'hidden', borderRadius: 9999 }}>
             <BlurView
               intensity={PILLBAR.BLUR_INTENSITY}
-              experimentalBlurMethod="dimezisBlurView"
+              experimentalBlurMethod="none"
               tint={PILLBAR.BLUR_TINT as 'light' | 'dark' | 'default'}
               className="rounded-full flex-row justify-center items-center bg-white/5"
               style={[
@@ -85,6 +85,10 @@ export default function TripPillbar({
                   minHeight: PILLBAR.PILLBAR_HEIGHT,
                   paddingHorizontal: PILLBAR.PILLBAR_PADDING_HORIZONTAL,
                   paddingVertical: PILLBAR.PILLBAR_PADDING_VERTICAL,
+                  backgroundColor:
+                    Platform.OS === 'android'
+                      ? `${theme.secondaryBackground}EE`
+                      : 'transparent',
                 },
               ]}
             >

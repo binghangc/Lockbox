@@ -45,10 +45,20 @@ export default function TripPillbarContainer({
 
   const bottomAccessory =
     isHost && status === 'ongoing' ? (
-      <VibecheckShuffleButton
-        onPress={reshuffleVibecheck}
-        loading={vcloading}
-      />
+      <View
+        style={{
+          flex: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginBottom: 7,
+          marginRight: 5,
+        }}
+      >
+        <VibecheckShuffleButton
+          onPress={reshuffleVibecheck}
+          loading={vcloading}
+        />
+      </View>
     ) : null;
 
   return (

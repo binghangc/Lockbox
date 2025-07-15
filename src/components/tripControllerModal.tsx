@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { View } from 'react-native';
+import { View, Platform } from 'react-native';
 import { Modalize } from 'react-native-modalize';
 import { BlurView } from 'expo-blur';
 import Foundation from '@expo/vector-icons/Foundation';
@@ -65,6 +65,9 @@ export default function TripControllerModal({
           paddingHorizontal: 12,
           paddingTop: 12,
           paddingBottom: 24,
+          ...(Platform.OS === 'android' && {
+            backgroundColor: `${theme.secondaryBackground}`,
+          }),
         }}
       >
         <View className="mt-3">
