@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import videoBackgrounds from '@/constants/videoBackgrounds';
 import { THEME, ThemeMode } from '@/constants/themeConfig';
 
@@ -26,6 +26,12 @@ export function TripThemeProvider({
     const mode: ThemeMode = videoBackgrounds[videoKey]?.mode ?? 'dark';
     return { ...THEME[mode], video_background: videoKey };
   });
+
+  // Update theme when videoKey prop changes
+  useEffect(() => {
+    const mode: ThemeMode = videoBackgrounds[videoKey]?.mode ?? 'dark';
+    setTheme({ ...(THEME[mode] ?? THEME.dark), video_background: videoKey });
+  }, [videoKey]);
 
   const setThemeByVideoKey = React.useCallback((key: string) => {
     const mode: ThemeMode = videoBackgrounds[key]?.mode ?? 'dark';
