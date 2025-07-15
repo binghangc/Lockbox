@@ -72,7 +72,7 @@ export default function ProfileSettings() {
         <SettingItem
           label="Notifications"
           icon={<Ionicons name="notifications" size={24} color="white" />}
-          onPress={() => router.push('/notifications')}
+          onPress={() => router.push('./notifications')}
         />
       </BlurView>
       <BlurView
