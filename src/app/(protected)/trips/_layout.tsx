@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, TouchableOpacity, Alert, View } from 'react-native';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 
 import { LinearGradient } from 'expo-linear-gradient';
@@ -78,20 +78,11 @@ function TripLayoutInner({
   const onLeave = () => {};
 
   const headerBackground = () => (
-    <LinearGradient
-      colors={[
-        `${theme.surfaceColor}FF`,
-        `${theme.surfaceColor}F0`,
-        `${theme.surfaceColor}E0`,
-        `${theme.surfaceColor}C0`,
-        `${theme.surfaceColor}80`,
-        `${theme.surfaceColor}40`,
-        `${theme.surfaceColor}10`,
-        `${theme.surfaceColor}00`,
-      ]}
-      start={{ x: 0.5, y: 0 }}
-      end={{ x: 0.5, y: 1 }}
-      style={StyleSheet.absoluteFill}
+    <View
+      style={{
+        backgroundColor: 'transparent',
+        ...StyleSheet.absoluteFillObject,
+      }}
     />
   );
 

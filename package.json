@@ -62,7 +62,8 @@
     "tailwindcss": "^3.4.17",
     "uuid": "^11.1.0",
     "world-countries": "^5.1.0",
-    "zod": "^3.25.64"
+    "zod": "^3.25.64",
+    "@react-native-masked-view/masked-view": "0.3.2"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
