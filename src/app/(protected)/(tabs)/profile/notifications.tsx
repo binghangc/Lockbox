@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { View, Alert } from 'react-native';
+import { View, Alert, Linking } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { Ionicons, Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useUser } from '@/context/UserContext';
-import { registerForPushNotificationsAsync } from '@/utils/registerForPushNotifications';
+import registerForPushNotificationsAsync from '@/utils/registerForPushNotifications';
 import SubToggle from '@/components/subToggle';
+import useNotificationPermissions from '@/hooks/useNotificationPermissions';
 
 const STORAGE_KEY = 'notifications_settings';
 
@@ -22,6 +23,7 @@ export default function NotificationSettings() {
     itineraryNudges: false,
   });
   const [isReady, setIsReady] = useState(false);
+  const { granted, requestPermissions } = useNotificationPermissions();
 
   useEffect(() => {
     const loadSettings = async () => {
@@ -42,52 +44,56 @@ export default function NotificationSettings() {
   }, []);
 
   useEffect(() => {
-    if (!isReady) return;
+    if (!isReady || !enabled) return;
 
-    if (enabled) {
-      (async () => {
-        const token = await registerForPushNotificationsAsync();
-        if (!token) {
-          Alert.alert(
-            'Notifications not allowed',
-            'Please enable notifications in system settings.',
-          );
-          setEnabled(false);
-        } else {
-          console.log('Got push token:', token);
-          if (user?.id) {
-            try {
-              console.log('Sending to backend:', {
+    (async () => {
+      console.log('⚙️ Registering for push notifications...');
+      let token;
+      try {
+        token = await registerForPushNotificationsAsync();
+        console.log('✅ Token returned:', token);
+      } catch (err) {
+        console.error('❌ Token fetch error:', err);
+        Alert.alert('Token error', 'Failed to get push token');
+        return;
+      }
+
+      if (!token) {
+        Alert.alert(
+          'Notifications not allowed',
+          'Please enable notifications in system settings.',
+        );
+        console.warn('⚠️ No token returned');
+        setEnabled(false);
+        return;
+      }
+
+      if (user?.id) {
+        try {
+          const res = await fetch(
+            `${process.env.EXPO_PUBLIC_API_URL}/notifications/register`,
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
                 userId: user.id,
                 expoPushToken: token,
                 preferences: subSettings,
-              });
-              const res = await fetch(
-                `${process.env.EXPO_PUBLIC_API_URL}/notifications/register`,
-                {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    userId: user.id,
-                    expoPushToken: token,
-                    preferences: subSettings,
-                  }),
-                },
-              );
-              if (!res.ok) {
-                const error = await res.json();
-                console.error('Push token save failed:', error);
-              } else {
-                console.log('Push token and prefs synced');
-              }
-            } catch (err) {
-              console.error('Push token registration error:', err);
-            }
+              }),
+            },
+          );
+          if (!res.ok) {
+            const error = await res.json();
+            console.error('❌ Push token save failed:', error);
+          } else {
+            console.log('✅ Push token and prefs synced');
           }
+        } catch (err) {
+          console.error('❌ Push token registration error:', err);
         }
-      })();
-    }
-  }, [enabled, isReady, subSettings, user.id]);
+      }
+    })();
+  }, [enabled, isReady, subSettings, user?.id]);
 
   const saveAllSettings = React.useCallback(async () => {
     if (isReady) {
@@ -101,6 +107,44 @@ export default function NotificationSettings() {
   useEffect(() => {
     saveAllSettings();
   }, [saveAllSettings]);
+
+  const handleToggleEnabled = async (next: boolean) => {
+    if (next) {
+      const allowed = await requestPermissions();
+
+      if (!allowed) {
+        Alert.alert(
+          'Permission Required',
+          'To receive notifications, please enable them in system settings.',
+          [{ text: 'Open Settings', onPress: () => Linking.openSettings() }],
+        );
+        return;
+      }
+
+      // At this point, permission is granted — try getting token again
+      const token = await registerForPushNotificationsAsync();
+      if (!token) {
+        Alert.alert(
+          'Failed to get token',
+          'Notifications are allowed, but we couldn’t get a token. Try restarting the app or check your network.',
+        );
+        return;
+      }
+
+      console.log('✅ Push token:', token);
+      setEnabled(true);
+    } else {
+      Alert.alert(
+        'Disable Notifications',
+        'To completely disable notifications, go to system settings.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Open Settings', onPress: () => Linking.openSettings() },
+        ],
+      );
+      setEnabled(false);
+    }
+  };
 
   const handleVibeChecks = (next: boolean) =>
     setSubSettings((prev) => ({ ...prev, vibeChecks: next }));
@@ -131,7 +175,7 @@ export default function NotificationSettings() {
           key="enabled"
           label="Enable Notifications"
           value={enabled}
-          onChange={setEnabled}
+          onChange={handleToggleEnabled}
           icon={<Ionicons name="notifications" size={24} color="white" />}
         />
       </BlurView>

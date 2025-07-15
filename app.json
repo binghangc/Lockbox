@@ -44,6 +44,7 @@
           "recordAudioAndroid": true
         }
       ],
+      "expo-notifications",
       "expo-video"
     ],
     "extra": {
