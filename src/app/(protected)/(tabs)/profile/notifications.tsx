@@ -1,15 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Switch, Alert } from 'react-native';
+import { View, Alert } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { Ionicons, Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useUser } from '@/context/UserContext';
 import { registerForPushNotificationsAsync } from '@/utils/registerForPushNotifications';
+import SubToggle from '@/components/subToggle';
 
 const STORAGE_KEY = 'notifications_settings';
 
 export default function NotificationSettings() {
   const insets = useSafeAreaInsets();
+  const { user } = useUser();
 
   const [enabled, setEnabled] = useState(false);
   const [subSettings, setSubSettings] = useState({
@@ -39,7 +42,7 @@ export default function NotificationSettings() {
   }, []);
 
   useEffect(() => {
-    if (!isReady) return; // wait for settings to load
+    if (!isReady) return;
 
     if (enabled) {
       (async () => {
@@ -52,11 +55,39 @@ export default function NotificationSettings() {
           setEnabled(false);
         } else {
           console.log('Got push token:', token);
-          // TODO: send to backend
+          if (user?.id) {
+            try {
+              console.log('Sending to backend:', {
+                userId: user.id,
+                expoPushToken: token,
+                preferences: subSettings,
+              });
+              const res = await fetch(
+                `${process.env.EXPO_PUBLIC_API_URL}/notifications/register`,
+                {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    userId: user.id,
+                    expoPushToken: token,
+                    preferences: subSettings,
+                  }),
+                },
+              );
+              if (!res.ok) {
+                const error = await res.json();
+                console.error('Push token save failed:', error);
+              } else {
+                console.log('Push token and prefs synced');
+              }
+            } catch (err) {
+              console.error('Push token registration error:', err);
+            }
+          }
         }
       })();
     }
-  }, [enabled, isReady]);
+  }, [enabled, isReady, subSettings, user.id]);
 
   const saveAllSettings = React.useCallback(async () => {
     if (isReady) {
@@ -71,32 +102,17 @@ export default function NotificationSettings() {
     saveAllSettings();
   }, [saveAllSettings]);
 
-  const updateSubSetting = (key: keyof typeof subSettings) => {
-    setSubSettings((prev) => ({ ...prev, [key]: !prev[key] }));
-    // TODO: sync preference to Supabase
-  };
+  const handleVibeChecks = (next: boolean) =>
+    setSubSettings((prev) => ({ ...prev, vibeChecks: next }));
 
-  function SubToggle({
-    label,
-    value,
-    onChange,
-    icon,
-  }: {
-    label: string;
-    value: boolean;
-    onChange: () => void;
-    icon: React.ReactNode;
-  }) {
-    return (
-      <View className="flex-row items-center justify-between px-4 py-4">
-        <View className="flex-row items-center">
-          {icon}
-          <Text className="text-white text-lg font-semibold ml-3">{label}</Text>
-        </View>
-        <Switch value={value} onValueChange={onChange} />
-      </View>
-    );
-  }
+  const handleVaultOpened = (next: boolean) =>
+    setSubSettings((prev) => ({ ...prev, vaultOpening: next }));
+
+  const handleOrbReminders = (next: boolean) =>
+    setSubSettings((prev) => ({ ...prev, orbReminders: next }));
+
+  const handleItineraryNudges = (next: boolean) =>
+    setSubSettings((prev) => ({ ...prev, itineraryNudges: next }));
 
   return (
     <View
@@ -112,6 +128,7 @@ export default function NotificationSettings() {
         style={{ borderRadius: 5, overflow: 'hidden' }}
       >
         <SubToggle
+          key="enabled"
           label="Enable Notifications"
           value={enabled}
           onChange={setEnabled}
@@ -130,9 +147,10 @@ export default function NotificationSettings() {
           }}
         >
           <SubToggle
+            key="vibeChecks"
             label="New Vibe Checks"
             value={subSettings.vibeChecks}
-            onChange={() => updateSubSetting('vibeChecks')}
+            onChange={handleVibeChecks}
             icon={<Ionicons name="sparkles-outline" size={22} color="white" />}
           />
           <View
@@ -144,9 +162,10 @@ export default function NotificationSettings() {
           />
 
           <SubToggle
+            key="vaultOpening"
             label="Vault Opened"
             value={subSettings.vaultOpening}
-            onChange={() => updateSubSetting('vaultOpening')}
+            onChange={handleVaultOpened}
             icon={<Feather name="unlock" size={22} color="white" />}
           />
           <View
@@ -158,9 +177,10 @@ export default function NotificationSettings() {
           />
 
           <SubToggle
+            key="orbReminders"
             label="Orb Reminders"
             value={subSettings.orbReminders}
-            onChange={() => updateSubSetting('orbReminders')}
+            onChange={handleOrbReminders}
             icon={<Ionicons name="send-outline" size={22} color="white" />}
           />
           <View
@@ -172,9 +192,10 @@ export default function NotificationSettings() {
           />
 
           <SubToggle
+            key="itineraryNudges"
             label="Itinerary Nudges"
             value={subSettings.itineraryNudges}
-            onChange={() => updateSubSetting('itineraryNudges')}
+            onChange={handleItineraryNudges}
             icon={<Ionicons name="calendar-outline" size={22} color="white" />}
           />
         </BlurView>
