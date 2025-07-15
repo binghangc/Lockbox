@@ -33,7 +33,7 @@ const ChangeEmailModal = forwardRef<Modalize, ChangeEmailModalProps>(
         <View
           style={{
             padding: 20,
-            minHeight: 300,
+            minHeight: 350,
             backgroundColor: 'rgb(18, 18, 18)',
             paddingBottom: 12,
           }}

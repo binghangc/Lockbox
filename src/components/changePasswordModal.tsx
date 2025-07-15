@@ -2,7 +2,7 @@ import React, { forwardRef, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity } from 'react-native';
 import { Modalize } from 'react-native-modalize';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Feather } from '@expo/vector-icons';
+import { Feather, Foundation } from '@expo/vector-icons';
 
 export type ChangePasswordModalRef = Modalize;
 
@@ -47,7 +47,7 @@ const ChangePasswordModal = forwardRef<Modalize, Props>(
         <View
           style={{
             padding: 20,
-            minHeight: 500,
+            minHeight: 550,
             backgroundColor: 'rgb(18, 18, 18)',
             paddingBottom: 12,
           }}
@@ -158,6 +158,25 @@ const ChangePasswordModal = forwardRef<Modalize, Props>(
                 />
               </TouchableOpacity>
             </View>
+          </View>
+
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 6,
+              marginBottom: 20,
+            }}
+          >
+            <Foundation
+              name="info"
+              size={14}
+              color="rgba(255, 255, 255, 0.7)"
+            />
+            <Text className="text-white text-sm opacity-70">
+              Passwords must consist of at least 8 characters and include
+              uppercase, lowercase, and special characters, and digits.
+            </Text>
           </View>
 
           <View

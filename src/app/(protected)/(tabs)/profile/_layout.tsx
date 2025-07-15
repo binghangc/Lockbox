@@ -1,5 +1,5 @@
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
-import { Foundation, Octicons, MaterialIcons } from '@expo/vector-icons';
+import { Octicons, MaterialIcons } from '@expo/vector-icons';
 import { router, Stack } from 'expo-router';
 import { BlurView } from 'expo-blur';
 import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
@@ -17,6 +17,7 @@ export default function ProfileLayout() {
           size={28}
           color="white"
           style={{ marginLeft: 12 }}
+          hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
         />
       </TouchableOpacity>
     ),
@@ -41,14 +42,9 @@ export default function ProfileLayout() {
           headerRight: () => (
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <TouchableOpacity
-                onPress={() => router.push('profileEdit')}
-                style={{ marginRight: 16 }}
-              >
-                <Foundation name="pencil" size={24} color="white" />
-              </TouchableOpacity>
-              <TouchableOpacity
                 onPress={() => router.push('/profile/settings')}
                 style={{ marginRight: 16 }}
+                hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
               >
                 <MaterialIcons name="settings" size={24} color="white" />
               </TouchableOpacity>
