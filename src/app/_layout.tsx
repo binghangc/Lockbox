@@ -8,8 +8,11 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { UserProvider } from '@/context/UserContext';
 import { InvitesProvider } from '@/components/InvitesContext';
 import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
 import supabase from '../../lib/supabase';
-import RocGroteskWideMedium from '../../assets/fonts/rocGroteskWideMedium.otf';
+import RocGroteskWideMedium from '../../assets/fonts/RocGrotesk-WideMedium.otf';
+
+SplashScreen.preventAutoHideAsync();
 
 const myTheme = {
   ...DarkTheme,
@@ -21,9 +24,15 @@ const myTheme = {
 };
 
 export default function RootLayout() {
-  const [fontsLoaded] = useFonts({
-    RocGroteskWideMedium,
+  const [fontsLoaded, fontsError] = useFonts({
+    'RocGrotesk-WideMedium': RocGroteskWideMedium,
   });
+
+  useEffect(() => {
+    if (fontsLoaded || fontsError) {
+      SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded, fontsError]);
 
   const router = useRouter();
   const [sessionChecked, setSessionChecked] = useState(false);
@@ -81,7 +90,9 @@ export default function RootLayout() {
     };
   }, [router, sessionChecked]);
 
-  if (!fontsLoaded) return null;
+  if (!fontsLoaded && !fontsError) {
+    return null;
+  }
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

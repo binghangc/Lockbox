@@ -296,7 +296,7 @@ function TripForm({
                     fontSize: 32,
                     fontWeight: '800',
                     textAlign: 'center',
-                    fontFamily: 'RocGroteskWideMedium',
+                    fontFamily: 'RocGrotesk-WideMedium',
                   }}
                   // Ensures placeholder font style (for iOS/Android visual parity)
                 />

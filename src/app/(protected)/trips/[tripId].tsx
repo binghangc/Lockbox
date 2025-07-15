@@ -139,7 +139,7 @@ function TripDetailContent() {
                   fontSize: 36,
                   fontWeight: '800',
                   textAlign: 'center',
-                  fontFamily: 'RocGroteskWideMedium',
+                  fontFamily: 'RocGrotesk-WideMedium',
                 }}
               >
                 {trip.title}
