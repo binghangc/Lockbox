@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { View, Platform } from 'react-native';
 import useFriends from '@/hooks/useFriends';
@@ -207,7 +208,14 @@ export default function SendInvitesScreen() {
 
   return (
     <TripThemeProvider videoKey={videoKey}>
-      {trip && <SendInvitesContent trip={trip} />}
+      {trip && (
+        <SendInvitesContent
+          trip={{
+            ...trip,
+            description: trip.description ?? '',
+          }}
+        />
+      )}
     </TripThemeProvider>
   );
 }

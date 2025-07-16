@@ -1,4 +1,4 @@
-import { View, Text, Platform } from 'react-native';
+import { View, Platform } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -30,7 +30,7 @@ function VaultContent({ tripId }: { tripId: string }) {
           headerBackground: () => (
             <BlurView
               intensity={60}
-              tint={theme.blurTint as 'light' | 'dark'}
+              tint={theme.blurTint as 'light' | 'dark' | 'default'}
               experimentalBlurMethod="none"
               style={{
                 flex: 1,
@@ -54,16 +54,17 @@ function VaultContent({ tripId }: { tripId: string }) {
           width: '100%',
           height: '100%',
           zIndex: 0,
+          overflow: 'visible',
         }}
       >
         <View
-          className="flex-1 px-4 pt-6"
+          className="flex-1 pt-6"
           style={{
             paddingTop: insets.top + 60,
             backgroundColor: 'transparent',
           }}
         >
-          <View style={{ flex: 1 }}>
+          <View style={{ flex: 1, overflow: 'visible' }}>
             <VibeCarousel
               tripId={tripId}
               selectedVibeId={selectedVibeId}
@@ -79,9 +80,11 @@ function VaultContent({ tripId }: { tripId: string }) {
 export default function VaultScreen() {
   const { tripId } = useLocalSearchParams();
   const tripIdStr = Array.isArray(tripId) ? tripId[0] : tripId;
+  const { trip } = useTrips(tripIdStr);
+  const bgKey = trip?.video_background ?? null;
 
   return (
-    <TripThemeProvider videoKey="moonlight">
+    <TripThemeProvider videoKey={bgKey ?? 'moonlight'}>
       {tripIdStr && <VaultContent tripId={tripIdStr} />}
     </TripThemeProvider>
   );

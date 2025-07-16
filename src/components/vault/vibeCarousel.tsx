@@ -32,6 +32,7 @@ export default function VibeCarousel({
   const [vibes, setVibes] = useState<Vibe[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [scrollX, setScrollX] = useState(0);
+  const [isScrolling, setIsScrolling] = useState(false);
   const flatListRef = useRef<FlatList>(null);
 
   // Create cycling data by repeating the vibes array multiple times
@@ -117,6 +118,7 @@ export default function VibeCarousel({
     const index = Math.round(contentOffset / ITEM_WIDTH);
     setScrollX(contentOffset);
     setCurrentIndex(index);
+    setIsScrolling(true);
   };
 
   const handleMomentumScrollEnd = (
@@ -126,6 +128,7 @@ export default function VibeCarousel({
     const index = Math.round(contentOffset / ITEM_WIDTH);
 
     setCurrentIndex(index);
+    setIsScrolling(false);
 
     // Handle cycling - if we're near the beginning or end, jump to equivalent position
     if (vibes.length > 0) {
@@ -151,6 +154,7 @@ export default function VibeCarousel({
   };
 
   const getItemLayout = (
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data: ArrayLike<any> | null | undefined,
     index: number,
   ) => ({
@@ -172,6 +176,10 @@ export default function VibeCarousel({
         <VibeCard
           vibe={vibes[0]}
           isSelected
+          index={0}
+          scrollX={0}
+          itemWidth={ITEM_WIDTH}
+          isScrolling={false}
           onPress={() => onSelect(vibes[0].id)}
         />
       </View>
@@ -204,7 +212,8 @@ export default function VibeCarousel({
         keyExtractor={(item, index) => `${item.id}-${index}`}
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{
-          paddingHorizontal: (screenWidth - CARD_WIDTH) / 2 - 20,
+          paddingLeft: (screenWidth - CARD_WIDTH) / 2 - 16,
+          paddingRight: (screenWidth - CARD_WIDTH) / 2 + 16,
         }}
         snapToInterval={ITEM_WIDTH}
         snapToAlignment="start"
@@ -220,6 +229,7 @@ export default function VibeCarousel({
             scrollX={scrollX}
             index={index}
             itemWidth={ITEM_WIDTH}
+            isScrolling={isScrolling}
             onPress={() => {
               flatListRef.current?.scrollToIndex({
                 index,
