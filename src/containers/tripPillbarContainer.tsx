@@ -43,8 +43,13 @@ export default function TripPillbarContainer({
     pillText = 'View your memories';
   }
 
+  type VibecheckStatus = {
+    submitted_by_anyone?: boolean;
+    submitted_by_user?: boolean;
+  } | null;
+  const vibecheckStatus = vibecheck as VibecheckStatus;
   const bottomAccessory =
-    isHost && status === 'ongoing' ? (
+    isHost && status === 'ongoing' && !vibecheckStatus?.submitted_by_anyone ? (
       <View
         style={{
           flex: 1,
@@ -86,6 +91,7 @@ export default function TripPillbarContainer({
             status={status}
             pillText={pillText}
             bottomAccessory={bottomAccessory}
+            submittedByUser={vibecheckStatus?.submitted_by_user}
             onPressBubble={
               status === 'ongoing'
                 ? () => {

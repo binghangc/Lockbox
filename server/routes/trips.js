@@ -2,13 +2,14 @@ const express = require('express');
 
 const router = express.Router();
 const { createClient } = require('@supabase/supabase-js');
+const { DeleteObjectCommand } = require('@aws-sdk/client-s3');
+const dayjs = require('dayjs');
+const r2 = require('../utils/r2client.js'); // already imported
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY,
 );
-
-const dayjs = require('dayjs');
 
 const authMiddleware = require('../middleware/auth.js');
 
@@ -170,6 +171,86 @@ router.delete('/:id', authMiddleware, async (req, res) => {
 
   if (!trip || trip.user_id !== userId) {
     return res.status(403).json({ error: 'You are not the trip owner.' });
+  }
+
+  try {
+    // Step 1: Fetch all orbs for this trip
+    const { data: orbs, error: orbFetchError } = await supabase
+      .from('orbs')
+      .select('video_key, hls_key')
+      .eq('trip_id', tripId);
+
+    if (orbFetchError) {
+      return res.status(500).json({ error: orbFetchError.message });
+    }
+
+    // Step 2: Delete objects from R2 (both video and HLS files)
+    if (orbs.length > 0) {
+      await Promise.all(
+        orbs.flatMap((orb) => {
+          const deletes = [];
+          if (orb.video_key) {
+            deletes.push(
+              r2.send(
+                new DeleteObjectCommand({
+                  Bucket: process.env.R2_BUCKET_NAME_VIDEOS,
+                  Key: orb.video_key,
+                }),
+              ),
+            );
+          }
+
+          if (orb.hls_key) {
+            const basePrefix = orb.hls_key.split('/master.m3u8')[0];
+            // delete master.m3u8
+            deletes.push(
+              r2.send(
+                new DeleteObjectCommand({
+                  Bucket: process.env.R2_BUCKET_NAME_VIDEOS,
+                  Key: `${basePrefix}/master.m3u8`,
+                }),
+              ),
+            );
+            // delete typical derived segments
+            for (let i = 0; i < 10; i += 1) {
+              deletes.push(
+                r2
+                  .send(
+                    new DeleteObjectCommand({
+                      Bucket: process.env.R2_BUCKET_NAME_VIDEOS,
+                      Key: `${basePrefix}/v0/seg-${i}.ts`,
+                    }),
+                  )
+                  .catch(() => null),
+                r2
+                  .send(
+                    new DeleteObjectCommand({
+                      Bucket: process.env.R2_BUCKET_NAME_VIDEOS,
+                      Key: `${basePrefix}/v1/seg-${i}.ts`,
+                    }),
+                  )
+                  .catch(() => null),
+              );
+            }
+          }
+
+          return deletes;
+        }),
+      );
+    }
+
+    // Step 3: Delete from Supabase
+    const { error: orbDeleteError } = await supabase
+      .from('orbs')
+      .delete()
+      .eq('trip_id', tripId);
+
+    if (orbDeleteError) {
+      return res.status(500).json({ error: orbDeleteError.message });
+    }
+  } catch (cleanupError) {
+    console.error('[Orb Cleanup Error]', cleanupError);
+    return res.status(500).json({ error: 'Failed to delete associated orbs' });
   }
 
   const { error: deleteError } = await supabase

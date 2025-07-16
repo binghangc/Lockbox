@@ -42,6 +42,7 @@ async function storeOrbMetadata({
 }
 
 // POST /upload - Upload a video file to R2
+// eslint-disable-next-line consistent-return
 router.post('/upload', upload.single('video'), async (req, res) => {
   const { tripId, userId, vibecheckId } = req.body;
   const orbId = uuidv4();
@@ -51,6 +52,12 @@ router.post('/upload', upload.single('video'), async (req, res) => {
     return res
       .status(400)
       .json({ error: 'Missing required fields or video file' });
+  }
+
+  if (!vibecheckId) {
+    return res
+      .status(400)
+      .json({ error: 'vibecheckId is required for upload' });
   }
 
   // Check if user already uploaded an orb for this vibecheck
@@ -74,91 +81,95 @@ router.post('/upload', upload.single('video'), async (req, res) => {
     }
   }
 
-  const key = `orbs/${tripId}/${userId}/${orbId}.mp4`;
-
-  try {
-    await r2.send(
-      new PutObjectCommand({
-        Bucket: BUCKET,
-        Key: key,
-        Body: fs.createReadStream(file.path),
-        ContentType: 'video/mp4',
-      }),
-    );
-
-    const hlsOutputDir = path.join(__dirname, `../../temp/hls/${orbId}`);
-    const hlsKeyPrefix = `orbs-hls/${tripId}/${userId}/${orbId}`;
+  if (vibecheckId) {
+    const key = `orbs/${tripId}/${userId}/${orbId}.mp4`;
 
     try {
-      // Step 1: Encode to HLS (480p, 240p)
-      await encodeToHLS(file.path, hlsOutputDir, orbId);
-
-      // Step 2: Upload HLS segments and master playlist to R2
-      const walkDir = (dir) =>
-        fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
-          const fullPath = path.join(dir, entry.name);
-          return entry.isDirectory() ? walkDir(fullPath) : [fullPath];
-        });
-
-      const hlsFiles = walkDir(hlsOutputDir);
-
-      await Promise.all(
-        hlsFiles.map((fullPath) => {
-          const relativePath = path.relative(hlsOutputDir, fullPath);
-          const fileStream = fs.createReadStream(fullPath);
-          return r2.send(
-            new PutObjectCommand({
-              Bucket: BUCKET,
-              Key: `${hlsKeyPrefix}/${relativePath}`,
-              Body: fileStream,
-              ContentType: relativePath.endsWith('.m3u8')
-                ? 'application/vnd.apple.mpegurl'
-                : 'video/MP2T',
-            }),
-          );
+      await r2.send(
+        new PutObjectCommand({
+          Bucket: BUCKET,
+          Key: key,
+          Body: fs.createReadStream(file.path),
+          ContentType: 'video/mp4',
         }),
       );
 
-      // Delete source file after successful encoding and upload
-      fs.unlinkSync(file.path);
-      // Remove the HLS output directory
-      fs.rmSync(hlsOutputDir, { recursive: true, force: true });
-      // Also remove the entire temp/ folder's contents
-      const tempDir = path.join(__dirname, '../../temp');
-      if (fs.existsSync(tempDir)) {
-        fs.readdirSync(tempDir).forEach((entry) => {
-          fs.rmSync(path.join(tempDir, entry), {
-            recursive: true,
-            force: true,
+      const hlsOutputDir = path.join(__dirname, `../../temp/hls/${orbId}`);
+      const hlsKeyPrefix = `orbs-hls/${tripId}/${userId}/${orbId}`;
+
+      try {
+        // Step 1: Encode to HLS (480p, 240p)
+        await encodeToHLS(file.path, hlsOutputDir, orbId);
+
+        // Step 2: Upload HLS segments and master playlist to R2
+        const walkDir = (dir) =>
+          fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+            const fullPath = path.join(dir, entry.name);
+            return entry.isDirectory() ? walkDir(fullPath) : [fullPath];
           });
-        });
+
+        const hlsFiles = walkDir(hlsOutputDir);
+
+        await Promise.all(
+          hlsFiles.map((fullPath) => {
+            const relativePath = path.relative(hlsOutputDir, fullPath);
+            const fileStream = fs.createReadStream(fullPath);
+            return r2.send(
+              new PutObjectCommand({
+                Bucket: BUCKET,
+                Key: `${hlsKeyPrefix}/${relativePath}`,
+                Body: fileStream,
+                ContentType: relativePath.endsWith('.m3u8')
+                  ? 'application/vnd.apple.mpegurl'
+                  : 'video/MP2T',
+              }),
+            );
+          }),
+        );
+
+        // Delete source file after successful encoding and upload
+        fs.unlinkSync(file.path);
+        // Remove the HLS output directory
+        fs.rmSync(hlsOutputDir, { recursive: true, force: true });
+        // Also remove the entire temp/ folder's contents
+        const tempDir = path.join(__dirname, '../../temp');
+        if (fs.existsSync(tempDir)) {
+          fs.readdirSync(tempDir).forEach((entry) => {
+            fs.rmSync(path.join(tempDir, entry), {
+              recursive: true,
+              force: true,
+            });
+          });
+        }
+      } catch (err) {
+        console.error('[HLS Encoding or Upload Error]', err);
+        return res.status(500).json({ error: 'Encoding or upload failed' });
       }
-    } catch (err) {
-      console.error('[HLS Encoding or Upload Error]', err);
-      return res.status(500).json({ error: 'Encoding or upload failed' });
-    }
 
-    let data;
-    try {
-      data = await storeOrbMetadata({
-        orbId,
-        tripId,
-        userId,
-        vibecheckId,
-        videoKey: key,
-        hlsKey: `${hlsKeyPrefix}/master.m3u8`,
-      });
-    } catch (error) {
-      console.error(error.message);
+      let data;
+      try {
+        data = await storeOrbMetadata({
+          orbId,
+          tripId,
+          userId,
+          vibecheckId,
+          videoKey: key,
+          hlsKey: `${hlsKeyPrefix}/master.m3u8`,
+        });
+      } catch (error) {
+        console.error(error.message);
+        return res
+          .status(500)
+          .json({ error: 'Upload succeeded, but DB insert failed' });
+      }
+
       return res
-        .status(500)
-        .json({ error: 'Upload succeeded, but DB insert failed' });
+        .status(200)
+        .json({ message: 'Upload complete', key, orb: data });
+    } catch (e) {
+      console.warn('[HLS Backup Failed]', e);
+      return res.status(500).json({ error: 'Upload or encoding failed' });
     }
-
-    return res.status(200).json({ message: 'Upload complete', key, orb: data });
-  } catch (e) {
-    console.warn('[HLS Backup Failed]', e);
-    return res.status(500).json({ error: 'Upload or encoding failed' });
   }
 }); // end router.post
 
