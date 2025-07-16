@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useUser } from '@/context/UserContext';
+import { Profile, Role } from '@/types';
 import { useLocalSearchParams } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 
@@ -15,7 +16,7 @@ export interface Trip {
   thumbnail_url: string;
   start_date: string;
   end_date: string;
-  host?: { id: string; name: string; avatar_url: string };
+  host: Profile;
   country?: string;
   description?: string;
   status?: string;
@@ -23,7 +24,10 @@ export interface Trip {
   video_background?: string;
   effects?: string;
   tags?: string[];
-  // Add other trip fields as needed
+  created_at: string;
+  user_id: string;
+  participants: { profile: Profile; role: Role }[];
+  is_host: boolean;
 }
 
 export default function useTrips(tripId?: string) {

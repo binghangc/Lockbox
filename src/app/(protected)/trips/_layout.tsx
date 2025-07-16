@@ -150,6 +150,39 @@ function TripLayoutInner({
             },
           }}
         />
+        <Stack.Screen
+          name="[tripId]/vault"
+          options={{
+            title: 'Vault',
+            animation: 'default',
+            gestureEnabled: true,
+            contentStyle: {
+              backgroundColor: 'transparent',
+            },
+          }}
+        />
+        <Stack.Screen
+          name="[tripId]/participants"
+          options={{
+            title: 'Participants',
+            animation: 'default',
+            gestureEnabled: true,
+            contentStyle: {
+              backgroundColor: 'transparent',
+            },
+          }}
+        />
+        <Stack.Screen
+          name="[tripId]/sendInvites"
+          options={{
+            title: 'Invite',
+            animation: 'default',
+            gestureEnabled: true,
+            contentStyle: {
+              backgroundColor: 'transparent',
+            },
+          }}
+        />
       </Stack>
 
       <TripControllerModal

@@ -103,6 +103,10 @@ function TripDetailContent() {
     handlePress = () => {
       console.log('Not host - do nothing.');
     };
+  } else if (trip.status === 'ended') {
+    handlePress = () => {
+      router.push(`/trips/${tripId}/vault`);
+    };
   } else {
     handlePress = () => {
       console.log('Not implemented yet.');
