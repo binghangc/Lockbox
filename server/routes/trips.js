@@ -12,7 +12,7 @@ const dayjs = require('dayjs');
 
 const authMiddleware = require('../middleware/auth.js');
 
-const { generateVibeCheck } = require('../utils/geminiclient.js');
+const { generateVibeCheck } = require('../rag/utils/generateVibeCheck.js');
 
 // POST /trips - Create a new trip
 router.post('/', authMiddleware, async (req, res) => {
