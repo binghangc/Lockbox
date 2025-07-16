@@ -3,7 +3,7 @@ import InviteFriendActionButton from '@/components/invites/inviteFriendActionBut
 import type { Profile } from '@/types';
 import FriendRowBase from '@/components/friendRowBase';
 
-type FriendRow = Profile & { friendshipId?: string };
+type FriendRow = Profile;
 
 type Props = {
   item: FriendRow;
@@ -31,7 +31,7 @@ export default function InviteFriendRow({
   return (
     <FriendRowBase
       item={item}
-      onPress={null}
+      onPress={() => {}}
       RightAction={
         <InviteFriendActionButton
           status={status}

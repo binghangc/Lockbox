@@ -2,6 +2,8 @@ import { FlatList, View, Text, Pressable } from 'react-native';
 import InviteFriendRow from '@/components/invites/inviteFriendRow';
 import { Feather } from '@expo/vector-icons';
 import FormInput from '@/components/formInput';
+import { Profile } from '@/types';
+import { router } from 'expo-router';
 
 type Props = {
   friends: Profile[];
@@ -11,7 +13,6 @@ type Props = {
     string,
     'idle' | 'loading' | 'pending' | 'accepted' | 'declined' | 'failed'
   >;
-  alreadyInvitedIds: string[];
   onSelect: (user: Profile) => void | Promise<void>;
   loading: boolean;
 };
@@ -21,7 +22,6 @@ export default function InviteFriendsList({
   rawQuery,
   onQueryChange,
   inviteStatus,
-  alreadyInvitedIds,
   onSelect,
   loading,
 }: Props) {
@@ -70,7 +70,6 @@ export default function InviteFriendsList({
             <InviteFriendRow
               key={item.id}
               item={item}
-              alreadyInvitedIds={alreadyInvitedIds}
               inviteStatus={inviteStatus}
               onSelect={onSelect}
             />
