@@ -177,56 +177,127 @@ router.delete('/:id', authMiddleware, async (req, res) => {
     // Step 1: Fetch all orbs for this trip
     const { data: orbs, error: orbFetchError } = await supabase
       .from('orbs')
-      .select('video_key, hls_key')
+      .select('id, video_key, hls_key, user_id')
       .eq('trip_id', tripId);
 
     if (orbFetchError) {
+      console.error('[Orb Fetch Error]', orbFetchError.message);
       return res.status(500).json({ error: orbFetchError.message });
     }
 
+    console.log(
+      `[Trip Delete] Found ${orbs.length} orbs to delete for trip ${tripId}`,
+    );
+
     // Step 2: Delete objects from R2 (both video and HLS files)
     if (orbs.length > 0) {
-      await Promise.all(
-        orbs.flatMap((orb) => {
-          const deletes = [];
-          if (orb.video_key) {
-            deletes.push(
-              r2.send(
+      const deletePromises = [];
+
+      for (const orb of orbs) {
+        console.log(`[Trip Delete] Processing orb ${orb.id}`);
+
+        // Delete the main video file
+        if (orb.video_key) {
+          console.log(`[Trip Delete] Deleting video: ${orb.video_key}`);
+          deletePromises.push(
+            r2
+              .send(
                 new DeleteObjectCommand({
                   Bucket: process.env.R2_BUCKET_NAME_VIDEOS,
                   Key: orb.video_key,
                 }),
-              ),
-            );
-          }
+              )
+              .catch((err) => {
+                console.error(
+                  `[Trip Delete] Failed to delete video ${orb.video_key}:`,
+                  err,
+                );
+                return null;
+              }),
+          );
+        }
 
-          if (orb.hls_key) {
-            const basePrefix = orb.hls_key.split('/master.m3u8')[0];
-            // delete master.m3u8
-            deletes.push(
-              r2.send(
+        // Delete HLS files
+        if (orb.hls_key) {
+          console.log(`[Trip Delete] Deleting HLS files for: ${orb.hls_key}`);
+          const basePrefix = orb.hls_key.replace('/master.m3u8', '');
+
+          // Delete master.m3u8
+          deletePromises.push(
+            r2
+              .send(
                 new DeleteObjectCommand({
                   Bucket: process.env.R2_BUCKET_NAME_VIDEOS,
-                  Key: `${basePrefix}/master.m3u8`,
+                  Key: orb.hls_key,
                 }),
-              ),
+              )
+              .catch((err) => {
+                console.error(
+                  `[Trip Delete] Failed to delete HLS master ${orb.hls_key}:`,
+                  err,
+                );
+                return null;
+              }),
+          );
+
+          // Delete quality-specific playlists and segments
+          // Based on your encoder output: 240p.m3u8, 480p.m3u8, etc.
+          const qualities = ['240p', '480p', '720p', '1080p']; // Add more if needed
+
+          for (const quality of qualities) {
+            // Delete quality playlist (e.g., 240p.m3u8)
+            deletePromises.push(
+              r2
+                .send(
+                  new DeleteObjectCommand({
+                    Bucket: process.env.R2_BUCKET_NAME_VIDEOS,
+                    Key: `${basePrefix}/${quality}.m3u8`,
+                  }),
+                )
+                .catch(() => null), // Silent fail for non-existent files
             );
-            // delete typical derived segments
-            for (let i = 0; i < 10; i += 1) {
-              deletes.push(
+
+            // Delete segments for this quality (e.g., 240p_000.ts, 240p_001.ts, etc.)
+            for (let i = 0; i < 100; i++) {
+              const segmentKey = `${basePrefix}/${quality}_${i
+                .toString()
+                .padStart(3, '0')}.ts`;
+              deletePromises.push(
                 r2
                   .send(
                     new DeleteObjectCommand({
                       Bucket: process.env.R2_BUCKET_NAME_VIDEOS,
-                      Key: `${basePrefix}/v0/seg-${i}.ts`,
+                      Key: segmentKey,
                     }),
                   )
-                  .catch(() => null),
+                  .catch(() => null), // Silent fail for non-existent segments
+              );
+            }
+          }
+
+          // Also delete any variant directories (v0, v1) in case you have both patterns
+          const variants = ['v0', 'v1'];
+          for (const variant of variants) {
+            // Delete variant playlist
+            deletePromises.push(
+              r2
+                .send(
+                  new DeleteObjectCommand({
+                    Bucket: process.env.R2_BUCKET_NAME_VIDEOS,
+                    Key: `${basePrefix}/${variant}/index.m3u8`,
+                  }),
+                )
+                .catch(() => null),
+            );
+
+            // Delete segments in variant directories
+            for (let i = 0; i < 100; i++) {
+              deletePromises.push(
                 r2
                   .send(
                     new DeleteObjectCommand({
                       Bucket: process.env.R2_BUCKET_NAME_VIDEOS,
-                      Key: `${basePrefix}/v1/seg-${i}.ts`,
+                      Key: `${basePrefix}/${variant}/seg-${i}.ts`,
                     }),
                   )
                   .catch(() => null),
@@ -234,34 +305,107 @@ router.delete('/:id', authMiddleware, async (req, res) => {
             }
           }
 
-          return deletes;
-        }),
+          // Delete any additional common file patterns
+          const commonPatterns = ['playlist.m3u8', 'index.m3u8', 'stream.m3u8'];
+
+          for (const pattern of commonPatterns) {
+            deletePromises.push(
+              r2
+                .send(
+                  new DeleteObjectCommand({
+                    Bucket: process.env.R2_BUCKET_NAME_VIDEOS,
+                    Key: `${basePrefix}/${pattern}`,
+                  }),
+                )
+                .catch(() => null),
+            );
+          }
+        }
+      }
+
+      console.log(
+        `[Trip Delete] Executing ${deletePromises.length} delete operations`,
       );
+      const results = await Promise.allSettled(deletePromises);
+
+      // Log any unexpected failures (not silent ones)
+      results.forEach((result, index) => {
+        if (result.status === 'rejected' && result.reason) {
+          console.warn(
+            `[Trip Delete] Delete operation ${index} failed:`,
+            result.reason,
+          );
+        }
+      });
+
+      console.log(`[Trip Delete] Completed R2 cleanup for trip ${tripId}`);
     }
 
-    // Step 3: Delete from Supabase
+    // Step 3: Delete orbs from database
     const { error: orbDeleteError } = await supabase
       .from('orbs')
       .delete()
       .eq('trip_id', tripId);
 
     if (orbDeleteError) {
+      console.error('[Orb DB Delete Error]', orbDeleteError.message);
       return res.status(500).json({ error: orbDeleteError.message });
     }
+
+    console.log(`[Trip Delete] Deleted ${orbs.length} orbs from database`);
+
+    // Step 4: Delete other related data
+    const { error: participantsDeleteError } = await supabase
+      .from('participants')
+      .delete()
+      .eq('trip_id', tripId);
+
+    if (participantsDeleteError) {
+      console.error(
+        '[Participants Delete Error]',
+        participantsDeleteError.message,
+      );
+    }
+
+    const { error: itinerariesDeleteError } = await supabase
+      .from('itineraries')
+      .delete()
+      .eq('trip_id', tripId);
+
+    if (itinerariesDeleteError) {
+      console.error(
+        '[Itineraries Delete Error]',
+        itinerariesDeleteError.message,
+      );
+    }
+
+    const { error: vibechecksDeleteError } = await supabase
+      .from('vibechecks')
+      .delete()
+      .eq('trip_id', tripId);
+
+    if (vibechecksDeleteError) {
+      console.error('[Vibechecks Delete Error]', vibechecksDeleteError.message);
+    }
   } catch (cleanupError) {
-    console.error('[Orb Cleanup Error]', cleanupError);
-    return res.status(500).json({ error: 'Failed to delete associated orbs' });
+    console.error('[Cleanup Error]', cleanupError);
+    return res
+      .status(500)
+      .json({ error: 'Failed to delete associated content' });
   }
 
+  // Step 5: Finally delete the trip itself
   const { error: deleteError } = await supabase
     .from('trips')
     .delete()
     .eq('id', tripId);
 
   if (deleteError) {
+    console.error('[Trip Delete Error]', deleteError.message);
     return res.status(500).json({ error: deleteError.message });
   }
 
+  console.log(`[Trip Delete] Successfully deleted trip ${tripId}`);
   return res.json({ success: true });
 });
 
