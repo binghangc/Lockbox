@@ -326,6 +326,7 @@ router.delete('/:id', authMiddleware, async (req, res) => {
       console.log(
         `[Trip Delete] Executing ${deletePromises.length} delete operations`,
       );
+      // eslint-disable-next-line node/no-unsupported-features/es-builtins
       const results = await Promise.allSettled(deletePromises);
 
       // Log any unexpected failures (not silent ones)
