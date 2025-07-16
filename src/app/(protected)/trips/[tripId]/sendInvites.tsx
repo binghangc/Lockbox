@@ -115,11 +115,7 @@ export default function SendInvitesScreen() {
       className="flex-1 bg-neutral-950 px-5"
       style={{ paddingTop: insets.top + 12 }}
     >
-      <Pressable onPress={router.back} className="mb-4">
-        <FontAwesome5 name="chevron-left" size={18} color="white" />
-      </Pressable>
-
-      <Text className="text-white text-2xl font-semibold mb-4">
+      <Text className="text-white text-2xl font-semibold mb-4 mt-5">
         Get your friends on board!
       </Text>
 

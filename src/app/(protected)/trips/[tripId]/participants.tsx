@@ -1,4 +1,4 @@
-import { View, Text } from 'react-native';
+import { View, Text, Platform } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import ParticipantsList from '@/components/participants/participantsList';
@@ -10,7 +10,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TripThemeProvider, useTripTheme } from '@/context/TripThemeProvider';
 import TripVisualBackground from '@/components/shared/tripVisualBackground';
 import useTrips from '@/hooks/useTrips';
-import { Platform } from 'react-native';
 
 function ParticipantsContent({ trip }: { trip: Trip }) {
   const { user } = useUser();

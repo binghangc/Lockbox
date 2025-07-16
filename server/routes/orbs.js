@@ -180,4 +180,41 @@ router.get('/url', async (req, res) => {
   }
 });
 
+// GET /vibecheck/:id/status - Check if user has submitted an orb for a vibecheck
+router.get('/vibecheck/:id/status', async (req, res) => {
+  const { id: vibecheckId } = req.params;
+  const { userId } = req.query;
+
+  if (!vibecheckId || !userId) {
+    return res.status(400).json({ error: 'Missing vibecheckId or userId' });
+  }
+
+  const { data: userData, error: userError } = await supabase
+    .from('orbs')
+    .select('id, created_at')
+    .eq('vibecheck_id', vibecheckId)
+    .eq('user_id', userId)
+    .maybeSingle();
+
+  if (userError) {
+    return res.status(500).json({ error: userError.message });
+  }
+
+  const { count, error: countError } = await supabase
+    .from('orbs')
+    .select('id', { count: 'exact', head: true })
+    .eq('vibecheck_id', vibecheckId);
+
+  if (countError) {
+    return res.status(500).json({ error: countError.message });
+  }
+
+  return res.json({
+    userHasResponded: !!userData,
+    orbId: userData?.id || null,
+    submittedAt: userData?.created_at || null,
+    anyoneHasResponded: count > 0,
+  });
+});
+
 module.exports = router;
