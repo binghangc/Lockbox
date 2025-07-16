@@ -14,11 +14,6 @@ export default function ParticipantRowList({ onSelect, onCountUpdate }: Props) {
   const theme = useTripTheme();
   const { participants, loading } = useParticipants(onCountUpdate);
 
-  const unique = Array.from(
-    new Map(participants.map((p) => [p.profile.id, p])).values(),
-  );
-  const visible = unique.slice(0, 4);
-
   if (loading) {
     return (
       <View className="flex-1 justify-center items-center">
@@ -30,19 +25,35 @@ export default function ParticipantRowList({ onSelect, onCountUpdate }: Props) {
     );
   }
 
+  // Extract profiles from participant data and remove duplicates
+  const profiles = participants.map((p) => p.profile).filter(Boolean);
+  const unique = Array.from(new Map(profiles.map((p) => [p.id, p])).values());
+  const visible = unique.slice(0, 4);
+
+  if (visible.length === 0) {
+    return (
+      <View className="flex-row items-center">
+        <Text style={{ color: theme.secondaryText }}>No participants yet</Text>
+      </View>
+    );
+  }
+
   return (
     <View
       className="flex-row items-center space-x-3"
       style={{ backgroundColor: 'transparent' }}
     >
-      {visible.map((p, idx) => (
+      {visible.map((profile, idx) => (
         <ParticipantAvatar
-          key={p.user_id || idx}
-          name={p.profile?.name}
-          avatarUrl={p.profile?.avatar_url}
+          key={profile.id || idx}
+          name={profile.name}
+          avatarUrl={profile.avatar_url}
           size={48}
-          isHost={p.role === 'host'}
-          onPress={() => onSelect?.(p.profile)}
+          isHost={
+            participants.find((p) => p.profile.id === profile.id)?.role ===
+            'host'
+          }
+          onPress={() => onSelect?.(profile)}
         />
       ))}
     </View>
