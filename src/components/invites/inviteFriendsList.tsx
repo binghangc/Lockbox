@@ -1,4 +1,5 @@
 import { FlatList, View, Text, Pressable } from 'react-native';
+import { useTripTheme } from '@/context/TripThemeProvider';
 import InviteFriendRow from '@/components/invites/inviteFriendRow';
 import { Feather } from '@expo/vector-icons';
 import FormInput from '@/components/formInput';
@@ -25,6 +26,7 @@ export default function InviteFriendsList({
   onSelect,
   loading,
 }: Props) {
+  const theme = useTripTheme();
   if (loading) {
     return (
       <View className="flex-1 justify-center items-center">
@@ -36,16 +38,28 @@ export default function InviteFriendsList({
 
   return (
     <>
-      <FormInput
-        label="Type away"
-        placeholder="Search by username"
-        value={rawQuery}
-        onChangeText={onQueryChange}
-        placeholderTextColor="#888"
-        autoCorrect={false}
-        autoCapitalize="none"
-        spellCheck={false}
-        icon={<Feather name="search" size={20} color="#888" />}
+      <View style={{ paddingHorizontal: 16 }}>
+        <FormInput
+          label=""
+          placeholder="Search by username"
+          value={rawQuery}
+          onChangeText={onQueryChange}
+          placeholderTextColor="#888"
+          autoCorrect={false}
+          autoCapitalize="none"
+          spellCheck={false}
+          icon={<Feather name="search" size={20} color="#888" />}
+        />
+      </View>
+
+      <View
+        style={{
+          height: 1,
+          alignSelf: 'stretch',
+          backgroundColor: theme.secondaryOutline,
+          marginTop: 12,
+          marginBottom: 4,
+        }}
       />
 
       {friends.length === 0 ? (

@@ -1,21 +1,27 @@
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { View, Text, Pressable } from 'react-native';
+import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
+import { View, Platform } from 'react-native';
 import useFriends from '@/hooks/useFriends';
 import { debounce } from 'lodash';
-import { FontAwesome5 } from '@expo/vector-icons';
 import InviteFriendsList from '@/components/invites/inviteFriendsList';
 import { useUser } from '@/context/UserContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState, useMemo } from 'react';
-import { Profile } from '@/types';
+import { Profile, Trip } from '@/types';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import TripVisualBackground from '@/components/shared/tripVisualBackground';
+import { BlurView } from 'expo-blur';
+import { useTripTheme, TripThemeProvider } from '@/context/TripThemeProvider';
+import useTrips from '@/hooks/useTrips';
 
-export default function SendInvitesScreen() {
+function SendInvitesContent({ trip }: { trip: Trip }) {
+  const insets = useSafeAreaInsets();
+  const theme = useTripTheme();
+  const bgKey = trip?.video_background ?? null;
+
   const { tripId } = useLocalSearchParams<{ tripId: string }>();
   const { user } = useUser();
   const router = useRouter();
   const [alreadyInvitedIds, setAlreadyInvitedIds] = useState<string[]>([]);
-  const insets = useSafeAreaInsets();
 
   const { friends, loading } = useFriends();
   const [query, setQuery] = useState('');
@@ -92,12 +98,30 @@ export default function SendInvitesScreen() {
 
       const data = await res.json();
       if (res.ok) {
-        const newStatusMap = data.invites.reduce(
-          (acc, { user_id, status }) => {
+        interface Invite {
+          user_id: string;
+          status:
+            | 'idle'
+            | 'loading'
+            | 'pending'
+            | 'accepted'
+            | 'declined'
+            | 'failed';
+        }
+
+        interface InvitedResponse {
+          invites: Invite[];
+        }
+
+        const newStatusMap = (data as InvitedResponse).invites.reduce(
+          (
+            acc: Record<string, Invite['status']>,
+            { user_id, status }: Invite,
+          ) => {
             acc[user_id] = status;
             return acc;
           },
-          {} as typeof inviteStatus,
+          {} as Record<string, Invite['status']>,
         );
 
         setInviteStatus(newStatusMap);
@@ -111,23 +135,79 @@ export default function SendInvitesScreen() {
   }, [tripId]);
 
   return (
-    <View
-      className="flex-1 bg-neutral-950 px-5"
-      style={{ paddingTop: insets.top + 12 }}
-    >
-      <Text className="text-white text-2xl font-semibold mb-4 mt-5">
-        Get your friends on board!
-      </Text>
-
-      <InviteFriendsList
-        friends={filteredFriends}
-        rawQuery={rawQuery}
-        onQueryChange={handleSearchChange}
-        inviteStatus={inviteStatus}
-        alreadyInvitedIds={alreadyInvitedIds}
-        onSelect={handleInvite}
-        loading={loading}
+    <>
+      <Stack.Screen
+        options={{
+          headerTransparent: true,
+          title: 'Invite Friends',
+          headerTitleStyle: {
+            color: theme.primaryText,
+            fontWeight: '700',
+            fontSize: 18,
+          },
+          headerBackground: () => (
+            <BlurView
+              intensity={60}
+              tint={theme.blurTint as 'light' | 'dark'}
+              experimentalBlurMethod="none"
+              style={{
+                flex: 1,
+                backgroundColor:
+                  Platform.OS === 'android'
+                    ? `${theme.secondaryBackground}EE`
+                    : undefined,
+              }}
+            />
+          ),
+        }}
       />
-    </View>
+      <TripVisualBackground videoKey={bgKey} effectKey={null} />
+      <BlurView
+        intensity={60}
+        tint={theme.blurTint as 'light' | 'dark' | 'default'}
+        experimentalBlurMethod="dimezisBlurView"
+        style={{
+          flex: 1,
+          position: 'absolute',
+          width: '100%',
+          height: '100%',
+          zIndex: 0,
+        }}
+      >
+        <View
+          style={{
+            flex: 1,
+            paddingTop: insets.top + 40,
+            backgroundColor: 'transparent',
+          }}
+        >
+          <View style={{ flex: 1, paddingTop: 15 }}>
+            <InviteFriendsList
+              friends={filteredFriends}
+              rawQuery={rawQuery}
+              onQueryChange={handleSearchChange}
+              inviteStatus={inviteStatus}
+              alreadyInvitedIds={alreadyInvitedIds}
+              onSelect={handleInvite}
+              loading={loading}
+              searchInputStyle={{ paddingHorizontal: 10 }}
+            />
+          </View>
+        </View>
+      </BlurView>
+    </>
+  );
+}
+
+export default function SendInvitesScreen() {
+  const { tripId } = useLocalSearchParams<{ tripId: string }>();
+  const tripIdStr = Array.isArray(tripId) ? tripId[0] : tripId;
+  const { trip } = useTrips(tripIdStr);
+  const videoKey = trip?.video_background || 'moonlight';
+
+  return (
+    <TripThemeProvider videoKey={videoKey}>
+      {trip && <SendInvitesContent trip={trip} />}
+    </TripThemeProvider>
   );
 }

@@ -32,6 +32,7 @@ export default function InviteFriendRow({
     <FriendRowBase
       item={item}
       onPress={() => {}}
+      style={{ paddingHorizontal: 15 }}
       RightAction={
         <InviteFriendActionButton
           status={status}
