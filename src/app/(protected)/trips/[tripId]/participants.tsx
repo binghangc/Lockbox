@@ -10,6 +10,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TripThemeProvider, useTripTheme } from '@/context/TripThemeProvider';
 import TripVisualBackground from '@/components/shared/tripVisualBackground';
 import useTrips from '@/hooks/useTrips';
+import { Platform } from 'react-native';
 
 function ParticipantsContent({ trip }: { trip: Trip }) {
   const { user } = useUser();
@@ -22,6 +23,27 @@ function ParticipantsContent({ trip }: { trip: Trip }) {
 
   return (
     <>
+      <Stack.Screen
+        options={{
+          headerTransparent: true,
+          title: 'Participants',
+          headerBackground: () => (
+            <BlurView
+              intensity={60}
+              tint={theme.blurTint as 'light' | 'dark'}
+              experimentalBlurMethod="none"
+              style={{
+                flex: 1,
+                backgroundColor:
+                  Platform.OS === 'android'
+                    ? `${theme.secondaryBackground}EE`
+                    : undefined,
+              }}
+            />
+          ),
+        }}
+      />
+      <TripVisualBackground videoKey={bgKey} effectKey={null} />
       <BlurView
         intensity={60}
         tint={theme.blurTint as 'light' | 'dark' | 'default'}
@@ -31,25 +53,9 @@ function ParticipantsContent({ trip }: { trip: Trip }) {
           position: 'absolute',
           width: '100%',
           height: '100%',
-          zIndex: 1,
+          zIndex: 0,
         }}
       >
-        <Stack.Screen
-          options={{
-            headerTransparent: true,
-            title: 'Participants',
-            headerBackground: () => (
-              <BlurView
-                intensity={60}
-                tint={theme.blurrierTint as 'light' | 'dark' | 'default'}
-                style={{
-                  flex: 1,
-                  backgroundColor: 'transparent',
-                }}
-              />
-            ),
-          }}
-        />
         <View
           className="flex-1 px-4 pt-6"
           style={{
@@ -84,7 +90,6 @@ function ParticipantsContent({ trip }: { trip: Trip }) {
           isFriends
         />
       </BlurView>
-      <TripVisualBackground videoKey={bgKey} effectKey={null} />
     </>
   );
 }

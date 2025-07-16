@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, TouchableOpacity, Text, Image } from 'react-native';
+import { TouchableOpacity, Text, Image } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTripTheme } from '@/context/TripThemeProvider';
 import defaultAvatar from '../../../assets/defaultavatar.jpg';
