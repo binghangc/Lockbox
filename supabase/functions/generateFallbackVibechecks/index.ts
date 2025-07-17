@@ -6,7 +6,6 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { v4 as uuidv4 } from 'https://esm.sh/uuid@9.0.0';
-import dayjs from 'https://esm.sh/dayjs@1.11.10';
 import { GoogleGenerativeAIEmbeddings } from 'npm:@langchain/google-genai';
 
 const FALLBACK_VIBECHECKS = {
@@ -114,19 +113,27 @@ serve(async (_req) => {
       Deno.env.get('SERVICE_ROLE_KEY')!,
     );
 
-    const today = dayjs().format('YYYY-MM-DD');
+    const today = new Date().toISOString().split('T')[0];
+    const debugLog = {
+      today,
+      queriedTrips: [],
+      skippedExisting: [],
+      insertedNew: [],
+      errors: [],
+    };
 
     // 1. Get active trips
     const { data: trips, error: tripErr } = await supabase
       .from('trips')
-      .select('id, start_date, end_date')
-      .lte('start_date', today)
-      .gte('end_date', today);
+      .select('id, status')
+      .eq('status', "ongoing");
 
     if (tripErr) {
       console.error('Trip fetch failed:', tripErr.message);
       return new Response('Trip query failed', { status: 500 });
     }
+
+    debugLog.queriedTrips = trips.map((t) => t.id);
 
     const results = [];
 
@@ -140,44 +147,56 @@ serve(async (_req) => {
 
       if (vibeErr) {
         console.error(`Error checking vibe for trip ${trip.id}:`, vibeErr.message);
+        debugLog.errors.push({ trip_id: trip.id, stage: 'check existing', message: vibeErr.message });
         continue;
       }
 
       if (!vibeCheck) {
         const fallback = getRandomFallback();
 
-        const { data: vibecheck, error: insertErr } = await supabase.from('vibechecks').insert({
-          trip_id: trip.id,
-          date: today,
-          vibecheck: fallback.vibecheck,
-          theme: fallback.theme,
-          created_at: new Date().toISOString(),
-        });
+        const { data: inserted, error: insertErr } = await supabase
+          .from('vibechecks')
+          .insert({
+            trip_id: trip.id,
+            date: today,
+            vibecheck: fallback.vibecheck,
+            created_at: new Date().toISOString(),
+          })
+          .select()
+          .maybeSingle();
 
-        if (insertErr) {
-          console.error(`Insert error for ${trip.id}:`, insertErr.message);
+        if (insertErr || !inserted) {
+          debugLog.errors.push({ trip_id: trip.id, stage: 'insert vibecheck', message: insertErr?.message || 'unknown' });
+          console.error(`Insert error for ${trip.id}:`, insertErr?.message);
           continue;
         }
 
-        const embedding = embedText(vibecheck.vibecheck);
+        let embedding;
+        try {
+          embedding = await embedText(inserted.vibecheck);
+        } catch (embeddingErr) {
+          debugLog.errors.push({ trip_id: trip.id, stage: 'embedText', message: embeddingErr?.message || 'embedding failed' });
+          continue;
+        }
 
         await supabase.from('vibecheck_embeddings').insert({
-          id: vibecheck.id,
+          id: inserted.id,
           trip_id: trip.id,
-          vibecheck_text: fallback.vibecheck,
-          theme: fallback.theme,
-          embedding: embedding,
+          vibecheck_text: inserted.vibecheck,
+          theme: inserted.theme,
+          embedding,
           created_at: new Date().toISOString(),
         });
 
-        results.push({ trip_id: trip.id, prompt: fallback.prompt });
+        debugLog.insertedNew.push({ trip_id: trip.id, vibecheck: inserted.vibecheck });
+
+        results.push({ trip_id: trip.id, vibecheck: fallback.vibecheck });
       }
     }
 
-    return new Response(
-      JSON.stringify({ inserted: results.length, vibechecks: results }, null, 2),
-      { headers: { 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify(debugLog, null, 2), {
+      headers: { 'Content-Type': 'application/json' },
+    });
   } catch (error) {
     return new Response(
       `❌ Internal error: ${error?.message || 'unknown'}\n\n${error?.stack || ''}`,

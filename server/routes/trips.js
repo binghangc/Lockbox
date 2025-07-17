@@ -13,6 +13,7 @@ const dayjs = require('dayjs');
 const authMiddleware = require('../middleware/auth.js');
 
 const { generateVibeCheck } = require('../rag/utils/generateVibeCheck.js');
+const { getRandomFallback } = require('../rag/utils/getRandomFallback.js');
 
 // POST /trips - Create a new trip
 router.post('/', authMiddleware, async (req, res) => {
@@ -451,6 +452,20 @@ router.patch('/:id/vibecheck/:date', authMiddleware, async (req, res) => {
     .eq('date', date)
     .single();
 
+  let vibecheckText;
+
+  if (itinerary && itinerary.itinerary) {
+    // Generate AI-based vibecheck
+    vibecheckText = await generateVibeCheck({
+      itineraryText: itinerary.itinerary,
+      tripDate: date,
+    });
+  } else {
+    // Fallback to random vibecheck
+    const fallback = getRandomFallback();
+    vibecheckText = fallback.vibecheck;
+  }
+
   if (itineraryError || !itinerary) {
     return res.status(500).json({ error: 'Itinerary not found or invalid.' });
   }
@@ -462,7 +477,7 @@ router.patch('/:id/vibecheck/:date', authMiddleware, async (req, res) => {
 
   const { error } = await supabase
     .from('vibechecks')
-    .update({ vibecheck: vibe })
+    .update({ vibecheck: vibecheckText })
     .eq('trip_id', id)
     .eq('date', date)
     .eq('itinerary_id', itinerary.id);
