@@ -54,7 +54,7 @@ serve(async (_req) => {
     }
   }
 
-  return new Response(JSON.stringify({ message: 'Trip statuses updated' }), {
+  return new Response(JSON.stringify({ message: 'Orb reminders sent.' }), {
     status: 200,
   });
 });

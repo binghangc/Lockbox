@@ -10,38 +10,43 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { sendPushNotification } from '$lib/sendPushNotification.ts';
 
 serve(async (_req) => {
-  const supabase = createClient(
-    Deno.env.get('PROJECT_URL')!,
-    Deno.env.get('SERVICE_ROLE_KEY')!,
-  );
+  try {
+      const supabase = createClient(
+      Deno.env.get('PROJECT_URL')!,
+      Deno.env.get('SERVICE_ROLE_KEY')!,
+    );
 
-  const now = new Date().toISOString();
+    const now = new Date().toISOString();
 
-  const { data: trips } = await supabase
-    .from('trips')
-    .select('id, title, end_date, participants:participants(user:profiles(id, expo_push_token, notification_preferences))')
-    .eq('status', 'ended')
-    .eq('end_date', today);
+    const { data: trips } = await supabase
+      .from('trips')
+      .select('id, title, end_date, participants:participants(user:profiles(id, expo_push_token, notification_preferences))')
+      .eq('status', 'ended')
+      .eq('end_date', now);
 
-  for (const trip of trips || []) {
-    for (const participant of trip.participants) {
-      const user = participant.user;
-      if (!user?.expo_push_token || !user.id) continue;
+    for (const trip of trips || []) {
+      for (const participant of trip.participants) {
+        const user = participant.user;
+        if (!user?.expo_push_token || !user.id) continue;
 
-      const prefs = user.notification_preferences || {};
-      if (prefs.vaultOpening === false) continue;
+        const prefs = user.notification_preferences || {};
+        if (prefs.vaultOpening === false) continue;
 
-      await sendPushNotification(token, {
-        title: 'Vault unlocked 🔓',
-        body: `Your trip "${trip.title}" has ended! See what your friends captured.`,
-        data: { tripId: trip.id },
-      });
+        await sendPushNotification(token, {
+          title: 'Vault unlocked 🔓',
+          body: `Your trip "${trip.title}" has ended! See what your friends captured.`,
+          data: { tripId: trip.id },
+        });
+      }
     }
-  }
 
-  return new Response(JSON.stringify({ message: 'Trip statuses updated' }), {
-    status: 200,
-  });
+    return new Response(JSON.stringify({ message: 'Vaults have been opened.' }), {
+      status: 200,
+    });
+  } catch (error) {
+    console.error('[notifyVaultOpen ERROR]', error);
+    return new Response('❌ Internal error', { status: 500 });
+  }
 });
 
 /* To invoke locally:
