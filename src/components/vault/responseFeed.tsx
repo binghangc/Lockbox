@@ -16,6 +16,60 @@ interface ResponseFeedProps {
   style?: ViewStyle;
 }
 
+function LoadingShimmer() {
+  const theme = useTripTheme();
+
+  return (
+    <View style={{ paddingHorizontal: 20, paddingVertical: 16 }}>
+      {[...Array(3)].map((_, _index) => (
+        <View
+          key={`shimmer-static-${Math.random().toString(36).substr(2, 9)}`}
+          style={{
+            marginBottom: 24,
+          }}
+        >
+          {/* User info with avatar circle and rectangle */}
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              marginBottom: 16,
+            }}
+          >
+            <View
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: 16,
+                backgroundColor: `${theme.optionalText}20`,
+                marginRight: 12,
+              }}
+            />
+            <View
+              style={{
+                height: 16,
+                backgroundColor: `${theme.optionalText}20`,
+                borderRadius: 8,
+                width: 120,
+              }}
+            />
+          </View>
+
+          {/* Large video bubble shimmer */}
+          <View
+            style={{
+              width: 200,
+              height: 200,
+              borderRadius: 100,
+              backgroundColor: `${theme.optionalText}20`,
+            }}
+          />
+        </View>
+      ))}
+    </View>
+  );
+}
+
 export default function ResponseFeed({
   vibecheckId,
   style,
@@ -29,17 +83,14 @@ export default function ResponseFeed({
       tint={theme.blurrierTint as 'light' | 'dark'}
       style={[{ flex: 1 }, style]}
     >
-      <View
-        style={{
-          paddingTop: 20,
-        }}
-      >
+      <View style={{ flex: 1 }}>
         <View
           style={{
             borderBottomWidth: 1,
             borderBottomColor: theme.secondaryOutline,
             paddingBottom: 12,
             paddingHorizontal: 20,
+            paddingTop: 20,
             width: '100%',
           }}
         >
@@ -51,16 +102,13 @@ export default function ResponseFeed({
               textAlign: 'left',
             }}
           >
-            Responses {orbs.length > 0 && `(${orbs.length})`}
+            Responses {!loading && orbs.length > 0 && `(${orbs.length})`}
           </Text>
         </View>
+
         {(() => {
           if (loading) {
-            return (
-              <Text style={{ color: theme.secondaryText, padding: 20 }}>
-                Loading responses...
-              </Text>
-            );
+            return <LoadingShimmer />;
           }
           if (orbs.length === 0) {
             return (
@@ -69,35 +117,41 @@ export default function ResponseFeed({
                   flex: 1,
                   justifyContent: 'center',
                   alignItems: 'center',
-                  paddingVertical: 60,
+                  paddingVertical: 20,
+                  minHeight: 400,
                 }}
               >
-                <Text style={{ fontSize: 48, marginBottom: 12 }}>🫧</Text>
+                <View
+                  style={{
+                    width: 80,
+                    height: 80,
+                    borderRadius: 40,
+                    backgroundColor: `${theme.optionalText}15`,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    marginBottom: 20,
+                  }}
+                >
+                  <Text style={{ fontSize: 32 }}>😢</Text>
+                </View>
                 <Text
                   style={{
                     fontWeight: '600',
-                    fontSize: 16,
+                    fontSize: 18,
                     color: theme.primaryText,
-                    marginBottom: 4,
+                    marginBottom: 8,
                   }}
                 >
                   No responses
-                </Text>
-                <Text
-                  style={{
-                    fontSize: 14,
-                    color: theme.secondaryText,
-                    textAlign: 'center',
-                    paddingHorizontal: 40,
-                  }}
-                >
-                  Everyone was locked out for this vibecheck
                 </Text>
               </View>
             );
           }
           return (
-            <ScrollView>
+            <ScrollView
+              style={{ flex: 1 }}
+              showsVerticalScrollIndicator={false}
+            >
               {orbs.map((orb) => (
                 <OrbRow key={orb.id} orb={orb} />
               ))}
@@ -137,7 +191,7 @@ function OrbRow({ orb }: { orb: Orb }) {
         style={{
           flexDirection: 'row',
           alignItems: 'center',
-          marginBottom: 16,
+          marginBottom: 8,
         }}
       >
         <Image
@@ -181,7 +235,7 @@ function OrbRow({ orb }: { orb: Orb }) {
       <View
         style={{
           alignItems: 'flex-start',
-          marginVertical: 12,
+          marginVertical: 4,
         }}
       >
         <TouchableOpacity
