@@ -1,5 +1,12 @@
 import useOrbsByVibecheck from '@/hooks/useOrbsByVibecheck';
-import { View, Text, ViewStyle, ScrollView, Image } from 'react-native';
+import {
+  View,
+  Text,
+  ViewStyle,
+  ScrollView,
+  Image,
+  TouchableOpacity,
+} from 'react-native';
 import { BlurView } from 'expo-blur';
 import { useTripTheme } from '@/context/TripThemeProvider';
 import { VideoView, useVideoPlayer } from 'expo-video';
@@ -47,17 +54,56 @@ export default function ResponseFeed({
             Responses {orbs.length > 0 && `(${orbs.length})`}
           </Text>
         </View>
-        {loading ? (
-          <Text style={{ color: theme.secondaryText, padding: 20 }}>
-            Loading responses...
-          </Text>
-        ) : (
-          <ScrollView>
-            {orbs.map((orb) => (
-              <OrbRow key={orb.id} orb={orb} />
-            ))}
-          </ScrollView>
-        )}
+        {(() => {
+          if (loading) {
+            return (
+              <Text style={{ color: theme.secondaryText, padding: 20 }}>
+                Loading responses...
+              </Text>
+            );
+          }
+          if (orbs.length === 0) {
+            return (
+              <View
+                style={{
+                  flex: 1,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  paddingVertical: 60,
+                }}
+              >
+                <Text style={{ fontSize: 48, marginBottom: 12 }}>🫧</Text>
+                <Text
+                  style={{
+                    fontWeight: '600',
+                    fontSize: 16,
+                    color: theme.primaryText,
+                    marginBottom: 4,
+                  }}
+                >
+                  No responses
+                </Text>
+                <Text
+                  style={{
+                    fontSize: 14,
+                    color: theme.secondaryText,
+                    textAlign: 'center',
+                    paddingHorizontal: 40,
+                  }}
+                >
+                  Everyone was locked out for this vibecheck
+                </Text>
+              </View>
+            );
+          }
+          return (
+            <ScrollView>
+              {orbs.map((orb) => (
+                <OrbRow key={orb.id} orb={orb} />
+              ))}
+            </ScrollView>
+          );
+        })()}
       </View>
     </BlurView>
   );
@@ -75,25 +121,23 @@ interface Orb {
 
 function OrbRow({ orb }: { orb: Orb }) {
   const theme = useTripTheme();
-  
+
   console.log('Playing HLS URL:', orb.hlsUrl);
-  
-  const player = useVideoPlayer(
-    orb.hlsUrl,
-    (player) => {
-      console.log('Video player initialized for:', orb.hlsUrl);
-      // Don't auto-play, let user start manually
-    }
-  );
+
+  const player = useVideoPlayer(orb.hlsUrl, (_player) => {
+    console.log('Video player initialized for:', orb.hlsUrl);
+  });
+
+  const BUBBLE_SIZE = 200;
 
   return (
-    <View style={{ paddingHorizontal: 20, paddingVertical: 12 }}>
+    <View style={{ paddingHorizontal: 20, paddingVertical: 16 }}>
       {/* User info header */}
       <View
         style={{
           flexDirection: 'row',
           alignItems: 'center',
-          marginBottom: 12,
+          marginBottom: 16,
         }}
       >
         <Image
@@ -123,7 +167,7 @@ function OrbRow({ orb }: { orb: Orb }) {
               marginTop: 2,
             }}
           >
-            {new Date(orb.created_at).toLocaleDateString('en-US', {
+            {new Date(orb.created_at).toLocaleString(undefined, {
               month: 'short',
               day: 'numeric',
               hour: '2-digit',
@@ -133,28 +177,43 @@ function OrbRow({ orb }: { orb: Orb }) {
         </View>
       </View>
 
-      {/* Large video thumbnail */}
-      <VideoView
-        player={player}
+      {/* Circular video player */}
+      <View
         style={{
-          width: '100%',
-          height: 200,
-          borderRadius: 12,
-          backgroundColor: theme.secondaryBackground,
+          alignItems: 'flex-start',
+          marginVertical: 12,
         }}
-        allowsPictureInPicture={false}
-        allowsFullscreen={true}
-        nativeControls={true}
-      />
-      
-      {/* Debug info */}
-      <Text style={{ 
-        color: theme.optionalText, 
-        fontSize: 10, 
-        marginTop: 4 
-      }}>
-        HLS: {orb.hlsUrl}
-      </Text>
+      >
+        <TouchableOpacity
+          style={{
+            width: BUBBLE_SIZE,
+            height: BUBBLE_SIZE,
+            borderRadius: BUBBLE_SIZE / 2,
+            overflow: 'hidden',
+            backgroundColor: theme.secondaryBackground,
+          }}
+          onPress={() => {
+            // Toggle play/pause on tap
+            if (player.playing) {
+              player.pause();
+            } else {
+              player.play();
+            }
+          }}
+        >
+          <VideoView
+            player={player}
+            style={{
+              width: BUBBLE_SIZE,
+              height: BUBBLE_SIZE,
+            }}
+            allowsPictureInPicture={false}
+            allowsFullscreen={false}
+            nativeControls={false}
+            contentFit="fill"
+          />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }

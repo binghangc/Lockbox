@@ -50,9 +50,9 @@ export default function useOrbsByVibecheck(vibecheckId: string) {
         }
 
         if (res.ok) {
-          const mappedOrbs = (json.orbs || []).map((orb: any) => ({
+          const mappedOrbs = (json.orbs || []).map((orb: Orb) => ({
             ...orb,
-            hlsUrl: `${process.env.EXPO_PUBLIC_HLS_URL}/${orb.hls_key}/playlist.m3u8`,
+            hlsUrl: orb.hlsUrl,
           }));
 
           console.log('Mapped orbs with HLS URLs:', mappedOrbs);

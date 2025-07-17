@@ -1,3 +1,4 @@
+require('dotenv').config({ path: '.env.server' });
 const express = require('express');
 const multer = require('multer');
 const fs = require('fs');
@@ -12,6 +13,7 @@ const encodeToHLS = require('../encoder.js');
 const router = express.Router();
 const upload = multer({ dest: path.join(__dirname, '../../temp') });
 const BUCKET = process.env.R2_BUCKET_NAME_VIDEOS;
+const { R2_BASE_URL } = process.env;
 
 async function storeOrbMetadata({
   orbId,
@@ -257,7 +259,7 @@ router.get('/vibecheck/:id/orbs', async (req, res) => {
 
   const orbsWithUrls = await Promise.all(
     data.map(async (orb) => {
-      const hlsUrl = await getDownloadUrl(orb.hls_key);
+      const hlsUrl = `${R2_BASE_URL}/${orb.hls_key}`;
       return {
         ...orb,
         hlsUrl,
