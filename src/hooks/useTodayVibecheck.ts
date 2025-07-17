@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
+import { Alert } from 'react-native';
 import { useUser } from '@/context/UserContext';
 import dayjs from 'dayjs';
 
@@ -40,7 +41,7 @@ export default function useTodayVibecheck(
   }, [tripId, today, user, authenticatedFetch]);
 
   const reshuffleVibecheck = async () => {
-    if (!user) return;
+    if (!user || !vibecheckId) return;
 
     setLoading(true);
     try {
@@ -48,10 +49,22 @@ export default function useTodayVibecheck(
         `${process.env.EXPO_PUBLIC_API_URL}/trips/${tripId}/vibecheck/${today}`,
         {
           method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ vibecheck_id: vibecheckId }),
         },
       );
       const result = await res.json();
+
       if (!res.ok) throw new Error(result.error);
+
+      if (result.reshuffleAllowed === false) {
+        Alert.alert(
+          'Reshuffle Blocked',
+          result.message || 'Orbs already exist.',
+        );
+        return;
+      }
+
       setVibecheck(result.vibecheck);
       setVibecheckId(result.vibecheck_id);
     } catch (err) {

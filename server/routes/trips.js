@@ -444,52 +444,76 @@ router.get('/:id/vibecheck/:date', authMiddleware, async (req, res) => {
 // API endpoint to update vibechecks for a date
 router.patch('/:id/vibecheck/:date', authMiddleware, async (req, res) => {
   const { id, date } = req.params;
+  const { vibecheck_id } = req.body;
 
-  const { data: itinerary, error: itineraryError } = await supabase
+  if (!vibecheck_id) {
+    return res.status(400).json({ error: 'Missing vibecheck_id in body.' });
+  }
+
+  const { data: existingOrbs, error: orbError } = await supabase
+    .from('orbs')
+    .select('id')
+    .eq('vibecheck_id', vibecheck_id)
+    .limit(1);
+
+  if (orbError) {
+    console.error('Orb query failed:', orbError.message);
+    return res.status(500).json({ error: 'Failed to check orbs.' });
+  }
+
+  if (existingOrbs && existingOrbs.length > 0) {
+    return res.json({
+      reshuffleAllowed: false,
+      message: 'Cannot reshuffle. Orbs already submitted for this vibecheck.',
+    });
+  }
+
+  const { data, error: itineraryError } = await supabase
     .from('itineraries')
     .select('id, itinerary')
     .eq('trip_id', id)
     .eq('date', date)
-    .single();
+    .limit(1);
 
   if (itineraryError) {
     console.error('Itinerary query failed:', itineraryError.message);
     return res.status(500).json({ error: 'Failed to fetch itinerary.' });
   }
 
-  let vibecheckText;
+  const itinerary = data?.[0] ?? null;
 
-  if (itinerary && itinerary.itinerary) {
-    // Generate AI-based vibecheck
+  let vibecheckText;
+  let itineraryId = null;
+
+  if (itinerary?.itinerary) {
+    // AI-generated vibecheck
     vibecheckText = await generateVibeCheck({
       itineraryText: itinerary.itinerary,
       tripDate: date,
     });
+    itineraryId = itinerary.id;
   } else {
-    // Fallback to random vibecheck
+    // Fallback vibecheck
     const fallback = getRandomFallback();
     vibecheckText = fallback.vibecheck;
   }
-
-  if (itineraryError) {
-    return res.status(500).json({ error: 'Itinerary invalid.' });
-  }
-
-  const vibe = await generateVibeCheck({
-    itineraryText: itinerary.itinerary,
-    tripDate: date,
-  });
 
   const { error } = await supabase
     .from('vibechecks')
     .update({ vibecheck: vibecheckText })
     .eq('trip_id', id)
     .eq('date', date)
-    .eq('itinerary_id', itinerary.id);
+    .modify((query) => {
+      if (itineraryId) query.eq('itinerary_id', itineraryId);
+    });
 
   if (error) return res.status(500).json({ error: error.message });
 
-  return res.json({ vibecheck: vibe });
+  return res.json({
+    reshuffleAllowed: true,
+    vibecheck: vibecheckText,
+    vibecheck_id,
+  });
 });
 
 module.exports = router;
