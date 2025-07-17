@@ -111,7 +111,7 @@ export default function VibeCard({
     const isCentered = distance < itemWidth * 0.1; // Only glow when very close to center
 
     return {
-      shadowColor: theme.secondaryColor,
+      shadowColor: theme.inverseBackground,
       shadowOpacity: isCentered && !isScrolling ? glow.value * 0.8 : 0,
       shadowRadius: isCentered && !isScrolling ? 20 : 0,
       shadowOffset: { width: 0, height: 0 },
@@ -120,7 +120,7 @@ export default function VibeCard({
           ? 8 * glow.value
           : 0,
     };
-  }, [scrollX, index, itemWidth, isScrolling, glow.value]);
+  }, [scrollX, index, itemWidth, isScrolling]);
 
   return (
     <AnimatedReanimated.View style={[scaleStyle, { overflow: 'visible' }]}>
@@ -140,7 +140,7 @@ export default function VibeCard({
                 alignItems: 'center',
                 paddingVertical: 16,
                 paddingHorizontal: 16,
-                borderRadius: 0,
+                borderRadius: 5,
               }}
             >
               <View
@@ -167,7 +167,7 @@ export default function VibeCard({
                     color: theme.optionalText,
                     textAlign: 'center',
                     fontSize: 12,
-                    fontWeight: '600',
+                    fontWeight: '500',
                   }}
                 >
                   {formatDate(vibe.date)}

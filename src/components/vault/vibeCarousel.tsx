@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState, useRef } from 'react';
 import { FlatList, View, Dimensions } from 'react-native';
 import type { NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
@@ -203,6 +204,7 @@ export default function VibeCarousel({
       style={{
         paddingVertical: 20,
         backgroundColor: 'transparent',
+        overflow: 'visible',
       }}
     >
       <FlatList
@@ -211,6 +213,7 @@ export default function VibeCarousel({
         data={cyclingVibes}
         keyExtractor={(item, index) => `${item.id}-${index}`}
         showsHorizontalScrollIndicator={false}
+        style={{ overflow: 'visible' }}
         contentContainerStyle={{
           paddingLeft: (screenWidth - CARD_WIDTH) / 2 - 16,
           paddingRight: (screenWidth - CARD_WIDTH) / 2 + 16,

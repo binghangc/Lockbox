@@ -7,6 +7,7 @@ import TripVisualBackground from '@/components/shared/tripVisualBackground';
 import useTrips from '@/hooks/useTrips';
 import { useState } from 'react';
 import VibeCarousel from '@/components/vault/vibeCarousel';
+import ResponseFeed from '@/components/vault/responseFeed';
 
 function VaultContent({ tripId }: { tripId: string }) {
   const insets = useSafeAreaInsets();
@@ -15,6 +16,8 @@ function VaultContent({ tripId }: { tripId: string }) {
 
   const { trip } = useTrips(tripId);
   const bgKey = trip?.video_background ?? null;
+
+  console.log('Vault ID (centered):', selectedVibeId);
 
   return (
     <>
@@ -44,35 +47,27 @@ function VaultContent({ tripId }: { tripId: string }) {
         }}
       />
       <TripVisualBackground videoKey={bgKey} effectKey={null} />
-      <BlurView
-        intensity={60}
-        tint={theme.blurTint as 'light' | 'dark' | 'default'}
-        experimentalBlurMethod="dimezisBlurView"
+      <View
+        className="flex-1 pt-6"
         style={{
-          flex: 1,
-          position: 'absolute',
-          width: '100%',
-          height: '100%',
-          zIndex: 0,
-          overflow: 'visible',
+          paddingTop: insets.top + 60,
+          backgroundColor: 'transparent',
         }}
       >
-        <View
-          className="flex-1 pt-6"
-          style={{
-            paddingTop: insets.top + 60,
-            backgroundColor: 'transparent',
-          }}
-        >
-          <View style={{ flex: 1, overflow: 'visible' }}>
-            <VibeCarousel
-              tripId={tripId}
-              selectedVibeId={selectedVibeId}
-              onSelect={setSelectedVibeId}
+        <View style={{ flex: 1, overflow: 'visible' }}>
+          <VibeCarousel
+            tripId={tripId}
+            selectedVibeId={selectedVibeId}
+            onSelect={setSelectedVibeId}
+          />
+          {selectedVibeId && (
+            <ResponseFeed
+              vibecheckId={selectedVibeId}
+              style={{ marginTop: 16 }}
             />
-          </View>
+          )}
         </View>
-      </BlurView>
+      </View>
     </>
   );
 }
