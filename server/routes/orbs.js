@@ -228,4 +228,44 @@ router.get('/vibecheck/:id/status', async (req, res) => {
   });
 });
 
+// GET /vibecheck/:id/orbs - Get all orbs for a given vibecheck
+router.get('/vibecheck/:id/orbs', async (req, res) => {
+  const { id: vibecheckId } = req.params;
+
+  if (!vibecheckId) {
+    return res.status(400).json({ error: 'Missing vibecheckId' });
+  }
+
+  const { data, error } = await supabase
+    .from('orbs')
+    .select(
+      `
+      id,
+      user_id,
+      vibecheck_id,
+      hls_key,
+      created_at,
+      user:profiles(id, name, avatar_url)
+    `,
+    )
+    .eq('vibecheck_id', vibecheckId);
+
+  if (error) {
+    console.error('[Supabase Fetch Error]', error.message);
+    return res.status(500).json({ error: 'Failed to fetch orbs' });
+  }
+
+  const orbsWithUrls = await Promise.all(
+    data.map(async (orb) => {
+      const hlsUrl = await getDownloadUrl(orb.hls_key);
+      return {
+        ...orb,
+        hlsUrl,
+      };
+    }),
+  );
+
+  return res.status(200).json({ orbs: orbsWithUrls });
+});
+
 module.exports = router;
