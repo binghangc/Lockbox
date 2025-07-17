@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface Orb {
   id: string;
@@ -19,16 +20,46 @@ export default function useOrbsByVibecheck(vibecheckId: string) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!vibecheckId) return;
+    if (!vibecheckId) {
+      setLoading(false);
+      return;
+    }
 
     const fetchOrbs = async () => {
       setLoading(true);
       try {
+        const token = await AsyncStorage.getItem('access_token');
         const res = await fetch(
           `${process.env.EXPO_PUBLIC_API_URL}/orbs/vibecheck/${vibecheckId}/orbs`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
         );
-        const json = await res.json();
-        setOrbs(json.orbs || []);
+
+        const text = await res.text();
+        console.log('Raw orbs response:', text);
+
+        let json;
+        try {
+          json = JSON.parse(text);
+        } catch (parseError) {
+          console.error('JSON parse failed:', parseError);
+          return;
+        }
+
+        if (res.ok) {
+          const mappedOrbs = (json.orbs || []).map((orb: any) => ({
+            ...orb,
+            hlsUrl: `${process.env.EXPO_PUBLIC_HLS_URL}/${orb.hls_key}/playlist.m3u8`,
+          }));
+
+          console.log('Mapped orbs with HLS URLs:', mappedOrbs);
+          setOrbs(mappedOrbs);
+        } else {
+          console.error('Failed to fetch orbs:', json.error);
+        }
       } catch (err) {
         console.error('Failed to fetch orbs:', err);
       } finally {
