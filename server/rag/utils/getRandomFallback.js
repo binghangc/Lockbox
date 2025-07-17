@@ -91,4 +91,6 @@ function getRandomFallback(optionalTheme) {
   return { theme, vibecheck };
 }
 
-module.exports = getRandomFallback;
+module.exports = {
+  getRandomFallback,
+};

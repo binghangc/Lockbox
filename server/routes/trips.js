@@ -452,6 +452,11 @@ router.patch('/:id/vibecheck/:date', authMiddleware, async (req, res) => {
     .eq('date', date)
     .single();
 
+  if (itineraryError) {
+    console.error('Itinerary query failed:', itineraryError.message);
+    return res.status(500).json({ error: 'Failed to fetch itinerary.' });
+  }
+
   let vibecheckText;
 
   if (itinerary && itinerary.itinerary) {
@@ -466,8 +471,8 @@ router.patch('/:id/vibecheck/:date', authMiddleware, async (req, res) => {
     vibecheckText = fallback.vibecheck;
   }
 
-  if (itineraryError || !itinerary) {
-    return res.status(500).json({ error: 'Itinerary not found or invalid.' });
+  if (itineraryError) {
+    return res.status(500).json({ error: 'Itinerary invalid.' });
   }
 
   const vibe = await generateVibeCheck({
