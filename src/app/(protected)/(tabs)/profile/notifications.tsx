@@ -84,12 +84,12 @@ export default function NotificationSettings() {
           );
           if (!res.ok) {
             const error = await res.json();
-            console.error('❌ Push token save failed:', error);
+            console.error('Push token save failed:', error);
           } else {
-            console.log('✅ Push token and prefs synced');
+            console.log('Push token and prefs synced');
           }
         } catch (err) {
-          console.error('❌ Push token registration error:', err);
+          console.error('Push token registration error:', err);
         }
       }
     })();
@@ -131,7 +131,7 @@ export default function NotificationSettings() {
         return;
       }
 
-      console.log('✅ Push token:', token);
+      console.log('Push token:', token);
       setEnabled(true);
     } else {
       Alert.alert(
@@ -180,7 +180,7 @@ export default function NotificationSettings() {
         />
       </BlurView>
 
-      {enabled && (
+      {granted && enabled && (
         <BlurView
           intensity={50}
           tint="dark"
