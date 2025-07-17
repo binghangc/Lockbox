@@ -51,7 +51,6 @@ export default function NotificationSettings() {
       let token;
       try {
         token = await registerForPushNotificationsAsync();
-        console.log('✅ Token returned:', token);
       } catch (err) {
         console.error('❌ Token fetch error:', err);
         Alert.alert('Token error', 'Failed to get push token');
@@ -123,6 +122,7 @@ export default function NotificationSettings() {
 
       // At this point, permission is granted — try getting token again
       const token = await registerForPushNotificationsAsync();
+      console.log('Push token:', token);
       if (!token) {
         Alert.alert(
           'Failed to get token',
@@ -131,7 +131,6 @@ export default function NotificationSettings() {
         return;
       }
 
-      console.log('Push token:', token);
       setEnabled(true);
     } else {
       Alert.alert(

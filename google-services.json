@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "249655206631",
+    "project_id": "lockbox-798ae",
+    "storage_bucket": "lockbox-798ae.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:249655206631:android:e92e829c8a98636163b842",
+        "android_client_info": {
+          "package_name": "com.lockedin.lockbox"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC6Ne4Oajtt9w2tC06f24-rkbWEdiFXvBA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

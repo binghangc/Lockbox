@@ -2,11 +2,6 @@ import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 
 export default async function registerForPushNotificationsAsync() {
-  if (!Constants.isDevice) {
-    console.warn('Push notifications only work on a physical device');
-    return null;
-  }
-
   const projectId =
     Constants.expoConfig?.extra?.eas?.projectId ??
     Constants.easConfig?.projectId;
@@ -15,8 +10,6 @@ export default async function registerForPushNotificationsAsync() {
     console.warn('Missing EAS projectId – push token will not work!');
     return null;
   }
-
-  console.log('Expo Project ID:', Constants.expoConfig?.extra?.eas?.projectId);
 
   try {
     // 1. Check current permission status
