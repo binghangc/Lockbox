@@ -35,7 +35,7 @@ jobs:
           echo "R2_PUBLIC_DOMAIN_AVATAR=${{ secrets.R2_PUBLIC_DOMAIN_AVATAR }}" >> .env.server
           echo "R2_ACCESS_KEY_ID=${{ secrets.R2_ACCESS_KEY_ID }}" >> .env.server
           echo "R2_SECRET_ACCESS_KEY=${{ secrets.R2_SECRET_ACCESS_KEY }}" >> .env.server
-          echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" >> .env.server
+          echo "GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }}" >> .env.server
 
       - name: Install dependencies
         run: npm install
