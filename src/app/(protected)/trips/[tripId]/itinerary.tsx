@@ -12,11 +12,18 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useState } from 'react';
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import useTrips from '@/hooks/useTrips';
 import ItineraryDayNavigator from '@/components/itineraryDayNavigator';
 import useItineraries from '@/hooks/useItineraries';
 import getTripDays from '@/utils/date';
 import { TripThemeProvider, useTripTheme } from '@/context/TripThemeProvider';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.extend(isSameOrAfter);
 
 export const screenOptions = {
   headerShown: false,
@@ -31,8 +38,19 @@ function ItineraryScreenContent() {
   const theme = useTripTheme();
 
   const [currentIndex, setCurrentIndex] = useState(0);
-  const tripDays = trip ? getTripDays(trip.start_date, trip.end_date) : [];
 
+  const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const today = dayjs().tz(userTimezone).startOf('day');
+  const allDays = trip ? getTripDays(trip.start_date, trip.end_date) : [];
+  const tripDays =
+    trip?.status === 'ongoing'
+      ? allDays.filter((d) =>
+          dayjs(d).tz(userTimezone).isSameOrAfter(today, 'day'),
+        )
+      : allDays;
+
+  console.log('today', today.format());
+  console.log('timeone', userTimezone);
   const {
     dailyPlans,
     setDailyPlans,

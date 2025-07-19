@@ -5,7 +5,7 @@ const router = express.Router();
 const { createClient } = require('@supabase/supabase-js');
 const { generateVibeCheck } = require('../utils/geminiclient.js');
 const authMiddleware = require('../middleware/auth.js');
-const queue = require('../queue.js');
+const { itineraryQueue, vibechecksQueue } = require('../queue.js');
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -79,28 +79,38 @@ router.post('/:id/submit-itinerary', authMiddleware, async (req, res) => {
     if (vibeInsertError) throw vibeInsertError;
 
     // Step 3: Dispatch chunking + embedding jobs to Redis queue
-    inserted.forEach((entry) => {
-      queue
-        .create('embed-itinerary', {
-          itinerary: entry.itinerary,
-          itinerary_id: entry.id,
-          trip_id: trip.id,
-          country: trip.country,
-        })
-        .removeOnComplete(true)
-        .save();
-    });
+    await Promise.all(
+      inserted.map((entry) =>
+        itineraryQueue.add(
+          'embed-itinerary',
+          {
+            itinerary: entry.itinerary,
+            itinerary_id: entry.id,
+            trip_id: trip.id,
+            country: trip.country,
+          },
+          {
+            removeOnComplete: true,
+          },
+        ),
+      ),
+    );
 
-    insertedVibechecks.forEach((vc) => {
-      queue
-        .create('embed-vibecheck', {
-          vibecheck_id: vc.id,
-          text: vc.vibecheck,
-          user_id: trip.user_id,
-        })
-        .removeOnComplete(true)
-        .save();
-    });
+    await Promise.all(
+      insertedVibechecks.map((vc) =>
+        vibechecksQueue.add(
+          'embed-vibecheck',
+          {
+            vibecheck_id: vc.id,
+            text: vc.vibecheck,
+            user_id: trip.user_id,
+          },
+          {
+            removeOnComplete: true,
+          },
+        ),
+      ),
+    );
 
     return res.status(200).json({
       success: true,

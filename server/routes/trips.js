@@ -4,7 +4,12 @@ const router = express.Router();
 const { createClient } = require('@supabase/supabase-js');
 const { DeleteObjectCommand } = require('@aws-sdk/client-s3');
 const dayjs = require('dayjs');
+const utc = require('dayjs/plugin/utc');
+const timezone = require('dayjs/plugin/timezone');
 const r2 = require('../utils/r2client.js');
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -30,9 +35,9 @@ router.post('/', authMiddleware, async (req, res) => {
     video_background,
     effects,
   } = req.body;
-  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-  const userTimezone = timezone || 'Asia/Singapore';
+  const userTimezone = tz || 'Asia/Singapore';
   const today = dayjs().tz(userTimezone).format('YYYY-MM-DD');
   const start = dayjs(start_date).tz(userTimezone).format('YYYY-MM-DD');
 

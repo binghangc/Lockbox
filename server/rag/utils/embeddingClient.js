@@ -26,6 +26,7 @@ async function embedTexts(texts) {
 }
 
 module.exports = {
+  createEmbeddingsClient,
   embedText,
   embedTexts,
 };

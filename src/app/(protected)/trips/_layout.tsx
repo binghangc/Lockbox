@@ -25,6 +25,7 @@ type TripLayoutInnerProps = {
     end_date: string;
     description?: string | null;
     video_background?: string | null;
+    status: 'upcoming' | 'ongoing' | 'ended';
   };
   pinTrip: () => void;
   modalRef: React.RefObject<Modalize>;
@@ -192,6 +193,7 @@ function TripLayoutInner({
 
       <TripControllerModal
         triggerRef={modalRef}
+        status={trip.status}
         isHost={isHost}
         isPinned={isPinned}
         onEdit={onEdit}

@@ -7,6 +7,7 @@ console.log('[embedItineraryWorker] Worker is running...');
 const worker = new Worker(
   'embed-itinerary',
   async (job) => {
+    console.log('[embedItineraryWorker] Received job:', job.data);
     try {
       await embedItinerary(job.data);
       console.log(`[embed-itinerary job] Completed: ${job.id}`);

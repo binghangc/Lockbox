@@ -6,7 +6,6 @@ import Foundation from '@expo/vector-icons/Foundation';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
-import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import TripControllerItem from '@/components/tripControllerItem';
 import { useTripTheme } from '@/context/TripThemeProvider';
@@ -100,11 +99,7 @@ export default function TripControllerModal({
         {isHost && status === 'ongoing' && (
           <TripControllerItem
             icon={
-              <FontAwesome6
-                name="calendar-pen"
-                size={20}
-                color={theme.primaryIcon}
-              />
+              <FontAwesome5 name="tasks" size={20} color={theme.primaryIcon} />
             }
             label="Edit Itinerary"
             onPress={onItinerary}

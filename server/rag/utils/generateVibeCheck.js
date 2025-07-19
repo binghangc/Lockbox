@@ -15,7 +15,7 @@ async function getDiverseVibeCheckExamples(similarChunks, limit = 3) {
   const { data, error } = await supabase
     .from('vibechecks')
     .select('*')
-    .in('chunk_id', chunkIds);
+    .in('itinerary_id', chunkIds);
 
   if (error) throw new Error(`Error fetching vibe checks: ${error.message}`);
 
