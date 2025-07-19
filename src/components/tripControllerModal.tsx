@@ -6,6 +6,7 @@ import Foundation from '@expo/vector-icons/Foundation';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import TripControllerItem from '@/components/tripControllerItem';
 import { useTripTheme } from '@/context/TripThemeProvider';
@@ -15,6 +16,7 @@ type TripControllerModalProps = {
   isHost: boolean;
   isPinned: boolean;
   onEdit: () => void;
+  onItinerary: () => void;
   onSync: () => void;
   onPin: () => void;
   onInvite: () => void;
@@ -28,6 +30,7 @@ export default function TripControllerModal({
   isHost,
   isPinned,
   onEdit,
+  onItinerary,
   onSync,
   onPin,
   onInvite,
@@ -92,6 +95,19 @@ export default function TripControllerModal({
             }
             label="Edit Trip"
             onPress={onEdit}
+          />
+        )}
+        {isHost && status === 'ongoing' && (
+          <TripControllerItem
+            icon={
+              <FontAwesome6
+                name="calendar-pen"
+                size={20}
+                color={theme.primaryIcon}
+              />
+            }
+            label="Edit Itinerary"
+            onPress={onItinerary}
           />
         )}
         <TripControllerItem

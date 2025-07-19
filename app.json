@@ -46,8 +46,8 @@
         }
       ],
       "expo-video",
-      "expo-font"
-      "expo-notifications",
+      "expo-font",
+      "expo-notifications"
     ],
     "extra": {
       "router": {},

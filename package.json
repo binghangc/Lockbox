@@ -11,7 +11,10 @@
     "prettier:check": "prettier --check .",
     "prettier:write": "prettier --write .",
     "test": "cd server && npm test",
-    "build:rag": "tsc -p tsconfig.rag.json"
+    "build:rag": "tsc -p tsconfig.rag.json",
+    "worker:itinerary": "node server/workers/embedItineraryWorker.js",
+    "worker:vibechecks": "node server/workers/embedVibecheckWorker.js",
+    "worker:messages": "node server/workers/sendMessages.js"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",

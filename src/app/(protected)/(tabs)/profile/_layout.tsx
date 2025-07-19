@@ -3,8 +3,10 @@ import { Octicons, MaterialIcons } from '@expo/vector-icons';
 import { router, Stack } from 'expo-router';
 import { BlurView } from 'expo-blur';
 import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function ProfileLayout() {
+  const insets = useSafeAreaInsets();
   const sharedScreenOptions: NativeStackNavigationOptions = {
     headerShown: true,
     headerTransparent: true,
@@ -43,13 +45,16 @@ export default function ProfileLayout() {
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <TouchableOpacity
                 onPress={() => router.push('/profile/settings')}
-                style={{ marginRight: 16 }}
+                style={{ paddingRight: insets.right + 8 }}
                 hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
               >
                 <MaterialIcons name="settings" size={24} color="white" />
               </TouchableOpacity>
             </View>
           ),
+          headerRightContainerStyle: {
+            paddingRight: 12,
+          },
         }}
       />
       <Stack.Screen

@@ -48,6 +48,11 @@ function TripLayoutInner({
     modalRef.current?.close();
   };
 
+  const onItinerary = () => {
+    modalRef.current?.close();
+    router.push(`trips/${tripId}/itinerary`);
+  };
+
   const onSync = async () => {
     try {
       await createCalendarEvent({
@@ -190,6 +195,7 @@ function TripLayoutInner({
         isHost={isHost}
         isPinned={isPinned}
         onEdit={onEdit}
+        onItinerary={onItinerary}
         onSync={onSync}
         onPin={onPin}
         onInvite={onInvite}
