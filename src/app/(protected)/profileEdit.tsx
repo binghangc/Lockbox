@@ -19,6 +19,7 @@ import { Feather } from '@expo/vector-icons';
 import { useUser } from '@/context/UserContext';
 import FormInput from '@/components/formInput';
 import EditActionRow from '@/components/editActionRow';
+import CreateTripHeader from '@/components/shared/tripActionHeader';
 import supabase from '../../../lib/supabase';
 
 export default function EditProfileScreen() {
@@ -193,6 +194,11 @@ export default function EditProfileScreen() {
 
   return (
     <View className="flex-1 bg-black items-center justify-center px-6">
+      <CreateTripHeader
+        onCancel={() => router.back()}
+        onSave={() => router.back()}
+        title="Edit Profile"
+      />
       {user.avatar_url ? (
         <TouchableOpacity
           onPress={() => handleUploadImage(user, setUser, setUploading)}
