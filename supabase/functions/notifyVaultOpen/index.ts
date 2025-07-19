@@ -4,9 +4,9 @@
 
 // Setup type definitions for built-in Supabase Runtime APIs
 // eslint-disable-next-line import/no-unresolved
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { serve } from 'server';
 // eslint-disable-next-line import/no-unresolved, import/extensions
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { createClient } from '@supabase/supabase-js';
 import { sendPushNotification } from '$lib/sendPushNotification.ts';
 
 serve(async (_req) => {
@@ -16,13 +16,13 @@ serve(async (_req) => {
       Deno.env.get('SERVICE_ROLE_KEY')!,
     );
 
-    const now = new Date().toISOString();
+    const nowPlusOne = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
 
     const { data: trips } = await supabase
       .from('trips')
       .select('id, title, end_date, participants:participants(user:profiles(id, expo_push_token, notification_preferences))')
       .eq('status', 'ended')
-      .eq('end_date', now);
+      .eq('end_date', nowPlusOne);
 
     for (const trip of trips || []) {
       for (const participant of trip.participants) {
