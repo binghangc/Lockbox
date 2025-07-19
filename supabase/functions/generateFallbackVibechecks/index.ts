@@ -113,9 +113,11 @@ serve(async (_req) => {
       Deno.env.get('SERVICE_ROLE_KEY')!,
     );
 
-    const today = new Date().toISOString().split('T')[0];
+    const utc = new Date();
+    const singaporeTime = new Date(utc.toLocaleString('en-US', { timeZone: 'Asia/Singapore' }));
+    const localDate = singaporeTime.toISOString().split('T')[0];
     const debugLog = {
-      today,
+      today: localDate,
       queriedTrips: [],
       skippedExisting: [],
       insertedNew: [],
@@ -142,7 +144,7 @@ serve(async (_req) => {
         .from('vibechecks')
         .select('id')
         .eq('trip_id', trip.id)
-        .eq('date', today)
+        .eq('date', localDate)
         .maybeSingle();
 
       if (vibeErr) {
@@ -158,7 +160,7 @@ serve(async (_req) => {
           .from('vibechecks')
           .insert({
             trip_id: trip.id,
-            date: today,
+            date: localDate,
             vibecheck: fallback.vibecheck,
             created_at: new Date().toISOString(),
           })
@@ -199,7 +201,7 @@ serve(async (_req) => {
     });
   } catch (error) {
     return new Response(
-      `❌ Internal error: ${error?.message || 'unknown'}\n\n${error?.stack || ''}`,
+      `Internal error: ${error?.message || 'unknown'}\n\n${error?.stack || ''}`,
       { status: 500 }
     );
   }

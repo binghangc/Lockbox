@@ -9,7 +9,9 @@ serve(async (_req) => {
       Deno.env.get('SERVICE_ROLE_KEY')!,
     );
 
-    const today = new Date().toISOString().split('T')[0];
+    const utc = new Date();
+    const singaporeTime = new Date(utc.toLocaleString('en-US', { timeZone: 'Asia/Singapore' }));
+    const localDate = singaporeTime.toISOString().split('T')[0];
 
     const { data: vibeChecks, error } = await supabase
       .from('vibechecks')
@@ -28,7 +30,7 @@ serve(async (_req) => {
           )
         )
       `)
-      .eq('date', today);
+      .eq('date', localDate);
 
     if (error) {
       console.error('Failed to fetch vibechecks:', error);
@@ -72,6 +74,9 @@ serve(async (_req) => {
     });
   } catch (error) {
     console.error('[notifyVibeChecks ERROR]', error);
-    return new Response('Internal error', { status: 500 });
+    return new Response(
+      `Internal error: ${error?.message || 'unknown'}\n\n${error?.stack || ''}`,
+      { status: 500 }
+    );
   }
 });

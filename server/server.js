@@ -4,7 +4,8 @@ require('dotenv').config({ path: './server/.env.server' });
 if (process.env.RUN_WORKERS === 'true') {
   require('./workers/embedItineraryWorker.js');
   require('./workers/embedVibecheckWorker.js');
-  require('./workers/sendMessages.js');
+  const pollMessagesLoop = require('./workers/sendMessages.js');
+  pollMessagesLoop();
 }
 /* eslint-enable global-require */
 

@@ -9,9 +9,12 @@ serve(async (_req) => {
       Deno.env.get('SERVICE_ROLE_KEY')!,
     );
 
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const isoTomorrow = tomorrow.toISOString().split('T')[0];
+    const utcNow = new Date();
+    const singaporeNow = new Date(
+      utcNow.toLocaleString('en-US', { timeZone: 'Asia/Singapore' })
+    );
+    singaporeNow.setDate(singaporeNow.getDate() + 1);
+    const isoTomorrow = singaporeNow.toISOString().split('T')[0];
 
     // 1. Get trips starting tomorrow
     const { data: trips, error } = await supabase
@@ -57,6 +60,9 @@ serve(async (_req) => {
     });
   } catch (error) {
     console.error('[notifyItineraryNudge ERROR]', error);
-    return new Response('❌ Internal error', { status: 500 });
+    return new Response(
+      `Internal error: ${error?.message || 'unknown'}\n\n${error?.stack || ''}`,
+      { status: 500 }
+    );
   }
 });
