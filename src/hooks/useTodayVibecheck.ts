@@ -17,8 +17,9 @@ export default function useTodayVibecheck(
   const [vibecheckId, setVibecheckId] = useState<string | null>(null);
   const [vcloading, setLoading] = useState(true);
 
-  const zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  const today = dayjs().tz(zone).format('YYYY-MM-DD');
+  const today = dayjs(new Date()).format('YYYY-MM-DD');
+
+  console.log('Today:', today);
 
   const fetchVibecheck = useCallback(async () => {
     if (!user) {

@@ -575,8 +575,31 @@ router.post('/:id/submit-itinerary', authMiddleware, async (req, res) => {
       return res.status(403).json({ error: 'Forbidden' });
     }
 
+    // Step 0: check if edited itineraries are the same
+    const { data: existing, error: existingError } = await supabase
+      .from('itineraries')
+      .select('id, date, itinerary')
+      .eq('trip_id', trip_id);
+
+    if (existingError) throw existingError;
+    const existingMap = new Map(
+      existing.map((e) => [e.date, e.itinerary.trim()]),
+    );
+
+    // Filter only changed entries
+    const changed = itineraries.filter((entry) => {
+      const old = existingMap.get(entry.date);
+      return old === undefined || old !== entry.itinerary.trim();
+    });
+
+    if (changed.length === 0) {
+      return res
+        .status(200)
+        .json({ success: true, message: 'No changes detected' });
+    }
+
     // Step 1: insert itineraries
-    const payload = itineraries.map((entry, index) => ({
+    const payload = changed.map((entry, index) => ({
       trip_id,
       date: entry.date,
       itinerary: entry.itinerary,
