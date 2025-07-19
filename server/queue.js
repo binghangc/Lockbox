@@ -1,14 +1,16 @@
-const kue = require('kue');
+const { Queue } = require('bullmq');
+const redis = require('./redis.js');
 
-const queue = kue.createQueue({
-  redis: {
-    host: process.env.REDIS_HOST || '127.0.0.1',
-    port: process.env.REDIS_PORT || 6379,
-  },
+const itineraryQueue = new Queue('embed-itinerary', { connection: redis });
+const vibechecksQueue = new Queue('embed-vibechecks', { connection: redis });
+
+[itineraryQueue, vibechecksQueue].forEach((queue) => {
+  queue.on('error', (err) => {
+    console.error(`[Queue Error] (${queue.name})`, err);
+  });
 });
 
-queue.on('error', (err) => {
-  console.error('[Queue Error]', err);
-});
-
-module.exports = queue;
+module.exports = {
+  itineraryQueue,
+  vibechecksQueue,
+};
