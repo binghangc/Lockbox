@@ -30,9 +30,11 @@ router.post('/', authMiddleware, async (req, res) => {
     video_background,
     effects,
   } = req.body;
+  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-  const today = dayjs().format('YYYY-MM-DD');
-  const start = dayjs(start_date).format('YYYY-MM-DD');
+  const userTimezone = timezone || 'Asia/Singapore';
+  const today = dayjs().tz(userTimezone).format('YYYY-MM-DD');
+  const start = dayjs(start_date).tz(userTimezone).format('YYYY-MM-DD');
 
   const status = start === today ? 'ongoing' : 'upcoming';
 

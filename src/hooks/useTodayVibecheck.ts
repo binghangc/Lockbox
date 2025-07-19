@@ -2,6 +2,11 @@ import { useEffect, useState, useCallback } from 'react';
 import { Alert } from 'react-native';
 import { useUser } from '@/context/UserContext';
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 export default function useTodayVibecheck(
   tripId: string,
@@ -12,7 +17,8 @@ export default function useTodayVibecheck(
   const [vibecheckId, setVibecheckId] = useState<string | null>(null);
   const [vcloading, setLoading] = useState(true);
 
-  const today = dayjs().format('YYYY-MM-DD');
+  const zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const today = dayjs().tz(zone).format('YYYY-MM-DD');
 
   const fetchVibecheck = useCallback(async () => {
     if (!user) {
