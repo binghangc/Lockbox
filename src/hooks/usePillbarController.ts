@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { PanResponder } from 'react-native';
 import {
   useSharedValue,
@@ -16,6 +16,7 @@ interface ControllerProps {
   onSwipeSend?: () => void;
   onPressOutBubble?: () => void;
   onLongPressBubble?: () => void;
+  submittedByUser?: boolean;
 }
 
 export default function usePillbarController({
@@ -23,11 +24,14 @@ export default function usePillbarController({
   onSwipeSend,
   onPressOutBubble,
   onLongPressBubble,
+  submittedByUser,
 }: ControllerProps) {
   const PILLBAR = usePillbarConfig();
   const [dragEnabled, setDragEnabled] = useState(false);
   const [barWidth, setBarWidth] = useState(0);
-  const [hasSent, setHasSent] = useState(false);
+
+  // Use submittedByUser as the source of truth for sent state
+  const hasSent = submittedByUser || false;
 
   const threshold = useMemo(() => (barWidth - 16) * 0.5, [barWidth]);
 
@@ -35,13 +39,31 @@ export default function usePillbarController({
   const showAccessory = useSharedValue(true);
   const panX = useSharedValue(0);
 
+  // Initialize panX position based on submitted state
+  useEffect(() => {
+    if (submittedByUser && barWidth > 0) {
+      const maxDistance =
+        barWidth -
+        PILLBAR.BUBBLE_WIDTH -
+        PILLBAR.PILLBAR_PADDING_HORIZONTAL * 2;
+      const restricted = maxDistance - 16;
+      panX.value = restricted; // Set to right position immediately
+    }
+  }, [submittedByUser, barWidth, panX, PILLBAR]);
+
   const panResponder = useMemo(
     () =>
       PanResponder.create({
-        onStartShouldSetPanResponder: () => status === 'ongoing' && dragEnabled,
+        onStartShouldSetPanResponder: () =>
+          status === 'ongoing' && dragEnabled && !submittedByUser,
         onMoveShouldSetPanResponder: (_, g) =>
-          status === 'ongoing' && dragEnabled && Math.abs(g.dx) > 0,
+          status === 'ongoing' &&
+          dragEnabled &&
+          !submittedByUser &&
+          Math.abs(g.dx) > 0,
         onPanResponderMove: (_, g) => {
+          if (submittedByUser) return; // Prevent movement if already submitted
+
           const maxDistance =
             barWidth -
             PILLBAR.BUBBLE_WIDTH -
@@ -50,6 +72,8 @@ export default function usePillbarController({
           panX.value = Math.min(Math.max(g.dx, 0), restricted);
         },
         onPanResponderRelease: (_, g) => {
+          if (submittedByUser) return; // Prevent action if already submitted
+
           const maxDistance =
             barWidth -
             PILLBAR.BUBBLE_WIDTH -
@@ -62,7 +86,6 @@ export default function usePillbarController({
               stiffness: 100,
             });
             onSwipeSend?.();
-            setHasSent(true);
           } else {
             panX.value = withSpring(0, { damping: 10, stiffness: 100 });
             onPressOutBubble?.();
@@ -76,6 +99,7 @@ export default function usePillbarController({
     [
       status,
       dragEnabled,
+      submittedByUser,
       onSwipeSend,
       onPressOutBubble,
       threshold,
@@ -119,6 +143,8 @@ export default function usePillbarController({
   });
 
   function handleLongPress() {
+    if (submittedByUser) return; // Prevent long press if already submitted
+
     setDragEnabled(true);
     isSliding.value = true;
     showAccessory.value = false;

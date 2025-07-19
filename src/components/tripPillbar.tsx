@@ -28,6 +28,7 @@ export default function TripPillbar({
   onPressOutBubble,
   onSwipeSend,
   bottomAccessory,
+  submittedByUser,
 }: {
   status: 'upcoming' | 'ongoing' | 'ended';
   pillText: string;
@@ -36,6 +37,7 @@ export default function TripPillbar({
   onPressOutBubble?: () => void;
   onSwipeSend?: () => void;
   bottomAccessory?: React.ReactNode;
+  submittedByUser?: boolean;
 }) {
   const insets = useSafeAreaInsets();
   const theme = useTripTheme();
@@ -54,6 +56,7 @@ export default function TripPillbar({
     onSwipeSend,
     onPressOutBubble,
     onLongPressBubble,
+    submittedByUser, // Pass this to the controller
   });
 
   const glow = useSharedValue(0);
@@ -126,7 +129,7 @@ export default function TripPillbar({
               <View className="flex-row items-center">
                 {status === 'ongoing' ? (
                   <AnimatedReanimated.View
-                    {...panResponder.panHandlers}
+                    {...(submittedByUser ? {} : panResponder.panHandlers)} // Disable pan if submitted
                     style={[animatedPanStyle]}
                   >
                     <MainActionBubble
@@ -154,7 +157,11 @@ export default function TripPillbar({
                     animatedPillTextStyle,
                   ]}
                 >
-                  {dragEnabled ? 'Slide to send' : pillText}
+                  {submittedByUser
+                    ? 'Response submitted!'
+                    : dragEnabled
+                      ? 'Slide to send'
+                      : pillText}
                 </AnimatedText>
 
                 {bottomAccessory && (
