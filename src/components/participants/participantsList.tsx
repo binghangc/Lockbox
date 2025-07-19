@@ -2,6 +2,7 @@ import { FlatList, View, Text, Pressable } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import FriendRowBase from '@/components/friendRowBase';
 import useParticipants from '@/hooks/useParticipants';
+import type { Profile } from '@/types';
 
 type Props = {
   onSelect: (user: Profile) => void | Promise<void>;
@@ -26,7 +27,7 @@ export default function ParticipantsList({ onSelect, onCountUpdate }: Props) {
     return (
       <View className="flex-1 w-full mt-auto mb-auto items-center">
         <Text className="text-gray-400 text-center text-base mb-3 mt-3">
-          You haven’t added anyone yet. Start inviting fellow explorers!
+          You haven&#39;t added anyone yet. Start inviting fellow explorers!
         </Text>
         <Pressable
           onPress={() => router.push(`/trips/${tripId}/send-invites`)}

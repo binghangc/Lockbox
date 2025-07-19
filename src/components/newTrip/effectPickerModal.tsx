@@ -16,6 +16,12 @@ import { useTripTheme } from '@/context/TripThemeProvider';
 
 export type EffectPickerModalRef = Modalize;
 
+type Effect = {
+  file: object | null;
+  thumbnail: import('react-native').ImageSourcePropType | null;
+  name: string;
+};
+
 type Props = {
   onSelect: (key: string) => void;
   selectedKey: string | null;
@@ -70,47 +76,47 @@ const EffectPickerModal = forwardRef<EffectPickerModalRef, Props>(
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.scroll}
             >
-              {[
-                ...Object.entries(effects).filter(([key]) => key !== 'none'),
-                ['none', effects.none],
-              ].map(([effectKey, effectValue]) => {
-                const thumbnail = effectValue?.thumbnail ?? null;
-                return (
-                  <TouchableOpacity
-                    key={effectKey}
-                    onPress={() => {
-                      onSelect(effectKey);
-                    }}
-                    style={[
-                      styles.item,
-                      selectedKey === effectKey && {
-                        borderColor: theme.primaryOutline,
-                      },
-                    ]}
-                  >
-                    {thumbnail ? (
-                      <Image source={thumbnail} style={styles.image} />
-                    ) : (
-                      <View
-                        style={[
-                          styles.image,
-                          {
-                            backgroundColor: theme.iconBackground,
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                          },
-                        ]}
-                      >
-                        <Feather
-                          name="slash"
-                          size={28}
-                          color={theme.primaryText}
-                        />
-                      </View>
-                    )}
-                  </TouchableOpacity>
-                );
-              })}
+              {Object.entries(effects)
+                .filter(([key]) => key !== 'none')
+                .concat([['none', effects.none] as [string, Effect]])
+                .map(([effectKey, effectValue]) => {
+                  const thumbnail = effectValue?.thumbnail ?? null;
+                  return (
+                    <TouchableOpacity
+                      key={effectKey}
+                      onPress={() => {
+                        onSelect(effectKey);
+                      }}
+                      style={[
+                        styles.item,
+                        selectedKey === effectKey && {
+                          borderColor: theme.primaryOutline,
+                        },
+                      ]}
+                    >
+                      {thumbnail ? (
+                        <Image source={thumbnail} style={styles.image} />
+                      ) : (
+                        <View
+                          style={[
+                            styles.image,
+                            {
+                              backgroundColor: theme.iconBackground,
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                            },
+                          ]}
+                        >
+                          <Feather
+                            name="slash"
+                            size={28}
+                            color={theme.primaryText}
+                          />
+                        </View>
+                      )}
+                    </TouchableOpacity>
+                  );
+                })}
             </ScrollView>
           </BlurView>
         ) : (
@@ -131,47 +137,47 @@ const EffectPickerModal = forwardRef<EffectPickerModalRef, Props>(
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.scroll}
             >
-              {[
-                ...Object.entries(effects).filter(([key]) => key !== 'none'),
-                ['none', effects.none],
-              ].map(([effectKey, effectValue]) => {
-                const thumbnail = effectValue?.thumbnail ?? null;
-                return (
-                  <TouchableOpacity
-                    key={effectKey}
-                    onPress={() => {
-                      onSelect(effectKey);
-                    }}
-                    style={[
-                      styles.item,
-                      selectedKey === effectKey && {
-                        borderColor: theme.primaryOutline,
-                      },
-                    ]}
-                  >
-                    {thumbnail ? (
-                      <Image source={thumbnail} style={styles.image} />
-                    ) : (
-                      <View
-                        style={[
-                          styles.image,
-                          {
-                            backgroundColor: theme.iconBackground,
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                          },
-                        ]}
-                      >
-                        <Feather
-                          name="slash"
-                          size={28}
-                          color={theme.primaryOutline}
-                        />
-                      </View>
-                    )}
-                  </TouchableOpacity>
-                );
-              })}
+              {Object.entries(effects)
+                .filter(([key]) => key !== 'none')
+                .concat([['none', effects.none] as [string, Effect]])
+                .map(([effectKey, effectValue]) => {
+                  const thumbnail = effectValue?.thumbnail ?? null;
+                  return (
+                    <TouchableOpacity
+                      key={effectKey}
+                      onPress={() => {
+                        onSelect(effectKey);
+                      }}
+                      style={[
+                        styles.item,
+                        selectedKey === effectKey && {
+                          borderColor: theme.primaryOutline,
+                        },
+                      ]}
+                    >
+                      {thumbnail ? (
+                        <Image source={thumbnail} style={styles.image} />
+                      ) : (
+                        <View
+                          style={[
+                            styles.image,
+                            {
+                              backgroundColor: theme.iconBackground,
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                            },
+                          ]}
+                        >
+                          <Feather
+                            name="slash"
+                            size={28}
+                            color={theme.primaryOutline}
+                          />
+                        </View>
+                      )}
+                    </TouchableOpacity>
+                  );
+                })}
             </ScrollView>
           </View>
         )}

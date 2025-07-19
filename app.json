@@ -45,8 +45,9 @@
           "recordAudioAndroid": true
         }
       ],
+      "expo-video",
+      "expo-font"
       "expo-notifications",
-      "expo-video"
     ],
     "extra": {
       "router": {},

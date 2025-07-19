@@ -1,8 +1,7 @@
 import React, { useRef } from 'react';
-import { StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, TouchableOpacity, Alert, View } from 'react-native';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 
-import { BlurView } from 'expo-blur';
 import Octicons from '@expo/vector-icons/Octicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { Modalize } from 'react-native-modalize';
@@ -78,10 +77,11 @@ function TripLayoutInner({
   const onLeave = () => {};
 
   const headerBackground = () => (
-    <BlurView
-      intensity={60}
-      tint={theme.blurTint as 'light' | 'dark' | 'default'}
-      style={StyleSheet.absoluteFill}
+    <View
+      style={{
+        backgroundColor: 'transparent',
+        ...StyleSheet.absoluteFillObject,
+      }}
     />
   );
 
@@ -145,6 +145,39 @@ function TripLayoutInner({
             animation: 'slide_from_bottom',
             gestureEnabled: true,
             headerShown: true,
+            contentStyle: {
+              backgroundColor: 'transparent',
+            },
+          }}
+        />
+        <Stack.Screen
+          name="[tripId]/vault"
+          options={{
+            title: 'Vault',
+            animation: 'default',
+            gestureEnabled: true,
+            contentStyle: {
+              backgroundColor: 'transparent',
+            },
+          }}
+        />
+        <Stack.Screen
+          name="[tripId]/participants"
+          options={{
+            title: 'Participants',
+            animation: 'default',
+            gestureEnabled: true,
+            contentStyle: {
+              backgroundColor: 'transparent',
+            },
+          }}
+        />
+        <Stack.Screen
+          name="[tripId]/sendInvites"
+          options={{
+            title: 'Invite',
+            animation: 'default',
+            gestureEnabled: true,
             contentStyle: {
               backgroundColor: 'transparent',
             },

@@ -43,7 +43,7 @@ export default function TripVisualBackground({ videoKey, effectKey }: Props) {
             left: 0,
             right: 0,
             bottom: 0,
-            zIndex: 999,
+            zIndex: 11,
           }}
         >
           <LottieView

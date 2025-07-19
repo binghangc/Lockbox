@@ -18,6 +18,7 @@ const videoBackgrounds: Record<
     thumbnail: ImageSourcePropType;
     primaryColor: string;
     secondaryColor: string;
+    surfaceColor: string;
   }
 > = {
   moonlight: {
@@ -26,6 +27,7 @@ const videoBackgrounds: Record<
     thumbnail: moonlightThumbnail,
     primaryColor: '#A5C4F3',
     secondaryColor: '#6666CC',
+    surfaceColor: '#00081d',
   },
   grass: {
     uri: grassMobile,
@@ -33,6 +35,7 @@ const videoBackgrounds: Record<
     thumbnail: grassThumbnail,
     primaryColor: '#336600',
     secondaryColor: '#4F7A2F',
+    surfaceColor: '#e1ce71',
   },
   pool: {
     uri: poolMobile,
@@ -40,6 +43,7 @@ const videoBackgrounds: Record<
     thumbnail: poolThumbnail,
     primaryColor: '#336699',
     secondaryColor: '#66CCFF',
+    surfaceColor: '#bce4eb',
   },
   rainbow: {
     uri: rainbowMobile,
@@ -47,6 +51,7 @@ const videoBackgrounds: Record<
     thumbnail: rainbowThumbnail,
     primaryColor: '#9966CC',
     secondaryColor: '#996699',
+    surfaceColor: '#b6b4e1',
   },
   ski: {
     uri: skiMobile,
@@ -54,6 +59,7 @@ const videoBackgrounds: Record<
     thumbnail: skiThumbnail,
     primaryColor: '#CC3300',
     secondaryColor: '#FF6633',
+    surfaceColor: '#e2e3e4',
   },
 };
 

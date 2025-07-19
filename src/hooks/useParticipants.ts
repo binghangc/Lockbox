@@ -1,55 +1,59 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useUser } from '@/context/UserContext';
-import type { Profile } from '@/types';
 import { useLocalSearchParams } from 'expo-router';
+import { Profile } from '@/types';
 
-type ParticipantRow = Profile & { role: string };
+export interface ParticipantData {
+  user_id: string;
+  profile: Profile;
+  role?: string;
+}
 
-export default function useParticipants(onCountUpdate?: (n: number) => void) {
+export default function useParticipants(
+  onCountUpdate?: (count: number) => void,
+) {
   const { user, authenticatedFetch } = useUser();
-  const [participants, setParticipants] = useState<ParticipantRow[]>([]);
-  const [loading, setLoading] = useState(true);
   const { tripId } = useLocalSearchParams();
+  const [participants, setParticipants] = useState<ParticipantData[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const listParticipants = useCallback(async () => {
-    if (!user || !tripId) {
+  const fetchParticipants = useCallback(async () => {
+    if (!tripId || !user || !authenticatedFetch) {
       setLoading(false);
       return;
     }
 
     try {
-      setLoading(true);
       const res = await authenticatedFetch(
         `${process.env.EXPO_PUBLIC_API_URL}/trips/${tripId}/participants`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        },
       );
-
-      if (!res.ok) {
-        const { error } = await res.json();
-        console.error('Error fetching participants:', error);
-        return;
-      }
-
       const data = await res.json();
-      setParticipants(data);
-      onCountUpdate?.(data.length);
+
+      if (res.ok) {
+        setParticipants(data || []);
+        onCountUpdate?.(data?.length || 0);
+      } else {
+        console.error(
+          '[useParticipants] Fetch participants error:',
+          data.error,
+        );
+        setParticipants([]);
+        onCountUpdate?.(0);
+      }
     } catch (err) {
-      console.error('Participants error:', err);
+      console.error('[useParticipants] Fetch participants error:', err);
+      setParticipants([]);
+      onCountUpdate?.(0);
     } finally {
       setLoading(false);
     }
-  }, [user, authenticatedFetch, onCountUpdate, tripId]);
+  }, [tripId, user, authenticatedFetch, onCountUpdate]);
 
   useEffect(() => {
     if (user && tripId) {
-      listParticipants();
+      fetchParticipants();
     }
-  }, [user, tripId, listParticipants]);
+  }, [user, tripId, fetchParticipants]);
 
-  return { participants, loading, listParticipants };
+  return { participants, loading, fetchParticipants };
 }

@@ -3,7 +3,6 @@ import useVideoPermissions from '@/hooks/video/useVideoPermissions';
 import useVideoRecorder from '@/hooks/video/useVideoRecorder';
 import uploadOrb from '@/utils/orbs';
 import { useUser } from '@/context/UserContext';
-import VIDEO_CONFIG from '@/constants/videoConfig';
 import VideoBubblePreview from './videoBubblePreview';
 
 type Props = {
@@ -36,24 +35,45 @@ export default function VideoBubbleController({
 
   const { cameraRef, isRecording, startRecording, stopRecording, videoUri } =
     useVideoRecorder({
-      maxDurationSec: VIDEO_CONFIG.MAX_DURATION,
       onRecordingFinished: async (uri) => {
-        setShowPreview(false);
+        console.log('[videoBubbleController] === RECORDING FINISHED CALLBACK ===');
+        console.log('[videoBubbleController] URI received:', uri);
+        console.log('[videoBubbleController] wasCancelled.current:', wasCancelled.current);
+
+        // Don't hide preview immediately if cancelled - let user see what happened
+        if (!wasCancelled.current) {
+          setShowPreview(false);
+        }
 
         if (wasCancelled.current) {
-          console.log(
-            '[videoBubbleController] Recording was cancelled — skipping upload',
-          );
+          console.log('[videoBubbleController] Recording was cancelled — skipping upload');
+          // Reset for next time but don't clear immediately
+          setTimeout(() => {
+            wasCancelled.current = false;
+            setShowPreview(false);
+          }, 1000);
           return;
         }
 
-        if (!uri || !tripId || !userId || !token) {
-          console.log(userId);
-          console.warn('[videoBubbleController] Missing data for uploadOrb');
+        if (!uri) {
+          console.warn('[videoBubbleController] No URI received from recording');
+          // Show error state briefly
+          setTimeout(() => setShowPreview(false), 1500);
+          return;
+        }
+
+        if (!tripId || !userId || !token) {
+          console.warn('[videoBubbleController] Missing required data for upload:', {
+            tripId: !!tripId,
+            userId: !!userId,
+            token: !!token,
+          });
+          setTimeout(() => setShowPreview(false), 1500);
           return;
         }
 
         try {
+          console.log('[videoBubbleController] Starting upload...');
           const res = await uploadOrb({
             uri,
             tripId,
@@ -62,37 +82,60 @@ export default function VideoBubbleController({
             token,
           });
           console.log('[uploadOrb] success:', res);
+          setShowPreview(false);
         } catch (err) {
           console.error('[uploadOrb] error:', err);
+          setTimeout(() => setShowPreview(false), 1500);
         }
       },
     });
 
   const onLongPress = async () => {
+    console.log('[videoBubbleController] === LONG PRESS ===');
+
     if (!granted) {
-      await requestPermissions();
+      console.log('[videoBubbleController] Requesting permissions...');
+      const permissionResult = await requestPermissions();
+      if (!permissionResult) {
+        console.warn('[videoBubbleController] Permissions denied');
+        return;
+      }
     }
-    console.log(
-      'Long press - showing preview and setting flag to start recording',
-    );
+
+    console.log('[videoBubbleController] Showing preview and setting up recording');
+    wasCancelled.current = false;
     setShowPreview(true);
     setShouldStartRecording(true);
   };
 
   const onPressOut = () => {
-    console.log('Press out - canceling');
+    console.log('[videoBubbleController] === PRESS OUT (CANCEL) ===');
     wasCancelled.current = true;
-    stopRecording();
-    setShowPreview(false);
+    
+    // Only try to stop if actually recording
+    if (isRecording) {
+      stopRecording();
+    }
+    
     setShouldStartRecording(false);
+    // Don't hide preview immediately - let the recording finish gracefully
+    setTimeout(() => {
+      setShowPreview(false);
+      wasCancelled.current = false;
+    }, 500);
   };
 
   const onSend = () => {
-    console.log('Send - stopping recording');
+    console.log('[videoBubbleController] === SEND ===');
     wasCancelled.current = false;
-    stopRecording();
+    
+    // Only try to stop if actually recording
+    if (isRecording) {
+      stopRecording();
+    }
+    
     setShouldStartRecording(false);
-    setShowPreview(false);
+    // Don't hide preview immediately - let the callback handle it
   };
 
   return (
@@ -111,13 +154,30 @@ export default function VideoBubbleController({
         <VideoBubblePreview
           cameraRef={cameraRef}
           onCameraReady={() => {
-            console.log('[📷 Camera] onCameraReady fired!');
-            if (shouldStartRecording) {
-              console.log('[📹] Starting recording now...');
-              setShouldStartRecording(false); // Reset flag
+            console.log('[videoBubbleController] === CAMERA READY ===');
+            console.log('[videoBubbleController] shouldStartRecording:', shouldStartRecording);
+            console.log('[videoBubbleController] wasCancelled.current:', wasCancelled.current);
+            console.log('[videoBubbleController] cameraRef.current exists:', !!cameraRef.current);
+
+            if (shouldStartRecording && !wasCancelled.current && cameraRef.current) {
+              console.log('[videoBubbleController] Starting recording after camera ready');
+              setShouldStartRecording(false);
+
+              // Longer delay to ensure camera is fully ready
               setTimeout(() => {
-                startRecording();
-              }, 100);
+                if (!wasCancelled.current && cameraRef.current) {
+                  console.log('[videoBubbleController] Calling startRecording...');
+                  startRecording();
+                } else {
+                  console.log('[videoBubbleController] Cancelled or camera lost before recording');
+                }
+              }, 300);
+            } else {
+              console.log('[videoBubbleController] Not starting recording:', {
+                shouldStartRecording,
+                wasCancelled: wasCancelled.current,
+                cameraExists: !!cameraRef.current,
+              });
             }
           }}
         />
