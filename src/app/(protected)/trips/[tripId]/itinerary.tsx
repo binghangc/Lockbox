@@ -29,10 +29,7 @@ export const screenOptions = {
   headerShown: false,
 };
 
-function ItineraryScreenContent() {
-  const { tripId } = useLocalSearchParams();
-  const tripIdStr = Array.isArray(tripId) ? tripId[0] : tripId;
-  const { trip, loading } = useTrips(tripIdStr);
+function ItineraryScreenContent({ trip }: { trip: Trip }) {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const theme = useTripTheme();
@@ -45,12 +42,16 @@ function ItineraryScreenContent() {
   const tripDays =
     trip?.status === 'ongoing'
       ? allDays.filter((d) =>
-          dayjs(d).tz(userTimezone).isSameOrAfter(today, 'day'),
+          dayjs.tz(`${d}T00:00:00`, userTimezone).isSameOrAfter(today, 'day'),
         )
       : allDays;
 
   console.log('today', today.format());
   console.log('timeone', userTimezone);
+  console.log('tripDays', tripDays);
+  console.log('allDays', allDays);
+  console.log('trip.start_date', trip.start_date);
+  console.log('trip.end_date', trip.end_date);
   const {
     dailyPlans,
     setDailyPlans,
@@ -60,7 +61,7 @@ function ItineraryScreenContent() {
     submitItinerary,
   } = useItineraries(trip?.id, tripDays);
 
-  if (loading || itineraryLoading) {
+  if (itineraryLoading) {
     return (
       <View className="flex-1 justify-center items-center">
         <ActivityIndicator color={theme.primaryText} />
@@ -203,7 +204,7 @@ export default function ItineraryScreenWrapper() {
       videoKey={trip.video_background ?? 'moonlight'}
     >
       <TripVisualBackground videoKey={trip?.video_background ?? null} />
-      <ItineraryScreenContent />
+      <ItineraryScreenContent trip={trip} />
     </TripThemeProvider>
   );
 }

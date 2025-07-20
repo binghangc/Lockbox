@@ -16,6 +16,7 @@ type TripPillbarContainerProps = {
   status: 'upcoming' | 'ongoing' | 'ended';
   isHost: boolean;
   handlePress: () => void;
+  setShouldPauseVisuals: (v: boolean) => void;
 };
 
 export default function TripPillbarContainer({
@@ -23,6 +24,7 @@ export default function TripPillbarContainer({
   status,
   isHost,
   handlePress,
+  setShouldPauseVisuals,
 }: TripPillbarContainerProps) {
   const insets = useSafeAreaInsets();
   const { tap, hold, send, cancel } = useHaptics();
@@ -107,6 +109,7 @@ export default function TripPillbarContainer({
               status === 'ongoing'
                 ? () => {
                     hold();
+                    setShouldPauseVisuals(true);
                     onLongPress();
                   }
                 : undefined
@@ -115,6 +118,7 @@ export default function TripPillbarContainer({
               status === 'ongoing'
                 ? () => {
                     console.log('cancel');
+                    setShouldPauseVisuals(false);
                     onPressOut();
                     cancel(); // haptics
                   }
@@ -124,6 +128,7 @@ export default function TripPillbarContainer({
               status === 'ongoing'
                 ? () => {
                     console.log('send');
+                    setShouldPauseVisuals(false);
                     onSend();
                     send(); // haptics
                   }
