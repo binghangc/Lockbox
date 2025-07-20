@@ -754,14 +754,17 @@ router.patch('/:id/vibecheck/:date', authMiddleware, async (req, res) => {
     vibecheckText = fallback.vibecheck;
   }
 
-  const { error } = await supabase
+  let updateQuery = supabase
     .from('vibechecks')
     .update({ vibecheck: vibecheckText })
     .eq('trip_id', id)
-    .eq('date', date)
-    .modify((query) => {
-      if (itineraryId) query.eq('itinerary_id', itineraryId);
-    });
+    .eq('date', date);
+
+  if (itineraryId) {
+    updateQuery = updateQuery.eq('itinerary_id', itineraryId);
+  }
+
+  const { error } = await updateQuery;
 
   if (error) return res.status(500).json({ error: error.message });
 
