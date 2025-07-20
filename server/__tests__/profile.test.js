@@ -119,6 +119,7 @@ describe('Profile: Upload Avatar Flow', () => {
   it('should fail with 400 if file is missing', async () => {
     const res = await request(app)
       .post('/profile/upload-avatar')
+      .type('multipart/form-data')
       .field('user_id', user.id);
 
     expect(res.statusCode).toBe(400);
