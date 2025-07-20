@@ -9,6 +9,7 @@ import TripPillbar from '@/components/tripPillbar';
 import useTodayVibecheck from '@/hooks/useTodayVibecheck';
 import VibecheckShuffleButton from '@/components/vibecheckShuffleButton';
 import { useUser } from '@/context/UserContext';
+import useVibeCheckStatus from '@/hooks/useVibecheckStatus';
 
 type TripPillbarContainerProps = {
   tripId: string;
@@ -30,6 +31,9 @@ export default function TripPillbarContainer({
     useTodayVibecheck(tripId, status);
   const { user } = useUser();
 
+  const { status: vibecheckStatus, loading: statusLoading } =
+    useVibeCheckStatus(vibecheckId ?? '');
+
   const PILLBAR = usePillbarConfig();
 
   let pillText = '';
@@ -43,13 +47,11 @@ export default function TripPillbarContainer({
     pillText = 'View your memories';
   }
 
-  type VibecheckStatus = {
-    submitted_by_anyone?: boolean;
-    submitted_by_user?: boolean;
-  } | null;
-  const vibecheckStatus = vibecheck as VibecheckStatus;
   const bottomAccessory =
-    isHost && status === 'ongoing' && !vibecheckStatus?.submitted_by_anyone ? (
+    isHost &&
+    status === 'ongoing' &&
+    !statusLoading &&
+    !vibecheckStatus?.anyoneHasResponded ? (
       <View
         style={{
           flex: 1,
@@ -91,7 +93,7 @@ export default function TripPillbarContainer({
             status={status}
             pillText={pillText}
             bottomAccessory={bottomAccessory}
-            submittedByUser={vibecheckStatus?.submitted_by_user}
+            submittedByUser={vibecheckStatus?.userHasResponded}
             onPressBubble={
               status === 'ongoing'
                 ? () => {
