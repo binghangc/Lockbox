@@ -43,3 +43,7 @@ supabase/.temp/
 
 temp/
 src/temp
+
+# google firebase private key
+lockbox-462913.json
+google-services.json

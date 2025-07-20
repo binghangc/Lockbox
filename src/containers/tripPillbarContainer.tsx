@@ -9,12 +9,14 @@ import TripPillbar from '@/components/tripPillbar';
 import useTodayVibecheck from '@/hooks/useTodayVibecheck';
 import VibecheckShuffleButton from '@/components/vibecheckShuffleButton';
 import { useUser } from '@/context/UserContext';
+import useVibeCheckStatus from '@/hooks/useVibecheckStatus';
 
 type TripPillbarContainerProps = {
   tripId: string;
   status: 'upcoming' | 'ongoing' | 'ended';
   isHost: boolean;
   handlePress: () => void;
+  setShouldPauseVisuals: (v: boolean) => void;
 };
 
 export default function TripPillbarContainer({
@@ -22,6 +24,7 @@ export default function TripPillbarContainer({
   status,
   isHost,
   handlePress,
+  setShouldPauseVisuals,
 }: TripPillbarContainerProps) {
   const insets = useSafeAreaInsets();
   const { tap, hold, send, cancel } = useHaptics();
@@ -29,6 +32,9 @@ export default function TripPillbarContainer({
   const { vibecheck, vibecheckId, reshuffleVibecheck, vcloading } =
     useTodayVibecheck(tripId, status);
   const { user } = useUser();
+
+  const { status: vibecheckStatus, loading: statusLoading } =
+    useVibeCheckStatus(vibecheckId ?? '');
 
   const PILLBAR = usePillbarConfig();
 
@@ -43,13 +49,11 @@ export default function TripPillbarContainer({
     pillText = 'View your memories';
   }
 
-  type VibecheckStatus = {
-    submitted_by_anyone?: boolean;
-    submitted_by_user?: boolean;
-  } | null;
-  const vibecheckStatus = vibecheck as VibecheckStatus;
   const bottomAccessory =
-    isHost && status === 'ongoing' && !vibecheckStatus?.submitted_by_anyone ? (
+    isHost &&
+    status === 'ongoing' &&
+    !statusLoading &&
+    !vibecheckStatus?.anyoneHasResponded ? (
       <View
         style={{
           flex: 1,
@@ -91,7 +95,7 @@ export default function TripPillbarContainer({
             status={status}
             pillText={pillText}
             bottomAccessory={bottomAccessory}
-            submittedByUser={vibecheckStatus?.submitted_by_user}
+            submittedByUser={vibecheckStatus?.userHasResponded}
             onPressBubble={
               status === 'ongoing'
                 ? () => {
@@ -105,6 +109,7 @@ export default function TripPillbarContainer({
               status === 'ongoing'
                 ? () => {
                     hold();
+                    setShouldPauseVisuals(true);
                     onLongPress();
                   }
                 : undefined
@@ -113,6 +118,7 @@ export default function TripPillbarContainer({
               status === 'ongoing'
                 ? () => {
                     console.log('cancel');
+                    setShouldPauseVisuals(false);
                     onPressOut();
                     cancel(); // haptics
                   }
@@ -122,6 +128,7 @@ export default function TripPillbarContainer({
               status === 'ongoing'
                 ? () => {
                     console.log('send');
+                    setShouldPauseVisuals(false);
                     onSend();
                     send(); // haptics
                   }

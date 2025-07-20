@@ -1,3 +1,14 @@
+require('dotenv').config({ path: './server/.env.server' });
+
+/* eslint-disable global-require */
+if (process.env.RUN_WORKERS === 'true') {
+  require('./workers/embedItineraryWorker.js');
+  require('./workers/embedVibecheckWorker.js');
+  const pollMessagesLoop = require('./workers/sendMessages.js');
+  pollMessagesLoop();
+}
+/* eslint-enable global-require */
+
 const app = require('./app.js');
 
 const port = process.env.PORT || 3000;

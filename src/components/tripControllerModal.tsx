@@ -11,9 +11,11 @@ import TripControllerItem from '@/components/tripControllerItem';
 import { useTripTheme } from '@/context/TripThemeProvider';
 
 type TripControllerModalProps = {
+  status: 'upcoming' | 'ongoing' | 'ended';
   isHost: boolean;
   isPinned: boolean;
   onEdit: () => void;
+  onItinerary: () => void;
   onSync: () => void;
   onPin: () => void;
   onInvite: () => void;
@@ -23,9 +25,11 @@ type TripControllerModalProps = {
 };
 
 export default function TripControllerModal({
+  status,
   isHost,
   isPinned,
   onEdit,
+  onItinerary,
   onSync,
   onPin,
   onInvite,
@@ -83,13 +87,22 @@ export default function TripControllerModal({
             onPress={onSync}
           />
         </View>
-        {isHost && (
+        {isHost && status === 'upcoming' && (
           <TripControllerItem
             icon={
               <Foundation name="pencil" size={20} color={theme.primaryIcon} />
             }
             label="Edit Trip"
             onPress={onEdit}
+          />
+        )}
+        {isHost && status === 'ongoing' && (
+          <TripControllerItem
+            icon={
+              <FontAwesome5 name="tasks" size={20} color={theme.primaryIcon} />
+            }
+            label="Edit Itinerary"
+            onPress={onItinerary}
           />
         )}
         <TripControllerItem
@@ -103,7 +116,7 @@ export default function TripControllerModal({
           label={isPinned ? 'Unpin Trip' : 'Pin Trip'}
           onPress={onPin}
         />
-        {isHost && (
+        {isHost && status === 'upcoming' && (
           <TripControllerItem
             icon={
               <FontAwesome5

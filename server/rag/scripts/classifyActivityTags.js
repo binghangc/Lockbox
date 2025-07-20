@@ -1,11 +1,5 @@
-const { ChatGoogleGenerativeAI } = require('@langchain/google-genai');
 const { ACTIVITY_TAGS } = require('../constants/itineraries.js');
-
-const llm = new ChatGoogleGenerativeAI({
-  model: 'gemini-2.0-flash-lite',
-  apiKey: process.env.GEMINI_API_KEY,
-  temperature: 0,
-});
+const llmClient = require('../../utils/llmclient.js');
 
 async function classifyActivityTags(itineraryChunk) {
   const options = ACTIVITY_TAGS.join(', ');
@@ -19,7 +13,7 @@ Return your answer as a **JSON array of strings**. Only include activities that 
 Text: """${itineraryChunk}"""
 `;
 
-  const response = await llm.invoke([['human', prompt]]);
+  const response = await llmClient.invoke([['human', prompt]]);
   const raw = response.content;
 
   try {

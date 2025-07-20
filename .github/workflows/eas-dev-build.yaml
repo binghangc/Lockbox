@@ -25,7 +25,17 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Rebuild google-services.json
+        env:
+          DATA: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: echo $DATA | base64 --decode > google-services.json
+
       - name: Run EAS Workflow (create-development-builds)
         run: eas workflow:run .eas/workflows/create-development-builds.yaml
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Run EAS Dev Build
+        run: eas build --platform android --profile development --non-interactive
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}

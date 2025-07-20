@@ -31,4 +31,6 @@ app.use('/vibechecks', require('./routes/vibechecks.js'));
 
 app.use('/orbs', require('./routes/orbs.js'));
 
+app.use('/notifications', require('./routes/notifications.js'));
+
 module.exports = app;

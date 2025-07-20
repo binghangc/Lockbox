@@ -30,8 +30,7 @@ export default function DefaultFriendRow({
           onPress: async () => {
             const token = await AsyncStorage.getItem('access_token');
             const res = await fetch(
-              `
-              ${process.env.EXPO_PUBLIC_API_URL}/friends/remove/${item.id}`,
+              `${process.env.EXPO_PUBLIC_API_URL}/friends/remove/${item.id}`,
               {
                 method: 'DELETE',
                 headers: { Authorization: `Bearer ${token}` },

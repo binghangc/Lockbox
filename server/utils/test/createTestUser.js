@@ -20,6 +20,13 @@ async function createTestUser({ prefix, username, password = 'Test1234!' }) {
     throw new Error(`admin.createUser failed: ${error.message}`);
   }
 
+  await supabaseAdmin.from('profiles').insert({
+    id: data.user.id,
+    username,
+    name: username,
+    avatar_url: 'avatar.png',
+  });
+
   const res = await request(app).post('/auth/login').send({ email, password });
   const token = res.body.session.access_token;
 

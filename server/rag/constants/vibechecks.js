@@ -9,6 +9,7 @@ const THEMES = [
   'romantic',
   'unfiltered',
   'wholesome',
+  'yums',
 ];
 
 const EVENT_TAGS = [

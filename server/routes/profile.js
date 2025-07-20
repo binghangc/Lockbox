@@ -10,6 +10,7 @@ const { v4: uuidv4 } = require('uuid');
 
 const upload = multer({ storage: multer.memoryStorage() });
 
+const { PutObjectCommand } = require('@aws-sdk/client-s3');
 const { createClient } = require('@supabase/supabase-js');
 const r2 = require('../utils/r2client.js');
 
@@ -70,15 +71,14 @@ router.post('/upload-avatar', upload.single('avatar'), async (req, res) => {
 
   try {
     // Upload to Cloudflare R2
-    await r2
-      .putObject({
-        Bucket: process.env.R2_BUCKET_NAME_AVATARS,
-        Key: key,
-        Body: file.buffer,
-        ContentType: file.mimetype || 'image/jpeg',
-        ACL: 'public-read',
-      })
-      .promise();
+    const command = new PutObjectCommand({
+      Bucket: process.env.R2_BUCKET_NAME_AVATARS,
+      Key: key,
+      Body: file.buffer,
+      ContentType: file.mimetype || 'image/jpeg',
+    });
+
+    await r2.send(command);
 
     // Construct public URL
     const publicUrl = `${process.env.R2_PUBLIC_DOMAIN_AVATAR}/${key}`;

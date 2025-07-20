@@ -67,6 +67,7 @@ function TripDetailContent() {
   const isHost = user?.id === trip?.host?.id;
   const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
   const [participantCount, setParticipantCount] = useState<number>(0);
+  const [shouldPauseVisuals, setShouldPauseVisuals] = useState(false);
 
   const HEADER_HEIGHT = insets.top + 60;
 
@@ -118,6 +119,7 @@ function TripDetailContent() {
       <TripVisualBackground
         videoKey={trip?.video_background ?? null}
         effectKey={trip?.effects ?? null}
+        shouldPauseVisuals={shouldPauseVisuals}
       />
       <View
         style={[StyleSheet.absoluteFill, { backgroundColor: 'transparent' }]}
@@ -322,6 +324,7 @@ function TripDetailContent() {
             (trip.status as 'upcoming' | 'ongoing' | 'ended') || 'upcoming'
           }
           handlePress={handlePress}
+          setShouldPauseVisuals={setShouldPauseVisuals}
         />
       </View>
     </>

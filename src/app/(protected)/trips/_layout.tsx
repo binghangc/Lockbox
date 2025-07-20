@@ -13,11 +13,21 @@ import useTrips from '@/hooks/useTrips';
 import usePinTrip from '@/hooks/usePinTrip';
 import createCalendarEvent from '@/utils/calendarEvent';
 import { useTripTheme, TripThemeProvider } from '@/context/TripThemeProvider';
+import useItineraries from '@/hooks/useItineraries';
+import getTripDays from '@/utils/date';
+
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 type TripLayoutInnerProps = {
   tripId: string;
   isHost: boolean;
   isPinned: boolean;
+  isDisabled: boolean;
   trip: {
     id: string;
     title: string;
@@ -25,6 +35,7 @@ type TripLayoutInnerProps = {
     end_date: string;
     description?: string | null;
     video_background?: string | null;
+    status: 'upcoming' | 'ongoing' | 'ended';
   };
   pinTrip: () => void;
   modalRef: React.RefObject<Modalize>;
@@ -35,6 +46,7 @@ function TripLayoutInner({
   tripId,
   isHost,
   isPinned,
+  isDisabled,
   trip,
   pinTrip,
   modalRef,
@@ -46,6 +58,11 @@ function TripLayoutInner({
   const onEdit = () => {
     router.push(`/tripForm?mode=edit&tripId=${tripId}`);
     modalRef.current?.close();
+  };
+
+  const onItinerary = () => {
+    modalRef.current?.close();
+    router.push(`trips/${tripId}/itinerary`);
   };
 
   const onSync = async () => {
@@ -143,10 +160,30 @@ function TripLayoutInner({
             presentation: 'modal',
             title: 'Trip Itinerary',
             animation: 'slide_from_bottom',
-            gestureEnabled: true,
+            gestureEnabled: !isDisabled,
             headerShown: true,
             contentStyle: {
               backgroundColor: 'transparent',
+            },
+            headerLeft: ({ tintColor }) => {
+              if (isDisabled) return null;
+
+              return (
+                <TouchableOpacity
+                  onPress={() => router.back()}
+                  style={{
+                    marginLeft: 12,
+                    width: 44,
+                    height: 44,
+                    borderRadius: 22,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                  hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
+                >
+                  <Octicons name="chevron-left" size={28} color={tintColor} />
+                </TouchableOpacity>
+              );
             },
           }}
         />
@@ -187,9 +224,11 @@ function TripLayoutInner({
 
       <TripControllerModal
         triggerRef={modalRef}
+        status={trip.status}
         isHost={isHost}
         isPinned={isPinned}
         onEdit={onEdit}
+        onItinerary={onItinerary}
         onSync={onSync}
         onPin={onPin}
         onInvite={onInvite}
@@ -210,6 +249,19 @@ export default function TripsLayout() {
     Array.isArray(tripId) ? tripId[0] : tripId,
   );
 
+  const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const today = dayjs().tz(userTimezone).startOf('day');
+  const allDays = trip ? getTripDays(trip.start_date, trip.end_date) : [];
+  const tripDays =
+    trip?.status === 'ongoing'
+      ? allDays.filter((d) =>
+          dayjs.tz(`${d}T00:00:00`, userTimezone).isSameOrAfter(today, 'day'),
+        )
+      : allDays;
+
+  const { hasItinerary } = useItineraries(trip?.id, tripDays);
+  const isDisabled = trip?.status === 'ongoing' && !hasItinerary;
+
   const pinTrip = usePinTrip(trip?.id ?? '', refreshTrip);
 
   if (loading || !trip) return null;
@@ -220,6 +272,7 @@ export default function TripsLayout() {
         tripId={Array.isArray(tripId) ? tripId[0] : tripId}
         isHost={isHost}
         isPinned={isPinned}
+        isDisabled={isDisabled}
         trip={trip}
         pinTrip={pinTrip}
         modalRef={modalRef}

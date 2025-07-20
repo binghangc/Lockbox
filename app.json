@@ -23,6 +23,7 @@
         "foregroundImage": "./assets/lockicon.png",
         "backgroundColor": "#ffffff"
       },
+      "googleServicesFile": "./google-services.json",
       "package": "com.lockedin.lockbox",
       "permissions": [
         "android.permission.CAMERA",
@@ -45,7 +46,8 @@
         }
       ],
       "expo-video",
-      "expo-font"
+      "expo-font",
+      "expo-notifications"
     ],
     "extra": {
       "router": {},

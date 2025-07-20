@@ -36,9 +36,14 @@ export default function VideoBubbleController({
   const { cameraRef, isRecording, startRecording, stopRecording, videoUri } =
     useVideoRecorder({
       onRecordingFinished: async (uri) => {
-        console.log('[videoBubbleController] === RECORDING FINISHED CALLBACK ===');
+        console.log(
+          '[videoBubbleController] === RECORDING FINISHED CALLBACK ===',
+        );
         console.log('[videoBubbleController] URI received:', uri);
-        console.log('[videoBubbleController] wasCancelled.current:', wasCancelled.current);
+        console.log(
+          '[videoBubbleController] wasCancelled.current:',
+          wasCancelled.current,
+        );
 
         // Don't hide preview immediately if cancelled - let user see what happened
         if (!wasCancelled.current) {
@@ -46,7 +51,9 @@ export default function VideoBubbleController({
         }
 
         if (wasCancelled.current) {
-          console.log('[videoBubbleController] Recording was cancelled — skipping upload');
+          console.log(
+            '[videoBubbleController] Recording was cancelled — skipping upload',
+          );
           // Reset for next time but don't clear immediately
           setTimeout(() => {
             wasCancelled.current = false;
@@ -56,18 +63,23 @@ export default function VideoBubbleController({
         }
 
         if (!uri) {
-          console.warn('[videoBubbleController] No URI received from recording');
+          console.warn(
+            '[videoBubbleController] No URI received from recording',
+          );
           // Show error state briefly
           setTimeout(() => setShowPreview(false), 1500);
           return;
         }
 
         if (!tripId || !userId || !token) {
-          console.warn('[videoBubbleController] Missing required data for upload:', {
-            tripId: !!tripId,
-            userId: !!userId,
-            token: !!token,
-          });
+          console.warn(
+            '[videoBubbleController] Missing required data for upload:',
+            {
+              tripId: !!tripId,
+              userId: !!userId,
+              token: !!token,
+            },
+          );
           setTimeout(() => setShowPreview(false), 1500);
           return;
         }
@@ -102,7 +114,9 @@ export default function VideoBubbleController({
       }
     }
 
-    console.log('[videoBubbleController] Showing preview and setting up recording');
+    console.log(
+      '[videoBubbleController] Showing preview and setting up recording',
+    );
     wasCancelled.current = false;
     setShowPreview(true);
     setShouldStartRecording(true);
@@ -111,12 +125,12 @@ export default function VideoBubbleController({
   const onPressOut = () => {
     console.log('[videoBubbleController] === PRESS OUT (CANCEL) ===');
     wasCancelled.current = true;
-    
+
     // Only try to stop if actually recording
     if (isRecording) {
       stopRecording();
     }
-    
+
     setShouldStartRecording(false);
     // Don't hide preview immediately - let the recording finish gracefully
     setTimeout(() => {
@@ -128,12 +142,12 @@ export default function VideoBubbleController({
   const onSend = () => {
     console.log('[videoBubbleController] === SEND ===');
     wasCancelled.current = false;
-    
+
     // Only try to stop if actually recording
     if (isRecording) {
       stopRecording();
     }
-    
+
     setShouldStartRecording(false);
     // Don't hide preview immediately - let the callback handle it
   };
@@ -155,21 +169,40 @@ export default function VideoBubbleController({
           cameraRef={cameraRef}
           onCameraReady={() => {
             console.log('[videoBubbleController] === CAMERA READY ===');
-            console.log('[videoBubbleController] shouldStartRecording:', shouldStartRecording);
-            console.log('[videoBubbleController] wasCancelled.current:', wasCancelled.current);
-            console.log('[videoBubbleController] cameraRef.current exists:', !!cameraRef.current);
+            console.log(
+              '[videoBubbleController] shouldStartRecording:',
+              shouldStartRecording,
+            );
+            console.log(
+              '[videoBubbleController] wasCancelled.current:',
+              wasCancelled.current,
+            );
+            console.log(
+              '[videoBubbleController] cameraRef.current exists:',
+              !!cameraRef.current,
+            );
 
-            if (shouldStartRecording && !wasCancelled.current && cameraRef.current) {
-              console.log('[videoBubbleController] Starting recording after camera ready');
+            if (
+              shouldStartRecording &&
+              !wasCancelled.current &&
+              cameraRef.current
+            ) {
+              console.log(
+                '[videoBubbleController] Starting recording after camera ready',
+              );
               setShouldStartRecording(false);
 
               // Longer delay to ensure camera is fully ready
               setTimeout(() => {
                 if (!wasCancelled.current && cameraRef.current) {
-                  console.log('[videoBubbleController] Calling startRecording...');
+                  console.log(
+                    '[videoBubbleController] Calling startRecording...',
+                  );
                   startRecording();
                 } else {
-                  console.log('[videoBubbleController] Cancelled or camera lost before recording');
+                  console.log(
+                    '[videoBubbleController] Cancelled or camera lost before recording',
+                  );
                 }
               }, 300);
             } else {

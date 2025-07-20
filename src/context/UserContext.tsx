@@ -20,6 +20,8 @@ type UserContextType = {
   deleting: boolean;
   setDeleting: React.Dispatch<React.SetStateAction<boolean>>;
   authenticatedFetch: (url: string, options?: RequestInit) => Promise<Response>;
+  updateEmail: (newEmail: string) => Promise<void>;
+  updatePassword: (newPassword: string) => Promise<void>;
 };
 
 export const UserContext = createContext<UserContextType | null>(null);
@@ -242,6 +244,92 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     [token, refreshToken, logout],
   );
 
+  const updateEmail = useCallback(
+    async (newEmail: string) => {
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+
+      try {
+        const res = await fetch(
+          `${process.env.EXPO_PUBLIC_API_URL}/auth/update-email`,
+          {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ email: newEmail }),
+          },
+        );
+
+        const result = await res.json();
+        if (!res.ok) {
+          return { success: false, message: result.message };
+        }
+        // Optionally update user state
+        setUser((prev) => (prev ? { ...prev, email: newEmail } : prev));
+
+        return {
+          success: true,
+          message: result.message,
+          email_change: result.email_change || null,
+        };
+      } catch (err) {
+        console.error('Error updating email:', err);
+        return {
+          success: false,
+          message: 'Unexpected error occurred while updating email.',
+        };
+      }
+    },
+    [token],
+  );
+
+  const updatePassword = useCallback(
+    async (
+      currentPassword: string,
+      newPassword: string,
+      confirmPassword: string,
+    ) => {
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+
+      if (newPassword !== confirmPassword) {
+        throw new Error('New password and confirm password do not match');
+      }
+
+      try {
+        const res = await fetch(
+          `${process.env.EXPO_PUBLIC_API_URL}/auth/update-password`,
+          {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              currentPassword,
+              newPassword,
+            }),
+          },
+        );
+
+        const result = await res.json();
+
+        if (!res.ok) {
+          throw new Error(result.message || 'Failed to update password');
+        }
+
+        console.log('Password updated successfully');
+      } catch (err) {
+        console.error('Error updating password:', err);
+      }
+    },
+    [token],
+  );
+
   const contextValue = React.useMemo(
     () => ({
       user,
@@ -254,6 +342,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       deleting,
       setDeleting,
       authenticatedFetch,
+      updateEmail,
+      updatePassword,
     }),
     [
       user,
@@ -266,6 +356,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       deleting,
       setDeleting,
       authenticatedFetch,
+      updateEmail,
+      updatePassword,
     ],
   );
 
