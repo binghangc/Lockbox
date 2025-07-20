@@ -10,12 +10,15 @@ serve(async (_req) => {
     );
 
     const utc = new Date();
-    const singaporeTime = new Date(utc.toLocaleString('en-US', { timeZone: 'Asia/Singapore' }));
+    const singaporeTime = new Date(
+      utc.toLocaleString('en-US', { timeZone: 'Asia/Singapore' }),
+    );
     const localDate = singaporeTime.toISOString().split('T')[0];
 
     const { data: vibeChecks, error } = await supabase
       .from('vibechecks')
-      .select(`
+      .select(
+        `
         id,
         trip_id,
         date,
@@ -29,7 +32,8 @@ serve(async (_req) => {
             )
           )
         )
-      `)
+      `,
+      )
       .eq('date', localDate);
 
     if (error) {
@@ -69,14 +73,17 @@ serve(async (_req) => {
       }
     }
 
-    return new Response(JSON.stringify({ message: 'VibeCheck cron notifs sent' }), {
-      status: 200,
-    });
+    return new Response(
+      JSON.stringify({ message: 'VibeCheck cron notifs sent' }),
+      {
+        status: 200,
+      },
+    );
   } catch (error) {
     console.error('[notifyVibeChecks ERROR]', error);
     return new Response(
       `Internal error: ${error?.message || 'unknown'}\n\n${error?.stack || ''}`,
-      { status: 500 }
+      { status: 500 },
     );
   }
 });

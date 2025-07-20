@@ -11,21 +11,23 @@ import { sendPushNotification } from '$lib/sendPushNotification.ts';
 
 serve(async (_req) => {
   try {
-      const supabase = createClient(
+    const supabase = createClient(
       Deno.env.get('PROJECT_URL')!,
       Deno.env.get('SERVICE_ROLE_KEY')!,
     );
 
     const utcNow = new Date();
     const singaporeNow = new Date(
-      utcNow.toLocaleString('en-US', { timeZone: 'Asia/Singapore' })
+      utcNow.toLocaleString('en-US', { timeZone: 'Asia/Singapore' }),
     );
     singaporeNow.setDate(singaporeNow.getDate() - 1);
     const isoYesterday = singaporeNow.toISOString().split('T')[0];
 
     const { data: trips } = await supabase
       .from('trips')
-      .select('id, title, end_date, participants:participants(user:profiles(id, expo_push_token, notification_preferences))')
+      .select(
+        'id, title, end_date, participants:participants(user:profiles(id, expo_push_token, notification_preferences))',
+      )
       .eq('status', 'ended')
       .eq('end_date', isoYesterday);
 
@@ -46,14 +48,17 @@ serve(async (_req) => {
       }
     }
 
-    return new Response(JSON.stringify({ message: 'Vaults have been opened.' }), {
-      status: 200,
-    });
+    return new Response(
+      JSON.stringify({ message: 'Vaults have been opened.' }),
+      {
+        status: 200,
+      },
+    );
   } catch (error) {
     console.error('[notifyVaultOpen ERROR]', error);
     return new Response(
       `Internal error: ${error?.message || 'unknown'}\n\n${error?.stack || ''}`,
-      { status: 500 }
+      { status: 500 },
     );
   }
 });

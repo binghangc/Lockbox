@@ -11,18 +11,22 @@ import { sendPushNotification } from '$lib/sendPushNotification.ts';
 
 serve(async (_req) => {
   try {
-      const supabase = createClient(
+    const supabase = createClient(
       Deno.env.get('PROJECT_URL')!,
       Deno.env.get('SERVICE_ROLE_KEY')!,
     );
 
     const utc = new Date();
-    const singaporeTime = new Date(utc.toLocaleString('en-US', { timeZone: 'Asia/Singapore' }));
+    const singaporeTime = new Date(
+      utc.toLocaleString('en-US', { timeZone: 'Asia/Singapore' }),
+    );
     const localDate = singaporeTime.toISOString().split('T')[0];
 
     const { data: ongoingTrips } = await supabase
       .from('trips')
-      .select('id, participants:participants(user:profiles(id, expo_push_token, notification_preferences))')
+      .select(
+        'id, participants:participants(user:profiles(id, expo_push_token, notification_preferences))',
+      )
       .eq('status', 'ongoing');
 
     if (!ongoingTrips) return new Response('No trips found', { status: 200 });
@@ -71,7 +75,7 @@ serve(async (_req) => {
     console.error('[notifyOrbReminders ERROR]', error);
     return new Response(
       `Internal error: ${error?.message || 'unknown'}\n\n${error?.stack || ''}`,
-      { status: 500 }
+      { status: 500 },
     );
   }
 });

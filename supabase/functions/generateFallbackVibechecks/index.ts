@@ -100,7 +100,10 @@ export async function embedText(text: string) {
 
 function getRandomFallback(theme?: string) {
   const themes = Object.keys(FALLBACK_VIBECHECKS);
-  const chosenTheme = theme && FALLBACK_VIBECHECKS[theme] ? theme : themes[Math.floor(Math.random() * themes.length)];
+  const chosenTheme =
+    theme && FALLBACK_VIBECHECKS[theme]
+      ? theme
+      : themes[Math.floor(Math.random() * themes.length)];
   const prompts = FALLBACK_VIBECHECKS[chosenTheme];
   const vibecheck = prompts[Math.floor(Math.random() * prompts.length)];
   return { vibecheck, theme: chosenTheme };
@@ -108,13 +111,15 @@ function getRandomFallback(theme?: string) {
 
 serve(async (_req) => {
   try {
-      const supabase = createClient(
+    const supabase = createClient(
       Deno.env.get('PROJECT_URL')!,
       Deno.env.get('SERVICE_ROLE_KEY')!,
     );
 
     const utc = new Date();
-    const singaporeTime = new Date(utc.toLocaleString('en-US', { timeZone: 'Asia/Singapore' }));
+    const singaporeTime = new Date(
+      utc.toLocaleString('en-US', { timeZone: 'Asia/Singapore' }),
+    );
     const localDate = singaporeTime.toISOString().split('T')[0];
     const debugLog = {
       today: localDate,
@@ -128,7 +133,7 @@ serve(async (_req) => {
     const { data: trips, error: tripErr } = await supabase
       .from('trips')
       .select('id, status')
-      .eq('status', "ongoing");
+      .eq('status', 'ongoing');
 
     if (tripErr) {
       console.error('Trip fetch failed:', tripErr.message);
@@ -148,8 +153,15 @@ serve(async (_req) => {
         .maybeSingle();
 
       if (vibeErr) {
-        console.error(`Error checking vibe for trip ${trip.id}:`, vibeErr.message);
-        debugLog.errors.push({ trip_id: trip.id, stage: 'check existing', message: vibeErr.message });
+        console.error(
+          `Error checking vibe for trip ${trip.id}:`,
+          vibeErr.message,
+        );
+        debugLog.errors.push({
+          trip_id: trip.id,
+          stage: 'check existing',
+          message: vibeErr.message,
+        });
         continue;
       }
 
@@ -168,7 +180,11 @@ serve(async (_req) => {
           .maybeSingle();
 
         if (insertErr || !inserted) {
-          debugLog.errors.push({ trip_id: trip.id, stage: 'insert vibecheck', message: insertErr?.message || 'unknown' });
+          debugLog.errors.push({
+            trip_id: trip.id,
+            stage: 'insert vibecheck',
+            message: insertErr?.message || 'unknown',
+          });
           console.error(`Insert error for ${trip.id}:`, insertErr?.message);
           continue;
         }
@@ -177,7 +193,11 @@ serve(async (_req) => {
         try {
           embedding = await embedText(inserted.vibecheck);
         } catch (embeddingErr) {
-          debugLog.errors.push({ trip_id: trip.id, stage: 'embedText', message: embeddingErr?.message || 'embedding failed' });
+          debugLog.errors.push({
+            trip_id: trip.id,
+            stage: 'embedText',
+            message: embeddingErr?.message || 'embedding failed',
+          });
           continue;
         }
 
@@ -190,7 +210,10 @@ serve(async (_req) => {
           created_at: new Date().toISOString(),
         });
 
-        debugLog.insertedNew.push({ trip_id: trip.id, vibecheck: inserted.vibecheck });
+        debugLog.insertedNew.push({
+          trip_id: trip.id,
+          vibecheck: inserted.vibecheck,
+        });
 
         results.push({ trip_id: trip.id, vibecheck: fallback.vibecheck });
       }
@@ -202,7 +225,7 @@ serve(async (_req) => {
   } catch (error) {
     return new Response(
       `Internal error: ${error?.message || 'unknown'}\n\n${error?.stack || ''}`,
-      { status: 500 }
+      { status: 500 },
     );
   }
 });

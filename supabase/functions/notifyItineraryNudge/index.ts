@@ -4,14 +4,14 @@ import { sendPushNotification } from '$lib/sendPushNotification.ts';
 
 serve(async (_req) => {
   try {
-      const supabase = createClient(
+    const supabase = createClient(
       Deno.env.get('PROJECT_URL')!,
       Deno.env.get('SERVICE_ROLE_KEY')!,
     );
 
     const utcNow = new Date();
     const singaporeNow = new Date(
-      utcNow.toLocaleString('en-US', { timeZone: 'Asia/Singapore' })
+      utcNow.toLocaleString('en-US', { timeZone: 'Asia/Singapore' }),
     );
     singaporeNow.setDate(singaporeNow.getDate() + 1);
     const isoTomorrow = singaporeNow.toISOString().split('T')[0];
@@ -19,12 +19,14 @@ serve(async (_req) => {
     // 1. Get trips starting tomorrow
     const { data: trips, error } = await supabase
       .from('trips')
-      .select(`
+      .select(
+        `
         id,
         title,
         start_date,
         host:user_id(id, expo_push_token, notification_preferences)
-      `)
+      `,
+      )
       .eq('start_date', isoTomorrow);
 
     if (error) {
@@ -62,7 +64,7 @@ serve(async (_req) => {
     console.error('[notifyItineraryNudge ERROR]', error);
     return new Response(
       `Internal error: ${error?.message || 'unknown'}\n\n${error?.stack || ''}`,
-      { status: 500 }
+      { status: 500 },
     );
   }
 });
