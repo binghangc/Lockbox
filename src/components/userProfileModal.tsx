@@ -1,3 +1,4 @@
+import { useTripTheme } from '@/context/TripThemeProvider';
 import { useState, useRef, useEffect } from 'react';
 import {
   View,
@@ -6,6 +7,7 @@ import {
   Alert,
   Dimensions,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import { BlurView } from 'expo-blur';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -34,6 +36,7 @@ export default function UserProfileModal({
 
   const [loading, setLoading] = useState(false);
   const modalRef = useRef<Modalize>(null);
+  const theme = useTripTheme();
 
   const handleSendFriendRequest = async () => {
     setLoading(true);
@@ -86,64 +89,96 @@ export default function UserProfileModal({
     <Modalize
       ref={modalRef}
       onClosed={onClose}
-      modalHeight={screenHeight}
+      adjustToContentHeight
       handlePosition="inside"
-      modalStyle={{ backgroundColor: 'transparent' }}
-      handleStyle={{ backgroundColor: '#ccc' }}
+      modalStyle={{
+        backgroundColor: theme.secondaryBackground,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        overflow: 'hidden',
+      }}
+      withHandle={false}
     >
       <BlurView
-        intensity={70}
-        tint="light"
-        className="px-6 pt-10 pb-6 items-center overflow-visible bg-white/60"
-        style={{ minHeight: screenHeight }}
+        intensity={30}
+        tint={theme.blurTint as 'light' | 'dark'}
+        experimentalBlurMethod="dimezisBlurView"
+        className="px-6 pt-10 pb-6 items-center overflow-visible"
+        style={{
+          borderTopLeftRadius: 20,
+          borderTopRightRadius: 20,
+          minHeight: screenHeight * 0.5,
+          backgroundColor:
+            Platform.OS === 'android'
+              ? `${theme.secondaryBackground}AA`
+              : 'transparent',
+        }}
       >
-        <View className="items-center px-6 pt-12 pb-4">
+        <View
+          style={{
+            width: 40,
+            height: 5,
+            borderRadius: 2.5,
+            backgroundColor: '#bbb',
+            alignSelf: 'center',
+            marginBottom: 12,
+          }}
+        />
+        <View className="items-center px-6 pt-8 pb-4">
           {user.avatar_url && <FloatingAvatar uri={user.avatar_url} />}
         </View>
 
-        <ScrollView>
-          {/* Username */}
-          <Text className="text-gray-400 text-lg font-semibold text-center">
+        <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
+          <Text
+            style={{ color: theme.optionalText }}
+            className="text-lg font-semibold text-center mb-1"
+          >
             @{user.username || 'Username not set'}
           </Text>
+          <Text
+            style={{ color: theme.primaryText }}
+            className="text-2xl font-bold text-center mb-4"
+          >
+            {user.name || 'Name not set'}
+          </Text>
 
-          {/* Name */}
-          <View className="w-full mb-2">
-            <View className="flex-row items-center justify-center">
-              <Text className="text-white text-2xl font-bold">
-                {user.name || 'Name not set'}
-              </Text>
-            </View>
-          </View>
-          {/* Bio */}
           {user.bio && (
-            <View className="w-full mb-4">
-              <View className="flex-row items-center justify-center space-x-2">
-                <Text className="text-gray-200 text-lg">{user.bio}</Text>
-              </View>
-            </View>
+            <Text
+              style={{ color: theme.secondaryText }}
+              className="text-center text-base px-3 mb-6"
+            >
+              {user.bio}
+            </Text>
           )}
 
           {!isFriends &&
             (loading ? (
               <View className="my-4 items-center">
-                <ActivityIndicator size="small" color="white" />
+                <ActivityIndicator size="small" color={theme.primaryText} />
               </View>
             ) : (
               <AddFriendRow
                 onAddFriend={handleSendFriendRequest}
-                onMoreOptions={() => {
-                  console.log('More options tapped');
-                }}
+                onMoreOptions={() => console.log('More options tapped')}
                 status={status}
               />
             ))}
 
           <Pressable
             onPress={() => modalRef.current?.close()}
-            className="mt-6 bg-black px-5 py-3 rounded-xl"
+            style={{
+              marginTop: 24,
+              backgroundColor: theme.primaryText,
+              paddingHorizontal: 20,
+              paddingVertical: 12,
+              borderRadius: 12,
+              alignSelf: 'center',
+              width: 128,
+            }}
           >
-            <Text className="text-white text-center">Close</Text>
+            <Text style={{ color: theme.background, textAlign: 'center' }}>
+              Close
+            </Text>
           </Pressable>
         </ScrollView>
       </BlurView>

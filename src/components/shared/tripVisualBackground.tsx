@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { VideoView, useVideoPlayer } from 'expo-video';
 import LottieView from 'lottie-react-native';
@@ -8,9 +8,14 @@ import effects from '@/constants/effects';
 type Props = {
   videoKey: string | null;
   effectKey: string | null;
+  shouldPauseVisuals?: boolean;
 };
 
-export default function TripVisualBackground({ videoKey, effectKey }: Props) {
+export default function TripVisualBackground({
+  videoKey,
+  effectKey,
+  shouldPauseVisuals = false,
+}: Props) {
   const selectedVideo = videoKey ? videoBackgrounds[videoKey] : null;
   const videoSource = selectedVideo?.uri;
 
@@ -21,6 +26,15 @@ export default function TripVisualBackground({ videoKey, effectKey }: Props) {
     videoPlayer.muted = true;
     videoPlayer.play();
   });
+
+  useEffect(() => {
+    if (!player) return;
+    if (shouldPauseVisuals) {
+      player.pause();
+    } else {
+      player.play();
+    }
+  }, [shouldPauseVisuals, player]);
 
   return (
     <>
@@ -43,7 +57,7 @@ export default function TripVisualBackground({ videoKey, effectKey }: Props) {
             left: 0,
             right: 0,
             bottom: 0,
-            zIndex: 999,
+            zIndex: 11,
           }}
         >
           <LottieView
@@ -51,8 +65,8 @@ export default function TripVisualBackground({ videoKey, effectKey }: Props) {
               effects[effectKey]
                 .file as import('lottie-react-native').AnimationObject
             }
-            autoPlay
-            loop
+            autoPlay={!shouldPauseVisuals}
+            loop={!shouldPauseVisuals}
             resizeMode="cover"
             style={{ width: '100%', height: '100%' }}
           />

@@ -22,6 +22,7 @@ export default function VideoBubblePreview({
         ...StyleSheet.absoluteFillObject,
         justifyContent: 'center',
         alignItems: 'center',
+        zIndex: 100,
       }}
     >
       <BlurView intensity={100} tint="dark" style={StyleSheet.absoluteFill} />

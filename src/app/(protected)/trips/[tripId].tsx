@@ -26,6 +26,8 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useUser } from '@/context/UserContext';
 import { Profile } from '@/types';
 import { useTripTheme, TripThemeProvider } from '@/context/TripThemeProvider';
+import MaskedView from '@react-native-masked-view/masked-view';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export const screenOptions = {
   headerTransparent: true,
@@ -65,6 +67,7 @@ function TripDetailContent() {
   const isHost = user?.id === trip?.host?.id;
   const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
   const [participantCount, setParticipantCount] = useState<number>(0);
+  const [shouldPauseVisuals, setShouldPauseVisuals] = useState(false);
 
   const HEADER_HEIGHT = insets.top + 60;
 
@@ -101,6 +104,10 @@ function TripDetailContent() {
     handlePress = () => {
       console.log('Not host - do nothing.');
     };
+  } else if (trip.status === 'ended') {
+    handlePress = () => {
+      router.push(`/trips/${tripId}/vault`);
+    };
   } else {
     handlePress = () => {
       console.log('Not implemented yet.');
@@ -108,21 +115,31 @@ function TripDetailContent() {
   }
 
   return (
-    <TripThemeProvider videoKey={trip.video_background ?? 'moonlight'}>
-      <>
-        <TripVisualBackground
-          videoKey={trip?.video_background ?? null}
-          effectKey={trip?.effects ?? null}
+    <>
+      <TripVisualBackground
+        videoKey={trip?.video_background ?? null}
+        effectKey={trip?.effects ?? null}
+        shouldPauseVisuals={shouldPauseVisuals}
+      />
+      <View
+        style={[StyleSheet.absoluteFill, { backgroundColor: 'transparent' }]}
+      >
+        <StatusBar
+          barStyle="light-content"
+          translucent
+          backgroundColor="transparent"
         />
-        <View
-          style={[StyleSheet.absoluteFill, { backgroundColor: 'transparent' }]}
+        {/* ScrollView starts below the image */}
+        <MaskedView
+          style={{ flex: 1 }}
+          maskElement={
+            <LinearGradient
+              colors={['transparent', 'black']}
+              locations={[0, 0.15]}
+              style={{ flex: 1 }}
+            />
+          }
         >
-          <StatusBar
-            barStyle="light-content"
-            translucent
-            backgroundColor="transparent"
-          />
-          {/* ScrollView starts below the image */}
           <ScrollView
             style={{ flex: 1, backgroundColor: 'transparent' }}
             contentContainerStyle={{
@@ -140,7 +157,7 @@ function TripDetailContent() {
                     fontSize: 36,
                     fontWeight: '800',
                     textAlign: 'center',
-                    fontFamily: 'RocGroteskWideMedium',
+                    fontFamily: 'RocGrotesk-WideMedium',
                   }}
                 >
                   {trip.title}
@@ -292,27 +309,40 @@ function TripDetailContent() {
               </View>
             </View>
           </ScrollView>
-          <UserProfileModal
-            isVisible={selectedUser !== null}
-            onClose={() => setSelectedUser(null)}
-            user={selectedUser}
-            currentUserId={user?.id ?? ''}
-            isFriends
-          />
-          <TripPillbarContainer
-            tripId={tripIdStr}
-            isHost={isHost}
-            status={
-              (trip.status as 'upcoming' | 'ongoing' | 'ended') || 'upcoming'
-            }
-            handlePress={handlePress}
-          />
-        </View>
-      </>
-    </TripThemeProvider>
+        </MaskedView>
+        <UserProfileModal
+          isVisible={selectedUser !== null}
+          onClose={() => setSelectedUser(null)}
+          user={selectedUser}
+          currentUserId={user?.id ?? ''}
+          isFriends
+        />
+        <TripPillbarContainer
+          tripId={tripIdStr}
+          isHost={isHost}
+          status={
+            (trip.status as 'upcoming' | 'ongoing' | 'ended') || 'upcoming'
+          }
+          handlePress={handlePress}
+          setShouldPauseVisuals={setShouldPauseVisuals}
+        />
+      </View>
+    </>
   );
 }
 
 export default function TripDetailScreen() {
-  return <TripDetailContent />;
+  const { tripId } = useLocalSearchParams();
+  const tripIdStr = Array.isArray(tripId) ? tripId[0] : tripId;
+  const { trip } = useTrips(tripIdStr);
+
+  // Use the trip's video background for theme, fallback to moonlight
+  // This will update when the trip data changes (including when marked dirty and refreshed)
+  const videoKey = trip?.video_background || 'moonlight';
+
+  return (
+    <TripThemeProvider videoKey={videoKey}>
+      <TripDetailContent />
+    </TripThemeProvider>
+  );
 }

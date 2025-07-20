@@ -1,6 +1,6 @@
 import { useTripTheme } from '@/context/TripThemeProvider';
 import React from 'react';
-import { TouchableOpacity, Text, View } from 'react-native';
+import { TouchableOpacity, Text, View, Platform } from 'react-native';
 import { BlurView } from 'expo-blur';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
@@ -24,14 +24,19 @@ export default function TripControllerItem({
         <BlurView
           intensity={60}
           tint={theme.blurTint as 'light' | 'dark' | 'default'}
-          style={{
-            borderRadius: 30,
-            paddingVertical: 16,
-            paddingHorizontal: 20,
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}
+          style={[
+            {
+              borderRadius: 0,
+              paddingVertical: 16,
+              paddingHorizontal: 20,
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            },
+            Platform.OS === 'android' && {
+              backgroundColor: theme.secondaryOutline,
+            },
+          ]}
         >
           <View className="flex-row items-center">
             <View className="w-6 h-6 rounded-md items-center justify-center mr-2">

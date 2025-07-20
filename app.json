@@ -23,7 +23,12 @@
         "foregroundImage": "./assets/lockicon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.lockedin.lockbox"
+      "googleServicesFile": "./google-services.json",
+      "package": "com.lockedin.lockbox",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "favicon": "./assets/lockicon.png"
@@ -40,7 +45,16 @@
           "recordAudioAndroid": true
         }
       ],
-      "expo-video"
-    ]
+      "expo-video",
+      "expo-font",
+      "expo-notifications"
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "a6964f74-b71d-4ce7-8919-a7162991b136"
+      }
+    },
+    "owner": "locked-in"
   }
 }

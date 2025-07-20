@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, Alert } from 'react-native';
 import {
   Entypo,
   MaterialIcons,
@@ -10,12 +10,45 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import DeleteAccountModal, {
   DeleteAccountModalRef,
 } from '@/components/deleteAccountModal';
+import ChangeEmailModal, {
+  ChangeEmailModalRef,
+} from '@/components/changeEmailModal';
+import ChangePasswordModal, {
+  ChangePasswordModalRef,
+} from '@/components/changePasswordModal';
 import { useUser } from '@/context/UserContext';
 
 export default function AccountSettingsScreen() {
   const insets = useSafeAreaInsets();
+
+  const emailModalRef = useRef<ChangeEmailModalRef>(null);
+  const passwordModalRef = useRef<ChangePasswordModalRef>(null);
+
   const deleteModalRef = useRef<DeleteAccountModalRef>(null);
-  const { deleteAccount } = useUser();
+  const { updateEmail, updatePassword, deleteAccount } = useUser();
+
+  const handleEmailChange = async (newEmail: string) => {
+    const result = await updateEmail(newEmail);
+
+    if (!result.success) {
+      Alert.alert('Error', result.message);
+    } else {
+      Alert.alert('Success', result.message);
+    }
+  };
+
+  const handlePasswordChange = async (
+    current: string,
+    next: string,
+    confirm: string,
+  ) => {
+    try {
+      await updatePassword(current, next, confirm);
+      Alert.alert('Success', 'Your password has been updated.');
+    } catch (err) {
+      Alert.alert('Error', err.message || 'Something went wrong.');
+    }
+  };
 
   function SettingItem({
     icon,
@@ -65,7 +98,7 @@ export default function AccountSettingsScreen() {
         <SettingItem
           icon={<Entypo name="email" size={24} color="white" />}
           label="Change email"
-          onPress={() => {}}
+          onPress={() => emailModalRef.current?.open()}
         />
         <View
           style={{ height: 1, backgroundColor: '#2a2a2a', marginHorizontal: 4 }}
@@ -73,7 +106,7 @@ export default function AccountSettingsScreen() {
         <SettingItem
           icon={<MaterialIcons name="password" size={24} color="white" />}
           label="Change password"
-          onPress={() => {}}
+          onPress={() => passwordModalRef.current?.open()}
         />
       </BlurView>
       <BlurView
@@ -103,6 +136,11 @@ export default function AccountSettingsScreen() {
         </TouchableOpacity>
       </BlurView>
       <DeleteAccountModal ref={deleteModalRef} onConfirm={deleteAccount} />
+      <ChangeEmailModal ref={emailModalRef} onConfirm={handleEmailChange} />
+      <ChangePasswordModal
+        ref={passwordModalRef}
+        onConfirm={handlePasswordChange}
+      />
     </View>
   );
 }

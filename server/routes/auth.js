@@ -11,6 +11,8 @@ const router = express.Router();
 // Initialize Supabase admin client for admin-level actions
 const supabaseAdmin = require('../utils/supabaseAdminClient.js');
 
+const authMiddleware = require('../middleware/auth.js');
+
 // DEBUG: List all users to verify Supabase Admin client
 router.get('/debug/list-users', async (req, res) => {
   const { data, error } = await supabaseAdmin.auth.admin.listUsers();
@@ -282,6 +284,96 @@ router.post('/refresh', async (req, res) => {
   } catch (err) {
     console.error('Unexpected server error during token refresh:', err);
     return res.status(500).json({ error: 'Server error during token refresh' });
+  }
+});
+
+// API endpoint for updating email
+router.patch('/update-email', authMiddleware, async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email || !email.includes('@')) {
+      return res
+        .status(400)
+        .json({ message: 'Please return a valid email address.' });
+    }
+
+    const { data, error } = await supabase.auth.updateUser({ email: email });
+
+    if (error) {
+      console.error('[update-email] Supabase error:', error);
+      return res.status(500).json({ message: 'Failed to update email' });
+    }
+
+    if (data?.user?.email_change) {
+      return res.json({
+        message: `Confirmation email sent to ${data.user.email_change}`,
+        email_change: data.user.email_change,
+      });
+    }
+
+    return res.json({ message: 'Email updated successfully' });
+  } catch (err) {
+    console.error('[update-email] Unexpected error:', err);
+    return res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// API endpoint for updating password
+router.patch('/update-password', authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ message: 'Missing required fields.' });
+    }
+
+    if (newPassword.length < 8) {
+      return res
+        .status(400)
+        .json({ message: 'Password must be at least 8 characters.' });
+    }
+
+    // 1. Get user email from admin
+    const { data: userData, error: getUserError } =
+      await supabaseAdmin.auth.admin.getUserById(userId);
+
+    if (getUserError || !userData?.user?.email) {
+      console.error('[update-password] Failed to get user email');
+      return res.status(500).json({ message: 'Could not verify user' });
+    }
+
+    const { user } = userData;
+    const { email } = user;
+
+    // 2. Verify current password via sign-in
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password: currentPassword,
+    });
+
+    if (signInError) {
+      return res
+        .status(401)
+        .json({ message: 'Current password is incorrect.' });
+    }
+
+    // 3. Update to new password
+    const { error: updateError } =
+      await supabaseAdmin.auth.admin.updateUserById(userId, {
+        password: newPassword,
+      });
+
+    if (updateError) {
+      console.error('[update-password] Supabase error:', updateError);
+      return res.status(500).json({ message: 'Failed to update password' });
+    }
+
+    return res.json({ message: 'Password updated successfully' });
+  } catch (err) {
+    console.error('[update-password] Unexpected error:', err);
+    return res.status(500).json({ message: 'Server error' });
   }
 });
 

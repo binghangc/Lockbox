@@ -1,16 +1,69 @@
 const request = require('supertest');
+const path = require('path');
+const fs = require('fs');
 const app = require('../../app.js');
+const r2 = require('../../utils/r2client.js');
+const encodeToHLS = require('../../encoder.js');
 const deleteTestUsers = require('../../utils/test/deleteTestUsers.js');
 const createTestUser = require('../../utils/test/createTestUser.js');
+const { itineraryQueue, vibechecksQueue } = require('../../queue.js');
 
 const EMAIL_PREFIXES = ['submit_itinerary'];
 
-jest.mock('../../utils/geminiclient.js', () => ({
-  generateVibeCheck: jest
-    .fn()
-    .mockImplementation(
-      ({ itineraryText }) => `Mocked vibecheck for: ${itineraryText}`,
-    ),
+jest.mock('../../rag/utils/generateVibeCheck.js', () => {
+  let counter = 1;
+  return {
+    generateVibeCheck: jest
+      .fn()
+      .mockImplementation(
+        ({ itineraryText }) =>
+          `Mocked vibecheck ${counter++} for: ${itineraryText}`,
+      ),
+  };
+});
+
+jest.mock('../../rag/utils/getRandomFallback.js', () => ({
+  getRandomFallback: jest.fn(() => ({
+    theme: 'funny',
+    vibecheck: 'Mocked fallback: We lost the map but found snacks',
+  })),
+}));
+
+jest.mock('../../utils/r2client.js', () => ({
+  send: jest.fn(),
+}));
+
+jest.mock('../../encoder.js', () => jest.fn());
+
+jest.mock('fs', () => {
+  const actualFs = jest.requireActual('fs');
+  return {
+    ...actualFs,
+    readFile: jest.fn().mockResolvedValue('mock-content'),
+    writeFileSync: jest.fn().mockResolvedValue(),
+    rm: jest.fn().mockResolvedValue(),
+    mkdir: jest.fn().mockResolvedValue(),
+    createReadStream: jest.fn().mockReturnValue('mocked-stream'),
+    readdirSync: jest.fn().mockReturnValue(['file1.ts', 'file2.m3u8']),
+    unlinkSync: jest.fn().mockReturnValue(undefined),
+    rmSync: jest.fn().mockReturnValue(undefined),
+    existsSync: jest.fn().mockReturnValue(true),
+  };
+});
+
+jest.mock('../../utils/r2client.js', () => ({
+  send: jest.fn(),
+}));
+
+jest.mock('../../encoder.js', () => jest.fn());
+
+jest.mock('../../queue.js', () => ({
+  itineraryQueue: {
+    add: jest.fn().mockResolvedValue(undefined),
+  },
+  vibechecksQueue: {
+    add: jest.fn().mockResolvedValue(undefined),
+  },
 }));
 
 // Submit Itinerary Flow
@@ -133,6 +186,13 @@ describe('Itinerary + Vibecheck Flow', () => {
 
     expect(vibeRes.body.vibecheck).toBeDefined();
     expect(typeof vibeRes.body.vibecheck).toBe('string');
+
+    expect(itineraryQueue.add).toHaveBeenCalled();
+    expect(vibechecksQueue.add).toHaveBeenCalledWith(
+      'embed-vibecheck',
+      expect.objectContaining({ text: expect.any(String) }),
+      expect.any(Object),
+    );
   });
 
   it('should return itineraries for valid trip and token', async () => {
@@ -146,7 +206,7 @@ describe('Itinerary + Vibecheck Flow', () => {
     expect(res.body[0]).toHaveProperty('itinerary');
   });
 
-  it('should return 404 if no vibecheck exists for that date', async () => {
+  it('should return 404 if no vibecheck exists for date not within trip range', async () => {
     const res = await request(app)
       .get(`/trips/${tripId}/vibecheck/2099-01-01`)
       .set('Authorization', `Bearer ${tokenA}`);
@@ -163,23 +223,79 @@ describe('Itinerary + Vibecheck Flow', () => {
     expect(res.statusCode).toBe(404);
   });
 
-  it('should regenerate a vibecheck for a given date', async () => {
-    const res = await request(app)
-      .patch(`/trips/${tripId}/vibecheck/2025-07-01`)
+  it('should regenerate a vibecheck for a given date if no orbs exist', async () => {
+    const originalVibe = await request(app)
+      .get(`/trips/${tripId}/vibecheck/2025-07-01`)
       .set('Authorization', `Bearer ${tokenA}`);
 
-    expect(res.statusCode).toBe(200);
-    expect(res.body).toHaveProperty('vibecheck');
-    expect(typeof res.body.vibecheck).toBe('string');
+    const { vibecheck_id, vibecheck: oldText } = originalVibe.body;
+    expect(oldText).toBeDefined();
+
+    const patchRes = await request(app)
+      .patch(`/trips/${tripId}/vibecheck/2025-07-01`)
+      .set('Authorization', `Bearer ${tokenA}`)
+      .send({ vibecheck_id });
+
+    expect(patchRes.statusCode).toBe(200);
+    expect(patchRes.body).toHaveProperty('vibecheck');
+    expect(patchRes.body.reshuffleAllowed).toBe(true);
+
+    const newText = patchRes.body.vibecheck;
+    expect(newText).toBeDefined();
+    expect(newText).not.toEqual(oldText);
   });
 
-  it('should return 500 if itinerary is missing', async () => {
-    const res = await request(app)
-      .patch(`/trips/${tripId}/vibecheck/2099-01-01`)
+  it('should NOT reshuffle vibecheck if orbs already exist', async () => {
+    const vibeRes = await request(app)
+      .get(`/trips/${tripId}/vibecheck/2025-07-01`)
       .set('Authorization', `Bearer ${tokenA}`);
 
-    expect(res.statusCode).toBe(500);
-    expect(res.body.error).toMatch(/itinerary.*invalid/i);
+    const { vibecheck_id } = vibeRes.body;
+    expect(vibecheck_id).toBeDefined();
+    console.log('[TEST] vibecheck_id:', vibecheck_id);
+
+    r2.send.mockResolvedValue();
+    encodeToHLS.mockResolvedValue();
+
+    fs.createReadStream.mockReturnValue('mocked-stream');
+    fs.readdirSync.mockReturnValue([]);
+    fs.unlinkSync.mockReturnValue();
+    fs.rmSync.mockReturnValue();
+    fs.existsSync.mockReturnValue(true);
+
+    const tempFilePath = path.join(__dirname, 'mock.mp4');
+    fs.writeFileSync(tempFilePath, 'dummy-content');
+
+    await request(app)
+      .post('/orbs/upload')
+      .field('tripId', tripId)
+      .field('userId', userA.id)
+      .field('vibecheckId', vibecheck_id)
+      .attach('video', Buffer.from('dummy-content'), {
+        filename: 'mock.mp4',
+        contentType: 'video/mp4',
+      });
+
+    fs.unlinkSync(tempFilePath);
+
+    const res = await request(app)
+      .patch(`/trips/${tripId}/vibecheck/2025-07-01`)
+      .set('Authorization', `Bearer ${tokenA}`)
+      .send({ vibecheck_id });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.reshuffleAllowed).toBe(false);
+    expect(res.body.message).toMatch(/orbs already submitted/i);
+  });
+
+  it('should fail to reshuffle if vibecheck_id is missing', async () => {
+    const patchRes = await request(app)
+      .patch(`/trips/${tripId}/vibecheck/2025-07-01`)
+      .set('Authorization', `Bearer ${tokenA}`)
+      .send({});
+
+    expect(patchRes.statusCode).toBe(400);
+    expect(patchRes.body.error).toMatch(/missing vibecheck_id/i);
   });
 });
 

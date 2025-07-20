@@ -1,0 +1,41 @@
+name: Run EAS Development Build
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  eas-dev-build:
+    name: Trigger EAS Android + iOS Dev Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install EAS CLI
+        run: npm install -g eas-cli
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Rebuild google-services.json
+        env:
+          DATA: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: echo $DATA | base64 --decode > google-services.json
+
+      - name: Run EAS Workflow (create-development-builds)
+        run: eas workflow:run .eas/workflows/create-development-builds.yaml
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Run EAS Dev Build
+        run: eas build --platform android --profile development --non-interactive
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}

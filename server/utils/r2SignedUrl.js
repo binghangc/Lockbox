@@ -13,12 +13,21 @@ const r2 = new S3Client({
 const BUCKET = process.env.R2_BUCKET_NAME_VIDEOS;
 
 async function getDownloadUrl(key) {
+  if (!BUCKET) {
+    throw new Error('R2_BUCKET_NAME_VIDEOS env var is missing or undefined.');
+  }
+  if (!key) {
+    throw new Error('Key is required to generate a signed URL.');
+  }
+  console.log('[R2] Generating signed URL for key:', key);
+
   const command = new GetObjectCommand({
     Bucket: BUCKET,
     Key: key,
   });
 
   const signedUrl = await getSignedUrl(r2, command, { expiresIn: 3600 }); // 1 hour
+  console.log('[R2] Signed URL generated:', signedUrl);
   return signedUrl;
 }
 

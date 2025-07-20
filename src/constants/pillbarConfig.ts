@@ -1,7 +1,11 @@
 import { useTripTheme } from '@/context/TripThemeProvider';
+import { Dimensions } from 'react-native';
 
 const usePillbarConfig = () => {
   const theme = useTripTheme();
+
+  const screenHeight = Dimensions.get('window').height;
+  const scaledBottomOffset = Math.round(screenHeight * 0.01);
 
   return {
     BUBBLE_WIDTH: 59,
@@ -22,7 +26,7 @@ const usePillbarConfig = () => {
     BLUR_INTENSITY: 50,
     BLUR_TINT: theme.blurTint,
     CONTAINER_POSITION: 'absolute' as const,
-    CONTAINER_BOTTOM_OFFSET: 16,
+    CONTAINER_BOTTOM_OFFSET: scaledBottomOffset,
     CONTAINER_HORIZONTAL_MARGIN: 16,
     CONTAINER_Z_INDEX: 999,
     GRADIENT_PADDING: 1,

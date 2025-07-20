@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import * as ImageManipulator from 'expo-image-manipulator';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 
@@ -18,6 +19,7 @@ import { Feather } from '@expo/vector-icons';
 import { useUser } from '@/context/UserContext';
 import FormInput from '@/components/formInput';
 import EditActionRow from '@/components/editActionRow';
+import CreateTripHeader from '@/components/shared/tripActionHeader';
 import supabase from '../../../lib/supabase';
 
 export default function EditProfileScreen() {
@@ -112,18 +114,27 @@ export default function EditProfileScreen() {
 
       if (result.canceled) return;
 
-      const { uri } = result.assets[0];
-      const name = uri.split('/').pop() || 'avatar.jpg';
+      const original = result.assets[0];
+
+      // Compress and resize image
+      const manipulated = await ImageManipulator.manipulateAsync(
+        original.uri,
+        [{ resize: { width: 600 } }],
+        {
+          compress: 0.6,
+          format: ImageManipulator.SaveFormat.JPEG,
+        },
+      );
 
       const file = {
-        uri,
+        uri: manipulated.uri,
+        name: original.fileName || 'avatar.jpg',
         type: 'image/jpeg',
-        name,
       };
 
       const formData = new FormData();
       formData.append('avatar', file);
-      formData.append('user_id', currentUser.id); // remove if switching to token-based auth
+      formData.append('user_id', currentUser.id);
 
       setUploading(true);
 
@@ -131,9 +142,6 @@ export default function EditProfileScreen() {
         `${process.env.EXPO_PUBLIC_API_URL}/profile/upload-avatar`,
         {
           method: 'POST',
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
           body: formData,
         },
       );
@@ -186,6 +194,11 @@ export default function EditProfileScreen() {
 
   return (
     <View className="flex-1 bg-black items-center justify-center px-6">
+      <CreateTripHeader
+        onCancel={() => router.back()}
+        onSave={() => router.back()}
+        title="Edit Profile"
+      />
       {user.avatar_url ? (
         <TouchableOpacity
           onPress={() => handleUploadImage(user, setUser, setUploading)}

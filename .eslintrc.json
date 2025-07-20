@@ -52,6 +52,7 @@
     "object-shorthand": "off",
     "class-methods-use-this": "off",
     "node/no-unsupported-features/es-syntax": "off",
+    "node/no-unsupported-features/node-builtins": "off",
     "react/react-in-jsx-scope": "off",
     "react/jsx-filename-extension": [1, { "extensions": [".tsx"] }],
     "import/extensions": [
@@ -71,7 +72,9 @@
     "react/require-default-props": "off",
     "node/no-extraneous-require": "off",
     "no-use-before-define": "off",
-    "@typescript-eslint/no-use-before-define": "off"
+    "@typescript-eslint/no-use-before-define": "off",
+    "no-plusplus": "off",
+    "no-restricted-syntax": "off"
   },
   "overrides": [
     {

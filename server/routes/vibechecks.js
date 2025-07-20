@@ -3,10 +3,9 @@ const express = require('express');
 
 const router = express.Router();
 const { createClient } = require('@supabase/supabase-js');
-const enrichChunks = require('../rag/scripts/entityAwareChunker.js');
-const { embedText } = require('../rag/utils/embeddingClient.js');
 const { generateVibeCheck } = require('../utils/geminiclient.js');
 const authMiddleware = require('../middleware/auth.js');
+const { itineraryQueue, vibechecksQueue } = require('../queue.js');
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -79,51 +78,66 @@ router.post('/:id/submit-itinerary', authMiddleware, async (req, res) => {
 
     if (vibeInsertError) throw vibeInsertError;
 
-    const vibecheckMap = {};
-    insertedVibechecks.forEach((v) => {
-      vibecheckMap[v.itinerary_id] = v.id;
-    });
+    // Step 3: Dispatch chunking + embedding jobs to Redis queue
+    await Promise.all(
+      inserted.map((entry) =>
+        itineraryQueue.add(
+          'embed-itinerary',
+          {
+            itinerary: entry.itinerary,
+            itinerary_id: entry.id,
+            trip_id: trip.id,
+            country: trip.country,
+          },
+          {
+            removeOnComplete: true,
+          },
+        ),
+      ),
+    );
 
-    // Step 3: Chunk + embed each itinerary and insert into itinerary_embeddings
-    const chunkEmbeddings = (
-      await Promise.all(
-        inserted.map(async (entry) => {
-          const chunks = await enrichChunks(entry.itinerary);
-          console.log('enriched chunks:', chunks, 'type:', typeof chunks);
-          const vibecheck_id = vibecheckMap[entry.id];
-
-          return Promise.all(
-            chunks.map(async (chunk) => {
-              const embedding = await embedText(chunk.chunk_text);
-
-              return {
-                vibecheck_id,
-                chunk_text: chunk.chunk_text,
-                embedding,
-                country: trip.country || null,
-                location_tag: chunk.location_tag || null,
-                location_name: chunk.location_name || null,
-                activity_tag: chunk.activity_tag || null,
-              };
-            }),
-          );
-        }),
-      )
-    ).flat();
-
-    const { error: embedInsertError } = await supabase
-      .from('itinerary_embeddings')
-      .insert(chunkEmbeddings);
-
-    if (embedInsertError) throw embedInsertError;
+    await Promise.all(
+      insertedVibechecks.map((vc) =>
+        vibechecksQueue.add(
+          'embed-vibecheck',
+          {
+            vibecheck_id: vc.id,
+            text: vc.vibecheck,
+            user_id: trip.user_id,
+          },
+          {
+            removeOnComplete: true,
+          },
+        ),
+      ),
+    );
 
     return res.status(200).json({
       success: true,
       insertedItineraries: inserted.length,
-      insertedEmbeddings: chunkEmbeddings.length,
     });
   } catch (err) {
     console.error('[POST /:id/submit-itinerary] Error:', err.message);
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /trips/:id/vibechecks - Fetch all vibechecks for a trip with minimal fields
+router.get('/trips/:id/vibechecks', authMiddleware, async (req, res) => {
+  const trip_id = req.params.id;
+
+  try {
+    const { data, error } = await supabase
+      .from('vibechecks')
+      .select('id, vibecheck, date')
+      .eq('trip_id', trip_id)
+      .order('date', { ascending: true });
+
+    if (error) throw error;
+
+    return res.status(200).json({ vibechecks: data });
+  } catch (err) {
+    console.error('[GET /trips/:id/vibechecks] Error:', err.message);
     return res.status(500).json({ error: err.message });
   }
 });

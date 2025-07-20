@@ -11,7 +11,10 @@
     "prettier:check": "prettier --check .",
     "prettier:write": "prettier --write .",
     "test": "cd server && npm test",
-    "build:rag": "tsc -p tsconfig.rag.json"
+    "build:rag": "tsc -p tsconfig.rag.json",
+    "worker:itinerary": "node server/workers/embedItineraryWorker.js",
+    "worker:vibechecks": "node server/workers/embedVibecheckWorker.js",
+    "worker:messages": "node server/workers/sendMessages.js"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
@@ -32,16 +35,20 @@
     "expo-camera": "~16.1.8",
     "expo-constants": "~17.1.5",
     "expo-dev-client": "~5.2.0",
-    "expo-font": "^13.3.2",
+    "expo-font": "~13.3.2",
     "expo-haptics": "~14.1.4",
+    "expo-image-manipulator": "^13.1.7",
     "expo-image-picker": "~16.1.4",
     "expo-linear-gradient": "~14.1.4",
     "expo-linking": "~7.1.4",
+    "expo-notifications": "^0.31.4",
     "expo-router": "~5.0.5",
     "expo-secure-store": "~14.2.3",
+    "expo-splash-screen": "^0.30.10",
     "expo-status-bar": "~2.2.3",
     "expo-video": "~2.2.2",
     "express": "^5.1.0",
+    "kue": "^0.11.6",
     "lodash": "^4.17.21",
     "lottie-react-native": "7.2.2",
     "multer": "^1.4.5-lts.2",
@@ -61,7 +68,8 @@
     "tailwindcss": "^3.4.17",
     "uuid": "^11.1.0",
     "world-countries": "^5.1.0",
-    "zod": "^3.25.64"
+    "zod": "^3.25.64",
+    "@react-native-masked-view/masked-view": "0.3.2"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
@@ -100,5 +108,6 @@
     "url": "https://github.com/binghangc/Lockbox/issues"
   },
   "homepage": "https://github.com/binghangc/Lockbox#readme",
-  "description": ""
+  "description": "This repository contains our team's technical **Proof of Concept (PoC)** for **Lockbox** - our time capsule vlogging app which records your memories and locks them away for later. It demonstrates core features across the React Native frontend, Node.js backend, and Supabase database, laying the groundwork for a scalable and secure architecture.",
+  "type": "commonjs"
 }

@@ -4,7 +4,7 @@ const deleteTestUsers = require('../utils/test/deleteTestUsers.js');
 const createTestUser = require('../utils/test/createTestUser.js');
 
 jest.mock('../utils/r2client.js', () => {
-  const putObject = jest.fn(() => ({
+  const putObjectCommand = jest.fn(() => ({
     promise: jest.fn().mockResolvedValue({
       ETag: '"mocked-etag"',
       Location: 'https://mocked-r2-url.com/file.png',
@@ -14,7 +14,8 @@ jest.mock('../utils/r2client.js', () => {
   }));
 
   return {
-    putObject,
+    putObjectCommand,
+    send: jest.fn(),
   };
 });
 
@@ -101,7 +102,7 @@ describe('Profile: Upload Avatar Flow', () => {
   });
 
   it('should upload avatar and return URL', async () => {
-    r2.putObject.mockReturnValue({ promise: () => Promise.resolve() });
+    r2.send.mockResolvedValueOnce({});
 
     const res = await request(app)
       .post('/profile/upload-avatar')
@@ -118,6 +119,7 @@ describe('Profile: Upload Avatar Flow', () => {
   it('should fail with 400 if file is missing', async () => {
     const res = await request(app)
       .post('/profile/upload-avatar')
+      .type('multipart/form-data')
       .field('user_id', user.id);
 
     expect(res.statusCode).toBe(400);

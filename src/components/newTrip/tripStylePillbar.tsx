@@ -48,7 +48,7 @@ export default function TripStylePillbar({
       <View
         style={{
           position: PILLBAR.CONTAINER_POSITION,
-          bottom: insets.bottom + PILLBAR.CONTAINER_BOTTOM_OFFSET,
+          bottom: insets.bottom,
           left: PILLBAR.CONTAINER_HORIZONTAL_MARGIN,
           right: PILLBAR.CONTAINER_HORIZONTAL_MARGIN,
           zIndex: PILLBAR.CONTAINER_Z_INDEX,
