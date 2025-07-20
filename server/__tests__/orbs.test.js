@@ -7,6 +7,11 @@ const createTestUser = require('../utils/test/createTestUser.js');
 const supabase = require('../utils/supabaseAdminClient.js');
 const r2 = require('../utils/r2client.js');
 const encodeToHLS = require('../encoder.js');
+const { getDownloadUrl } = require('../utils/r2SignedUrl.js');
+
+jest.mock('../utils/r2SignedUrl.js', () => ({
+  getDownloadUrl: jest.fn(),
+}));
 
 jest.mock('../utils/supabaseAdminClient.js', () => ({
   from: jest.fn(),
@@ -128,5 +133,37 @@ describe('POST /upload', () => {
     expect(res.statusCode).toBe(200);
     expect(res.body.message).toBe('Upload complete');
     expect(res.body.orb).toBeDefined();
+  });
+});
+
+describe('GET /url', () => {
+  it('returns signed URL for valid query', async () => {
+    getDownloadUrl.mockResolvedValue('https://r2.example.com/signed-url');
+
+    const res = await request(app)
+      .get('/orbs/url')
+      .query({ tripId: 'trip123', userId: 'user123', orbId: 'orb123' });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.url).toBe('https://r2.example.com/signed-url');
+  });
+
+  it('returns 400 if query params are missing', async () => {
+    const res = await request(app)
+      .get('/orbs/url')
+      .query({ tripId: 'trip123' });
+    expect(res.statusCode).toBe(400);
+    expect(res.body.error).toMatch(/Missing query parameters/i);
+  });
+
+  it('returns 500 if getDownloadUrl throws', async () => {
+    getDownloadUrl.mockRejectedValue(new Error('boom'));
+
+    const res = await request(app)
+      .get('/orbs/url')
+      .query({ tripId: 'trip123', userId: 'user123', orbId: 'orb123' });
+
+    expect(res.statusCode).toBe(500);
+    expect(res.body.error).toMatch(/Failed to generate URL/i);
   });
 });
