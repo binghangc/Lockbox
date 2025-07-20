@@ -2,7 +2,7 @@ const { Queue } = require('bullmq');
 const redis = require('./redis.js');
 
 const itineraryQueue = new Queue('embed-itinerary', { connection: redis });
-const vibechecksQueue = new Queue('embed-vibechecks', { connection: redis });
+const vibechecksQueue = new Queue('embed-vibecheck', { connection: redis });
 
 [itineraryQueue, vibechecksQueue].forEach((queue) => {
   queue.on('error', (err) => {

@@ -7,6 +7,7 @@ const dayjs = require('dayjs');
 const utc = require('dayjs/plugin/utc');
 const timezone = require('dayjs/plugin/timezone');
 const r2 = require('../utils/r2client.js');
+const { itineraryQueue, vibechecksQueue } = require('../queue.js');
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -633,15 +634,53 @@ router.post('/:id/submit-itinerary', authMiddleware, async (req, res) => {
       }),
     );
 
-    const { error: vibeInsertError } = await supabase
+    const { data: insertedVibechecks, error: vibeInsertError } = await supabase
       .from('vibechecks')
-      .upsert(vibechecks, { onConflict: ['trip_id', 'date'] });
+      .upsert(vibechecks, { onConflict: ['trip_id', 'date'] })
+      .select();
 
     if (vibeInsertError) throw vibeInsertError;
 
-    return res.status(200).json({ success: true });
+    // Step 4: Queue itinerary embeddings
+    await Promise.all(
+      inserted.map((entry) =>
+        itineraryQueue.add(
+          'embed-itinerary',
+          {
+            itinerary: entry.itinerary,
+            itinerary_id: entry.id,
+            trip_id: trip.id,
+            country: trip.country,
+          },
+          { removeOnComplete: true },
+        ),
+      ),
+    );
+
+    // Step 5: Queue vibecheck embeddings
+    await Promise.all(
+      insertedVibechecks.map((vc) =>
+        vibechecksQueue.add(
+          'embed-vibecheck',
+          {
+            vibecheck_id: vc.id,
+            text: vc.vibecheck,
+            user_id: trip.user_id,
+          },
+          { removeOnComplete: true },
+        ),
+      ),
+    );
+
+    console.log('[submit-itinerary] Queued vibechecks:', insertedVibechecks);
+
+    return res.status(200).json({
+      success: true,
+      insertedItineraries: inserted.length,
+      insertedVibechecks: insertedVibechecks.length,
+    });
   } catch (err) {
-    console.error('[POST /:trip_id/itinerary] Error:', err.message);
+    console.error('[POST trips/:id/submit-itinerary] Error:', err.message);
     return res.status(500).json({ error: err.message });
   }
 });
@@ -673,23 +712,35 @@ router.get('/:id/vibecheck/:date', authMiddleware, async (req, res) => {
   }
 
   try {
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from('vibechecks')
       .select('id, vibecheck')
       .eq('trip_id', trip_id)
       .eq('date', date)
       .single();
 
-    if (error?.code === 'PGRST116' || !data) {
-      // PGRST116 = no rows found
-      return res
-        .status(404)
-        .json({ error: 'No vibecheck found for this date' });
+    if (data) {
+      return res.json({
+        vibecheck: data.vibecheck,
+        vibecheck_id: data.id,
+      });
+    }
+
+    const fallback = getRandomFallback();
+    const insert = await supabase
+      .from('vibechecks')
+      .insert({ trip_id, date, vibecheck: fallback.vibecheck })
+      .select('id')
+      .single();
+
+    if (insert.error) {
+      console.error('Error inserting fallback:', insert.error.message);
+      return res.json({ vibecheck: fallback.vibecheck });
     }
 
     return res.json({
-      vibecheck: data.vibecheck,
-      vibecheck_id: data.id,
+      vibecheck: fallback,
+      vibecheck_id: insert.data.id,
     });
   } catch (err) {
     console.error('Error fetching vibecheck:', err.message);

@@ -25,7 +25,6 @@ async function embedItinerary({
         location_name: chunk.location_name || null,
         activity_tag: chunk.activity_tag || null,
         user_id: user_id || null,
-        created_at: new Date().toISOString(),
       };
     }),
   );

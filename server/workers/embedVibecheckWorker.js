@@ -2,7 +2,7 @@ const { Worker } = require('bullmq');
 const redis = require('../redis.js');
 const embedVibecheck = require('../rag/scripts/vibechecks/embedVibecheck.js');
 
-console.log('[embedItineraryWorker] Worker is running...');
+console.log('[embedVibecheckWorker] Worker is running...');
 
 const worker = new Worker(
   'embed-vibecheck',
