@@ -726,6 +726,30 @@ router.get('/:id/vibecheck/:date', authMiddleware, async (req, res) => {
       });
     }
 
+    const { data: trip, error: tripError } = await supabase
+      .from('trips')
+      .select('start_date, end_date')
+      .eq('id', trip_id)
+      .single();
+
+    if (tripError || !trip) {
+      console.error(
+        'Trip not found or error fetching trip:',
+        tripError?.message,
+      );
+      return res.status(404).json({ error: 'Trip not found' });
+    }
+
+    const reqDate = new Date(date);
+    const startDate = new Date(trip.start_date);
+    const endDate = new Date(trip.end_date);
+
+    if (reqDate < startDate || reqDate > endDate) {
+      return res
+        .status(404)
+        .json({ error: 'No vibecheck available for that date' });
+    }
+
     const fallback = getRandomFallback();
     const insert = await supabase
       .from('vibechecks')

@@ -75,6 +75,13 @@ export default function TripPillbar({
     elevation: Platform.OS === 'android' ? 10 * glow.value : 0,
   }));
 
+  let pillDisplayText = pillText;
+  if (submittedByUser) {
+    pillDisplayText = 'Response submitted!';
+  } else if (dragEnabled) {
+    pillDisplayText = 'Slide to send';
+  }
+
   return (
     <AnimatedReanimated.View
       style={[
@@ -157,11 +164,7 @@ export default function TripPillbar({
                     animatedPillTextStyle,
                   ]}
                 >
-                  {submittedByUser
-                    ? 'Response submitted!'
-                    : dragEnabled
-                      ? 'Slide to send'
-                      : pillText}
+                  {pillDisplayText}
                 </AnimatedText>
 
                 {bottomAccessory && (

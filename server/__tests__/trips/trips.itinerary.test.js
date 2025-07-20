@@ -6,6 +6,7 @@ const r2 = require('../../utils/r2client.js');
 const encodeToHLS = require('../../encoder.js');
 const deleteTestUsers = require('../../utils/test/deleteTestUsers.js');
 const createTestUser = require('../../utils/test/createTestUser.js');
+const { itineraryQueue, vibechecksQueue } = require('../../queue.js');
 
 const EMAIL_PREFIXES = ['submit_itinerary'];
 
@@ -55,6 +56,15 @@ jest.mock('../../utils/r2client.js', () => ({
 }));
 
 jest.mock('../../encoder.js', () => jest.fn());
+
+jest.mock('../../queue.js', () => ({
+  itineraryQueue: {
+    add: jest.fn().mockResolvedValue(undefined),
+  },
+  vibechecksQueue: {
+    add: jest.fn().mockResolvedValue(undefined),
+  },
+}));
 
 // Submit Itinerary Flow
 describe('Itinerary + Vibecheck Flow', () => {
@@ -176,6 +186,13 @@ describe('Itinerary + Vibecheck Flow', () => {
 
     expect(vibeRes.body.vibecheck).toBeDefined();
     expect(typeof vibeRes.body.vibecheck).toBe('string');
+
+    expect(itineraryQueue.add).toHaveBeenCalled();
+    expect(vibechecksQueue.add).toHaveBeenCalledWith(
+      'embed-vibecheck',
+      expect.objectContaining({ text: expect.any(String) }),
+      expect.any(Object),
+    );
   });
 
   it('should return itineraries for valid trip and token', async () => {
@@ -189,7 +206,7 @@ describe('Itinerary + Vibecheck Flow', () => {
     expect(res.body[0]).toHaveProperty('itinerary');
   });
 
-  it('should return 404 if no vibecheck exists for that date', async () => {
+  it('should return 404 if no vibecheck exists for date not within trip range', async () => {
     const res = await request(app)
       .get(`/trips/${tripId}/vibecheck/2099-01-01`)
       .set('Authorization', `Bearer ${tokenA}`);
