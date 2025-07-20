@@ -1,5 +1,11 @@
-import React, { useRef } from 'react';
-import { StyleSheet, TouchableOpacity, Alert, View } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import {
+  BackHandler,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+  View,
+} from 'react-native';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 
 import Octicons from '@expo/vector-icons/Octicons';

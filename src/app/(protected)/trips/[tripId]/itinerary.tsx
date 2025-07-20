@@ -8,9 +8,10 @@ import {
   ActivityIndicator,
   Platform,
   Alert,
+  BackHandler,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
@@ -45,6 +46,36 @@ function ItineraryScreenContent({ trip }: { trip: Trip }) {
           dayjs.tz(`${d}T00:00:00`, userTimezone).isSameOrAfter(today, 'day'),
         )
       : allDays;
+
+  useEffect(() => {
+    if (!trip) return () => {};
+
+    const hasSubmitted = dailyPlans?.some((p) => p && p.trim() !== '');
+
+    if (
+      !(
+        trip.status === 'ongoing' &&
+        trip.start_date === today.format('YYYY-MM-DD') &&
+        !hasSubmitted
+      )
+    )
+      return () => {};
+
+    const onBackPress = () => {
+      Alert.alert(
+        'Finish your itinerary first',
+        'You need to submit itinerary before leaving this screen.',
+        [{ text: 'OK', style: 'default' }],
+      );
+      return true;
+    };
+
+    const sub = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+
+    return () => {
+      sub.remove();
+    };
+  }, [trip, dailyPlans, today]);
 
   console.log('today', today.format());
   console.log('timeone', userTimezone);
