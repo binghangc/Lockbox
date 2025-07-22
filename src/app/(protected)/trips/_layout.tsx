@@ -5,6 +5,7 @@ import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import Octicons from '@expo/vector-icons/Octicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { Modalize } from 'react-native-modalize';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import InviteFriendsModal from '@/components/invites/inviteFriendsModal';
 import TripControllerModal from '@/components/tripControllerModal';
@@ -54,6 +55,7 @@ function TripLayoutInner({
 }: TripLayoutInnerProps) {
   const theme = useTripTheme();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   const onEdit = () => {
     router.push(`/tripForm?mode=edit&tripId=${tripId}`);
@@ -117,6 +119,7 @@ function TripLayoutInner({
               onPress={() => navigation.goBack()}
               style={{
                 marginLeft: 12,
+                marginTop: insets.top + 4,
                 width: 44,
                 height: 44,
                 borderRadius: 22,
@@ -137,6 +140,7 @@ function TripLayoutInner({
               onPress={() => modalRef.current?.open()}
               style={{
                 marginRight: 12,
+                marginTop: insets.top + 4,
                 width: 44,
                 height: 44,
                 borderRadius: 22,
