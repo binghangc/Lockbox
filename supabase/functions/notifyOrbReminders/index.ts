@@ -25,7 +25,7 @@ serve(async (_req) => {
     const { data: ongoingTrips } = await supabase
       .from('trips')
       .select(
-        'id, participants:participants(user:profiles(id, expo_push_token, notification_preferences))',
+        'id, title, participants:participants(user:profiles(id, expo_push_token, notification_preferences))',
       )
       .eq('status', 'ongoing');
 
