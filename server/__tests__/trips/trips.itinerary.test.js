@@ -1,15 +1,3 @@
-const request = require('supertest');
-const path = require('path');
-const fs = require('fs');
-const app = require('../../app.js');
-const r2 = require('../../utils/r2client.js');
-const encodeToHLS = require('../../encoder.js');
-const deleteTestUsers = require('../../utils/test/deleteTestUsers.js');
-const createTestUser = require('../../utils/test/createTestUser.js');
-const { itineraryQueue, vibechecksQueue } = require('../../queue.js');
-
-const EMAIL_PREFIXES = ['submit_itinerary'];
-
 jest.mock('../../rag/utils/generateVibeCheck.js', () => {
   let counter = 1;
   return {
@@ -65,6 +53,18 @@ jest.mock('../../queue.js', () => ({
     add: jest.fn().mockResolvedValue(undefined),
   },
 }));
+
+const request = require('supertest');
+const path = require('path');
+const fs = require('fs');
+const app = require('../../app.js');
+const r2 = require('../../utils/r2client.js');
+const encodeToHLS = require('../../encoder.js');
+const deleteTestUsers = require('../../utils/test/deleteTestUsers.js');
+const createTestUser = require('../../utils/test/createTestUser.js');
+const { itineraryQueue, vibechecksQueue } = require('../../queue.js');
+
+const EMAIL_PREFIXES = ['submit_itinerary'];
 
 // Submit Itinerary Flow
 describe('Itinerary + Vibecheck Flow', () => {
