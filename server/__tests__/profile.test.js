@@ -1,8 +1,3 @@
-const request = require('supertest');
-const app = require('../app.js');
-const deleteTestUsers = require('../utils/test/deleteTestUsers.js');
-const createTestUser = require('../utils/test/createTestUser.js');
-
 jest.mock('../utils/r2client.js', () => {
   const putObjectCommand = jest.fn(() => ({
     promise: jest.fn().mockResolvedValue({
@@ -19,6 +14,10 @@ jest.mock('../utils/r2client.js', () => {
   };
 });
 
+const request = require('supertest');
+const app = require('../app.js');
+const deleteTestUsers = require('../utils/test/deleteTestUsers.js');
+const createTestUser = require('../utils/test/createTestUser.js');
 const r2 = require('../utils/r2client.js');
 
 const EMAIL_PREFIXES = [

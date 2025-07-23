@@ -21,15 +21,6 @@ jobs:
       - name: Install EAS CLI
         run: npm install -g eas-cli
 
-      - name: Install dependencies
-        run: npm install
-
-      - name: Rebuild google-services.json
-        run: printf "%s" "${{ secrets.GOOGLE_SERVICES_JSON }}" | base64 --decode > google-services.json
-
-      - name: Debug google-services.json
-        run: cat android/app/google-services.json
-
       - name: Trigger EAS Build (production APK)
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}

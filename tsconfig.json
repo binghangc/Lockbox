@@ -16,7 +16,8 @@
     "index.ts",
     "src/global.d.ts",
     "nativewind-env.d.ts",
-    "custom.d.ts"
+    "custom.d.ts",
+    "app.config.js",
   ],
   "exclude": [
     "supabase/functions",
