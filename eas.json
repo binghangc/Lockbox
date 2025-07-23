@@ -15,8 +15,7 @@
       "developmentClient": false,
       "distribution": "store",
       "android": {
-        "buildType": "apk",
-        "googleServicesFile": "./google-services.json"
+        "buildType": "apk"
       }
     },
     "development": {
