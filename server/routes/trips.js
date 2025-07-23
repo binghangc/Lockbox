@@ -665,8 +665,9 @@ router.post('/:id/submit-itinerary', authMiddleware, async (req, res) => {
             'embed-vibecheck',
             {
               vibecheck_id: vc.id,
-              text: vc.vibecheck,
+              vibecheck_text: vc.vibecheck,
               user_id: trip.user_id,
+              trip_id: trip.id,
             },
             { removeOnComplete: true },
           ),
@@ -847,8 +848,9 @@ router.patch('/:id/vibecheck/:date', authMiddleware, async (req, res) => {
         'embed-vibecheck',
         {
           vibecheck_id,
-          text: vibecheckText,
+          vibecheck_text: vibecheckText,
           user_id: user.id,
+          trip_id: id,
         },
         { removeOnComplete: true },
       ),

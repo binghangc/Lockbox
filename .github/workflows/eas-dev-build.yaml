@@ -25,12 +25,6 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Rebuild google-services.json
-        run: printf "%s" "${{ secrets.GOOGLE_SERVICES_JSON }}" | base64 --decode > google-services.json
-
-      - name: Debug google-services.json
-        run: cat android/app/google-services.json
-
       - name: Run EAS Workflow (create-development-builds)
         run: eas workflow:run .eas/workflows/create-development-builds.yaml
         env:

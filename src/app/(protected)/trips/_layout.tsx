@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { StyleSheet, TouchableOpacity, Alert, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, Alert, View, Text } from 'react-native';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 
 import Octicons from '@expo/vector-icons/Octicons';
@@ -147,7 +147,7 @@ function TripLayoutInner({
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
-              hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
+              hitSlop={{ top: 15, bottom: 20, left: 15, right: 15 }}
             >
               <MaterialCommunityIcons
                 name="dots-horizontal"
@@ -163,6 +163,18 @@ function TripLayoutInner({
           options={{
             presentation: 'modal',
             title: 'Trip Itinerary',
+            headerTitle: () => (
+              <Text
+                style={{
+                  marginTop: insets.top + 4,
+                  fontSize: 18,
+                  fontWeight: '600',
+                  color: tintColor,
+                }}
+              >
+                Trip Itinerary
+              </Text>
+            ),
             animation: 'slide_from_bottom',
             gestureEnabled: !isDisabled,
             headerShown: true,
@@ -177,13 +189,14 @@ function TripLayoutInner({
                   onPress={() => router.back()}
                   style={{
                     marginLeft: 12,
+                    marginTop: insets.top + 4,
                     width: 44,
                     height: 44,
                     borderRadius: 22,
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}
-                  hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
+                  hitSlop={{ top: 15, bottom: 20, left: 15, right: 15 }}
                 >
                   <Octicons name="chevron-left" size={28} color={tintColor} />
                 </TouchableOpacity>
@@ -195,6 +208,18 @@ function TripLayoutInner({
           name="[tripId]/vault"
           options={{
             title: 'Vault',
+            headerTitle: () => (
+              <Text
+                style={{
+                  marginTop: insets.top + 4,
+                  fontSize: 18,
+                  fontWeight: '600',
+                  color: tintColor,
+                }}
+              >
+                Vault
+              </Text>
+            ),
             animation: 'default',
             gestureEnabled: true,
             contentStyle: {
@@ -206,6 +231,18 @@ function TripLayoutInner({
           name="[tripId]/participants"
           options={{
             title: 'Participants',
+            headerTitle: () => (
+              <Text
+                style={{
+                  marginTop: insets.top + 4,
+                  fontSize: 18,
+                  fontWeight: '600',
+                  color: tintColor,
+                }}
+              >
+                Participants
+              </Text>
+            ),
             animation: 'default',
             gestureEnabled: true,
             contentStyle: {
@@ -217,6 +254,18 @@ function TripLayoutInner({
           name="[tripId]/sendInvites"
           options={{
             title: 'Invite',
+            headerTitle: () => (
+              <Text
+                style={{
+                  marginTop: insets.top + 4,
+                  fontSize: 18,
+                  fontWeight: '600',
+                  color: tintColor,
+                }}
+              >
+                Invite
+              </Text>
+            ),
             animation: 'default',
             gestureEnabled: true,
             contentStyle: {
