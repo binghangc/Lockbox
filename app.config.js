@@ -25,7 +25,7 @@ export default ({ config }) => ({
         foregroundImage: './assets/lockicon.png',
         backgroundColor: '#ffffff',
       },
-      googleServicesFile: process.env.GOOGLE_SERVICES_JSON,
+      googleServicesFile: './google-services.json',
       package: 'com.lockedin.lockbox',
       permissions: [
         'android.permission.CAMERA',
