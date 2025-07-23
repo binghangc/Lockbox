@@ -57,12 +57,12 @@ jest.mock('../../queue.js', () => ({
 const request = require('supertest');
 const path = require('path');
 const fs = require('fs');
+const { itineraryQueue, vibechecksQueue } = require('../../queue.js');
 const app = require('../../app.js');
 const r2 = require('../../utils/r2client.js');
 const encodeToHLS = require('../../encoder.js');
 const deleteTestUsers = require('../../utils/test/deleteTestUsers.js');
 const createTestUser = require('../../utils/test/createTestUser.js');
-const { itineraryQueue, vibechecksQueue } = require('../../queue.js');
 
 const EMAIL_PREFIXES = ['submit_itinerary'];
 
