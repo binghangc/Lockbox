@@ -1,5 +1,12 @@
 import React, { useRef } from 'react';
-import { StyleSheet, TouchableOpacity, Alert, View, Text } from 'react-native';
+import {
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+  View,
+  Text,
+  Platform,
+} from 'react-native';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 
 import Octicons from '@expo/vector-icons/Octicons';
@@ -20,9 +27,11 @@ import getTripDays from '@/utils/date';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
+dayjs.extend(isSameOrAfter);
 
 type TripLayoutInnerProps = {
   tripId: string;
@@ -119,7 +128,8 @@ function TripLayoutInner({
               onPress={() => navigation.goBack()}
               style={{
                 marginLeft: 12,
-                marginTop: insets.top + 4,
+                marginTop:
+                  Platform.OS === 'android' ? insets.top + 4 : undefined,
                 width: 44,
                 height: 44,
                 borderRadius: 22,
@@ -140,7 +150,8 @@ function TripLayoutInner({
               onPress={() => modalRef.current?.open()}
               style={{
                 marginRight: 12,
-                marginTop: insets.top + 4,
+                marginTop:
+                  Platform.OS === 'android' ? insets.top + 4 : undefined,
                 width: 44,
                 height: 44,
                 borderRadius: 22,
@@ -166,10 +177,10 @@ function TripLayoutInner({
             headerTitle: () => (
               <Text
                 style={{
-                  marginTop: insets.top + 4,
+                  marginTop:
+                    Platform.OS === 'android' ? insets.top + 4 : undefined,
                   fontSize: 18,
                   fontWeight: '600',
-                  color: tintColor,
                 }}
               >
                 Trip Itinerary
@@ -189,7 +200,8 @@ function TripLayoutInner({
                   onPress={() => router.back()}
                   style={{
                     marginLeft: 12,
-                    marginTop: insets.top + 4,
+                    marginTop:
+                      Platform.OS === 'android' ? insets.top + 4 : undefined,
                     width: 44,
                     height: 44,
                     borderRadius: 22,
@@ -211,10 +223,10 @@ function TripLayoutInner({
             headerTitle: () => (
               <Text
                 style={{
-                  marginTop: insets.top + 4,
+                  marginTop:
+                    Platform.OS === 'android' ? insets.top + 4 : undefined,
                   fontSize: 18,
                   fontWeight: '600',
-                  color: tintColor,
                 }}
               >
                 Vault
@@ -234,10 +246,10 @@ function TripLayoutInner({
             headerTitle: () => (
               <Text
                 style={{
-                  marginTop: insets.top + 4,
+                  marginTop:
+                    Platform.OS === 'android' ? insets.top + 4 : undefined,
                   fontSize: 18,
                   fontWeight: '600',
-                  color: tintColor,
                 }}
               >
                 Participants
@@ -257,10 +269,10 @@ function TripLayoutInner({
             headerTitle: () => (
               <Text
                 style={{
-                  marginTop: insets.top + 4,
+                  marginTop:
+                    Platform.OS === 'android' ? insets.top + 4 : undefined,
                   fontSize: 18,
                   fontWeight: '600',
-                  color: tintColor,
                 }}
               >
                 Invite
