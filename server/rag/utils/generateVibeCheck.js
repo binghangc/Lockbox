@@ -62,7 +62,7 @@ async function generateVibeCheck({
   }
 
   const contextPrefix = exampleLines
-    ? `Here are 3 vibe checks from similar trips:\n${exampleLines}\n\nNow adapt that tone to this trip:`
+    ? `Here are 3 vibe checks from similar trips:\n${exampleLines}\n\nNow adapt that tone to this trip but DO NOT copy them exactly and do not use any location names from these prompts:`
     : `Generate a vibe check based on this trip:`;
 
   const message = new HumanMessage(

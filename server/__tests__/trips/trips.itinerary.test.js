@@ -191,7 +191,7 @@ describe('Itinerary + Vibecheck Flow', () => {
       expect(itineraryQueue.add).toHaveBeenCalled();
       expect(vibechecksQueue.add).toHaveBeenCalledWith(
         'embed-vibecheck',
-        expect.objectContaining({ text: expect.any(String) }),
+        expect.objectContaining({ vibecheck_text: expect.any(String) }),
         expect.any(Object),
       );
     }

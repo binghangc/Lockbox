@@ -6,15 +6,20 @@ jest.mock('../../../../../rag/scripts/vibechecks/classifyTheme.js', () =>
   jest.fn(() => 'funny'),
 );
 
-jest.mock('../../../../../utils/supabaseAdminClient.js', () => ({
-  from: jest.fn(() => ({
-    insert: jest.fn(() => ({ error: null })),
-  })),
-}));
+jest.mock('../../../../../utils/supabaseAdminClient.js', () => {
+  const insert = jest.fn();
+  const from = jest.fn(() => ({ insert }));
+
+  return {
+    from,
+    __mocks: { from, insert }, // expose safely for test access
+  };
+});
 
 const { embedText } = require('../../../../../rag/utils/embeddingClient.js');
 const classifyTheme = require('../../../../../rag/scripts/vibechecks/classifyTheme.js');
 const supabase = require('../../../../../utils/supabaseAdminClient.js');
+const { __mocks } = require('../../../../../utils/supabaseAdminClient.js');
 const embedVibecheck = require('../../../../../rag/scripts/vibechecks/embedVibecheck.js');
 
 describe('embedVibecheck', () => {
@@ -26,13 +31,15 @@ describe('embedVibecheck', () => {
       vibecheck_text: 'We got lost but found snacks',
     };
 
+    __mocks.insert.mockResolvedValueOnce({ error: null });
+
     await embedVibecheck(input);
 
     expect(classifyTheme).toHaveBeenCalledWith(input.vibecheck_text);
     expect(embedText).toHaveBeenCalledWith(input.vibecheck_text);
 
     expect(supabase.from).toHaveBeenCalledWith('vibecheck_embeddings');
-    expect(supabase.from().insert).toHaveBeenCalledWith(
+    expect(__mocks.insert).toHaveBeenCalledWith(
       expect.objectContaining({
         vibecheck_id: input.vibecheck_id,
         theme: 'funny',
@@ -42,7 +49,7 @@ describe('embedVibecheck', () => {
   });
 
   it('throws if supabase insert fails', async () => {
-    supabase.from().insert.mockResolvedValueOnce({
+    __mocks.insert.mockResolvedValueOnce({
       error: new Error('insert failed'),
     });
 

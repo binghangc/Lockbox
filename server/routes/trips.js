@@ -843,17 +843,15 @@ router.patch('/:id/vibecheck/:date', authMiddleware, async (req, res) => {
     updateQuery = updateQuery.eq('itinerary_id', itineraryId);
   }
   if (process.env.RUN_WORKERS) {
-    await Promise.all(
-      vibechecksQueue.add(
-        'embed-vibecheck',
-        {
-          vibecheck_id,
-          vibecheck_text: vibecheckText,
-          user_id: user.id,
-          trip_id: id,
-        },
-        { removeOnComplete: true },
-      ),
+    await vibechecksQueue.add(
+      'embed-vibecheck',
+      {
+        vibecheck_id,
+        vibecheck_text: vibecheckText,
+        user_id: user.id,
+        trip_id: id,
+      },
+      { removeOnComplete: true },
     );
   }
 
