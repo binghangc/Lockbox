@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react-native';
+import { renderHook, waitFor } from '@testing-library/react-native';
 import useAllTrips from '@/hooks/useAllTrips';
 import { useUser } from '@/context/UserContext';
 
@@ -7,18 +7,22 @@ jest.mock('@/context/UserContext', () => ({
   useUser: jest.fn(),
 }));
 
-global.fetch = vi.fn();
+jest.mock('@react-navigation/native', () => ({
+  useFocusEffect: jest.fn(),
+}));
+
+global.fetch = jest.fn();
 
 describe('useAllTrips', () => {
   const mockUser = { id: '123' };
   const mockTrips = [{ id: 't1', title: 'Trip 1' }];
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
 
     (useUser as jest.Mock).mockReturnValue({
       user: mockUser,
-      authenticatedFetch: vi.fn(() =>
+      authenticatedFetch: jest.fn(() =>
         Promise.resolve({
           ok: true,
           json: () => Promise.resolve(mockTrips),
@@ -28,12 +32,11 @@ describe('useAllTrips', () => {
   });
 
   it('fetches and sets trips', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useAllTrips());
-
-    await waitForNextUpdate();
-
-    expect(result.current.trips).toEqual(mockTrips);
-    expect(result.current.loading).toBe(false);
+    const { result } = renderHook(() => useAllTrips());
+    await waitFor(() => {
+      expect(result.current.trips).toEqual(mockTrips);
+      expect(result.current.loading).toBe(false);
+    });
   });
 
   it('handles no user', async () => {

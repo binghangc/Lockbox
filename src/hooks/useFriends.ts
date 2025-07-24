@@ -47,6 +47,8 @@ export default function useFriends(onCountUpdate?: (n: number) => void) {
   useEffect(() => {
     if (user) {
       listFriends();
+    } else {
+      setLoading(false);
     }
   }, [user, listFriends]);
 

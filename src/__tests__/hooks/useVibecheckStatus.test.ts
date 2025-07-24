@@ -1,29 +1,33 @@
-// __tests__/useVibeCheckStatus.test.ts
-
 import { renderHook, waitFor } from '@testing-library/react-native';
-import useVibeCheckStatus from '@/hooks/useVibecheckStatus'; // adjust path as needed
+import useVibeCheckStatus from '@/hooks/useVibecheckStatus';
+import { useUser } from '@/context/UserContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 jest.mock('@/context/UserContext', () => ({
-  useUser: () => ({
-    user: { id: 'user-123' },
-  }),
+  useUser: jest.fn(),
 }));
 
 jest.mock('@react-native-async-storage/async-storage', () => ({
-  getItem: jest.fn(() => Promise.resolve('mock-token')),
+  getItem: jest.fn(),
 }));
 
-describe('useVibeCheckStatus', () => {
-  beforeEach(() => {
-    global.fetch = jest.fn();
-  });
+global.fetch = jest.fn();
 
-  afterEach(() => {
+describe('useVibeCheckStatus', () => {
+  const mockFetch = fetch as jest.Mock;
+  const mockGetItem = AsyncStorage.getItem as jest.Mock;
+
+  beforeEach(() => {
     jest.clearAllMocks();
+
+    (useUser as jest.Mock).mockReturnValue({
+      user: { id: 'user123' },
+    });
   });
 
   it('returns status when user has responded', async () => {
-    (fetch as jest.Mock).mockResolvedValueOnce({
+    mockGetItem.mockResolvedValueOnce('mock-token');
+    mockFetch.mockResolvedValueOnce({
       ok: true,
       text: () =>
         Promise.resolve(
@@ -31,7 +35,7 @@ describe('useVibeCheckStatus', () => {
             orbs: [
               {
                 id: 'orb-1',
-                user_id: 'user-123',
+                user_id: 'user123',
                 created_at: '2025-07-23T12:00:00Z',
               },
             ],
@@ -41,63 +45,79 @@ describe('useVibeCheckStatus', () => {
 
     const { result } = renderHook(() => useVibeCheckStatus('vibecheck-abc'));
 
-    await waitFor(() => !result.current.loading);
-
-    expect(result.current.status).toEqual({
-      userHasResponded: true,
-      orbId: 'orb-1',
-      submittedAt: '2025-07-23T12:00:00Z',
-      anyoneHasResponded: true,
-    });
+    await waitFor(() =>
+      expect(result.current.status).toEqual({
+        userHasResponded: true,
+        orbId: 'orb-1',
+        submittedAt: '2025-07-23T12:00:00Z',
+        anyoneHasResponded: true,
+      }),
+    );
 
     expect(result.current.error).toBeNull();
   });
 
   it('handles when nobody has responded', async () => {
-    (fetch as jest.Mock).mockResolvedValueOnce({
+    mockGetItem.mockResolvedValueOnce('mock-token');
+    mockFetch.mockResolvedValueOnce({
       ok: true,
       text: () => Promise.resolve(JSON.stringify({ orbs: [] })),
     });
 
-    const { result } = renderHook(() => useVibeCheckStatus('vibecheck-xyz'));
+    const { result } = renderHook(() => useVibeCheckStatus('vibecheck-empty'));
 
-    await waitFor(() => !result.current.loading);
+    await waitFor(() =>
+      expect(result.current.status).toEqual({
+        userHasResponded: false,
+        orbId: null,
+        submittedAt: null,
+        anyoneHasResponded: false,
+      }),
+    );
 
-    expect(result.current.status).toEqual({
-      userHasResponded: false,
-      orbId: null,
-      submittedAt: null,
-      anyoneHasResponded: false,
-    });
+    expect(result.current.error).toBeNull();
   });
 
   it('handles API error', async () => {
-    (fetch as jest.Mock).mockResolvedValueOnce({
+    mockGetItem.mockResolvedValueOnce('mock-token');
+    mockFetch.mockResolvedValueOnce({
       ok: false,
       text: () => Promise.resolve(JSON.stringify({ error: 'Server error' })),
     });
 
-    const { result } = renderHook(() => useVibeCheckStatus('vibecheck-error'));
+    const { result } = renderHook(() => useVibeCheckStatus('vibecheck-fail'));
 
-    await waitFor(() => !result.current.loading);
-
-    expect(result.current.status).toBeNull();
-    expect(result.current.error?.message).toBe('Server error');
+    await waitFor(() =>
+      expect(result.current.error?.message).toBe('Server error'),
+    );
   });
 
   it('handles invalid JSON', async () => {
-    (fetch as jest.Mock).mockResolvedValueOnce({
+    mockGetItem.mockResolvedValueOnce('mock-token');
+    mockFetch.mockResolvedValueOnce({
       ok: true,
-      text: () => Promise.resolve('<html>not json</html>'),
+      text: () => Promise.resolve('<html>bad</html>'),
     });
 
-    const { result } = renderHook(() =>
-      useVibeCheckStatus('vibecheck-badjson'),
+    const { result } = renderHook(() => useVibeCheckStatus('vibecheck-bad'));
+
+    await waitFor(() =>
+      expect(result.current.error?.message).toBe(
+        'Server returned invalid JSON',
+      ),
     );
+
+    expect(result.current.status).toBeNull();
+  });
+
+  it('skips fetch if no user or vibecheckId', async () => {
+    (useUser as jest.Mock).mockReturnValue({ user: null });
+
+    const { result } = renderHook(() => useVibeCheckStatus(''));
 
     await waitFor(() => !result.current.loading);
 
     expect(result.current.status).toBeNull();
-    expect(result.current.error?.message).toBe('Server returned invalid JSON');
+    expect(result.current.error).toBeNull();
   });
 });

@@ -1,5 +1,5 @@
-import usePinTrip from '@/hooks/usePinTrip';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import usePinTrip from '../../hooks/usePinTrip';
 
 global.fetch = jest.fn();
 

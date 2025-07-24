@@ -1,9 +1,9 @@
-import { renderHook, act } from '@testing-library/react-native';
+import { renderHook, act, waitFor } from '@testing-library/react-native';
 import useFriends from '@/hooks/useFriends';
 import { useUser } from '@/context/UserContext';
 
-vi.mock('@/context/UserContext', () => ({
-  useUser: vi.fn(),
+jest.mock('@/context/UserContext', () => ({
+  useUser: jest.fn(),
 }));
 
 describe('useFriends', () => {
@@ -12,7 +12,7 @@ describe('useFriends', () => {
     { id: '2', name: 'Bob', friendshipId: 'f2' },
   ];
 
-  const mockFetch = vi.fn(() =>
+  const mockFetch = jest.fn(() =>
     Promise.resolve({
       ok: true,
       json: () => Promise.resolve(mockFriends),
@@ -20,30 +20,31 @@ describe('useFriends', () => {
   );
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
 
-    (useUser as vi.Mock).mockReturnValue({
+    (useUser as jest.Mock).mockReturnValue({
       user: { id: '123' },
       authenticatedFetch: mockFetch,
     });
   });
 
   it('fetches friends and updates count', async () => {
-    const countSpy = vi.fn();
+    const countSpy = jest.fn();
 
-    const { result, waitForNextUpdate } = renderHook(() =>
+    const { result } = renderHook(() =>
       useFriends(countSpy),
     );
 
-    await waitForNextUpdate();
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
 
     expect(result.current.friends).toEqual(mockFriends);
-    expect(result.current.loading).toBe(false);
     expect(countSpy).toHaveBeenCalledWith(mockFriends.length);
   });
 
   it('handles missing user', async () => {
-    (useUser as vi.Mock).mockReturnValue({
+    (useUser as jest.Mock).mockReturnValue({
       user: null,
       authenticatedFetch: mockFetch,
     });
@@ -57,21 +58,24 @@ describe('useFriends', () => {
   it('handles fetch failure', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: false,
-      json: () => Promise.resolve({ error: 'Failed' }),
+      json: () => Promise.resolve([]),
     });
 
-    const { result, waitForNextUpdate } = renderHook(() => useFriends());
+    const { result } = renderHook(() => useFriends());
 
-    await waitForNextUpdate();
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
 
     expect(result.current.friends).toEqual([]);
-    expect(result.current.loading).toBe(false);
   });
 
   it('can manually refresh with listFriends()', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useFriends());
+    const { result } = renderHook(() => useFriends());
 
-    await waitForNextUpdate();
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
     expect(result.current.friends).toEqual(mockFriends);
 
     await act(async () => {

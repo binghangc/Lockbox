@@ -1,15 +1,17 @@
-import { renderHook, act } from '@testing-library/react-native';
+import { renderHook, act, waitFor } from '@testing-library/react-native';
 import useFriendSearch from '@/hooks/useFriendSearch';
 import { useUser } from '@/context/UserContext';
 
-jest.mock('@/context/UserContext');
+jest.mock('@/context/UserContext', () => ({
+  useUser: jest.fn(),
+}));
 
 const mockFetch = jest.fn();
 
 describe('useFriendSearch', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    useUser.mockReturnValue({
+    (useUser as jest.Mock).mockReturnValue({
       user: { id: 'user-123' },
       authenticatedFetch: mockFetch,
     });
@@ -32,19 +34,17 @@ describe('useFriendSearch', () => {
       json: async () => [{ id: 'u1', username: 'foo', status: 'none' }],
     });
 
-    const { result, waitForNextUpdate } = renderHook(() =>
-      useFriendSearch('user-123'),
-    );
+    const { result } = renderHook(() => useFriendSearch('user-123'));
 
     await act(async () => {
       await result.current.handleQueryChange('foo');
-      await waitForNextUpdate();
     });
 
-    expect(mockFetch).toHaveBeenCalled();
-    expect(result.current.results).toEqual([
-      { id: 'u1', username: 'foo', status: 'none' },
-    ]);
+    await waitFor(() => {
+      expect(result.current.results).toEqual([
+        { id: 'u1', username: 'foo', status: 'none' },
+      ]);
+    });
   });
 
   it('should send friend request and update status', async () => {
@@ -60,13 +60,14 @@ describe('useFriendSearch', () => {
         json: async () => ({ success: true }),
       });
 
-    const { result, waitForNextUpdate } = renderHook(() =>
-      useFriendSearch('user-123'),
-    );
+    const { result } = renderHook(() => useFriendSearch('user-123'));
 
     await act(async () => {
       await result.current.handleQueryChange('bar');
-      await waitForNextUpdate();
+    });
+
+    await waitFor(() => {
+      expect(result.current.results.length).toBe(1);
     });
 
     await act(async () => {
@@ -84,13 +85,14 @@ describe('useFriendSearch', () => {
       json: async () => ({ error: 'fail' }),
     });
 
-    const { result, waitForNextUpdate } = renderHook(() =>
-      useFriendSearch('user-123'),
-    );
+    const { result } = renderHook(() => useFriendSearch('user-123'));
 
     await act(async () => {
       await result.current.handleQueryChange('fail');
-      await waitForNextUpdate();
+    });
+
+    await waitFor(() => {
+      expect(result.current.results).toEqual([]);
     });
 
     expect(result.current.results).toEqual([]);

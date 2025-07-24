@@ -1,9 +1,9 @@
-import { renderHook } from '@testing-library/react-native';
+import { renderHook, waitFor } from '@testing-library/react-native';
 import useOrbsByVibecheck from '@/hooks/useOrbsByVibecheck';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// @ts-expect-error: Assigning jest.fn() to global.fetch for mocking in tests
-global.fetch = jest.fn();
+const mockFetch = jest.fn();
+global.fetch = mockFetch as unknown as typeof fetch;
 
 const mockToken = 'mock_token';
 const mockVibecheckId = 'vibecheck_123';
@@ -32,36 +32,30 @@ describe('useOrbsByVibecheck', () => {
 
   it('fetches orbs and sets them correctly', async () => {
     AsyncStorage.getItem = jest.fn().mockResolvedValue(mockToken);
-    fetch.mockResolvedValue({
+    mockFetch.mockResolvedValue({
       ok: true,
       text: () => Promise.resolve(JSON.stringify(mockResponse)),
     });
 
-    const { result, waitForNextUpdate } = renderHook(() =>
-      useOrbsByVibecheck(mockVibecheckId),
-    );
+    const { result } = renderHook(() => useOrbsByVibecheck(mockVibecheckId));
 
-    await waitForNextUpdate();
+    await waitFor(() => expect(result.current.loading).toBe(false));
 
-    expect(result.current.loading).toBe(false);
     expect(result.current.orbs).toHaveLength(1);
     expect(result.current.orbs[0].id).toBe('orb_1');
   });
 
   it('handles malformed JSON response gracefully', async () => {
     AsyncStorage.getItem = jest.fn().mockResolvedValue(mockToken);
-    fetch.mockResolvedValue({
+    mockFetch.mockResolvedValue({
       ok: true,
       text: () => Promise.resolve('<html>this is not JSON</html>'),
     });
 
-    const { result, waitForNextUpdate } = renderHook(() =>
-      useOrbsByVibecheck(mockVibecheckId),
-    );
+    const { result } = renderHook(() => useOrbsByVibecheck(mockVibecheckId));
 
-    await waitForNextUpdate();
+    await waitFor(() => expect(result.current.loading).toBe(false));
 
-    expect(result.current.loading).toBe(false);
     expect(result.current.orbs).toEqual([]);
   });
 

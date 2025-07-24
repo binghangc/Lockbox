@@ -1,8 +1,10 @@
-import { renderHook, act } from '@testing-library/react-native';
+import { renderHook, act, waitFor } from '@testing-library/react-native';
 import useItineraries from '@/hooks/useItineraries';
 import { useUser } from '@/context/UserContext';
 
-jest.mock('@/context/UserContext');
+jest.mock('@/context/UserContext', () => ({
+  useUser: jest.fn(),
+}));
 
 const mockFetch = jest.fn();
 
@@ -15,7 +17,7 @@ const sampleResponse = [
 describe('useItineraries', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    useUser.mockReturnValue({
+    (useUser as jest.Mock).mockReturnValue({
       user: { id: 'user-1' },
       authenticatedFetch: mockFetch,
     });
@@ -27,15 +29,14 @@ describe('useItineraries', () => {
       json: async () => sampleResponse,
     });
 
-    const { result, waitForNextUpdate } = renderHook(() =>
-      useItineraries('trip-1', tripDays),
-    );
+    const { result } = renderHook(() => useItineraries('trip-1', tripDays));
 
-    await waitForNextUpdate();
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
 
     expect(result.current.dailyPlans).toEqual(['Visit Zermatt', '']);
     expect(result.current.isEditing).toBe(true);
-    expect(result.current.loading).toBe(false);
     expect(result.current.hasItinerary).toBe(true);
   });
 
@@ -50,10 +51,11 @@ describe('useItineraries', () => {
         json: async () => ({ success: true }),
       });
 
-    const { result, waitForNextUpdate } = renderHook(() =>
-      useItineraries('trip-1', tripDays),
-    );
-    await waitForNextUpdate();
+    const { result } = renderHook(() => useItineraries('trip-1', tripDays));
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
 
     const onSuccess = jest.fn();
     await act(async () => {
@@ -65,12 +67,21 @@ describe('useItineraries', () => {
   });
 
   it('handles submitItinerary error', async () => {
-    mockFetch.mockResolvedValueOnce({
-      ok: false,
-      json: async () => ({ error: 'Submit error' }),
-    });
+    mockFetch
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => sampleResponse,
+      })
+      .mockResolvedValueOnce({
+        ok: false,
+        json: async () => ({ error: 'Submit error' }),
+      });
 
     const { result } = renderHook(() => useItineraries('trip-1', tripDays));
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
 
     const onError = jest.fn();
     await act(async () => {
