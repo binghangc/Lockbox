@@ -1,0 +1,72 @@
+appId: com.locked-in.lockbox
+---
+- launchApp
+
+# Press create trip button
+- tapOn:
+    point: "50%,95%"
+
+# Fill in trip title
+- tapOn: "untitled trip"
+- inputText: "Test Trip Maestro"
+
+# Open date picker
+- tapOn: "Select dates"
+# Tap on today's date (assume today is 24)
+- tapOn: "24"
+# Tap on end date (assume 26)
+- tapOn: "26"
+# Close modal
+- swipe:
+    direction: down
+    start: "50%,20%"
+    end: "50%,80%"
+    duration: 300
+
+
+# Open country picker modal
+- tapOn: "Location"
+- tapOn: "Search"
+- inputText: "swit"
+- tapOn: "Switzerland"
+- tapOn: "Confirm"            
+
+# Open thumbnail picker
+- tapOn:
+    point: "50%,40%"
+- scroll
+- tapOn:
+    point: "30%,40%" 
+- tapOn: "Confirm"
+
+# Fill description
+- tapOn: "Description"
+- inputText: "Maestro test trip with fake data"
+
+# Select tags
+- tapOn: "Nature"
+- tapOn: "Adventure"
+
+# Submit trip
+- tapOn: "Create trip"
+- assertVisible: "Almost there!"
+- tapOn: "OK"
+
+# Fill in itinerary for today
+- tapOn: "What's the plan for today?"
+- inputText: "Hiking in the mountains"
+- tapOn: "Next"
+
+# Day 2
+- tapOn: "What's the plan for today?"
+- inputText: "Lake visit"
+- tapOn: "Next"
+
+# Day 3
+- tapOn: "What's the plan for today?"
+- inputText: "Relax and pack"
+- tapOn: "Submit itinerary"
+
+# Final alert
+- assertVisible: "Trip created successfully"
+- tapOn: "OK"

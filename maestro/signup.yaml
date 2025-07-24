@@ -1,0 +1,17 @@
+appId: com.locked-in.lockbox
+---
+- launchApp
+
+- tapOn: "Sign Up"
+
+- tapOn: "Email"
+- inputText: "newuser@email.com"
+
+- tapOn: "Username"
+- inputText: "lockboxnoob"
+
+- tapOn: "Password"
+- inputText: "Lockbox123!"
+
+- tapOn: "Sign Up"
+- assertVisible: "Almost there!"
