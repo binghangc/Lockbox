@@ -1,4 +1,4 @@
-name: Node.js Backend Tests
+name: Node.js Backend and Frontend Tests
 
 on:
   push:
@@ -7,8 +7,8 @@ on:
     branches: [dev, prod]
 
 jobs:
-  test:
-    name: Server Tests
+  backend:
+    name: Backend Tests
     runs-on: ubuntu-latest
     services:
       redis:
@@ -46,3 +46,31 @@ jobs:
         run: npm test
         env:
           NODE_ENV: test
+
+  frontend:
+    name: Frontend Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: .
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Create .env file
+        run: |
+          echo "EXPO_PUBLIC_SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> .env
+          echo "EXPO_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> .env
+          echo "EXPO_PUBLIC_API_URL=http://localhost:3000" >> .env
+          echo "EXPO_PUBLIC_REDIRECT_URL=http://localhost:8081/--/auth/callback" >> .env
+
+      - name: Install frontend dependencies
+        run: npm install
+
+      - name: Run frontend tests
+        run: npm run test:frontend
