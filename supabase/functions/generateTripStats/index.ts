@@ -27,7 +27,7 @@ serve(async (req) => {
   const { data: trips, error: tripError } = await supabase
     .from('trips')
     .select('id')
-//    .eq('end_date', today);
+    .eq('end_date', today);
 
   if (tripError || !trips?.length) {
     return new Response('No ending trips found', { status: 200 });
