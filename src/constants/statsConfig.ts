@@ -28,7 +28,7 @@ export const THEME_CONFIG: Record<
     description: 'Moments that made you burst out laughing.',
   },
   emotional: {
-    emoji: '🥲',
+    emoji: '🥺',
     label: 'Emotional',
     description: 'Heartfelt or tearjerking vibes.',
   },
