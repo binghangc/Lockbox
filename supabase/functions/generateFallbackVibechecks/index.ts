@@ -132,7 +132,7 @@ serve(async (_req) => {
     // 1. Get active trips
     const { data: trips, error: tripErr } = await supabase
       .from('trips')
-      .select('id, status')
+      .select('id, status, user_id')
       .eq('status', 'ongoing');
 
     if (tripErr) {
@@ -173,7 +173,9 @@ serve(async (_req) => {
           .insert({
             trip_id: trip.id,
             date: localDate,
+            theme: fallback.theme,
             vibecheck: fallback.vibecheck,
+            user_id: trip.user_id,
             created_at: new Date().toISOString(),
           })
           .select()

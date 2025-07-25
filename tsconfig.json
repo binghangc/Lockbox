@@ -6,7 +6,8 @@
     "paths": {
       "@/*": ["src/*"]
     },
-    "jsxImportSource": "nativewind"
+    "jsxImportSource": "nativewind",
+    "types": ["jest"]
   },
   "include": [
     "src",
@@ -18,12 +19,13 @@
     "nativewind-env.d.ts",
     "custom.d.ts",
     "app.config.js",
+    "jest.config.js",
+    "jest.setup.js"
   ],
   "exclude": [
     "supabase/functions",
     "babel.config.js",
     "node_modules",
-    "metro.config.js",
-    "jest.config.js"
+    "metro.config.js"
   ]
 }

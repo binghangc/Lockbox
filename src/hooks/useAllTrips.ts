@@ -44,7 +44,11 @@ export default function useAllTrips() {
   );
 
   useEffect(() => {
-    if (user) fetchTrips();
+    if (user) {
+      fetchTrips();
+    } else {
+      setLoading(false);
+    }
   }, [user, fetchTrips]);
 
   return { trips, loading, refreshTrips: fetchTrips, setTrips };

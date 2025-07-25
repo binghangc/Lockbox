@@ -842,18 +842,25 @@ router.patch('/:id/vibecheck/:date', authMiddleware, async (req, res) => {
   if (itineraryId) {
     updateQuery = updateQuery.eq('itinerary_id', itineraryId);
   }
+
+  await supabase
+    .from('vibecheck_embeddings')
+    .delete()
+    .eq('id', vibecheck_id)
+    .then(({ error }) => {
+      if (error) console.warn('Failed to delete old embedding:', error.message);
+    });
+
   if (process.env.RUN_WORKERS) {
-    await Promise.all(
-      vibechecksQueue.add(
-        'embed-vibecheck',
-        {
-          vibecheck_id,
-          vibecheck_text: vibecheckText,
-          user_id: user.id,
-          trip_id: id,
-        },
-        { removeOnComplete: true },
-      ),
+    await vibechecksQueue.add(
+      'embed-vibecheck',
+      {
+        vibecheck_id,
+        vibecheck_text: vibecheckText,
+        user_id: user.id,
+        trip_id: id,
+      },
+      { removeOnComplete: true },
     );
   }
 

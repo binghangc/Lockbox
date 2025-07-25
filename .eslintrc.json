@@ -79,9 +79,17 @@
   "overrides": [
     {
       "files": ["**/__tests__/**/*.js", "**/*.test.js", "**/*.test.ts"],
+      "rules": {
+        "global-require": "off",
+        "node/no-extraneous-import": "off",
+        "node/no-unpublished-import": "off"
+      },
       "env": {
         "jest": true
       }
     }
-  ]
+  ],
+  "globals": {
+    "jest": true
+  }
 }

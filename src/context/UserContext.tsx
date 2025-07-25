@@ -20,8 +20,16 @@ type UserContextType = {
   deleting: boolean;
   setDeleting: React.Dispatch<React.SetStateAction<boolean>>;
   authenticatedFetch: (url: string, options?: RequestInit) => Promise<Response>;
-  updateEmail: (newEmail: string) => Promise<void>;
-  updatePassword: (newPassword: string) => Promise<void>;
+  updateEmail: (newEmail: string) => Promise<{
+    success: boolean;
+    message: string;
+    email_change?: string | null;
+  }>;
+  updatePassword: (
+    currentPassword: string,
+    newPassword: string,
+    confirmPassword: string,
+  ) => Promise<void>;
 };
 
 export const UserContext = createContext<UserContextType | null>(null);

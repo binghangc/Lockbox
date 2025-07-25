@@ -1,5 +1,12 @@
 import React, { useRef } from 'react';
-import { StyleSheet, TouchableOpacity, Alert, View, Text } from 'react-native';
+import {
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+  View,
+  Text,
+  Platform,
+} from 'react-native';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 
 import Octicons from '@expo/vector-icons/Octicons';
@@ -20,9 +27,11 @@ import getTripDays from '@/utils/date';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
+dayjs.extend(isSameOrAfter);
 
 type TripLayoutInnerProps = {
   tripId: string;
@@ -119,14 +128,23 @@ function TripLayoutInner({
               onPress={() => navigation.goBack()}
               style={{
                 marginLeft: 12,
-                marginTop: insets.top + 4,
+                marginTop:
+                  Platform.OS === 'android' ? insets.top + 4 : undefined,
                 width: 44,
                 height: 44,
                 borderRadius: 22,
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
-              hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
+              hitSlop={{
+                top:
+                  Platform.OS === 'android'
+                    ? Math.max(0, 15 - insets.top - 4)
+                    : 15,
+                bottom: 20,
+                left: 15,
+                right: 15,
+              }}
             >
               <Octicons
                 name="chevron-left"
@@ -140,14 +158,23 @@ function TripLayoutInner({
               onPress={() => modalRef.current?.open()}
               style={{
                 marginRight: 12,
-                marginTop: insets.top + 4,
+                marginTop:
+                  Platform.OS === 'android' ? insets.top + 4 : undefined,
                 width: 44,
                 height: 44,
                 borderRadius: 22,
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
-              hitSlop={{ top: 15, bottom: 20, left: 15, right: 15 }}
+              hitSlop={{
+                top:
+                  Platform.OS === 'android'
+                    ? Math.max(0, 15 - insets.top - 4)
+                    : 15,
+                bottom: 20,
+                left: 15,
+                right: 15,
+              }}
             >
               <MaterialCommunityIcons
                 name="dots-horizontal"
@@ -166,10 +193,10 @@ function TripLayoutInner({
             headerTitle: () => (
               <Text
                 style={{
-                  marginTop: insets.top + 4,
+                  marginTop:
+                    Platform.OS === 'android' ? insets.top + 4 : undefined,
                   fontSize: 18,
                   fontWeight: '600',
-                  color: tintColor,
                 }}
               >
                 Trip Itinerary
@@ -189,14 +216,23 @@ function TripLayoutInner({
                   onPress={() => router.back()}
                   style={{
                     marginLeft: 12,
-                    marginTop: insets.top + 4,
+                    marginTop:
+                      Platform.OS === 'android' ? insets.top + 4 : undefined,
                     width: 44,
                     height: 44,
                     borderRadius: 22,
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}
-                  hitSlop={{ top: 15, bottom: 20, left: 15, right: 15 }}
+                  hitSlop={{
+                    top:
+                      Platform.OS === 'android'
+                        ? Math.max(0, 15 - insets.top - 4)
+                        : 15,
+                    bottom: 20,
+                    left: 15,
+                    right: 15,
+                  }}
                 >
                   <Octicons name="chevron-left" size={28} color={tintColor} />
                 </TouchableOpacity>
@@ -211,10 +247,10 @@ function TripLayoutInner({
             headerTitle: () => (
               <Text
                 style={{
-                  marginTop: insets.top + 4,
+                  marginTop:
+                    Platform.OS === 'android' ? insets.top + 4 : undefined,
                   fontSize: 18,
                   fontWeight: '600',
-                  color: tintColor,
                 }}
               >
                 Vault
@@ -234,10 +270,10 @@ function TripLayoutInner({
             headerTitle: () => (
               <Text
                 style={{
-                  marginTop: insets.top + 4,
+                  marginTop:
+                    Platform.OS === 'android' ? insets.top + 4 : undefined,
                   fontSize: 18,
                   fontWeight: '600',
-                  color: tintColor,
                 }}
               >
                 Participants
@@ -257,10 +293,10 @@ function TripLayoutInner({
             headerTitle: () => (
               <Text
                 style={{
-                  marginTop: insets.top + 4,
+                  marginTop:
+                    Platform.OS === 'android' ? insets.top + 4 : undefined,
                   fontSize: 18,
                   fontWeight: '600',
-                  color: tintColor,
                 }}
               >
                 Invite
