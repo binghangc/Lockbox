@@ -39,6 +39,7 @@ jobs:
           echo "GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }}" >> .env.server
           echo "REDIS_URL"=${{ secrets.REDIS_URL }} >> .env.server
           echo "R2_BASE_URL=${{ secrets.R2_BASE_URL }}" >> .env.server
+          echo "RUN_WORKERS=true" >> .env.server
 
       - name: Install dependencies
         run: npm install

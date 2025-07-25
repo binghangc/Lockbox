@@ -1,15 +1,3 @@
-const request = require('supertest');
-const path = require('path');
-const fs = require('fs');
-const app = require('../../app.js');
-const r2 = require('../../utils/r2client.js');
-const encodeToHLS = require('../../encoder.js');
-const deleteTestUsers = require('../../utils/test/deleteTestUsers.js');
-const createTestUser = require('../../utils/test/createTestUser.js');
-const { itineraryQueue, vibechecksQueue } = require('../../queue.js');
-
-const EMAIL_PREFIXES = ['submit_itinerary'];
-
 jest.mock('../../rag/utils/generateVibeCheck.js', () => {
   let counter = 1;
   return {
@@ -65,6 +53,18 @@ jest.mock('../../queue.js', () => ({
     add: jest.fn().mockResolvedValue(undefined),
   },
 }));
+
+const request = require('supertest');
+const path = require('path');
+const fs = require('fs');
+const { itineraryQueue, vibechecksQueue } = require('../../queue.js');
+const app = require('../../app.js');
+const r2 = require('../../utils/r2client.js');
+const encodeToHLS = require('../../encoder.js');
+const deleteTestUsers = require('../../utils/test/deleteTestUsers.js');
+const createTestUser = require('../../utils/test/createTestUser.js');
+
+const EMAIL_PREFIXES = ['submit_itinerary'];
 
 // Submit Itinerary Flow
 describe('Itinerary + Vibecheck Flow', () => {
@@ -187,12 +187,14 @@ describe('Itinerary + Vibecheck Flow', () => {
     expect(vibeRes.body.vibecheck).toBeDefined();
     expect(typeof vibeRes.body.vibecheck).toBe('string');
 
-    expect(itineraryQueue.add).toHaveBeenCalled();
-    expect(vibechecksQueue.add).toHaveBeenCalledWith(
-      'embed-vibecheck',
-      expect.objectContaining({ text: expect.any(String) }),
-      expect.any(Object),
-    );
+    if (process.env.RUN_WORKERS === 'true') {
+      expect(itineraryQueue.add).toHaveBeenCalled();
+      expect(vibechecksQueue.add).toHaveBeenCalledWith(
+        'embed-vibecheck',
+        expect.objectContaining({ vibecheck_text: expect.any(String) }),
+        expect.any(Object),
+      );
+    }
   });
 
   it('should return itineraries for valid trip and token', async () => {

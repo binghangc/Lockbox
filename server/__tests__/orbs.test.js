@@ -1,12 +1,3 @@
-const request = require('supertest');
-const path = require('path');
-const fs = require('fs');
-const app = require('../app.js');
-const supabase = require('../utils/supabaseAdminClient.js');
-const r2 = require('../utils/r2client.js');
-const encodeToHLS = require('../encoder.js');
-const { getDownloadUrl } = require('../utils/r2SignedUrl.js');
-
 jest.mock('../utils/r2SignedUrl.js', () => ({
   getDownloadUrl: jest.fn(),
 }));
@@ -36,6 +27,15 @@ jest.mock('fs', () => {
     existsSync: jest.fn().mockReturnValue(true),
   };
 });
+
+const request = require('supertest');
+const path = require('path');
+const fs = require('fs');
+const app = require('../app.js');
+const supabase = require('../utils/supabaseAdminClient.js');
+const r2 = require('../utils/r2client.js');
+const encodeToHLS = require('../encoder.js');
+const { getDownloadUrl } = require('../utils/r2SignedUrl.js');
 
 describe('GET /vibecheck/:id/status', () => {
   beforeEach(() => {

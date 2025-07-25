@@ -24,11 +24,6 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Rebuild google-services.json
-        env:
-          DATA: ${{ secrets.GOOGLE_SERVICES_JSON }}
-        run: echo $DATA | base64 --decode > android/app/google-services.json
-
       - name: Trigger EAS Build (production APK)
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}

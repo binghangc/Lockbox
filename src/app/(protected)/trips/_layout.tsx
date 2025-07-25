@@ -1,10 +1,18 @@
 import React, { useRef } from 'react';
-import { StyleSheet, TouchableOpacity, Alert, View } from 'react-native';
+import {
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+  View,
+  Text,
+  Platform,
+} from 'react-native';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 
 import Octicons from '@expo/vector-icons/Octicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { Modalize } from 'react-native-modalize';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import InviteFriendsModal from '@/components/invites/inviteFriendsModal';
 import TripControllerModal from '@/components/tripControllerModal';
@@ -19,9 +27,11 @@ import getTripDays from '@/utils/date';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
+dayjs.extend(isSameOrAfter);
 
 type TripLayoutInnerProps = {
   tripId: string;
@@ -54,6 +64,7 @@ function TripLayoutInner({
 }: TripLayoutInnerProps) {
   const theme = useTripTheme();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   const onEdit = () => {
     router.push(`/tripForm?mode=edit&tripId=${tripId}`);
@@ -117,13 +128,23 @@ function TripLayoutInner({
               onPress={() => navigation.goBack()}
               style={{
                 marginLeft: 12,
+                marginTop:
+                  Platform.OS === 'android' ? insets.top + 4 : undefined,
                 width: 44,
                 height: 44,
                 borderRadius: 22,
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
-              hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
+              hitSlop={{
+                top:
+                  Platform.OS === 'android'
+                    ? Math.max(0, 15 - insets.top - 4)
+                    : 15,
+                bottom: 20,
+                left: 15,
+                right: 15,
+              }}
             >
               <Octicons
                 name="chevron-left"
@@ -137,13 +158,23 @@ function TripLayoutInner({
               onPress={() => modalRef.current?.open()}
               style={{
                 marginRight: 12,
+                marginTop:
+                  Platform.OS === 'android' ? insets.top + 4 : undefined,
                 width: 44,
                 height: 44,
                 borderRadius: 22,
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
-              hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
+              hitSlop={{
+                top:
+                  Platform.OS === 'android'
+                    ? Math.max(0, 15 - insets.top - 4)
+                    : 15,
+                bottom: 20,
+                left: 15,
+                right: 15,
+              }}
             >
               <MaterialCommunityIcons
                 name="dots-horizontal"
@@ -159,6 +190,18 @@ function TripLayoutInner({
           options={{
             presentation: 'modal',
             title: 'Trip Itinerary',
+            headerTitle: () => (
+              <Text
+                style={{
+                  marginTop:
+                    Platform.OS === 'android' ? insets.top + 4 : undefined,
+                  fontSize: 18,
+                  fontWeight: '600',
+                }}
+              >
+                Trip Itinerary
+              </Text>
+            ),
             animation: 'slide_from_bottom',
             gestureEnabled: !isDisabled,
             headerShown: true,
@@ -173,13 +216,23 @@ function TripLayoutInner({
                   onPress={() => router.back()}
                   style={{
                     marginLeft: 12,
+                    marginTop:
+                      Platform.OS === 'android' ? insets.top + 4 : undefined,
                     width: 44,
                     height: 44,
                     borderRadius: 22,
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}
-                  hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
+                  hitSlop={{
+                    top:
+                      Platform.OS === 'android'
+                        ? Math.max(0, 15 - insets.top - 4)
+                        : 15,
+                    bottom: 20,
+                    left: 15,
+                    right: 15,
+                  }}
                 >
                   <Octicons name="chevron-left" size={28} color={tintColor} />
                 </TouchableOpacity>
@@ -191,6 +244,18 @@ function TripLayoutInner({
           name="[tripId]/vault"
           options={{
             title: 'Vault',
+            headerTitle: () => (
+              <Text
+                style={{
+                  marginTop:
+                    Platform.OS === 'android' ? insets.top + 4 : undefined,
+                  fontSize: 18,
+                  fontWeight: '600',
+                }}
+              >
+                Vault
+              </Text>
+            ),
             animation: 'default',
             gestureEnabled: true,
             contentStyle: {
@@ -202,6 +267,18 @@ function TripLayoutInner({
           name="[tripId]/participants"
           options={{
             title: 'Participants',
+            headerTitle: () => (
+              <Text
+                style={{
+                  marginTop:
+                    Platform.OS === 'android' ? insets.top + 4 : undefined,
+                  fontSize: 18,
+                  fontWeight: '600',
+                }}
+              >
+                Participants
+              </Text>
+            ),
             animation: 'default',
             gestureEnabled: true,
             contentStyle: {
@@ -213,6 +290,18 @@ function TripLayoutInner({
           name="[tripId]/sendInvites"
           options={{
             title: 'Invite',
+            headerTitle: () => (
+              <Text
+                style={{
+                  marginTop:
+                    Platform.OS === 'android' ? insets.top + 4 : undefined,
+                  fontSize: 18,
+                  fontWeight: '600',
+                }}
+              >
+                Invite
+              </Text>
+            ),
             animation: 'default',
             gestureEnabled: true,
             contentStyle: {

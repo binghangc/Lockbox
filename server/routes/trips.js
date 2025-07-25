@@ -642,35 +642,38 @@ router.post('/:id/submit-itinerary', authMiddleware, async (req, res) => {
     if (vibeInsertError) throw vibeInsertError;
 
     // Step 4: Queue itinerary embeddings
-    await Promise.all(
-      inserted.map((entry) =>
-        itineraryQueue.add(
-          'embed-itinerary',
-          {
-            itinerary: entry.itinerary,
-            itinerary_id: entry.id,
-            trip_id: trip.id,
-            country: trip.country,
-          },
-          { removeOnComplete: true },
+    if (process.env.RUN_WORKERS) {
+      await Promise.all(
+        inserted.map((entry) =>
+          itineraryQueue.add(
+            'embed-itinerary',
+            {
+              itinerary: entry.itinerary,
+              itinerary_id: entry.id,
+              trip_id: trip.id,
+              country: trip.country,
+            },
+            { removeOnComplete: true },
+          ),
         ),
-      ),
-    );
+      );
 
-    // Step 5: Queue vibecheck embeddings
-    await Promise.all(
-      insertedVibechecks.map((vc) =>
-        vibechecksQueue.add(
-          'embed-vibecheck',
-          {
-            vibecheck_id: vc.id,
-            text: vc.vibecheck,
-            user_id: trip.user_id,
-          },
-          { removeOnComplete: true },
+      // Step 5: Queue vibecheck embeddings
+      await Promise.all(
+        insertedVibechecks.map((vc) =>
+          vibechecksQueue.add(
+            'embed-vibecheck',
+            {
+              vibecheck_id: vc.id,
+              vibecheck_text: vc.vibecheck,
+              user_id: trip.user_id,
+              trip_id: trip.id,
+            },
+            { removeOnComplete: true },
+          ),
         ),
-      ),
-    );
+      );
+    }
 
     console.log('[submit-itinerary] Queued vibechecks:', insertedVibechecks);
 
@@ -776,6 +779,7 @@ router.get('/:id/vibecheck/:date', authMiddleware, async (req, res) => {
 router.patch('/:id/vibecheck/:date', authMiddleware, async (req, res) => {
   const { id, date } = req.params;
   const { vibecheck_id } = req.body;
+  const { user } = req;
 
   if (!vibecheck_id) {
     return res.status(400).json({ error: 'Missing vibecheck_id in body.' });
@@ -837,6 +841,27 @@ router.patch('/:id/vibecheck/:date', authMiddleware, async (req, res) => {
 
   if (itineraryId) {
     updateQuery = updateQuery.eq('itinerary_id', itineraryId);
+  }
+
+  await supabase
+    .from('vibecheck_embeddings')
+    .delete()
+    .eq('id', vibecheck_id)
+    .then(({ error }) => {
+      if (error) console.warn('Failed to delete old embedding:', error.message);
+    });
+
+  if (process.env.RUN_WORKERS) {
+    await vibechecksQueue.add(
+      'embed-vibecheck',
+      {
+        vibecheck_id,
+        vibecheck_text: vibecheckText,
+        user_id: user.id,
+        trip_id: id,
+      },
+      { removeOnComplete: true },
+    );
   }
 
   const { error } = await updateQuery;

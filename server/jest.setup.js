@@ -1,4 +1,3 @@
-/* global jest */
 require('dotenv').config({ path: '.env.server' });
 
 jest.setTimeout(30000);
