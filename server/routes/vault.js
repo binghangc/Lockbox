@@ -13,12 +13,6 @@ const supabase = createClient(
 
 const router = express.Router();
 
-// Serve static fallback images
-router.use(
-  '/vault-card/fallbacks',
-  express.static(path.join(__dirname, '../vault-card/fallbacks')),
-);
-
 // S3 client (adjust region/endpoint if needed)
 const s3 = new S3Client({
   region: 'auto',
