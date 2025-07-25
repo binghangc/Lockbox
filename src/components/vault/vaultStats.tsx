@@ -204,44 +204,44 @@ export default function VaultStats({ stats, trip, onLayoutFinished }: Props) {
           Vibe Clusters
         </Text>
         <View className="gap-4">
-          {Object.entries(stats.vibe_clusters).map(([clusterName]) => {
-            const config = VIBE_CLUSTER_CONFIG[clusterName] ?? {
-              emoji: '🌀',
-              tagline: 'Undefined vibes, but definitely something.',
-              glowColor: '#a1a1aa',
-            };
+          {Array.isArray(stats.vibe_clusters) &&
+            stats.vibe_clusters.map((clusterName, _) => {
+              const config = VIBE_CLUSTER_CONFIG[clusterName] ?? {
+                emoji: '🌀',
+                tagline: 'Undefined vibes, but definitely something.',
+                glowColor: '#a1a1aa',
+              };
 
-            return (
-              <View
-                key={clusterName}
-                className="w-full mb-4"
-                style={{
-                  shadowColor: config.glowColor,
-                  shadowOffset: { width: 0, height: 0 },
-                  shadowOpacity: 0.9,
-                  shadowRadius: 12,
-                  backgroundColor: 'rgba(255,255,255,0.05)',
-                  borderRadius: 16,
-                  paddingVertical: 12,
-                  paddingHorizontal: 16,
-                  elevation: 12,
-                }}
-              >
-                <Text
-                  className="text-xl font-bold mb-1"
-                  style={{ color: theme.secondaryText }}
+              return (
+                <View
+                  key={clusterName}
+                  className="w-full mb-4"
+                  style={{
+                    shadowColor: config.glowColor,
+                    shadowOffset: { width: 0, height: 0 },
+                    shadowOpacity: 0.6,
+                    shadowRadius: 12,
+                    backgroundColor: 'rgba(255,255,255,0.05)',
+                    borderRadius: 16,
+                    paddingVertical: 12,
+                    paddingHorizontal: 16,
+                  }}
                 >
-                  {config.emoji} {clusterName}
-                </Text>
-                <Text
-                  className="text-m italic"
-                  style={{ color: theme.secondaryText }}
-                >
-                  {config.tagline}
-                </Text>
-              </View>
-            );
-          })}
+                  <Text
+                    className="text-xl font-bold mb-1"
+                    style={{ color: theme.primaryText }}
+                  >
+                    {config.emoji} {clusterName}
+                  </Text>
+                  <Text
+                    className="text-m italic"
+                    style={{ color: theme.secondaryText }}
+                  >
+                    {config.tagline}
+                  </Text>
+                </View>
+              );
+            })}
         </View>
       </ScrollView>
     </View>

@@ -127,7 +127,20 @@
         },
       };
 
-      window.renderStats = function (stats) {
+      const BACKGROUND_IMAGES = {
+        moonlight: '../assets/videos/fallback/moonlightStatic.png',
+        grass: '../../assets/videos/fallback/grassStatic.png',
+        rainbow: '../../assets/videos/fallback/rainbowStatic.png',
+        pool: '../../assets/videos/fallback/poolStatic.png',
+        ski: '../../assets/videos/fallback/skiStatic.png'
+      };
+
+
+      window.renderStats = function (stats, trips) {
+        const bgKey = stats.video_background || 'moonlight';
+        const bgPath = BACKGROUND_IMAGES[bgKey] || BACKGROUND_IMAGES['moonlight'];
+        document.body.style.backgroundImage = `url('${bgPath}')`;
+
         document.getElementById('trip-archetype').textContent = stats.trip_archetype;
 
         const themesEl = document.getElementById('themes');
