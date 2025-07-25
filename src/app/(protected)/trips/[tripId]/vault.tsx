@@ -1,7 +1,8 @@
-import { View, Platform } from 'react-native';
+import { View, Platform, TouchableOpacity, Text } from 'react-native';
 import { BlurView } from 'expo-blur';
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 import { TripThemeProvider, useTripTheme } from '@/context/TripThemeProvider';
 import TripVisualBackground from '@/components/shared/tripVisualBackground';
 import useTrips from '@/hooks/useTrips';
@@ -16,6 +17,7 @@ function VaultContent({ tripId }: { tripId: string }) {
 
   const { trip } = useTrips(tripId);
   const bgKey = trip?.video_background ?? null;
+  const router = useRouter();
 
   console.log('Vault ID (centered):', selectedVibeId);
 
@@ -46,26 +48,64 @@ function VaultContent({ tripId }: { tripId: string }) {
           ),
         }}
       />
+
       <TripVisualBackground videoKey={bgKey} effectKey={null} />
-      <View
-        className="flex-1 pt-6"
-        style={{
-          paddingTop: insets.top + 60,
-          backgroundColor: 'transparent',
-        }}
-      >
-        <View style={{ flex: 1, overflow: 'visible' }}>
-          <VibeCarousel
-            tripId={tripId}
-            selectedVibeId={selectedVibeId}
-            onSelect={setSelectedVibeId}
-          />
-          {selectedVibeId && (
-            <ResponseFeed
-              vibecheckId={selectedVibeId}
-              style={{ marginTop: 16 }}
+
+      <View style={{ flex: 1 }}>
+        <View
+          className="flex-1 pt-6"
+          style={{
+            paddingTop: insets.top + 60,
+            backgroundColor: 'transparent',
+          }}
+        >
+          <View style={{ flex: 1 }}>
+            <VibeCarousel
+              tripId={tripId}
+              selectedVibeId={selectedVibeId}
+              onSelect={setSelectedVibeId}
             />
-          )}
+            {selectedVibeId && (
+              <ResponseFeed
+                vibecheckId={selectedVibeId}
+                style={{ marginTop: 16 }}
+              />
+            )}
+          </View>
+        </View>
+
+        {/* Floating Button */}
+        <View
+          style={{
+            position: 'absolute',
+            bottom: insets.bottom + 24,
+            right: 24,
+            zIndex: 1000,
+            elevation: 12,
+          }}
+          pointerEvents="box-none"
+        >
+          <TouchableOpacity
+            onPress={() => router.push(`/trips/${tripId}/vaultStats`)}
+            style={{ zIndex: 1001 }}
+          >
+            <LinearGradient
+              colors={theme.mainBubbleGradient}
+              start={{ x: 0.2, y: 0.2 }}
+              end={{ x: 0.8, y: 0.8 }}
+              style={{
+                width: 60,
+                height: 60,
+                borderRadius: 30,
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderWidth: 1,
+                borderColor: theme.primaryOutline,
+              }}
+            >
+              <Text>⏳</Text>
+            </LinearGradient>
+          </TouchableOpacity>
         </View>
       </View>
     </>
