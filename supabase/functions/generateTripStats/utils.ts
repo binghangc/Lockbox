@@ -3,8 +3,13 @@
  */
 export function countTags(arr: string[][]): string[] {
   const tagCount = new Map<string, number>();
-  arr.flat().forEach(tag => tag && tagCount.set(tag, (tagCount.get(tag) || 0) + 1));
-  return [...tagCount.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5).map(([tag]) => tag);
+  arr
+    .flat()
+    .forEach((tag) => tag && tagCount.set(tag, (tagCount.get(tag) || 0) + 1));
+  return [...tagCount.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([tag]) => tag);
 }
 
 export function countThemes(themes: string[]) {
@@ -13,10 +18,16 @@ export function countThemes(themes: string[]) {
     if (t) map.set(t, (map.get(t) || 0) + 1);
   }
   const sorted = [...map.entries()].sort((a, b) => b[1] - a[1]);
-  return { mostCommon: sorted[0]?.[0] ?? null, distribution: Object.fromEntries(map) };
+  return {
+    mostCommon: sorted[0]?.[0] ?? null,
+    distribution: Object.fromEntries(map),
+  };
 }
 
-export function extractTopWords(texts: string[], stopwords: Set<string>): string[] {
+export function extractTopWords(
+  texts: string[],
+  stopwords: Set<string>,
+): string[] {
   const count = new Map<string, number>();
   for (const text of texts) {
     for (const word of text.toLowerCase().split(/\W+/)) {
@@ -25,7 +36,10 @@ export function extractTopWords(texts: string[], stopwords: Set<string>): string
       }
     }
   }
-  return [...count.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5).map(([w]) => w);
+  return [...count.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([w]) => w);
 }
 
 export function groupThemes(themes: string[]): string[] {
@@ -38,24 +52,38 @@ export function groupThemes(themes: string[]): string[] {
   };
 
   const groupScores = Object.entries(groups).map(([label, tagList]) => {
-    const score = tagList.reduce((sum, tag) => sum + (themeCounts[tag] ?? 0), 0);
+    const score = tagList.reduce(
+      (sum, tag) => sum + (themeCounts[tag] ?? 0),
+      0,
+    );
     return { label, score };
   });
 
   return groupScores
-    .filter(g => g.score > 0)
+    .filter((g) => g.score > 0)
     .sort((a, b) => b.score - a.score)
-    .map(g => g.label);
+    .map((g) => g.label);
 }
 
-export function classifyArchetype(activities: string[], locations: string[], overallVibe: string | null): string {
-  const has = (list: string[], tags: string[]) => tags.some(tag => list.includes(tag));
+export function classifyArchetype(
+  activities: string[],
+  locations: string[],
+  overallVibe: string | null,
+): string {
+  const has = (list: string[], tags: string[]) =>
+    tags.some((tag) => list.includes(tag));
 
-  if (has(activities, ['hike', 'trail', 'camp']) || has(locations, ['mountain', 'lake', 'forest'])) {
+  if (
+    has(activities, ['hike', 'trail', 'camp']) ||
+    has(locations, ['mountain', 'lake', 'forest'])
+  ) {
     return 'Nature Retreat';
   }
 
-  if (has(activities, ['food', 'cooking', 'cafe']) || has(locations, ['restaurant', 'market'])) {
+  if (
+    has(activities, ['food', 'cooking', 'cafe']) ||
+    has(locations, ['restaurant', 'market'])
+  ) {
     return 'Foodie Adventure';
   }
 
@@ -63,7 +91,10 @@ export function classifyArchetype(activities: string[], locations: string[], ove
     return 'Retail Therapy Trip';
   }
 
-  if (has(activities, ['museum', 'gallery', 'exhibition']) || has(locations, ['historic site', 'castle'])) {
+  if (
+    has(activities, ['museum', 'gallery', 'exhibition']) ||
+    has(locations, ['historic site', 'castle'])
+  ) {
     return 'Culture Dive';
   }
 
@@ -75,7 +106,10 @@ export function classifyArchetype(activities: string[], locations: string[], ove
     return 'Wellness Escape';
   }
 
-  if (has(activities, ['bar', 'club', 'karaoke']) || overallVibe === 'chaotic') {
+  if (
+    has(activities, ['bar', 'club', 'karaoke']) ||
+    overallVibe === 'chaotic'
+  ) {
     return 'Party Mode';
   }
 
@@ -89,7 +123,6 @@ export function classifyArchetype(activities: string[], locations: string[], ove
 
   if (overallVibe === 'funny' || has(activities, ['game', 'funfair'])) {
     return 'Goofball Tour';
-
   }
 
   return 'Mixed Exploration';

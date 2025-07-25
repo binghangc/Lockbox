@@ -31,9 +31,7 @@ describe('useFriends', () => {
   it('fetches friends and updates count', async () => {
     const countSpy = jest.fn();
 
-    const { result } = renderHook(() =>
-      useFriends(countSpy),
-    );
+    const { result } = renderHook(() => useFriends(countSpy));
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);

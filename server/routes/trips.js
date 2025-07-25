@@ -850,7 +850,7 @@ router.patch('/:id/vibecheck/:date', authMiddleware, async (req, res) => {
     .then(({ error }) => {
       if (error) console.warn('Failed to delete old embedding:', error.message);
     });
-    
+
   if (process.env.RUN_WORKERS) {
     await vibechecksQueue.add(
       'embed-vibecheck',

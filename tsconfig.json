@@ -26,6 +26,6 @@
     "supabase/functions",
     "babel.config.js",
     "node_modules",
-    "metro.config.js",
+    "metro.config.js"
   ]
 }

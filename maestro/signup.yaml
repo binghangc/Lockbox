@@ -6,27 +6,27 @@ appId: com.locked-in.lockbox
 - clearState
 - clearKeychain
 
-- assertVisible: "Email address"
+- assertVisible: 'Email address'
 
-- tapOn: "Sign Up"
+- tapOn: 'Sign Up'
 
 # Email address
-- tapOn: "Email address"
-- inputText: "newuser@email.com"
+- tapOn: 'Email address'
+- inputText: 'newuser@email.com'
 
 # Username
-- tapOn: "Username"
-- inputText: "lockboxnoob"
+- tapOn: 'Username'
+- inputText: 'lockboxnoob'
 
 - tapOn: 
 - tapOn: Must be 8+ characters with uppercase, lowercase, number & symbol.
 
 # Password
-- tapOn: "Password"
-- inputText: "Lockbox123!"
+- tapOn: 'Password'
+- inputText: 'Lockbox123!'
 
 # Sign Up
 - tapOn:
     point: 50%,46%
-- assertVisible: "Almost there!"
-- tapOn: "OK"
+- assertVisible: 'Almost there!'
+- tapOn: 'OK'

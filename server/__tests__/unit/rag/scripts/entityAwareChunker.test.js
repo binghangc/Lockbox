@@ -1,3 +1,7 @@
+jest.mock('../../../../utils/llmclient.js', () => ({
+  invoke: jest.fn(() => Promise.resolve({ content: '["Zermatt"]' })),
+}));
+
 const enrichChunks = require('../../../../rag/scripts/entityAwareChunker.js');
 const extractLocationNames = require('../../../../rag/scripts/extractLocationNames.js');
 const classifyActivityTags = require('../../../../rag/scripts/classifyActivityTags.js');

@@ -13,7 +13,7 @@ import {
   extractTopWords,
   groupThemes,
   classifyArchetype,
-  cosineSimilarity
+  cosineSimilarity,
 } from './utils.ts';
 
 const supabase = createClient(
@@ -33,7 +33,21 @@ serve(async (req) => {
     return new Response('No ending trips found', { status: 200 });
   }
 
-  const stopwords = new Set(['the', 'and', 'you', 'was', 'are', 'we', 'for', 'with', 'had', 'but', 'not', 'all', 'our']);
+  const stopwords = new Set([
+    'the',
+    'and',
+    'you',
+    'was',
+    'are',
+    'we',
+    'for',
+    'with',
+    'had',
+    'but',
+    'not',
+    'all',
+    'our',
+  ]);
   const results = [];
 
   for (const { id: trip_id } of trips) {
@@ -42,8 +56,6 @@ serve(async (req) => {
         .from('vibecheck_embeddings')
         .select('theme, vibecheck_text, embedding, created_at')
         .eq('trip_id', trip_id);
-
-
 
       const { data: itineraryEmbeds } = await supabase
         .from('itinerary_embeddings')
@@ -62,28 +74,38 @@ serve(async (req) => {
       if (!vibeEmbeds?.length) continue;
 
       // Themes
-      const themes = vibeEmbeds.map(v => v.theme);
+      const themes = vibeEmbeds.map((v) => v.theme);
       const { mostCommon, distribution } = countThemes(themes);
 
       // Tags
-      const topActivities = countTags(itineraryEmbeds?.map(e => e.activity_tag ?? []) || []);
-      const topLocations = countTags(itineraryEmbeds?.map(e => e.location_tag ?? []) || []);
+      const topActivities = countTags(
+        itineraryEmbeds?.map((e) => e.activity_tag ?? []) || [],
+      );
+      const topLocations = countTags(
+        itineraryEmbeds?.map((e) => e.location_tag ?? []) || [],
+      );
 
       // Theme shift
       const sorted = [...vibeEmbeds].sort(
-        (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+        (a, b) =>
+          new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
       );
 
       let themeShiftScore: number | null = null;
       let themeShiftScoreStatus = '';
 
       if (sorted.length < 2) {
-        themeShiftScoreStatus = 'Only one vibecheck — not enough to compute shift';
+        themeShiftScoreStatus =
+          'Only one vibecheck — not enough to compute shift';
       } else {
         const first = sorted[0]?.embedding;
         const last = sorted.at(-1)?.embedding;
 
-        if (Array.isArray(first) && Array.isArray(last) && first.length === last.length) {
+        if (
+          Array.isArray(first) &&
+          Array.isArray(last) &&
+          first.length === last.length
+        ) {
           themeShiftScore = 1 - cosineSimilarity(first, last);
           themeShiftScoreStatus = 'Score computed successfully';
         } else {
@@ -104,7 +126,10 @@ serve(async (req) => {
       });
 
       // Keywords
-      const topKeywords = extractTopWords(vibeEmbeds.map(v => v.vibecheck_text), stopwords);
+      const topKeywords = extractTopWords(
+        vibeEmbeds.map((v) => v.vibecheck_text),
+        stopwords,
+      );
 
       // Clusters
       const vibeClusters = groupThemes(themes);
@@ -117,9 +142,11 @@ serve(async (req) => {
       }
 
       let highlight_day: Record<string, unknown> | null = null;
-      const topVibecheckId = Object.entries(orbCounts).sort((a, b) => b[1] - a[1])[0]?.[0];
+      const topVibecheckId = Object.entries(orbCounts).sort(
+        (a, b) => b[1] - a[1],
+      )[0]?.[0];
       if (topVibecheckId) {
-        const vibe = vibechecks?.find(v => v.id === topVibecheckId);
+        const vibe = vibechecks?.find((v) => v.id === topVibecheckId);
         if (vibe) {
           highlight_day = {
             date: vibe.date,
@@ -130,7 +157,11 @@ serve(async (req) => {
       }
 
       // Archetype
-      const trip_archetype = classifyArchetype(topActivities, topLocations, mostCommon);
+      const trip_archetype = classifyArchetype(
+        topActivities,
+        topLocations,
+        mostCommon,
+      );
 
       const { error: insertError } = await supabase.from('trip_stats').upsert({
         trip_id,
@@ -147,7 +178,10 @@ serve(async (req) => {
       });
 
       if (insertError) {
-        console.error(`Insert failed for trip ${trip_id}:`, insertError.message);
+        console.error(
+          `Insert failed for trip ${trip_id}:`,
+          insertError.message,
+        );
         results.push({ trip_id, error: insertError.message });
       } else {
         results.push({ trip_id, status: 'ok' });
@@ -158,9 +192,16 @@ serve(async (req) => {
     }
   }
 
-  return new Response(JSON.stringify({ message: 'Trip stats generation complete', results }, null, 2), {
-    headers: { 'Content-Type': 'application/json' },
-  });
+  return new Response(
+    JSON.stringify(
+      { message: 'Trip stats generation complete', results },
+      null,
+      2,
+    ),
+    {
+      headers: { 'Content-Type': 'application/json' },
+    },
+  );
 });
 /* To invoke locally:
 
