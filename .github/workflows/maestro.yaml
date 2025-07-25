@@ -1,0 +1,36 @@
+name: E2E Tests (Maestro - Android)
+
+on: [push, pull_request]
+
+jobs:
+  e2e-android:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install EAS CLI
+        run: npm install -g eas-cli
+
+      - name: Install Maestro
+        run: curl -Ls "https://get.maestro.mobile.dev" | bash
+
+      - name: Authenticate with Expo
+        run: eas whoami || eas login --token ${{ secrets.EXPO_TOKEN }}
+
+      - name: Build APK
+        id: eas-build
+        run: |
+          eas build --platform android --profile development --non-interactive --json > build-result.json
+          echo "APK_URL=$(jq -r '.[0].artifacts.buildUrl' build-result.json)" >> $GITHUB_ENV
+
+      - name: Download APK
+        run: curl -o app.apk "$APK_URL"
+
+      - name: Run Maestro tests
+        run: ./maestro test maestro --app app.apk
