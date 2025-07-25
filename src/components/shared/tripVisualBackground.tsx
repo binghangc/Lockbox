@@ -41,7 +41,7 @@ const TripVisualBackground = forwardRef<TripVisualBackgroundHandle, Props>(
         lottieRef.current?.resume();
       },
       reset: () => {
-        player?.seek(0);
+        player.currentTime = 0;
         player?.play();
         lottieRef.current?.reset();
         lottieRef.current?.play();

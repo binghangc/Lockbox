@@ -148,21 +148,28 @@ export default function TripPillbar({
                   />
                 )}
                 {/* Pill text */}
-                <AnimatedText
-                  className="text-xl font-semibold flex-1"
-                  numberOfLines={2}
-                  ellipsizeMode="tail"
-                  style={[
-                    { color: theme.primaryText, flexShrink: 1 },
-                    animatedPillTextStyle,
-                  ]}
-                >
-                  {submittedByUser
-                    ? 'Response submitted!'
-                    : dragEnabled
-                      ? 'Slide to send'
-                      : pillText}
-                </AnimatedText>
+                {/* Determine pill display text without nested ternary */}
+                {(() => {
+                  let displayText = pillText;
+                  if (submittedByUser) {
+                    displayText = 'Response submitted!';
+                  } else if (dragEnabled) {
+                    displayText = 'Slide to send';
+                  }
+                  return (
+                    <AnimatedText
+                      className="text-xl font-semibold flex-1"
+                      numberOfLines={2}
+                      ellipsizeMode="tail"
+                      style={[
+                        { color: theme.primaryText, flexShrink: 1 },
+                        animatedPillTextStyle,
+                      ]}
+                    >
+                      {displayText}
+                    </AnimatedText>
+                  );
+                })()}
 
                 {bottomAccessory && (
                   <AnimatedReanimated.View

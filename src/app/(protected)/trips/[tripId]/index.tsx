@@ -1,6 +1,8 @@
 /* eslint-disable no-param-reassign */
 import dayjs from 'dayjs';
-import TripVisualBackground, { TripVisualBackgroundHandle } from '@/components/shared/tripVisualBackground';
+import TripVisualBackground, {
+  TripVisualBackgroundHandle,
+} from '@/components/shared/tripVisualBackground';
 import {
   View,
   Text,
