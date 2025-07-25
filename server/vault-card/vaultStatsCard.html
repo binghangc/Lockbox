@@ -3,42 +3,63 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Sora:wght@400;600&display=swap" rel="stylesheet">
     <title>Vault Stats Card</title>
     <style>
       * {
         box-sizing: border-box;
         margin: 0;
         padding: 0;
-        font-family: 'Arial', sans-serif;
+        font-family: 'Inter', 'Sora', sans-serif;
       }
       body {
-        background: url('moonlight-fallback.png') no-repeat center center;
-        background-size: cover;
-        padding: 40px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
         color: white;
+        width: 100%;
+        height: 100%;
+        padding: 0;
+        margin: 0;
+      }
+      .story-frame {
+        width: 1080px;
+        height: 1920px;
+        margin: 0 auto;
+        position: relative;
+        overflow: hidden;
+        background-repeat: no-repeat;
+        background-position: center center;
+        background-size: cover;
       }
       .card {
         background: rgba(0, 0, 0, 0.6);
         border-radius: 16px;
         padding: 32px;
-        width: 700px;
+        width: 90%;
         margin: 0 auto;
       }
       h1,
       h2 {
+        font-family: 'Sora', sans-serif;
         text-align: center;
         margin-bottom: 12px;
       }
       .emoji-grid {
         display: flex;
         flex-wrap: wrap;
-        gap: 16px;
+        gap: 24px;
         justify-content: center;
         margin-bottom: 24px;
       }
       .emoji-item {
+        font-family: 'Inter', sans-serif;
         text-align: center;
-        width: 80px;
+        width: 100px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
       }
       .tags {
         display: flex;
@@ -58,31 +79,40 @@
         border-radius: 12px;
         margin-bottom: 12px;
       }
+      .highlight {
+        text-align: center;
+        margin-bottom: 24px;
+        font-size: 1.1rem;
+        opacity: 0.85;
+      }
     </style>
   </head>
   <body>
-    <div id="root" class="card">
-      <h1 id="trip-archetype">Trip Archetype</h1>
-      <h2>Your overall vibe this trip</h2>
+    <div class="story-frame">
+      <div id="root" class="card">
+        <h1 id="trip-archetype">Trip Archetype</h1>
+        <h2><i>Your overall vibe this trip</i></h2>
 
-      <h2>Top Themes</h2>
-      <div id="themes" class="emoji-grid"></div>
+        <h2>Top Themes</h2>
+        <div id="themes" class="emoji-grid"></div>
 
-      <h2>Top Activities</h2>
-      <div id="activities" class="tags"></div>
+        <h2>Top Activities</h2>
+        <div id="activities" class="tags"></div>
 
-      <h2>Top Locations</h2>
-      <div id="locations" class="tags"></div>
+        <h2>Top Locations</h2>
+        <div id="locations" class="tags"></div>
 
-      <h2>Top Keywords</h2>
-      <div id="keywords" class="tags"></div>
+        <h2>Top Keywords</h2>
+        <div id="keywords" class="tags"></div>
 
-      <h2>Highlight Day</h2>
-      <div id="highlight"></div>
+        <h2>Highlight Day</h2>
+        <div id="highlight" class="highlight"></div>
 
-      <h2>Vibe Clusters</h2>
-      <div id="clusters"></div>
+        <h2>Vibe Clusters</h2>
+        <div id="clusters"></div>
+      </div>
     </div>
+
 
     <script>
       const THEME_CONFIG = {
@@ -127,19 +157,20 @@
         },
       };
 
+      const BASE = 'https://vaultcard-r2-domain.r2.dev/fallbacks';
+
       const BACKGROUND_IMAGES = {
-        moonlight: '../assets/videos/fallback/moonlightStatic.png',
-        grass: '../../assets/videos/fallback/grassStatic.png',
-        rainbow: '../../assets/videos/fallback/rainbowStatic.png',
-        pool: '../../assets/videos/fallback/poolStatic.png',
-        ski: '../../assets/videos/fallback/skiStatic.png'
+        moonlight: `${BASE}/moonlightStatic.png`,
+        grass: `${BASE}/grassStatic.png`,
+        rainbow: `${BASE}/rainbowStatic.png`,
+        pool: `${BASE}/poolStatic.png`,
+        ski: `${BASE}/skiStatic.png`,
       };
 
 
       window.renderStats = function (stats, trips) {
         const bgKey = stats.video_background || 'moonlight';
-        const bgPath = BACKGROUND_IMAGES[bgKey] || BACKGROUND_IMAGES['moonlight'];
-        document.body.style.backgroundImage = `url('${bgPath}')`;
+        document.querySelector('.story-frame').style.backgroundImage = `url('${BACKGROUND_IMAGES[bgKey] || BACKGROUND_IMAGES['moonlight']}')`;
 
         document.getElementById('trip-archetype').textContent = stats.trip_archetype;
 
@@ -151,7 +182,7 @@
             if (!emoji) return;
             const div = document.createElement('div');
             div.className = 'emoji-item';
-            div.innerHTML = `<div style="font-size: 2rem">${emoji}</div><div>${label}<br/>${count}</div>`;
+            div.innerHTML = `<div style="font-size: 6rem">${emoji}</div><div>${label}<br/>${count}</div>`;
             themesEl.appendChild(div);
           });
 
@@ -174,7 +205,7 @@
         }
 
         const clustersEl = document.getElementById('clusters');
-        Object.keys(stats.vibe_clusters).forEach((name) => {
+        (stats.vibe_clusters || []).forEach((name) => {
           const config = VIBE_CLUSTER_CONFIG[name] || {
             emoji: '🌀',
             tagline: 'Undefined vibes',
@@ -183,9 +214,13 @@
           const div = document.createElement('div');
           div.className = 'vibe-card';
           div.innerHTML = `<strong>${config.emoji} ${name}</strong><br/><em>${config.tagline}</em>`;
+          div.style.boxShadow = `0 0 12px ${config.glowColor}`;
           clustersEl.appendChild(div);
         });
       };
+
+      // Render is injected by server during screenshot generation
+      window.renderStats({}, undefined);
     </script>
   </body>
 </html>
