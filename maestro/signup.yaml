@@ -2,16 +2,31 @@ appId: com.locked-in.lockbox
 ---
 - launchApp
 
+# clear state + previous user tokens
+- clearState
+- clearKeychain
+
+- assertVisible: "Email address"
+
 - tapOn: "Sign Up"
 
-- tapOn: "Email"
+# Email address
+- tapOn: "Email address"
 - inputText: "newuser@email.com"
 
+# Username
 - tapOn: "Username"
 - inputText: "lockboxnoob"
 
+- tapOn: 
+- tapOn: Must be 8+ characters with uppercase, lowercase, number & symbol.
+
+# Password
 - tapOn: "Password"
 - inputText: "Lockbox123!"
 
-- tapOn: "Sign Up"
+# Sign Up
+- tapOn:
+    point: 50%,46%
 - assertVisible: "Almost there!"
+- tapOn: "OK"
