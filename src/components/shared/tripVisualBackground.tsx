@@ -51,6 +51,8 @@ export default function TripVisualBackground({ videoKey, effectKey }: Props) {
               effects[effectKey]
                 .file as import('lottie-react-native').AnimationObject
             }
+            autoPlay
+            loop
             resizeMode="cover"
             style={{ width: '100%', height: '100%' }}
           />
