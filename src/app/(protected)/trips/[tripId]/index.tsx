@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
 import dayjs from 'dayjs';
-import TripVisualBackground from '@/components/shared/tripVisualBackground';
+import TripVisualBackground, { TripVisualBackgroundHandle } from '@/components/shared/tripVisualBackground';
 import {
   View,
   Text,
@@ -21,7 +21,7 @@ import useTrips, { isTripDirty, clearTripDirty } from '@/hooks/useTrips';
 import TripPillbarContainer from '@/containers/tripPillbarContainer';
 import UserProfileModal from '@/components/userProfileModal';
 import ParticipantRowList from '@/components/participants/participantRowList';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { useUser } from '@/context/UserContext';
 import { Profile } from '@/types';
@@ -67,6 +67,7 @@ function TripDetailContent() {
   const isHost = user?.id === trip?.host?.id;
   const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
   const [participantCount, setParticipantCount] = useState<number>(0);
+  const backgroundRef = useRef<TripVisualBackgroundHandle>(null);
 
   const HEADER_HEIGHT = insets.top + 60;
 
@@ -76,6 +77,14 @@ function TripDetailContent() {
   const onCountUpdate = useCallback((count: number) => {
     setParticipantCount(count);
   }, []);
+
+  const handleRecordingStateChange = (isRecording: boolean) => {
+    if (isRecording) {
+      backgroundRef.current?.pause();
+    } else {
+      backgroundRef.current?.resume();
+    }
+  };
 
   if (loading) {
     return (
@@ -116,6 +125,7 @@ function TripDetailContent() {
   return (
     <>
       <TripVisualBackground
+        ref={backgroundRef}
         videoKey={trip?.video_background ?? null}
         effectKey={trip?.effects ?? null}
       />
@@ -322,6 +332,7 @@ function TripDetailContent() {
             (trip.status as 'upcoming' | 'ongoing' | 'ended') || 'upcoming'
           }
           handlePress={handlePress}
+          onRecordingStateChange={handleRecordingStateChange}
         />
       </View>
     </>
