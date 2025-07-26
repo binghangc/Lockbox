@@ -225,6 +225,44 @@ describe('Itinerary + Vibecheck Flow', () => {
     expect(res.statusCode).toBe(404);
   });
 
+  it('should return 400 for invalid trip ID', async () => {
+    const invalidId = '123123123id';
+
+    const res = await request(app)
+      .get(`/trips/${invalidId}/vibecheck/2099-01-01`)
+      .set('Authorization', `Bearer ${tokenA}`);
+
+    expect(res.statusCode).toBe(404);
+    expect(res.body.error).toMatch(/Trip not found/i);
+  });
+
+  it('should generate a fallback vibecheck if none exists for a valid date', async () => {
+    // create a test trip for specific dates
+    const tripRes = await request(app)
+      .post('/trips')
+      .set('Authorization', `Bearer ${userA.token}`)
+      .send({
+        title: 'Test Trip',
+        start_date: '2025-08-01',
+        end_date: '2025-08-05',
+        country: 'Japan',
+        thumbnail_url: 'http://ap.png',
+      });
+
+    const tripId2 = tripRes.body.data[0].id;
+
+    // make sure the date doesn't already have a vibecheck
+    const vibeDate = '2025-08-03';
+
+    const vibeRes = await request(app)
+      .get(`/trips/${tripId2}/vibecheck/${vibeDate}`)
+      .set('Authorization', `Bearer ${userA.token}`);
+
+    expect(vibeRes.statusCode).toBe(200);
+    expect(vibeRes.body.vibecheck).toBeDefined();
+    expect(vibeRes.body.vibecheck_id).toBeDefined();
+  });
+
   it('should regenerate a vibecheck for a given date if no orbs exist', async () => {
     const originalVibe = await request(app)
       .get(`/trips/${tripId}/vibecheck/2025-07-01`)

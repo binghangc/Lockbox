@@ -65,6 +65,16 @@ describe('Trips: Leave Trip Flow', () => {
     expect(res.body.success).toBe(true);
   });
 
+  it('should not allow a participant to leave nonexistent trip', async () => {
+    const invalidId = '123123fakeid';
+
+    const res = await request(app)
+      .post(`/trips/${invalidId}/leave`)
+      .set('Authorization', `Bearer ${partToken}`);
+
+    expect(res.statusCode).toBe(500);
+  });
+
   it('should not allow host to leave their own trip', async () => {
     const res = await request(app)
       .post(`/trips/${tripId}/leave`)
