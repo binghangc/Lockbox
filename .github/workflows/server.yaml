@@ -31,15 +31,18 @@ jobs:
           echo "R2_BUCKET_NAME_VIDEOS=${{ secrets.R2_BUCKET_NAME_VIDEOS }}" >> .env.server
           echo "R2_BUCKET_NAME_AVATARS=${{ secrets.R2_BUCKET_NAME_AVATARS }}" >> .env.server
           echo "R2_BUCKET_NAME_THUMBNAILS=${{ secrets.R2_BUCKET_NAME_THUMBNAILS }}" >> .env.server
+          echo "R2_BUCKET_NAME_VAULTS=${{ secrets.R2_BUCKET_NAME_VAULTS }}" >> .env.server
           echo "R2_ACCOUNT_ID=${{ secrets.R2_ACCOUNT_ID }}" >> .env.server
           echo "R2_ENDPOINT=${{ secrets.R2_ENDPOINT }}" >> .env.server
           echo "R2_PUBLIC_DOMAIN_AVATAR=${{ secrets.R2_PUBLIC_DOMAIN_AVATAR }}" >> .env.server
+          echo "R2_PUBLIC_DOMAIN_VAULTS=${{ secrets.R2_PUBLIC_DOMAIN_VAULTS }}" >> .env.server
           echo "R2_ACCESS_KEY_ID=${{ secrets.R2_ACCESS_KEY_ID }}" >> .env.server
           echo "R2_SECRET_ACCESS_KEY=${{ secrets.R2_SECRET_ACCESS_KEY }}" >> .env.server
           echo "GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }}" >> .env.server
           echo "REDIS_URL"=${{ secrets.REDIS_URL }} >> .env.server
           echo "R2_BASE_URL=${{ secrets.R2_BASE_URL }}" >> .env.server
           echo "RUN_WORKERS=true" >> .env.server
+
 
       - name: Install dependencies
         run: npm install
