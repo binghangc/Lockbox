@@ -16,6 +16,7 @@ type TripPillbarContainerProps = {
   status: 'upcoming' | 'ongoing' | 'ended';
   isHost: boolean;
   handlePress: () => void;
+  onRecordingStateChange?: (isRecording: boolean) => void;
 };
 
 export default function TripPillbarContainer({
@@ -23,6 +24,7 @@ export default function TripPillbarContainer({
   status,
   isHost,
   handlePress,
+  onRecordingStateChange,
 }: TripPillbarContainerProps) {
   const insets = useSafeAreaInsets();
   const { tap, hold, send, cancel } = useHaptics();
@@ -108,6 +110,7 @@ export default function TripPillbarContainer({
                 ? () => {
                     hold();
                     onLongPress();
+                    onRecordingStateChange?.(true); // Notify recording started
                   }
                 : undefined
             }
@@ -116,7 +119,8 @@ export default function TripPillbarContainer({
                 ? () => {
                     console.log('cancel');
                     onPressOut();
-                    cancel(); // haptics
+                    cancel();
+                    onRecordingStateChange?.(false); // Notify recording stopped
                   }
                 : undefined
             }
@@ -125,7 +129,8 @@ export default function TripPillbarContainer({
                 ? () => {
                     console.log('send');
                     onSend();
-                    send(); // haptics
+                    send();
+                    onRecordingStateChange?.(false); // Notify recording stopped
                   }
                 : undefined
             }
