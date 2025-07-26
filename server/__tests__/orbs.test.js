@@ -28,13 +28,19 @@ jest.mock('fs', () => {
   };
 });
 
+jest.mock('../queue.js', () => ({
+  encodingQueue: {
+    add: jest.fn(),
+  },
+}));
+
 const request = require('supertest');
 const path = require('path');
 const fs = require('fs');
 const app = require('../app.js');
 const supabase = require('../utils/supabaseAdminClient.js');
 const r2 = require('../utils/r2client.js');
-const encodeToHLS = require('../encoder.js');
+const { encodingQueue } = require('../queue.js');
 const { getDownloadUrl } = require('../utils/r2SignedUrl.js');
 
 describe('GET /vibecheck/:id/status', () => {
@@ -105,7 +111,7 @@ describe('POST /upload', () => {
     });
 
     r2.send.mockResolvedValue(); // simulate successful upload
-    encodeToHLS.mockResolvedValue();
+    encodingQueue.add.mockResolvedValue();
 
     fs.createReadStream.mockReturnValue('mocked-stream');
     fs.readdirSync.mockReturnValue([]);
@@ -131,6 +137,18 @@ describe('POST /upload', () => {
     expect(res.statusCode).toBe(200);
     expect(res.body.message).toBe('Upload complete');
     expect(res.body.orb).toBeDefined();
+
+    expect(encodingQueue.add).toHaveBeenCalledWith(
+      'encode-hls',
+      expect.objectContaining({
+        orbId: expect.any(String),
+        tripId: 'trip123',
+        userId: 'user123',
+        vibecheckId: 'vibecheck123',
+        sourcePath: expect.stringMatching(/temp/),
+        hlsKeyPrefix: expect.stringMatching(/orbs-hls\/trip123\/user123/),
+      }),
+    );
   });
 });
 

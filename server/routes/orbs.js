@@ -8,7 +8,7 @@ const { v4: uuidv4 } = require('uuid');
 const r2 = require('../utils/r2client.js');
 const { getDownloadUrl } = require('../utils/r2SignedUrl.js');
 const supabase = require('../utils/supabaseAdminClient.js');
-const encodeToHLS = require('../encoder.js');
+const { encodingQueue } = require('../queue.js');
 
 const router = express.Router();
 const upload = multer({ dest: path.join(__dirname, '../../temp') });
@@ -96,57 +96,7 @@ router.post('/upload', upload.single('video'), async (req, res) => {
         }),
       );
 
-      const hlsOutputDir = path.join(__dirname, `../../temp/hls/${orbId}`);
       const hlsKeyPrefix = `orbs-hls/${tripId}/${userId}/${orbId}`;
-
-      try {
-        // Step 1: Encode to HLS (480p, 240p)
-        await encodeToHLS(file.path, hlsOutputDir, orbId);
-
-        // Step 2: Upload HLS segments and master playlist to R2
-        const walkDir = (dir) =>
-          fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
-            const fullPath = path.join(dir, entry.name);
-            return entry.isDirectory() ? walkDir(fullPath) : [fullPath];
-          });
-
-        const hlsFiles = walkDir(hlsOutputDir);
-
-        await Promise.all(
-          hlsFiles.map((fullPath) => {
-            const relativePath = path.relative(hlsOutputDir, fullPath);
-            const fileStream = fs.createReadStream(fullPath);
-            return r2.send(
-              new PutObjectCommand({
-                Bucket: BUCKET,
-                Key: `${hlsKeyPrefix}/${relativePath}`,
-                Body: fileStream,
-                ContentType: relativePath.endsWith('.m3u8')
-                  ? 'application/vnd.apple.mpegurl'
-                  : 'video/MP2T',
-              }),
-            );
-          }),
-        );
-
-        // Delete source file after successful encoding and upload
-        fs.unlinkSync(file.path);
-        // Remove the HLS output directory
-        fs.rmSync(hlsOutputDir, { recursive: true, force: true });
-        // Also remove the entire temp/ folder's contents
-        const tempDir = path.join(__dirname, '../../temp');
-        if (fs.existsSync(tempDir)) {
-          fs.readdirSync(tempDir).forEach((entry) => {
-            fs.rmSync(path.join(tempDir, entry), {
-              recursive: true,
-              force: true,
-            });
-          });
-        }
-      } catch (err) {
-        console.error('[HLS Encoding or Upload Error]', err);
-        return res.status(500).json({ error: 'Encoding or upload failed' });
-      }
 
       let data;
       try {
@@ -156,8 +106,19 @@ router.post('/upload', upload.single('video'), async (req, res) => {
           userId,
           vibecheckId,
           videoKey: key,
-          hlsKey: `${hlsKeyPrefix}/master.m3u8`,
+          hlsKey: null, // update in worker
         });
+
+        if (process.env.RUN_WORKERS) {
+          await encodingQueue.add('encode-hls', {
+            orbId,
+            tripId,
+            userId,
+            vibecheckId,
+            sourcePath: file.path,
+            hlsKeyPrefix,
+          });
+        }
       } catch (error) {
         console.error(error.message);
         return res
