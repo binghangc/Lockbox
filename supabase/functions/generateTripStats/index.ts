@@ -101,15 +101,15 @@ serve(async (req) => {
         const first = sorted[0]?.embedding;
         const last = sorted.at(-1)?.embedding;
 
-        if (
-          Array.isArray(first) &&
-          Array.isArray(last) &&
-          first.length === last.length
-        ) {
-          themeShiftScore = 1 - cosineSimilarity(first, last);
-          themeShiftScoreStatus = 'Score computed successfully';
+        if (Array.isArray(first) && Array.isArray(last)) {
+          if (first.length === last.length) {
+            themeShiftScore = 1 - cosineSimilarity(first, last);
+            themeShiftScoreStatus = 'Score computed successfully';
+          } else {
+            themeShiftScoreStatus = 'Embeddings have different lengths';
+          }
         } else {
-          themeShiftScoreStatus = 'Embeddings invalid or mismatched length';
+          themeShiftScoreStatus = 'Embeddings not arrays or undefined';
         }
       }
 

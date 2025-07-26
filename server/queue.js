@@ -15,8 +15,14 @@ const vibechecksQueue = isTestEnv
       connection: redis,
     });
 
+const encodingQueue = isTestEnv
+  ? require('./utils/test/mockQueue.js').mockQueue('encode-hls')
+  : new Queue('encode-hls', {
+      connection: redis,
+    });
+
 if (!isTestEnv) {
-  [itineraryQueue, vibechecksQueue].forEach((queue) => {
+  [itineraryQueue, vibechecksQueue, encodingQueue].forEach((queue) => {
     queue.on('error', (err) => {
       console.error(`[Queue Error] (${queue.name})`, err);
     });
@@ -26,4 +32,5 @@ if (!isTestEnv) {
 module.exports = {
   itineraryQueue,
   vibechecksQueue,
+  encodingQueue,
 };

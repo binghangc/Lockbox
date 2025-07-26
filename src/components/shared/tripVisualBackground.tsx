@@ -1,4 +1,6 @@
-import React from 'react';
+/* eslint-disable react/display-name */
+/* eslint-disable no-param-reassign */
+import React, { forwardRef, useImperativeHandle, useRef } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { VideoView, useVideoPlayer } from 'expo-video';
 import LottieView from 'lottie-react-native';
@@ -10,52 +12,82 @@ type Props = {
   effectKey: string | null;
 };
 
-export default function TripVisualBackground({ videoKey, effectKey }: Props) {
-  const selectedVideo = videoKey ? videoBackgrounds[videoKey] : null;
-  const videoSource = selectedVideo?.uri;
+export type TripVisualBackgroundHandle = {
+  pause: () => void;
+  resume: () => void;
+  reset: () => void;
+};
 
-  const player = useVideoPlayer(videoSource ?? '', (videoPlayer) => {
-    // eslint-disable-next-line no-param-reassign
-    videoPlayer.loop = true;
-    // eslint-disable-next-line no-param-reassign
-    videoPlayer.muted = true;
-    videoPlayer.play();
-  });
+const TripVisualBackground = forwardRef<TripVisualBackgroundHandle, Props>(
+  ({ videoKey, effectKey }, ref) => {
+    const selectedVideo = videoKey ? videoBackgrounds[videoKey] : null;
+    const videoSource = selectedVideo?.uri;
 
-  return (
-    <>
-      <VideoView
-        player={player}
-        style={StyleSheet.absoluteFill}
-        contentFit="cover"
-        allowsFullscreen={false}
-        allowsPictureInPicture={false}
-        nativeControls={false}
-        allowsVideoFrameAnalysis={false}
-        showsTimecodes={false}
-      />
-      {effectKey && effects[effectKey]?.file && (
-        <View
-          pointerEvents="none"
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            zIndex: 11,
-          }}
-        >
-          <LottieView
-            source={
-              effects[effectKey]
-                .file as import('lottie-react-native').AnimationObject
-            }
-            resizeMode="cover"
-            style={{ width: '100%', height: '100%' }}
-          />
-        </View>
-      )}
-    </>
-  );
-}
+    const lottieRef = useRef<LottieView>(null);
+
+    const player = useVideoPlayer(videoSource ?? '', (videoPlayer) => {
+      videoPlayer.loop = true;
+      videoPlayer.muted = true;
+      videoPlayer.play();
+    });
+
+    useImperativeHandle(ref, () => ({
+      pause: () => {
+        player?.pause();
+        lottieRef.current?.pause();
+      },
+      resume: () => {
+        player?.play();
+        lottieRef.current?.resume();
+      },
+      reset: () => {
+        player.currentTime = 0;
+        player?.play();
+        lottieRef.current?.reset();
+        lottieRef.current?.play();
+      },
+    }));
+
+    return (
+      <>
+        <VideoView
+          player={player}
+          style={StyleSheet.absoluteFill}
+          contentFit="cover"
+          allowsFullscreen={false}
+          allowsPictureInPicture={false}
+          nativeControls={false}
+          allowsVideoFrameAnalysis={false}
+          showsTimecodes={false}
+        />
+        {effectKey && effects[effectKey]?.file && (
+          <View
+            pointerEvents="none"
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: 11,
+            }}
+          >
+            <LottieView
+              ref={lottieRef}
+              source={
+                effects[effectKey]
+                  .file as import('lottie-react-native').AnimationObject
+              }
+              autoPlay
+              loop
+              resizeMode="cover"
+              style={{ width: '100%', height: '100%' }}
+            />
+          </View>
+        )}
+      </>
+    );
+  },
+);
+
+export default TripVisualBackground;

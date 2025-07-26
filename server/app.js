@@ -33,4 +33,6 @@ app.use('/orbs', require('./routes/orbs.js'));
 
 app.use('/notifications', require('./routes/notifications.js'));
 
+app.use('/vault', require('./routes/vault.js'));
+
 module.exports = app;

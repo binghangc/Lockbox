@@ -5,6 +5,7 @@ const express = require('express');
 
 const router = express.Router();
 const multer = require('multer');
+const sharp = require('sharp');
 
 const { v4: uuidv4 } = require('uuid');
 
@@ -70,11 +71,16 @@ router.post('/upload-avatar', upload.single('avatar'), async (req, res) => {
   const key = `avatars/${user_id}/${uuidv4()}.${fileExt}`;
 
   try {
+    const compressed = await sharp(file.buffer)
+      .resize(512, 512, { fit: 'cover' })
+      .jpeg({ quality: 70 })
+      .toBuffer();
+
     // Upload to Cloudflare R2
     const command = new PutObjectCommand({
       Bucket: process.env.R2_BUCKET_NAME_AVATARS,
       Key: key,
-      Body: file.buffer,
+      Body: compressed,
       ContentType: file.mimetype || 'image/jpeg',
     });
 

@@ -183,8 +183,12 @@ function ItineraryScreenContent({ trip }: { trip: Trip }) {
           onChangeText={handleChangeText}
           placeholder="What’s the plan for today?"
           placeholderTextColor={theme.secondaryText}
-          className="mt-3 p-4 border rounded-lg text-white"
-          style={{ minHeight: 120, maxHeight: 400 }}
+          className="mt-3 p-4 border rounded-lg"
+          style={{
+            minHeight: 120,
+            maxHeight: 400,
+            color: theme.primaryText,
+          }}
         />
 
         <ItineraryDayNavigator
