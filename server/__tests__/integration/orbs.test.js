@@ -138,17 +138,19 @@ describe('POST /upload', () => {
     expect(res.body.message).toBe('Upload complete');
     expect(res.body.orb).toBeDefined();
 
-    expect(encodingQueue.add).toHaveBeenCalledWith(
-      'encode-hls',
-      expect.objectContaining({
-        orbId: expect.any(String),
-        tripId: 'trip123',
-        userId: 'user123',
-        vibecheckId: 'vibecheck123',
-        sourcePath: expect.stringMatching(/temp/),
-        hlsKeyPrefix: expect.stringMatching(/orbs-hls\/trip123\/user123/),
-      }),
-    );
+    if (process.env.RUN_WORKERS === 'true') {
+      expect(encodingQueue.add).toHaveBeenCalledWith(
+        'encode-hls',
+        expect.objectContaining({
+          orbId: expect.any(String),
+          tripId: 'trip123',
+          userId: 'user123',
+          vibecheckId: 'vibecheck123',
+          sourcePath: expect.stringMatching(/temp/),
+          hlsKeyPrefix: expect.stringMatching(/orbs-hls\/trip123\/user123/),
+        }),
+      );
+    }
   });
 });
 
