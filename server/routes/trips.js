@@ -875,4 +875,22 @@ router.patch('/:id/vibecheck/:date', authMiddleware, async (req, res) => {
   });
 });
 
+// API endpoint to retrieve vault stats for a date
+router.get('/:tripId/vault/stats', async (req, res) => {
+  const { tripId } = req.params;
+
+  const { data, error } = await supabase
+    .from('trip_stats')
+    .select('*')
+    .eq('trip_id', tripId)
+    .single();
+
+  if (error) {
+    console.error('Failed to fetch trip stats:', error.message);
+    return res.status(500).json({ error: error.message });
+  }
+
+  return res.json(data);
+});
+
 module.exports = router;

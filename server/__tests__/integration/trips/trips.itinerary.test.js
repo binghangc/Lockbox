@@ -1,4 +1,4 @@
-jest.mock('../../rag/utils/generateVibeCheck.js', () => {
+jest.mock('../../../rag/utils/generateVibeCheck.js', () => {
   let counter = 1;
   return {
     generateVibeCheck: jest
@@ -10,18 +10,18 @@ jest.mock('../../rag/utils/generateVibeCheck.js', () => {
   };
 });
 
-jest.mock('../../rag/utils/getRandomFallback.js', () => ({
+jest.mock('../../../rag/utils/getRandomFallback.js', () => ({
   getRandomFallback: jest.fn(() => ({
     theme: 'funny',
     vibecheck: 'Mocked fallback: We lost the map but found snacks',
   })),
 }));
 
-jest.mock('../../utils/r2client.js', () => ({
+jest.mock('../../../utils/r2client.js', () => ({
   send: jest.fn(),
 }));
 
-jest.mock('../../encoder.js', () => jest.fn());
+jest.mock('../../../encoder.js', () => jest.fn());
 
 jest.mock('fs', () => {
   const actualFs = jest.requireActual('fs');
@@ -39,13 +39,13 @@ jest.mock('fs', () => {
   };
 });
 
-jest.mock('../../utils/r2client.js', () => ({
+jest.mock('../../../utils/r2client.js', () => ({
   send: jest.fn(),
 }));
 
-jest.mock('../../encoder.js', () => jest.fn());
+jest.mock('../../../encoder.js', () => jest.fn());
 
-jest.mock('../../queue.js', () => ({
+jest.mock('../../../queue.js', () => ({
   itineraryQueue: {
     add: jest.fn().mockResolvedValue(undefined),
   },
@@ -57,12 +57,12 @@ jest.mock('../../queue.js', () => ({
 const request = require('supertest');
 const path = require('path');
 const fs = require('fs');
-const { itineraryQueue, vibechecksQueue } = require('../../queue.js');
-const app = require('../../app.js');
-const r2 = require('../../utils/r2client.js');
-const encodeToHLS = require('../../encoder.js');
-const deleteTestUsers = require('../../utils/test/deleteTestUsers.js');
-const createTestUser = require('../../utils/test/createTestUser.js');
+const { itineraryQueue, vibechecksQueue } = require('../../../queue.js');
+const app = require('../../../app.js');
+const r2 = require('../../../utils/r2client.js');
+const encodeToHLS = require('../../../encoder.js');
+const deleteTestUsers = require('../../../utils/test/deleteTestUsers.js');
+const createTestUser = require('../../../utils/test/createTestUser.js');
 
 const EMAIL_PREFIXES = ['submit_itinerary'];
 
@@ -223,6 +223,44 @@ describe('Itinerary + Vibecheck Flow', () => {
       .set('Authorization', `Bearer ${tokenA}`);
 
     expect(res.statusCode).toBe(404);
+  });
+
+  it('should return 400 for invalid trip ID', async () => {
+    const invalidId = '123123123id';
+
+    const res = await request(app)
+      .get(`/trips/${invalidId}/vibecheck/2099-01-01`)
+      .set('Authorization', `Bearer ${tokenA}`);
+
+    expect(res.statusCode).toBe(404);
+    expect(res.body.error).toMatch(/Trip not found/i);
+  });
+
+  it('should generate a fallback vibecheck if none exists for a valid date', async () => {
+    // create a test trip for specific dates
+    const tripRes = await request(app)
+      .post('/trips')
+      .set('Authorization', `Bearer ${userA.token}`)
+      .send({
+        title: 'Test Trip',
+        start_date: '2025-08-01',
+        end_date: '2025-08-05',
+        country: 'Japan',
+        thumbnail_url: 'http://ap.png',
+      });
+
+    const tripId2 = tripRes.body.data[0].id;
+
+    // make sure the date doesn't already have a vibecheck
+    const vibeDate = '2025-08-03';
+
+    const vibeRes = await request(app)
+      .get(`/trips/${tripId2}/vibecheck/${vibeDate}`)
+      .set('Authorization', `Bearer ${userA.token}`);
+
+    expect(vibeRes.statusCode).toBe(200);
+    expect(vibeRes.body.vibecheck).toBeDefined();
+    expect(vibeRes.body.vibecheck_id).toBeDefined();
   });
 
   it('should regenerate a vibecheck for a given date if no orbs exist', async () => {

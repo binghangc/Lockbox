@@ -1,16 +1,16 @@
-jest.mock('../utils/r2SignedUrl.js', () => ({
+jest.mock('../../utils/r2SignedUrl.js', () => ({
   getDownloadUrl: jest.fn(),
 }));
 
-jest.mock('../utils/supabaseAdminClient.js', () => ({
+jest.mock('../../utils/supabaseAdminClient.js', () => ({
   from: jest.fn(),
 }));
 
-jest.mock('../utils/r2client.js', () => ({
+jest.mock('../../utils/r2client.js', () => ({
   send: jest.fn(),
 }));
 
-jest.mock('../encoder.js', () => jest.fn());
+jest.mock('../../encoder.js', () => jest.fn());
 
 jest.mock('fs', () => {
   const actualFs = jest.requireActual('fs');
@@ -28,14 +28,20 @@ jest.mock('fs', () => {
   };
 });
 
+jest.mock('../../queue.js', () => ({
+  encodingQueue: {
+    add: jest.fn(),
+  },
+}));
+
 const request = require('supertest');
 const path = require('path');
 const fs = require('fs');
-const app = require('../app.js');
-const supabase = require('../utils/supabaseAdminClient.js');
-const r2 = require('../utils/r2client.js');
-const encodeToHLS = require('../encoder.js');
-const { getDownloadUrl } = require('../utils/r2SignedUrl.js');
+const app = require('../../app.js');
+const supabase = require('../../utils/supabaseAdminClient.js');
+const r2 = require('../../utils/r2client.js');
+const { encodingQueue } = require('../../queue.js');
+const { getDownloadUrl } = require('../../utils/r2SignedUrl.js');
 
 describe('GET /vibecheck/:id/status', () => {
   beforeEach(() => {
@@ -105,7 +111,7 @@ describe('POST /upload', () => {
     });
 
     r2.send.mockResolvedValue(); // simulate successful upload
-    encodeToHLS.mockResolvedValue();
+    encodingQueue.add.mockResolvedValue();
 
     fs.createReadStream.mockReturnValue('mocked-stream');
     fs.readdirSync.mockReturnValue([]);
@@ -131,6 +137,20 @@ describe('POST /upload', () => {
     expect(res.statusCode).toBe(200);
     expect(res.body.message).toBe('Upload complete');
     expect(res.body.orb).toBeDefined();
+
+    if (process.env.RUN_WORKERS === 'true') {
+      expect(encodingQueue.add).toHaveBeenCalledWith(
+        'encode-hls',
+        expect.objectContaining({
+          orbId: expect.any(String),
+          tripId: 'trip123',
+          userId: 'user123',
+          vibecheckId: 'vibecheck123',
+          sourcePath: expect.stringMatching(/temp/),
+          hlsKeyPrefix: expect.stringMatching(/orbs-hls\/trip123\/user123/),
+        }),
+      );
+    }
   });
 });
 
@@ -163,5 +183,62 @@ describe('GET /url', () => {
 
     expect(res.statusCode).toBe(500);
     expect(res.body.error).toMatch(/Failed to generate URL/i);
+  });
+});
+
+describe('GET /vibecheck/:id/orbs', () => {
+  const vibecheckId = 'test-vibecheck-id';
+  const { R2_BASE_URL } = process.env;
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('should return orbs with HLS URLs', async () => {
+    const mockData = [
+      {
+        id: 'orb1',
+        user_id: 'user1',
+        vibecheck_id: vibecheckId,
+        hls_key: 'videos/orb1/index.m3u8',
+        created_at: '2025-07-26T12:00:00Z',
+        user: {
+          id: 'user1',
+          name: 'Alice',
+          avatar_url: 'https://example.com/avatar.jpg',
+        },
+      },
+    ];
+
+    supabase.from.mockReturnValueOnce({
+      select: jest.fn().mockReturnValueOnce({
+        eq: jest.fn().mockResolvedValueOnce({ data: mockData, error: null }),
+      }),
+    });
+
+    const res = await request(app).get(`/orbs/vibecheck/${vibecheckId}/orbs`);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.orbs).toHaveLength(1);
+    expect(res.body.orbs[0]).toHaveProperty(
+      'hlsUrl',
+      `${R2_BASE_URL}/videos/orb1/index.m3u8`,
+    );
+  });
+
+  it('should return 500 if Supabase fails', async () => {
+    supabase.from.mockReturnValueOnce({
+      select: jest.fn().mockReturnValueOnce({
+        eq: jest.fn().mockResolvedValueOnce({
+          data: null,
+          error: { message: 'DB failed' },
+        }),
+      }),
+    });
+
+    const res = await request(app).get(`/orbs/vibecheck/${vibecheckId}/orbs`);
+
+    expect(res.statusCode).toBe(500);
+    expect(res.body).toHaveProperty('error', 'Failed to fetch orbs');
   });
 });

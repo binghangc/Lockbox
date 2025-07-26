@@ -1,6 +1,6 @@
 import { View, Platform } from 'react-native';
 import { BlurView } from 'expo-blur';
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TripThemeProvider, useTripTheme } from '@/context/TripThemeProvider';
 import TripVisualBackground from '@/components/shared/tripVisualBackground';
@@ -8,6 +8,7 @@ import useTrips from '@/hooks/useTrips';
 import { useState } from 'react';
 import VibeCarousel from '@/components/vault/vibeCarousel';
 import ResponseFeed from '@/components/vault/responseFeed';
+import FloatingButton from '@/components/vault/floatingButton';
 
 function VaultContent({ tripId }: { tripId: string }) {
   const insets = useSafeAreaInsets();
@@ -16,6 +17,9 @@ function VaultContent({ tripId }: { tripId: string }) {
 
   const { trip } = useTrips(tripId);
   const bgKey = trip?.video_background ?? null;
+  const router = useRouter();
+
+  const onPress = () => router.push(`/trips/${tripId}/vaultStats`);
 
   console.log('Vault ID (centered):', selectedVibeId);
 
@@ -46,27 +50,34 @@ function VaultContent({ tripId }: { tripId: string }) {
           ),
         }}
       />
+
       <TripVisualBackground videoKey={bgKey} effectKey={null} />
-      <View
-        className="flex-1 pt-6"
-        style={{
-          paddingTop: insets.top + 60,
-          backgroundColor: 'transparent',
-        }}
-      >
-        <View style={{ flex: 1, overflow: 'visible' }}>
-          <VibeCarousel
-            tripId={tripId}
-            selectedVibeId={selectedVibeId}
-            onSelect={setSelectedVibeId}
-          />
-          {selectedVibeId && (
-            <ResponseFeed
-              vibecheckId={selectedVibeId}
-              style={{ marginTop: 16 }}
+
+      <View style={{ flex: 1 }}>
+        <View
+          className="flex-1 pt-6"
+          style={{
+            paddingTop: insets.top + 60,
+            backgroundColor: 'transparent',
+          }}
+        >
+          <View style={{ flex: 1 }}>
+            <VibeCarousel
+              tripId={tripId}
+              selectedVibeId={selectedVibeId}
+              onSelect={setSelectedVibeId}
             />
-          )}
+            {selectedVibeId && (
+              <ResponseFeed
+                vibecheckId={selectedVibeId}
+                style={{ marginTop: 16 }}
+              />
+            )}
+          </View>
         </View>
+
+        {/* Floating Button */}
+        <FloatingButton icon="⏳" onPress={onPress} />
       </View>
     </>
   );

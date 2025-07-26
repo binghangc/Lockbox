@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Text, TouchableOpacity, View, Platform } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 import { useTripTheme } from '@/context/TripThemeProvider';
 import AnimatedReanimated, {
   useAnimatedStyle,
@@ -105,76 +105,57 @@ export default function VibeCard({
     };
   }, [scrollX, index, itemWidth]);
 
-  const glowStyle = useAnimatedStyle(() => {
-    const itemPosition = index * itemWidth;
-    const distance = Math.abs(scrollX - itemPosition);
-    const isCentered = distance < itemWidth * 0.1; // Only glow when very close to center
-
-    return {
-      shadowColor: theme.inverseBackground,
-      shadowOpacity: isCentered && !isScrolling ? glow.value * 0.8 : 0,
-      shadowRadius: isCentered && !isScrolling ? 20 : 0,
-      shadowOffset: { width: 0, height: 0 },
-      elevation:
-        Platform.OS === 'android' && isCentered && !isScrolling
-          ? 8 * glow.value
-          : 0,
-    };
-  }, [scrollX, index, itemWidth, isScrolling]);
-
   return (
     <AnimatedReanimated.View style={[scaleStyle, { overflow: 'visible' }]}>
       <AnimatedReanimated.View style={[borderStyle, { overflow: 'visible' }]}>
         <AnimatedReanimated.View
           style={[opacityStyle, { overflow: 'visible' }]}
         >
-          <AnimatedReanimated.View style={[glowStyle, { overflow: 'visible' }]}>
-            <TouchableOpacity
-              onPress={onPress}
+          <TouchableOpacity
+            onPress={onPress}
+            style={{
+              width: 200,
+              minHeight: 100,
+              backgroundColor: theme.inverseBackground,
+              marginHorizontal: 12,
+              justifyContent: 'center',
+              alignItems: 'center',
+              paddingVertical: 16,
+              paddingHorizontal: 16,
+              borderRadius: 5,
+            }}
+          >
+            <View
               style={{
-                width: 200,
-                minHeight: 100,
-                backgroundColor: theme.inverseBackground,
-                marginHorizontal: 12,
-                justifyContent: 'center',
                 alignItems: 'center',
-                paddingVertical: 16,
-                paddingHorizontal: 16,
-                borderRadius: 5,
+                justifyContent: 'center',
+                flex: 1,
               }}
             >
-              <View
+              <Text
                 style={{
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flex: 1,
+                  color: theme.secondaryBackground,
+                  textAlign: 'center',
+                  fontWeight: '600',
+                  fontSize: 14,
+                  marginBottom: 8,
+                  lineHeight: 18,
                 }}
               >
-                <Text
-                  style={{
-                    color: theme.secondaryBackground,
-                    textAlign: 'center',
-                    fontWeight: '600',
-                    fontSize: 14,
-                    marginBottom: 8,
-                    lineHeight: 18,
-                  }}
-                >
-                  {vibe.prompt}
-                </Text>
-                <Text
-                  style={{
-                    color: theme.optionalText,
-                    textAlign: 'center',
-                    fontSize: 12,
-                    fontWeight: '500',
-                  }}
-                >
-                  {formatDate(vibe.date)}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          </AnimatedReanimated.View>
+                {vibe.prompt}
+              </Text>
+              <Text
+                style={{
+                  color: theme.optionalText,
+                  textAlign: 'center',
+                  fontSize: 12,
+                  fontWeight: '500',
+                }}
+              >
+                {formatDate(vibe.date)}
+              </Text>
+            </View>
+          </TouchableOpacity>
         </AnimatedReanimated.View>
       </AnimatedReanimated.View>
     </AnimatedReanimated.View>

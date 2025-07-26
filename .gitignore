@@ -1,6 +1,7 @@
 # Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
 .env
 server/.env.server
+vault-card/.env.card
 # dependencies
 node_modules/
 server/node_modules/
@@ -47,3 +48,7 @@ src/temp
 # google firebase private key
 lockbox-462913.json
 google-services.json
+
+# Ignore test coverage
+coverage/
+server/coverage/

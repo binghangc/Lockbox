@@ -38,6 +38,7 @@ jobs:
           echo "R2_ACCESS_KEY_ID=${{ secrets.R2_ACCESS_KEY_ID }}" >> .env.server
           echo "R2_SECRET_ACCESS_KEY=${{ secrets.R2_SECRET_ACCESS_KEY }}" >> .env.server
           echo "REDIS_URL"=${{ secrets.REDIS_URL }} >> .env.server
+          echo "RUN_WORKERS=true" >> .env.server
 
       - name: Install dependencies
         run: npm install
