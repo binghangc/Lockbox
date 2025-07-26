@@ -14,7 +14,10 @@ jest.mock('../utils/r2client.js', () => {
   };
 });
 
+jest.mock('sharp');
+
 const request = require('supertest');
+const sharp = require('sharp');
 const app = require('../app.js');
 const deleteTestUsers = require('../utils/test/deleteTestUsers.js');
 const createTestUser = require('../utils/test/createTestUser.js');
@@ -26,6 +29,18 @@ const EMAIL_PREFIXES = [
   'profile_upload_test',
   'profile_stats_test',
 ];
+
+beforeEach(() => {
+  jest.clearAllMocks();
+
+  sharp.mockReturnValue({
+    resize: jest.fn().mockReturnThis(),
+    jpeg: jest.fn().mockReturnThis(),
+    toBuffer: jest.fn().mockResolvedValue(Buffer.from('compressed-image')),
+  });
+
+  r2.send.mockResolvedValue({});
+});
 
 // Get Profiles Flow
 describe('Profile: Get Flow', () => {
@@ -113,6 +128,8 @@ describe('Profile: Upload Avatar Flow', () => {
 
     expect(res.statusCode).toBe(200);
     expect(res.body.avatar_url).toMatch(/avatars\//);
+    expect(r2.send).toHaveBeenCalled();
+    expect(sharp).toHaveBeenCalledWith(expect.any(Buffer));
   });
 
   it('should fail with 400 if file is missing', async () => {
