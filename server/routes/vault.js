@@ -47,7 +47,19 @@ router.get('/vault-card/:tripId', async (req, res) => {
   // Load stats and render screenshot
   const { data: stats, error } = await supabase
     .from('trip_stats')
-    .select('*')
+    .select(
+      `
+        *,
+        trip:trip_id (
+        id,
+        title,
+        country,
+        thumbnail_url,
+        start_date,
+        end_date
+        )
+    `,
+    )
     .eq('trip_id', tripId)
     .single();
 
