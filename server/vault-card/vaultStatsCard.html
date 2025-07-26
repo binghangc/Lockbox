@@ -282,7 +282,7 @@
       };
 
       window.renderStats = function (stats, trips) {
-        const bgKey = stats.video_background || 'moonlight';
+        const bgKey = stats.trip?.video_background || 'moonlight';
         document.querySelector('.story-frame').style.backgroundImage =
           `url('${BACKGROUND_IMAGES[bgKey] || BACKGROUND_IMAGES['moonlight']}')`;
 

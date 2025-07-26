@@ -55,6 +55,7 @@ router.get('/vault-card/:tripId', async (req, res) => {
         title,
         country,
         thumbnail_url,
+        video_background,
         start_date,
         end_date
         )
