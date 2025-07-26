@@ -1,10 +1,10 @@
 require('dotenv').config({ path: '../server/.env.server' });
 
 const request = require('supertest');
-const app = require('../app.js');
-const supabaseAdmin = require('../utils/supabaseAdminClient.js');
-const deleteTestUsers = require('../utils/test/deleteTestUsers.js');
-const createTestUser = require('../utils/test/createTestUser.js');
+const app = require('../../app.js');
+const supabaseAdmin = require('../../utils/supabaseAdminClient.js');
+const deleteTestUsers = require('../../utils/test/deleteTestUsers.js');
+const createTestUser = require('../../utils/test/createTestUser.js');
 
 const EMAIL_PREFIXES = [
   'signup_test',

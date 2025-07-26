@@ -1,4 +1,4 @@
-jest.mock('../../rag/utils/generateVibeCheck.js', () => {
+jest.mock('../../../rag/utils/generateVibeCheck.js', () => {
   let counter = 1;
   return {
     generateVibeCheck: jest
@@ -10,18 +10,18 @@ jest.mock('../../rag/utils/generateVibeCheck.js', () => {
   };
 });
 
-jest.mock('../../rag/utils/getRandomFallback.js', () => ({
+jest.mock('../../../rag/utils/getRandomFallback.js', () => ({
   getRandomFallback: jest.fn(() => ({
     theme: 'funny',
     vibecheck: 'Mocked fallback: We lost the map but found snacks',
   })),
 }));
 
-jest.mock('../../utils/r2client.js', () => ({
+jest.mock('../../../utils/r2client.js', () => ({
   send: jest.fn(),
 }));
 
-jest.mock('../../encoder.js', () => jest.fn());
+jest.mock('../../../encoder.js', () => jest.fn());
 
 jest.mock('fs', () => {
   const actualFs = jest.requireActual('fs');
@@ -39,13 +39,13 @@ jest.mock('fs', () => {
   };
 });
 
-jest.mock('../../utils/r2client.js', () => ({
+jest.mock('../../../utils/r2client.js', () => ({
   send: jest.fn(),
 }));
 
-jest.mock('../../encoder.js', () => jest.fn());
+jest.mock('../../../encoder.js', () => jest.fn());
 
-jest.mock('../../queue.js', () => ({
+jest.mock('../../../queue.js', () => ({
   itineraryQueue: {
     add: jest.fn().mockResolvedValue(undefined),
   },
@@ -57,12 +57,12 @@ jest.mock('../../queue.js', () => ({
 const request = require('supertest');
 const path = require('path');
 const fs = require('fs');
-const { itineraryQueue, vibechecksQueue } = require('../../queue.js');
-const app = require('../../app.js');
-const r2 = require('../../utils/r2client.js');
-const encodeToHLS = require('../../encoder.js');
-const deleteTestUsers = require('../../utils/test/deleteTestUsers.js');
-const createTestUser = require('../../utils/test/createTestUser.js');
+const { itineraryQueue, vibechecksQueue } = require('../../../queue.js');
+const app = require('../../../app.js');
+const r2 = require('../../../utils/r2client.js');
+const encodeToHLS = require('../../../encoder.js');
+const deleteTestUsers = require('../../../utils/test/deleteTestUsers.js');
+const createTestUser = require('../../../utils/test/createTestUser.js');
 
 const EMAIL_PREFIXES = ['submit_itinerary'];
 

@@ -1,4 +1,4 @@
-jest.mock('../utils/r2client.js', () => {
+jest.mock('../../utils/r2client.js', () => {
   const putObjectCommand = jest.fn(() => ({
     promise: jest.fn().mockResolvedValue({
       ETag: '"mocked-etag"',
@@ -18,10 +18,10 @@ jest.mock('sharp');
 
 const request = require('supertest');
 const sharp = require('sharp');
-const app = require('../app.js');
-const deleteTestUsers = require('../utils/test/deleteTestUsers.js');
-const createTestUser = require('../utils/test/createTestUser.js');
-const r2 = require('../utils/r2client.js');
+const app = require('../../app.js');
+const deleteTestUsers = require('../../utils/test/deleteTestUsers.js');
+const createTestUser = require('../../utils/test/createTestUser.js');
+const r2 = require('../../utils/r2client.js');
 
 const EMAIL_PREFIXES = [
   'profile_get_test',

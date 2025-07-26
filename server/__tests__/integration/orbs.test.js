@@ -1,16 +1,16 @@
-jest.mock('../utils/r2SignedUrl.js', () => ({
+jest.mock('../../utils/r2SignedUrl.js', () => ({
   getDownloadUrl: jest.fn(),
 }));
 
-jest.mock('../utils/supabaseAdminClient.js', () => ({
+jest.mock('../../utils/supabaseAdminClient.js', () => ({
   from: jest.fn(),
 }));
 
-jest.mock('../utils/r2client.js', () => ({
+jest.mock('../../utils/r2client.js', () => ({
   send: jest.fn(),
 }));
 
-jest.mock('../encoder.js', () => jest.fn());
+jest.mock('../../encoder.js', () => jest.fn());
 
 jest.mock('fs', () => {
   const actualFs = jest.requireActual('fs');
@@ -28,7 +28,7 @@ jest.mock('fs', () => {
   };
 });
 
-jest.mock('../queue.js', () => ({
+jest.mock('../../queue.js', () => ({
   encodingQueue: {
     add: jest.fn(),
   },
@@ -37,11 +37,11 @@ jest.mock('../queue.js', () => ({
 const request = require('supertest');
 const path = require('path');
 const fs = require('fs');
-const app = require('../app.js');
-const supabase = require('../utils/supabaseAdminClient.js');
-const r2 = require('../utils/r2client.js');
-const { encodingQueue } = require('../queue.js');
-const { getDownloadUrl } = require('../utils/r2SignedUrl.js');
+const app = require('../../app.js');
+const supabase = require('../../utils/supabaseAdminClient.js');
+const r2 = require('../../utils/r2client.js');
+const { encodingQueue } = require('../../queue.js');
+const { getDownloadUrl } = require('../../utils/r2SignedUrl.js');
 
 describe('GET /vibecheck/:id/status', () => {
   beforeEach(() => {

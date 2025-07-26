@@ -32,14 +32,14 @@ jest.mock('puppeteer', () => ({
   launch: jest.fn(),
 }));
 
-jest.mock('../vault-card/utils/uploadToR2.js', () => jest.fn());
+jest.mock('../../vault-card/utils/uploadToR2.js', () => jest.fn());
 
 const request = require('supertest');
 const fs = require('fs');
 const puppeteer = require('puppeteer');
 const { createClient } = require('@supabase/supabase-js');
-const app = require('../app.js');
-const uploadToR2 = require('../vault-card/utils/uploadToR2.js');
+const app = require('../../app.js');
+const uploadToR2 = require('../../vault-card/utils/uploadToR2.js');
 
 // fs mock for HTML template
 jest.spyOn(fs, 'readFileSync').mockReturnValue(`
