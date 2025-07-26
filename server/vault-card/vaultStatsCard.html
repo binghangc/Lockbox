@@ -1,10 +1,16 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Lexend:wght@400;600&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Lexend+Giga:wght@100..900&display=swap" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Lexend:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lexend+Giga:wght@100..900&display=swap"
+      rel="stylesheet"
+    />
     <title>Vault Stats Card</title>
     <style>
       * {
@@ -30,7 +36,7 @@
         display: flex;
         padding-top: 150px;
         justify-content: center;
-        align-items: flex-start; 
+        align-items: flex-start;
         background-repeat: no-repeat;
         background-position: center center;
         background-size: cover;
@@ -99,40 +105,40 @@
   </head>
   <body>
     <div class="story-frame">
-    <div
-      style="
-        position: absolute;
-        top: 48px;
-        right: 48px;
-        text-align: center;
-        z-index: 10;
-      "
-    >
-      <img
-        src="https://pub-a18011636b034121a62d87f69d83198f.r2.dev/fallbacks/lockicon.png"
-        alt="Lockbox Logo"
-        style="
-          width: 64px;
-          height: 64px;
-          border-radius: 12px;
-          object-fit: cover;
-          margin-bottom: 4px;
-        "
-      />
       <div
         style="
-          font-size: 14px;
-          color: black;
-          font-weight: 600;
-          font-family: 'Sora', sans-serif;
+          position: absolute;
+          top: 48px;
+          right: 48px;
+          text-align: center;
+          z-index: 10;
         "
       >
-        Lockbox
+        <img
+          src="https://pub-a18011636b034121a62d87f69d83198f.r2.dev/fallbacks/lockicon.png"
+          alt="Lockbox Logo"
+          style="
+            width: 64px;
+            height: 64px;
+            border-radius: 12px;
+            object-fit: cover;
+            margin-bottom: 4px;
+          "
+        />
+        <div
+          style="
+            font-size: 14px;
+            color: black;
+            font-weight: 600;
+            font-family: 'Sora', sans-serif;
+          "
+        >
+          Lockbox
+        </div>
       </div>
-    </div>
       <div id="root" class="card">
-        <h1 id="trip-title" style="text-align:center; margin-top: 8px;"></h2>
-        <div style="display: flex; justify-content: center; margin: 12px 0;">
+        <h1 id="trip-title" style="text-align: center; margin-top: 8px"></h1>
+        <div style="display: flex; justify-content: center; margin: 12px 0">
           <img
             id="trip-thumbnail"
             src=""
@@ -146,8 +152,14 @@
             "
           />
         </div>
-        <h4 id="trip-country" style="text-align:center; font-weight: normal;"></h4>
-        <h4 id="trip-dates" style="text-align:center; margin-bottom: 20px; font-weight: normal;"></h4>
+        <h4
+          id="trip-country"
+          style="text-align: center; font-weight: normal"
+        ></h4>
+        <h4
+          id="trip-dates"
+          style="text-align: center; margin-bottom: 20px; font-weight: normal"
+        ></h4>
 
         <h2><i>Your overall vibe this trip</i></h2>
         <h1 id="trip-archetype">Trip Archetype</h1>
@@ -172,47 +184,90 @@
       </div>
     </div>
 
-
     <script>
       const THEME_CONFIG = {
-        funny: { emoji: '🤣', label: 'Funny', description: 'Moments that made you burst out laughing.' },
-        emotional: { emoji: '🥺', label: 'Emotional', description: 'Heartfelt or tearjerking vibes.' },
-        nostalgic: { emoji: '📼', label: 'Nostalgic', description: 'Throwbacks and memories.' },
-        reflective: { emoji: '🪞', label: 'Reflective', description: 'Deep thoughts, introspection, and growth.' },
-        aesthetic: { emoji: '🎨', label: 'Aesthetic', description: 'Visual perfection and vibes.' },
-        chaotic: { emoji: '🎢', label: 'Chaotic', description: 'Unpredictable and high-energy moments.' },
-        vulnerable: { emoji: '🫶', label: 'Vulnerable', description: 'Open, honest, and real.' },
-        romantic: { emoji: '💘', label: 'Romantic', description: 'Sweet dates, flirty energy, and love in the air.' },
-        unfiltered: { emoji: '📸', label: 'Unfiltered', description: 'Raw and candid takes.' },
-        wholesome: { emoji: '🧸', label: 'Wholesome', description: 'Soft, gentle, and feel-good content.' },
-        yums: { emoji: '🍜', label: 'Yums', description: 'Delicious eats and foodie finds.' },
+        funny: {
+          emoji: '🤣',
+          label: 'Funny',
+          description: 'Moments that made you burst out laughing.',
+        },
+        emotional: {
+          emoji: '🥺',
+          label: 'Emotional',
+          description: 'Heartfelt or tearjerking vibes.',
+        },
+        nostalgic: {
+          emoji: '📼',
+          label: 'Nostalgic',
+          description: 'Throwbacks and memories.',
+        },
+        reflective: {
+          emoji: '🪞',
+          label: 'Reflective',
+          description: 'Deep thoughts, introspection, and growth.',
+        },
+        aesthetic: {
+          emoji: '🎨',
+          label: 'Aesthetic',
+          description: 'Visual perfection and vibes.',
+        },
+        chaotic: {
+          emoji: '🎢',
+          label: 'Chaotic',
+          description: 'Unpredictable and high-energy moments.',
+        },
+        vulnerable: {
+          emoji: '🫶',
+          label: 'Vulnerable',
+          description: 'Open, honest, and real.',
+        },
+        romantic: {
+          emoji: '💘',
+          label: 'Romantic',
+          description: 'Sweet dates, flirty energy, and love in the air.',
+        },
+        unfiltered: {
+          emoji: '📸',
+          label: 'Unfiltered',
+          description: 'Raw and candid takes.',
+        },
+        wholesome: {
+          emoji: '🧸',
+          label: 'Wholesome',
+          description: 'Soft, gentle, and feel-good content.',
+        },
+        yums: {
+          emoji: '🍜',
+          label: 'Yums',
+          description: 'Delicious eats and foodie finds.',
+        },
       };
 
       const VIBE_CLUSTER_CONFIG = {
         'Dreamy Chill': {
           emoji: '🌙✨',
           tagline: 'Laid-back vibes and stargazing feels.',
-          glowColor: '#60a5fa'
+          glowColor: '#60a5fa',
         },
         'Chaotic Fun': {
           emoji: '🎉🔥',
           tagline: 'Unhinged energy. You lived a little.',
-          glowColor: '#fb7185'
+          glowColor: '#fb7185',
         },
         'Reflective Quiet': {
           emoji: '🪞🌲',
           tagline: 'Deep thoughts and tranquil moments.',
-          glowColor: '#818cf8'
+          glowColor: '#818cf8',
         },
         'Romantic Escape': {
           emoji: '💘🌅',
           tagline: 'A trip straight out of a love song.',
-          glowColor: '#f472b6'
+          glowColor: '#f472b6',
         },
         'Adventure Rush': {
           emoji: '🏔️⚡',
           tagline: 'Action-packed and adrenaline-fueled.',
-          glowColor: '#eab308'
+          glowColor: '#eab308',
         },
       };
 
@@ -226,24 +281,28 @@
         ski: `${BASE}/skiStatic.png`,
       };
 
-
       window.renderStats = function (stats, trips) {
         const bgKey = stats.video_background || 'moonlight';
-        document.querySelector('.story-frame').style.backgroundImage = `url('${BACKGROUND_IMAGES[bgKey] || BACKGROUND_IMAGES['moonlight']}')`;
+        document.querySelector('.story-frame').style.backgroundImage =
+          `url('${BACKGROUND_IMAGES[bgKey] || BACKGROUND_IMAGES['moonlight']}')`;
 
         if (stats.trip?.thumbnail_url) {
           const img = document.getElementById('trip-thumbnail');
           img.src = stats.trip?.thumbnail_url;
           img.style.display = 'block';
         }
-        
-        document.getElementById('trip-title').textContent = stats.trip?.title || '';
-        document.getElementById('trip-country').textContent = stats.trip?.country || '';
-        document.getElementById('trip-dates').textContent = stats.trip?.start_date && stats.trip?.end_date
-          ? `${stats.trip.start_date} → ${stats.trip.end_date}`
-          : '';
-        
-        document.getElementById('trip-archetype').textContent = stats.trip_archetype;
+
+        document.getElementById('trip-title').textContent =
+          stats.trip?.title || '';
+        document.getElementById('trip-country').textContent =
+          stats.trip?.country || '';
+        document.getElementById('trip-dates').textContent =
+          stats.trip?.start_date && stats.trip?.end_date
+            ? `${stats.trip.start_date} → ${stats.trip.end_date}`
+            : '';
+
+        document.getElementById('trip-archetype').textContent =
+          stats.trip_archetype;
 
         const themesEl = document.getElementById('themes');
         Object.entries(stats.theme_distribution)
@@ -267,24 +326,36 @@
           });
         };
         if (stats.top_activity_tags?.length > 0) {
-          document.getElementById('activities').previousElementSibling.style.display = 'block';
+          document.getElementById(
+            'activities',
+          ).previousElementSibling.style.display = 'block';
           fillTags('activities', stats.top_activity_tags);
         } else {
-          document.getElementById('activities').previousElementSibling.style.display = 'none';
+          document.getElementById(
+            'activities',
+          ).previousElementSibling.style.display = 'none';
         }
 
         if (stats.top_location_tags?.length > 0) {
-          document.getElementById('locations').previousElementSibling.style.display = 'block';
+          document.getElementById(
+            'locations',
+          ).previousElementSibling.style.display = 'block';
           fillTags('locations', stats.top_location_tags);
         } else {
-          document.getElementById('locations').previousElementSibling.style.display = 'none';
+          document.getElementById(
+            'locations',
+          ).previousElementSibling.style.display = 'none';
         }
 
         if (stats.top_keywords?.length > 0) {
-          document.getElementById('keywords').previousElementSibling.style.display = 'block';
+          document.getElementById(
+            'keywords',
+          ).previousElementSibling.style.display = 'block';
           fillTags('keywords', stats.top_keywords);
         } else {
-          document.getElementById('keywords').previousElementSibling.style.display = 'none';
+          document.getElementById(
+            'keywords',
+          ).previousElementSibling.style.display = 'none';
         }
 
         const highlight = document.getElementById('highlight');
@@ -299,7 +370,7 @@
           const config = VIBE_CLUSTER_CONFIG[name] || {
             emoji: '🌀',
             tagline: 'Undefined vibes',
-            glowColor: '#aaa'
+            glowColor: '#aaa',
           };
           const div = document.createElement('div');
           div.className = 'vibe-card';
@@ -310,7 +381,7 @@
       };
 
       // Render is injected by server during screenshot generation
-      window.renderStats(/**INJECT_STATS_HERE**/)
+      window.renderStats(/**INJECT_STATS_HERE**/);
     </script>
   </body>
 </html>

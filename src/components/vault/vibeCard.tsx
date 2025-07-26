@@ -108,7 +108,9 @@ export default function VibeCard({
   return (
     <AnimatedReanimated.View style={[scaleStyle, { overflow: 'visible' }]}>
       <AnimatedReanimated.View style={[borderStyle, { overflow: 'visible' }]}>
-        <AnimatedReanimated.View style={[opacityStyle, { overflow: 'visible' }]}>
+        <AnimatedReanimated.View
+          style={[opacityStyle, { overflow: 'visible' }]}
+        >
           <TouchableOpacity
             onPress={onPress}
             style={{
