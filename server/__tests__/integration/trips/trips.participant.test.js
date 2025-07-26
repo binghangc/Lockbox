@@ -9,8 +9,12 @@ const EMAIL_PREFIXES = [
   'leave_trip',
   'participants',
   'pin_trip',
-  'vault_stats',
+  'vault_stats_test',
 ];
+
+beforeAll(async () => {
+  await deleteTestUsers(EMAIL_PREFIXES);
+});
 
 // Leave Trip route
 describe('Trips: Leave Trip Flow', () => {
@@ -87,8 +91,6 @@ describe('Trips: Get Participants Flow', () => {
   let partUser;
 
   beforeAll(async () => {
-    await deleteTestUsers(EMAIL_PREFIXES);
-
     hostUser = await createTestUser({
       prefix: 'participants_host',
       username: 'getparthost',
@@ -219,8 +221,6 @@ describe('GET /trips/:tripId/vault/stats', () => {
   let tripId;
 
   beforeAll(async () => {
-    await deleteTestUsers(['vault_stats_test']);
-
     user = await createTestUser({
       prefix: 'vault_stats_test',
       username: 'vaultuser',

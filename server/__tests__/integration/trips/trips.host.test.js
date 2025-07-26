@@ -5,34 +5,42 @@ const supabaseAdmin = require('../../../utils/supabaseAdminClient.js');
 const deleteTestUsers = require('../../../utils/test/deleteTestUsers.js');
 const createTestUser = require('../../../utils/test/createTestUser.js');
 
-const EMAIL_PREFIXES = [
-  'trip_test',
-  'create_upcoming_trip',
-  'create_ongoing_trip',
-  'delete_trip',
-  'edit_trip',
-];
+const EMAIL_PREFIXES = ['trip_base_user', 'trip_alt_user', 'trip_host_user'];
+
+let baseUser;
+let altUser;
+let hostUser;
+
+beforeAll(async () => {
+  await deleteTestUsers(EMAIL_PREFIXES);
+
+  baseUser = await createTestUser({
+    prefix: 'trip_base_user',
+    username: 'tripbase',
+  });
+
+  altUser = await createTestUser({
+    prefix: 'trip_alt_user',
+    username: 'tripalt',
+  });
+
+  hostUser = await createTestUser({
+    prefix: 'trip_host_user',
+    username: 'triphost',
+  });
+});
 
 // Get Trips Test for dashboard
 describe('Trips: Get Flow', () => {
-  beforeAll(async () => {
-    await deleteTestUsers(EMAIL_PREFIXES);
-  });
-
   it('should return 401 if no auth token is provided', async () => {
     const res = await request(app).get('/trips');
     expect(res.statusCode).toBe(401);
   });
 
   it('should return an empty trips list for new user', async () => {
-    const user = await createTestUser({
-      prefix: 'trip_test',
-      username: 'triptest',
-    });
-
     const res = await request(app)
       .get('/trips')
-      .set('Authorization', `Bearer ${user.token}`);
+      .set('Authorization', `Bearer ${baseUser.token}`);
 
     expect(res.statusCode).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
@@ -41,20 +49,12 @@ describe('Trips: Get Flow', () => {
 
 // Create Trips Flow: upcoming trip
 describe('Trips: Post Flow (Upcoming)', () => {
-  let user;
   let tripId;
-
-  beforeAll(async () => {
-    user = await createTestUser({
-      prefix: 'create_upcoming_trip',
-      username: 'createupcoming',
-    });
-  });
 
   it('should return 400 error when fields are left blank', async () => {
     const createRes = await request(app)
       .post('/trips/')
-      .set('Authorization', `Bearer ${user.token}`)
+      .set('Authorization', `Bearer ${baseUser.token}`)
       .send({});
 
     expect(createRes.statusCode).toBeGreaterThanOrEqual(400);
@@ -64,7 +64,7 @@ describe('Trips: Post Flow (Upcoming)', () => {
   it('should return 500 for invalid date format', async () => {
     const res = await request(app)
       .post('/trips')
-      .set('Authorization', `Bearer ${user.token}`)
+      .set('Authorization', `Bearer ${baseUser.token}`)
       .send({
         title: 'Test Trip',
         description: 'Test desc',
@@ -81,7 +81,7 @@ describe('Trips: Post Flow (Upcoming)', () => {
   it('should create an upcoming trip with valid data', async () => {
     const res = await request(app)
       .post('/trips')
-      .set('Authorization', `Bearer ${user.token}`)
+      .set('Authorization', `Bearer ${baseUser.token}`)
       .send({
         title: 'Valid Trip',
         description: 'Some description',
@@ -103,32 +103,24 @@ describe('Trips: Post Flow (Upcoming)', () => {
   it('should return the correct trip by ID', async () => {
     const res = await request(app)
       .get(`/trips/${tripId}`)
-      .set('Authorization', `Bearer ${user.token}`);
+      .set('Authorization', `Bearer ${baseUser.token}`);
 
     expect(res.statusCode).toBe(200);
     expect(res.body).toHaveProperty('id', tripId);
     expect(res.body).toHaveProperty('title', 'Valid Trip');
     expect(res.body).toHaveProperty('is_host', true);
-    expect(res.body.host).toHaveProperty('id', user.id);
+    expect(res.body.host).toHaveProperty('id', baseUser.id);
   });
 });
 
 // Create Trips Flow: ongoing trip
 describe('Trips: Post Flow (Ongoing)', () => {
-  let user;
   let tripId;
-
-  beforeAll(async () => {
-    user = await createTestUser({
-      prefix: 'create_ongoing_trip',
-      username: 'createongoing',
-    });
-  });
 
   it('should create an ongoing trip with valid data', async () => {
     const res = await request(app)
       .post('/trips')
-      .set('Authorization', `Bearer ${user.token}`)
+      .set('Authorization', `Bearer ${baseUser.token}`)
       .send({
         title: 'Valid Ongoing Trip',
         description: 'Some description',
@@ -151,36 +143,25 @@ describe('Trips: Post Flow (Ongoing)', () => {
   it('should return the correct trip by ID', async () => {
     const res = await request(app)
       .get(`/trips/${tripId}`)
-      .set('Authorization', `Bearer ${user.token}`);
+      .set('Authorization', `Bearer ${baseUser.token}`);
 
     expect(res.statusCode).toBe(200);
     expect(res.body).toHaveProperty('id', tripId);
     expect(res.body).toHaveProperty('title', 'Valid Ongoing Trip');
     expect(res.body).toHaveProperty('is_host', true);
-    expect(res.body.host).toHaveProperty('id', user.id);
+    expect(res.body.host).toHaveProperty('id', baseUser.id);
   });
 });
 
 // Delete Trip route
 describe('Trips: Delete Flow', () => {
-  let userA;
-  let userB;
   let tripId;
 
   beforeAll(async () => {
-    userA = await createTestUser({
-      prefix: 'delete_trip_host',
-      username: 'tripdeletehost',
-    });
-    userB = await createTestUser({
-      prefix: 'delete_trip_other',
-      username: 'tripdeletepart',
-    });
-
     const today = new Date().toISOString().slice(0, 10);
     const createRes = await request(app)
       .post('/trips')
-      .set('Authorization', `Bearer ${userA.token}`)
+      .set('Authorization', `Bearer ${hostUser.token}`)
       .send({
         title: 'Trip to Delete',
         description: 'Testing deletion',
@@ -197,7 +178,7 @@ describe('Trips: Delete Flow', () => {
   it('should return 403 when trying to delete trip as non-host', async () => {
     const res = await request(app)
       .delete(`/trips/${tripId}`)
-      .set('Authorization', `Bearer ${userB.token}`);
+      .set('Authorization', `Bearer ${altUser.token}`);
 
     expect(res.statusCode).toBe(403);
     expect(res.body.error).toMatch(/not the trip owner/i);
@@ -206,7 +187,7 @@ describe('Trips: Delete Flow', () => {
   it('should allow the host to delete their trip', async () => {
     const res = await request(app)
       .delete(`/trips/${tripId}`)
-      .set('Authorization', `Bearer ${userA.token}`);
+      .set('Authorization', `Bearer ${hostUser.token}`);
 
     expect(res.statusCode).toBe(200);
     expect(res.body.success).toBe(true);
@@ -215,7 +196,7 @@ describe('Trips: Delete Flow', () => {
   it('should return 403 or 500 when trying to delete already-deleted trip', async () => {
     const res = await request(app)
       .delete(`/trips/${tripId}`)
-      .set('Authorization', `Bearer ${userA.token}`);
+      .set('Authorization', `Bearer ${hostUser.token}`);
 
     console.log(res.statusCode);
     expect([403, 500, 404]).toContain(res.statusCode);
@@ -224,20 +205,9 @@ describe('Trips: Delete Flow', () => {
 
 // Edit Trips flow
 describe('Trips: Edit Flow', () => {
-  let hostUser;
-  let partUser;
   let tripId;
 
   beforeAll(async () => {
-    hostUser = await createTestUser({
-      prefix: 'edit_trip_host',
-      username: 'edittriphost',
-    });
-    partUser = await createTestUser({
-      prefix: 'edit_trip_nonhost',
-      username: 'edittrippart',
-    });
-
     const today = new Date().toISOString().slice(0, 10);
     const tripRes = await request(app)
       .post('/trips')
@@ -253,10 +223,9 @@ describe('Trips: Edit Flow', () => {
 
     tripId = tripRes.body.data[0].id;
 
-    // Manually insert participant
     await supabaseAdmin
       .from('participants')
-      .insert([{ trip_id: tripId, user_id: partUser.id, role: 'participant' }]);
+      .insert([{ trip_id: tripId, user_id: altUser.id, role: 'participant' }]);
   });
 
   it('should update trip successfully for host', async () => {
@@ -273,7 +242,7 @@ describe('Trips: Edit Flow', () => {
   it('should return 400 if non-host tries to edit trip', async () => {
     const res = await request(app)
       .patch(`/trips/${tripId}/edit`)
-      .set('Authorization', `Bearer ${partUser.token}`)
+      .set('Authorization', `Bearer ${altUser.token}`)
       .send({ title: 'Malicious Edit' });
 
     expect(res.statusCode).toBe(400);

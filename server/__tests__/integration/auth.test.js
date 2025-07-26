@@ -18,12 +18,12 @@ const EMAIL_PREFIXES = [
   'password_update_test',
 ];
 
+beforeAll(async () => {
+  await deleteTestUsers(EMAIL_PREFIXES);
+});
+
 // Signup Flow Test
 describe('Auth: Signup Flow', () => {
-  beforeAll(async () => {
-    await deleteTestUsers(EMAIL_PREFIXES);
-  });
-
   it('should reject signup with missing fields', async () => {
     const res = await request(app).post('/auth/signup').send({});
     expect(res.statusCode).toBe(400);
@@ -177,16 +177,14 @@ describe('Auth: Refresh Token, Email and Password Update', () => {
   let passwordUser;
 
   beforeAll(async () => {
-    await deleteTestUsers(EMAIL_PREFIXES);
-
     refreshUser = await createTestUser({
       prefix: 'refresh_test',
-      username: 'refreshtestuser',
+      username: 'refreshuser',
     });
 
     passwordUser = await createTestUser({
       prefix: 'password_update_test',
-      username: 'passwordtestuser',
+      username: 'passworduser',
     });
   });
 

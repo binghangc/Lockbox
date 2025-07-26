@@ -80,34 +80,6 @@ router.post('/login', async (req, res) => {
   });
 });
 
-// API endpoint for token exchange
-router.get('/auth/confirm', async (req, res) => {
-  const { token_hash, type } = req.query;
-
-  if (token_hash && type) {
-    /*
-    try {
-      const supabaseClient = createClient({ req, res });
-
-      const { error } = await supabaseClient.auth.verifyOtp({
-        type,
-        token_hash,
-      });
-
-      if (!error) {
-        return res.redirect(303, `/${next.replace(/^\//, '')}`);
-      }
-      console.error('OTP Verification Error:', error);
-    } catch (err) {
-      console.error('Unexpected Error:', err);
-    }
-    */
-  }
-
-  // On failure, redirect to custom error page
-  return res.redirect(303, '/auth/auth-code-error');
-});
-
 // DELETE /auth/delete - delete user account
 router.delete('/delete', async (req, res) => {
   const authHeader = req.headers.authorization;
