@@ -1,0 +1,30 @@
+services:
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: lockbox-server
+    ports:
+      - '3000:3000'
+    env_file:
+      - ./server/.env.server
+    command: node server/server.js
+    depends_on:
+      - redis
+
+  workers:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: lockbox-workers
+    env_file:
+      - ./server/.env.server
+    command: node server/workers.js
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7
+    container_name: lockbox-redis
+    ports:
+      - '6379:6379'
