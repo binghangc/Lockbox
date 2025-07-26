@@ -1,10 +1,16 @@
 const request = require('supertest');
 const app = require('../../../app.js');
 const supabaseAdmin = require('../../../utils/supabaseAdminClient.js');
+const supabase = require('../../../utils/supabaseUserClient.js');
 const deleteTestUsers = require('../../../utils/test/deleteTestUsers.js');
 const createTestUser = require('../../../utils/test/createTestUser.js');
 
-const EMAIL_PREFIXES = ['leave_trip', 'participants'];
+const EMAIL_PREFIXES = [
+  'leave_trip',
+  'participants',
+  'pin_trip',
+  'vault_stats',
+];
 
 // Leave Trip route
 describe('Trips: Leave Trip Flow', () => {
@@ -141,6 +147,128 @@ describe('Trips: Get Participants Flow', () => {
     const participant = res.body.find((p) => p.user_id === partUser.id);
     expect(participant).toBeDefined();
     expect(participant.profile).toHaveProperty('username', 'getpartpart');
+  });
+});
+
+// Pin trip
+describe('PATCH /trips/:trip_id/pin', () => {
+  let user;
+  let trip_id;
+
+  beforeAll(async () => {
+    user = await createTestUser({
+      prefix: 'pin_trip_test',
+      username: 'pintripuser',
+    });
+
+    // Create a mock trip and insert participant row
+    const tripRes = await request(app)
+      .post('/trips')
+      .set('Authorization', `Bearer ${user.token}`)
+      .send({
+        title: 'Valid Trip',
+        description: 'Some description',
+        start_date: '2025-09-16',
+        end_date: '2025-09-18',
+        country: 'Japan',
+        thumbnail_url: 'https://...',
+      });
+
+    trip_id = tripRes.body.data[0].id;
+  });
+
+  it('should toggle the pin state for a participant', async () => {
+    console.log('Trip ID:', trip_id);
+    console.log('User ID:', user.id);
+
+    const { data: participant, error } = await supabaseAdmin
+      .from('participants')
+      .select('*')
+      .eq('trip_id', trip_id)
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    if (error) console.error('Participant fetch error:', error.message);
+    console.log('Participant before PATCH:', participant);
+
+    const res = await request(app)
+      .patch(`/trips/${trip_id}/pin`)
+      .set('Authorization', `Bearer ${user.token}`);
+
+    console.log('Response:', res.statusCode, res.body);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toHaveProperty('message', 'Pin state toggled');
+    expect(typeof res.body.is_pinned).toBe('boolean');
+  });
+
+  it('should return 404 if participant does not exist', async () => {
+    const fakeTripId = 'nonexistent-trip-id';
+
+    const res = await request(app)
+      .patch(`/trips/${fakeTripId}/pin`)
+      .set('Authorization', `Bearer ${user.token}`);
+
+    expect(res.statusCode).toBe(404);
+    expect(res.body).toHaveProperty('error', 'Participant not found');
+  });
+});
+
+describe('GET /trips/:tripId/vault/stats', () => {
+  let user;
+  let tripId;
+
+  beforeAll(async () => {
+    await deleteTestUsers(['vault_stats_test']);
+
+    user = await createTestUser({
+      prefix: 'vault_stats_test',
+      username: 'vaultuser',
+    });
+
+    const tripRes = await request(app)
+      .post('/trips')
+      .set('Authorization', `Bearer ${user.token}`)
+      .send({
+        title: 'Valid Trip',
+        description: 'Some description',
+        start_date: '2025-09-16',
+        end_date: '2025-09-18',
+        country: 'Japan',
+        thumbnail_url: 'https://...',
+      });
+
+    tripId = tripRes.body.data[0].id;
+
+    await supabase.from('trip_stats').insert({
+      trip_id: tripId,
+      top_activity_tags: ['hiking', 'swimming', 'museum'],
+      top_location_tags: ['mountain', 'beach', 'city'],
+      theme_distribution: {
+        Nature: 3,
+        Culture: 2,
+        Adventure: 1,
+      },
+      vibe_clusters: ['Dreamy Chill', 'Chaotic Fun'],
+    });
+  });
+
+  it('should return vault stats for the trip', async () => {
+    const res = await request(app).get(`/trips/${tripId}/vault/stats`);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toHaveProperty('trip_id', tripId);
+    expect(res.body).toHaveProperty('theme_distribution');
+    expect(res.body).toHaveProperty('vibe_clusters');
+  });
+
+  it('should return 500 if trip stats are missing', async () => {
+    const res = await request(app).get(
+      '/trips/nonexistent-trip-id/vault/stats',
+    );
+
+    expect(res.statusCode).toBe(500);
+    expect(res.body).toHaveProperty('error');
   });
 });
 
