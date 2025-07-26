@@ -30,7 +30,12 @@ async function createTestUser({ prefix, username, password = 'Test1234!' }) {
   const res = await request(app).post('/auth/login').send({ email, password });
   const token = res.body.session.access_token;
 
-  return { email, id: data.user.id, token };
+  return {
+    email,
+    id: data.user.id,
+    token,
+    refreshToken: res.body.session.refresh_token,
+  };
 }
 
 module.exports = createTestUser;

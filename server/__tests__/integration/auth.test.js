@@ -3,6 +3,7 @@ require('dotenv').config({ path: '../server/.env.server' });
 const request = require('supertest');
 const app = require('../../app.js');
 const supabaseAdmin = require('../../utils/supabaseAdminClient.js');
+const supabase = require('../../utils/supabaseUserClient.js');
 const deleteTestUsers = require('../../utils/test/deleteTestUsers.js');
 const createTestUser = require('../../utils/test/createTestUser.js');
 
@@ -12,6 +13,9 @@ const EMAIL_PREFIXES = [
   'login_test',
   'fail_login_test',
   'delete_test',
+  'refresh_test',
+  'email_update_test',
+  'password_update_test',
 ];
 
 // Signup Flow Test
@@ -165,6 +169,119 @@ describe('Auth: Delete User Flow', () => {
   it('should return 401 if no token is provided', async () => {
     const res = await request(app).delete('/auth/delete');
     expect(res.statusCode).toBe(401);
+  });
+});
+
+describe('Auth: Refresh Token, Email and Password Update', () => {
+  let refreshUser;
+  let passwordUser;
+
+  beforeAll(async () => {
+    await deleteTestUsers(EMAIL_PREFIXES);
+
+    refreshUser = await createTestUser({
+      prefix: 'refresh_test',
+      username: 'refreshtestuser',
+    });
+
+    passwordUser = await createTestUser({
+      prefix: 'password_update_test',
+      username: 'passwordtestuser',
+    });
+  });
+
+  describe('POST /auth/refresh', () => {
+    it('should return 400 if no token is provided', async () => {
+      const res = await request(app).post('/auth/refresh').send({});
+      expect(res.statusCode).toBe(400);
+    });
+
+    it('should refresh session successfully with a valid refresh_token', async () => {
+      const res = await request(app)
+        .post('/auth/refresh')
+        .send({ refresh_token: refreshUser.refreshToken });
+
+      expect(res.statusCode).toBe(200);
+      expect(res.body).toHaveProperty('session');
+    });
+
+    it('should return 401 if the token is invalid', async () => {
+      const res = await request(app)
+        .post('/auth/refresh')
+        .send({ refresh_token: 'invalid-token' });
+
+      expect(res.statusCode).toBe(401);
+    });
+  });
+
+  describe('PATCH /auth/update-email', () => {
+    it('should reject if email is missing or invalid', async () => {
+      const res = await request(app)
+        .patch('/auth/update-email')
+        .set('Authorization', `Bearer ${refreshUser.token}`)
+        .send({ email: 'bademail' });
+
+      expect(res.statusCode).toBe(400);
+    });
+
+    it('should update email and prompt confirmation', async () => {
+      const testEmail = `email_update_test_${Date.now()}@lockbox.dev`;
+
+      await supabase.auth.setSession({
+        access_token: refreshUser.token,
+        refresh_token: refreshUser.refreshToken,
+      });
+
+      const res = await request(app)
+        .patch('/auth/update-email')
+        .set('Authorization', `Bearer ${refreshUser.token}`)
+        .send({ email: testEmail });
+
+      expect(res.statusCode).toBe(200);
+      expect(res.body).toHaveProperty('message');
+      if ('email_change' in res.body) {
+        expect(res.body.email_change).toMatch(/@lockbox.dev$/);
+      }
+    });
+  });
+
+  describe('PATCH /auth/update-password', () => {
+    it('should reject if missing current or new password', async () => {
+      const res = await request(app)
+        .patch('/auth/update-password')
+        .set('Authorization', `Bearer ${passwordUser.token}`)
+        .send({});
+
+      expect(res.statusCode).toBe(400);
+    });
+
+    it('should reject if new password is too short', async () => {
+      const res = await request(app)
+        .patch('/auth/update-password')
+        .set('Authorization', `Bearer ${passwordUser.token}`)
+        .send({ currentPassword: 'Test1234!', newPassword: 'short' });
+
+      expect(res.statusCode).toBe(400);
+    });
+
+    it('should reject if current password is incorrect', async () => {
+      const res = await request(app)
+        .patch('/auth/update-password')
+        .set('Authorization', `Bearer ${passwordUser.token}`)
+        .send({ currentPassword: 'Wrong123!', newPassword: 'Newpass123!' });
+
+      expect(res.statusCode).toBe(401);
+    });
+
+    it('should update password successfully', async () => {
+      const res = await request(app)
+        .patch('/auth/update-password')
+        .set('Authorization', `Bearer ${passwordUser.token}`)
+        .send({ currentPassword: 'Test1234!', newPassword: 'NewTest123!' });
+
+      expect(res.statusCode).toBe(200);
+      expect(res.body.message).toMatch(/Password updated successfully/);
+    });
   });
 });
 
