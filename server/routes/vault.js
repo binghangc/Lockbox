@@ -76,7 +76,7 @@ router.get('/vault-card/:tripId', async (req, res) => {
       `const BASE = '${process.env.R2_PUBLIC_DOMAIN_VAULTS}/fallbacks';`,
     )
     .replace(
-      'window.renderStats({',
+      'window.renderStats(/**INJECT_STATS_HERE**/)',
       `window.renderStats(${JSON.stringify(stats)}, undefined);\n//`,
     );
 
