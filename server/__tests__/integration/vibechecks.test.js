@@ -29,6 +29,9 @@ describe('Vibechecks: GET /trips/:id/vibechecks', () => {
           title: 'Test Trip',
           start_date: '2025-07-01',
           end_date: '2025-07-05',
+          country: 'Japan',
+          thumbnail_url:
+            'https://pub-8c0b91be3e2945c88ce582ecb937b8b6.r2.dev/barbenheimer-movie-party.jpeg',
         },
       ])
       .select()
@@ -54,7 +57,7 @@ describe('Vibechecks: GET /trips/:id/vibechecks', () => {
 
   it('should return vibechecks for a trip with minimal fields', async () => {
     const res = await request(app)
-      .get(`/trips/${tripId}/vibechecks`)
+      .get(`/vibechecks/trips/${tripId}/vibechecks`)
       .set('Authorization', `Bearer ${token}`);
 
     expect(res.statusCode).toBe(200);
@@ -68,7 +71,9 @@ describe('Vibechecks: GET /trips/:id/vibechecks', () => {
   });
 
   it('should return 401 if no token is provided', async () => {
-    const res = await request(app).get(`/trips/${tripId}/vibechecks`);
+    const res = await request(app).get(
+      `/vibechecks/trips/${tripId}/vibechecks`,
+    );
     expect(res.statusCode).toBe(401);
   });
 
