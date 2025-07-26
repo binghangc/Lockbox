@@ -2,7 +2,6 @@
  * File contains API routes for authentication using Supabase.
  */
 const express = require('express');
-const { createClient } = require('@supabase/supabase-js');
 
 const supabase = require('../utils/supabaseUserClient.js');
 
@@ -79,58 +78,6 @@ router.post('/login', async (req, res) => {
     session: data.session,
     user: data.user,
   });
-});
-
-// API endpoint for forgot password
-/* router.post('/forgot-password', async (req, res) => {
-  const { email } = req.body;
-  if (!email) {
-    return res.status(400).json({ error: 'Missing email' });
-  }
-
-  try {
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${process.env.EXPO_PUBLIC_REDIRECT_URL}/auth/reset-password`,
-    });
-
-    if (error) {
-      return res.status(400).json({ error: error.message });
-    }
-
-    return res.json({ success: true });
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
-  }
-}); */
-
-// API endpoint for reset password
-router.post('/reset-password', async (req, res) => {
-  const { access_token, new_password } = req.body;
-
-  if (!access_token || !new_password) {
-    return res.status(400).json({ error: 'Missing token or password' });
-  }
-
-  try {
-    const supabaseWithToken = createClient(process.env.SUPABASE_URL, '', {
-      global: {
-        headers: { Authorization: `Bearer ${access_token}` },
-      },
-    });
-
-    const { error } = await supabaseWithToken.auth.updateUser({
-      password: new_password,
-    });
-
-    if (error) {
-      return res.status(400).json({ error: error.message });
-    }
-
-    return res.json({ message: 'Password reset successful' });
-  } catch (err) {
-    console.error('Password reset error:', err);
-    return res.status(500).json({ error: 'Server error' });
-  }
 });
 
 // API endpoint for token exchange

@@ -195,10 +195,6 @@ router.get('/vibecheck/:id/status', async (req, res) => {
 router.get('/vibecheck/:id/orbs', async (req, res) => {
   const { id: vibecheckId } = req.params;
 
-  if (!vibecheckId) {
-    return res.status(400).json({ error: 'Missing vibecheckId' });
-  }
-
   const { data, error } = await supabase
     .from('orbs')
     .select(

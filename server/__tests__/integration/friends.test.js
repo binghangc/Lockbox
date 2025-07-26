@@ -8,6 +8,9 @@ const EMAIL_PREFIXES = [
   'accept_request_test',
   'reject_request_test',
   'remove_test',
+  'search_test_a',
+  'search_test_b',
+  'search_test_c',
 ];
 
 // Get Friends Test
@@ -255,6 +258,82 @@ describe('Friends: Remove Flow', () => {
 
     const stillFriend = res.body.find((f) => f.id === userB.id);
     expect(stillFriend).toBeUndefined();
+  });
+});
+
+describe('Friends: Search Flow', () => {
+  let userA;
+  let userB;
+  let userC;
+
+  beforeAll(async () => {
+    userA = await createTestUser({
+      prefix: 'search_test_a',
+      username: 'alpha',
+    });
+    userB = await createTestUser({
+      prefix: 'search_test_b',
+      username: 'betamax',
+    });
+    userC = await createTestUser({
+      prefix: 'search_test_c',
+      username: 'alphabuddy',
+    });
+
+    // A sends request to B (pending)
+    await request(app)
+      .post('/friends/send-request')
+      .set('Authorization', `Bearer ${userA.token}`)
+      .send({ uid1: userA.id, uid2: userB.id });
+
+    // C sends request to A (incoming)
+    await request(app)
+      .post('/friends/send-request')
+      .set('Authorization', `Bearer ${userC.token}`)
+      .send({ uid1: userC.id, uid2: userA.id });
+  });
+
+  it('should return 400 if no username is provided', async () => {
+    const res = await request(app)
+      .get('/friends/search')
+      .set('Authorization', `Bearer ${userA.token}`);
+    expect(res.statusCode).toBe(400);
+  });
+
+  it('should return matching users with correct status', async () => {
+    const res = await request(app)
+      .get('/friends/search?username=alpha')
+      .set('Authorization', `Bearer ${userA.token}`);
+
+    expect(res.statusCode).toBe(200);
+    expect(Array.isArray(res.body)).toBe(true);
+
+    const foundB = res.body.find((u) => u.id === userB.id);
+    const foundC = res.body.find((u) => u.id === userC.id);
+
+    expect(foundB).toBeUndefined(); // username doesn’t match 'alpha'
+    expect(foundC).toBeDefined();
+    expect(foundC.status).toBe('incoming');
+  });
+
+  it('should show pending status for sent requests', async () => {
+    const res = await request(app)
+      .get('/friends/search?username=betamax')
+      .set('Authorization', `Bearer ${userA.token}`);
+
+    const found = res.body.find((u) => u.id === userB.id);
+    expect(found).toBeDefined();
+    expect(found.status).toBe('pending');
+  });
+
+  it('should return "none" status for unrelated users', async () => {
+    const res = await request(app)
+      .get('/friends/search?username=betamax')
+      .set('Authorization', `Bearer ${userC.token}`); // C has no relation to B
+
+    const found = res.body.find((u) => u.id === userB.id);
+    expect(found).toBeDefined();
+    expect(found.status).toBe('none');
   });
 });
 
