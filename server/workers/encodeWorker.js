@@ -23,11 +23,15 @@ const worker = new Worker(
   async (job) => {
     try {
       const { orbId, sourcePath, hlsKeyPrefix } = job.data;
+      console.log(`[Job Start] Orb ${orbId}`);
+      console.log('→ sourcePath:', sourcePath);
+      console.log('→ hlsKeyPrefix:', hlsKeyPrefix);
 
       const hlsOutputDir = path.join(__dirname, `../../temp/hls/${orbId}`);
       await encodeToHLS(sourcePath, hlsOutputDir, orbId);
 
       const hlsFiles = walkDir(hlsOutputDir);
+      console.log(`[Upload] Uploading ${hlsFiles.length} HLS files to R2...`);
 
       await Promise.all(
         hlsFiles.map((fullPath) => {
