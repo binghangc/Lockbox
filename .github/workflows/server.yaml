@@ -7,6 +7,7 @@ on:
     branches:
       - prod
       - dev
+      - chore/code-coverage
 
 jobs:
   backend:
