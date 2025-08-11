@@ -134,7 +134,7 @@ router.post('/upload', upload.single('video'), async (req, res) => {
       return res.status(500).json({ error: 'Upload or encoding failed' });
     }
   }
-}); // end router.post
+});
 
 // GET /url - Get a pre-signed download URL for a video
 router.get('/url', async (req, res) => {
