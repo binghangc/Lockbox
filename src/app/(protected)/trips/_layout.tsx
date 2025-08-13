@@ -101,6 +101,11 @@ function TripLayoutInner({
     router.push(`/trips/${tripId}/sendInvites`);
   };
 
+  const onVault = () => {
+    modalRef.current?.close();
+    router.push(`/trips/${tripId}/vault`);
+  };
+
   const onDelete = () => {};
   const onLeave = () => {};
 
@@ -197,6 +202,7 @@ function TripLayoutInner({
                     Platform.OS === 'android' ? insets.top + 4 : undefined,
                   fontSize: 18,
                   fontWeight: '600',
+                  color: theme.primaryText,
                 }}
               >
                 Trip Itinerary
@@ -251,6 +257,7 @@ function TripLayoutInner({
                     Platform.OS === 'android' ? insets.top + 4 : undefined,
                   fontSize: 18,
                   fontWeight: '600',
+                  color: theme.primaryText,
                 }}
               >
                 Vault
@@ -274,6 +281,7 @@ function TripLayoutInner({
                     Platform.OS === 'android' ? insets.top + 4 : undefined,
                   fontSize: 18,
                   fontWeight: '600',
+                  color: theme.primaryText,
                 }}
               >
                 Participants
@@ -297,6 +305,7 @@ function TripLayoutInner({
                     Platform.OS === 'android' ? insets.top + 4 : undefined,
                   fontSize: 18,
                   fontWeight: '600',
+                  color: theme.primaryText,
                 }}
               >
                 Invite
@@ -323,6 +332,7 @@ function TripLayoutInner({
         onInvite={onInvite}
         onDelete={onDelete}
         onLeave={onLeave}
+        onVault={onVault}
       />
 
       <InviteFriendsModal ref={inviteModalRef} tripId={tripId} />

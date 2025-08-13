@@ -1,15 +1,8 @@
 import useOrbsByVibecheck from '@/hooks/useOrbsByVibecheck';
-import {
-  View,
-  Text,
-  ViewStyle,
-  ScrollView,
-  Image,
-  TouchableOpacity,
-} from 'react-native';
+import { View, Text, ViewStyle, ScrollView, Image } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { useTripTheme } from '@/context/TripThemeProvider';
-import { VideoView, useVideoPlayer } from 'expo-video';
+import OrbVideoBubble from '@/components/vault/orbVideoBubble';
 
 interface ResponseFeedProps {
   vibecheckId: string;
@@ -176,14 +169,6 @@ interface Orb {
 function OrbRow({ orb }: { orb: Orb }) {
   const theme = useTripTheme();
 
-  console.log('Playing HLS URL:', orb.hlsUrl);
-
-  const player = useVideoPlayer(orb.hlsUrl, (_player) => {
-    console.log('Video player initialized for:', orb.hlsUrl);
-  });
-
-  const BUBBLE_SIZE = 200;
-
   return (
     <View style={{ paddingHorizontal: 20, paddingVertical: 16 }}>
       {/* User info header */}
@@ -238,35 +223,7 @@ function OrbRow({ orb }: { orb: Orb }) {
           marginVertical: 4,
         }}
       >
-        <TouchableOpacity
-          style={{
-            width: BUBBLE_SIZE,
-            height: BUBBLE_SIZE,
-            borderRadius: BUBBLE_SIZE / 2,
-            overflow: 'hidden',
-            backgroundColor: theme.secondaryBackground,
-          }}
-          onPress={() => {
-            // Toggle play/pause on tap
-            if (player.playing) {
-              player.pause();
-            } else {
-              player.play();
-            }
-          }}
-        >
-          <VideoView
-            player={player}
-            style={{
-              width: BUBBLE_SIZE,
-              height: BUBBLE_SIZE,
-            }}
-            allowsPictureInPicture={false}
-            allowsFullscreen={false}
-            nativeControls={false}
-            contentFit="fill"
-          />
-        </TouchableOpacity>
+        <OrbVideoBubble hlsUrl={orb.hlsUrl} size={200} />
       </View>
     </View>
   );
