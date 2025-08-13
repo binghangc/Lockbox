@@ -20,6 +20,7 @@ async function encodeToHLS(inputPath, outputDir) {
       const variantPath = path.join(outputDir, `${variant.name}.m3u8`);
       ffmpeg(inputPath)
         .inputOptions('-f', 'mov')
+        .videoFilter("crop='min(iw,ih)':'min(iw,ih)',setsar=1")
         .videoCodec('libx264')
         .size(variant.resolution)
         .videoBitrate(variant.bitrate)
