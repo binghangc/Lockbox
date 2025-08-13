@@ -11,7 +11,6 @@ jest.mock('./utils/r2client.js', () => {
       Key: 'mocked-key',
     }),
   }));
-  ``;
 
   const getSignedUrlPromise = jest
     .fn()

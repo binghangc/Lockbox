@@ -27,6 +27,7 @@ type TripControllerModalProps = {
 
 export default function TripControllerModal({
   status,
+  isHost,
   isPinned,
   onEdit,
   onItinerary,
