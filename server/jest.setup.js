@@ -1,4 +1,3 @@
-/* global jest */
 require('dotenv').config({ path: '.env.server' });
 
 jest.setTimeout(30000);
@@ -11,7 +10,8 @@ jest.mock('./utils/r2client.js', () => {
       Bucket: 'mocked-bucket',
       Key: 'mocked-key',
     }),
-  }));``
+  }));
+  ``;
 
   const getSignedUrlPromise = jest
     .fn()
