@@ -21,12 +21,12 @@ type TripControllerModalProps = {
   onInvite: () => void;
   onDelete: () => void;
   onLeave: () => void;
+  onVault: () => void;
   triggerRef: React.RefObject<Modalize | null>;
 };
 
 export default function TripControllerModal({
   status,
-  isHost,
   isPinned,
   onEdit,
   onItinerary,
@@ -35,6 +35,7 @@ export default function TripControllerModal({
   onInvite,
   onDelete,
   onLeave,
+  onVault,
   triggerRef,
 }: TripControllerModalProps) {
   const modalRef = useRef<Modalize>(null);
@@ -116,7 +117,7 @@ export default function TripControllerModal({
           label={isPinned ? 'Unpin Trip' : 'Pin Trip'}
           onPress={onPin}
         />
-        {isHost && status === 'upcoming' && (
+        {isHost && status !== 'ended' && (
           <TripControllerItem
             icon={
               <FontAwesome5
@@ -129,6 +130,13 @@ export default function TripControllerModal({
             onPress={onInvite}
           />
         )}
+        <TripControllerItem
+          icon={
+            <Ionicons name="lock-open" size={20} color={theme.primaryIcon} />
+          }
+          label="Open Vault"
+          onPress={onVault}
+        />
         <TripControllerItem
           icon={
             isHost ? (
